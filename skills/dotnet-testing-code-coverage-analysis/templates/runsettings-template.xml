@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!--
+    Coverlet Coverage Configuration Template
+    Used for configuring advanced code coverage options
+
+    Usage:
+    dotnet test --settings coverage.runsettings
+  -->
+
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+
+          <!-- Coverage output format -->
+          <!-- Supported formats: json, lcov, opencover, cobertura, teamcity -->
+          <Format>cobertura,opencover,lcov</Format>
+
+          <!--
+            Exclude specific files or namespaces
+            Use Glob patterns or regular expressions
+          -->
+          <Exclude>
+            <!-- Exclude test projects -->
+            [*.Tests]*
+            [*.Test]*
+
+            <!-- Exclude auto-generated code -->
+            [*]*.Designer
+            [*]*.g.cs
+            [*]*.g.i.cs
+
+            <!-- Exclude specific namespaces -->
+            [*]*.Migrations.*
+            [*]Program
+            [*]Startup
+          </Exclude>
+
+          <!--
+            Explicitly include code to analyze
+            If not set, all code is included by default
+          -->
+          <Include>
+            <!-- Only include main projects -->
+            [MyProject.Core]*
+            [MyProject.Services]*
+          </Include>
+
+          <!-- Exclude specific files -->
+          <ExcludeByFile>
+            <!-- Exclude specific file paths -->
+            <!-- Use Glob patterns -->
+            **/Migrations/**/*.cs
+            **/obj/**/*.cs
+            **/*.Designer.cs
+          </ExcludeByFile>
+
+          <!-- Exclude code marked with specific attributes -->
+          <ExcludeByAttribute>
+            Obsolete
+            GeneratedCode
+            ExcludeFromCodeCoverage
+            CompilerGenerated
+          </ExcludeByAttribute>
+
+          <!--
+            Coverage threshold settings
+            Tests will fail when coverage is below this value
+          -->
+          <Threshold>60</Threshold>
+
+          <!--
+            Threshold type
+            Options: line, branch, method
+          -->
+          <ThresholdType>line,branch</ThresholdType>
+
+          <!--
+            Threshold calculation method
+            Options: total, individual
+            - total: Overall project coverage
+            - individual: Each module must meet threshold
+          -->
+          <ThresholdStat>total</ThresholdStat>
+
+          <!-- Whether to use source link -->
+          <UseSourceLink>true</UseSourceLink>
+
+          <!-- Whether to include test assembly -->
+          <IncludeTestAssembly>false</IncludeTestAssembly>
+
+          <!-- Single hit coverage setting -->
+          <SingleHit>false</SingleHit>
+
+          <!-- Whether to collect coverage after build -->
+          <IncludeDirectory>../</IncludeDirectory>
+
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+
+  <!-- Test execution settings -->
+  <RunConfiguration>
+    <!-- Test results output directory -->
+    <ResultsDirectory>./TestResults</ResultsDirectory>
+
+    <!-- Target platform (x64, x86, ARM) -->
+    <TargetPlatform>x64</TargetPlatform>
+
+    <!-- Target framework -->
+    <TargetFrameworkVersion>net9.0</TargetFrameworkVersion>
+
+    <!-- Test execution timeout (milliseconds) -->
+    <TestSessionTimeout>600000</TestSessionTimeout>
+
+    <!-- Whether to collect execution information -->
+    <CollectSourceInformation>true</CollectSourceInformation>
+  </RunConfiguration>
+
+  <!--
+    MSTest specific settings
+    If using MSTest, configure these options
+  -->
+  <MSTest>
+    <!-- Parallel test execution -->
+    <Parallelize>
+      <Workers>4</Workers>
+      <Scope>MethodLevel</Scope>
+    </Parallelize>
+
+    <!-- Test timeout (milliseconds) -->
+    <TestTimeout>60000</TestTimeout>
+
+    <!-- Whether to retain test results -->
+    <KeepExecutorAliveAfterLegacyRun>false</KeepExecutorAliveAfterLegacyRun>
+  </MSTest>
+
+</RunSettings>

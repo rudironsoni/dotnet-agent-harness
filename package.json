@@ -1,0 +1,61 @@
+{
+  "name": "@kevintsengtw/dotnet-testing-agent-skills",
+  "version": "2.0.0",
+  "description": ".NET Testing Agent Skills - 27 .NET testing skills + 2 overview skills distilled from the Old School Software Engineer's Testing Journey - 30 Day Challenge",
+  "keywords": [
+    ".NET",
+    "testing",
+    "xUnit",
+    "TUnit",
+    "agent-skills",
+    "claude-code",
+    "github-copilot",
+    "testing-best-practices",
+    "AutoFixture",
+    "NSubstitute",
+    "FluentAssertions",
+    "Testcontainers",
+    "integration-testing",
+    "unit-testing"
+  ],
+  "author": "Kevin Tseng",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kevintsengtw/dotnet-testing-agent-skills.git"
+  },
+  "homepage": "https://github.com/kevintsengtw/dotnet-testing-agent-skills#readme",
+  "bugs": {
+    "url": "https://github.com/kevintsengtw/dotnet-testing-agent-skills/issues"
+  },
+  "scripts": {
+    "list": "ls -la skills/",
+    "count": "ls -d skills/*/ | wc -l"
+  },
+  "agentSkills": {
+    "skillsDirectory": "skills",
+    "totalSkills": 29,
+    "categories": {
+      "overview": 2,
+      "fundamentals": 19,
+      "advanced": 8
+    },
+    "skills": [
+      {
+        "name": "dotnet-testing",
+        "type": "overview",
+        "description": "Fundamental Testing Skills Overview (19 sub-skills)",
+        "path": "skills/dotnet-testing"
+      },
+      {
+        "name": "dotnet-testing-advanced",
+        "type": "overview",
+        "description": "Advanced Testing Skills Overview (8 sub-skills)",
+        "path": "skills/dotnet-testing-advanced"
+      }
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+
+    <!-- Optional: Enable AOT support -->
+    <!-- <PublishAot>true</PublishAot> -->
+    <!-- <InvariantGlobalization>true</InvariantGlobalization> -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- TUnit core packages -->
+    <PackageReference Include="TUnit" Version="0.57.24" />
+
+    <!-- Code coverage support -->
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.12.4" />
+
+    <!-- TRX report support -->
+    <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="1.4.3" />
+
+    <!-- Optional: Time testing support -->
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.0.0" />
+  </ItemGroup>
+
+  <!-- Note: Do not install Microsoft.NET.Test.Sdk, TUnit uses new testing platform -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MyApp.Core\MyApp.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Target framework version -->
+    <TargetFramework>net9.0</TargetFramework>
+
+    <!-- Enable implicit using directives, automatically imports common namespaces -->
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Enable nullable reference type checking -->
+    <Nullable>enable</Nullable>
+
+    <!-- Test projects should not be packaged as NuGet packages -->
+    <IsPackable>false</IsPackable>
+
+    <!-- Explicitly marked as test project for test tool recognition -->
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- xUnit core test framework -->
+    <!-- Provides [Fact], [Theory], Assert and other core functionality -->
+    <PackageReference Include="xunit" Version="2.9.3" />
+
+    <!-- xUnit Visual Studio test runner -->
+    <!-- Allows tests to be discovered and executed in Visual Studio, VS Code, Rider and other IDEs -->
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+
+    <!-- .NET Test Platform SDK -->
+    <!-- Supports dotnet test command and test result reporting -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+
+    <!-- Coverlet code coverage collector -->
+    <!-- Integrates with dotnet test --collect to generate coverage reports -->
+    <PackageReference Include="coverlet.collector" Version="6.0.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- Project reference: Test project references the main project to be tested -->
+  <!-- Change the path below to your main project path -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\YourProject.Core\YourProject.Core.csproj" />
+  </ItemGroup>
+
+</Project>

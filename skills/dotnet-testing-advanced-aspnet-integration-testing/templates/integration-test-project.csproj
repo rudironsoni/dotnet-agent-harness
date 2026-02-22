@@ -1,0 +1,81 @@
+<!-- ============================================================================
+     ASP.NET Core Integration Test Project Template
+     ============================================================================
+     Purpose: csproj template for creating integration test projects
+     Usage: Copy this content to project file and adjust package versions as needed
+     ============================================================================ -->
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <!-- ========================================
+       Test framework packages
+       ======================================== -->
+  <ItemGroup>
+    <!-- xUnit test framework -->
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+
+    <!-- .NET Test SDK -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+
+    <!-- Code coverage -->
+    <PackageReference Include="coverlet.collector" Version="6.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- ========================================
+       ASP.NET Core integration test packages
+       ======================================== -->
+  <ItemGroup>
+    <!-- Core integration test package -->
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
+
+    <!-- Entity Framework InMemory database (optional) -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.0" />
+  </ItemGroup>
+
+  <!-- ========================================
+       Assertion and mocking packages
+       ======================================== -->
+  <ItemGroup>
+    <!-- AwesomeAssertions fluent assertions -->
+    <PackageReference Include="AwesomeAssertions" Version="9.1.0" />
+    
+    <!-- AwesomeAssertions.Web HTTP response assertions -->
+    <!-- Important: Must be used with AwesomeAssertions, do not use FluentAssertions.Web -->
+    <PackageReference Include="AwesomeAssertions.Web" Version="1.9.6" />
+
+    <!-- NSubstitute mocking framework (optional, for service stubs) -->
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
+  </ItemGroup>
+
+  <!-- ========================================
+       JSON processing packages
+       ======================================== -->
+  <ItemGroup>
+    <!-- System.Net.Http.Json simplifies HTTP JSON operations -->
+    <PackageReference Include="System.Net.Http.Json" Version="9.0.0" />
+  </ItemGroup>
+
+  <!-- ========================================
+       Project references
+       ======================================== -->
+  <ItemGroup>
+    <!-- Reference the Web application project to be tested -->
+    <ProjectReference Include="..\..\src\YourProject.WebApplication\YourProject.WebApplication.csproj" />
+  </ItemGroup>
+
+</Project>
