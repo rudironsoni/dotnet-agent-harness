@@ -51,8 +51,10 @@ Choose the distribution model based on target audience and deployment constraint
 |----------|-------------|-------------|-----------------|----------|
 | Native AOT single-file | ~10ms | 10-30 MB | None | Performance-critical CLI tools, broad distribution |
 | Framework-dependent single-file | ~100ms | 1-5 MB | .NET runtime | Internal tools where runtime is guaranteed |
-| Self-contained single-file | ~100ms | 60-80 MB | None | Simple distribution without AOT complexity |
+| Self-contained single-file | ~120-200ms | 60-80 MB | None | Simple distribution without AOT complexity |
 | `dotnet tool` (global/local) | ~200ms | < 1 MB (NuGet) | .NET SDK | Developer tools, .NET ecosystem users |
+
+**Note:** Startup timings are approximate for small console apps on modern hardware and vary by workload and environment. Self-contained single-file builds are often slightly slower to start than framework-dependent single-file builds due to larger artifacts and extraction overhead.
 
 ### When to Choose Each Strategy
 

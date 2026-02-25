@@ -33,7 +33,7 @@ case "$FILE_PATH" in
     *.cs)
         # C# source file -- run dotnet format if available
         if command -v dotnet >/dev/null 2>&1; then
-            FORMAT_OUTPUT="$(dotnet format --include "$FILE_PATH" --verbosity quiet 2>&1)" || true
+            dotnet format --include "$FILE_PATH" --verbosity quiet >/dev/null 2>&1 || true
             echo "{\"systemMessage\": \"dotnet format applied to $FILENAME\"}"
         else
             echo "{\"systemMessage\": \"dotnet not found in PATH -- skipping format. Install .NET SDK to enable auto-formatting.\"}"
