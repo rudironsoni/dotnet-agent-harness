@@ -78,6 +78,7 @@ jobs:
 
       - name: Auto-approve fallback PR
         if: steps.commit_plugins.outputs.pr_created == 'true' && steps.token_check.outputs.has_custom_token == 'true'
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
         run: gh pr review --approve "${{ steps.commit_plugins.outputs.pr_url }}"
