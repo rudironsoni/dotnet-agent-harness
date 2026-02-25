@@ -62,6 +62,10 @@ done
 tag_on_head="$(git tag --points-at HEAD --list 'v*' --sort=-v:refname | head -n 1)"
 
 if [[ -n "$tag_on_head" ]]; then
+  if [[ ! "$tag_on_head" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+    fail "Tag on HEAD has invalid semver format: $tag_on_head"
+  fi
+
   next_tag="$tag_on_head"
   previous_tag="$(git tag --list 'v*' --sort=-v:refname | grep -Fxv "$next_tag" | head -n 1 || true)"
 else
@@ -105,6 +109,15 @@ done
 log "Packaging rulesync source bundle"
 RULESYNC_SOURCE_DIR="$TMP_ROOT/rulesync-source"
 mkdir -p "$RULESYNC_SOURCE_DIR"
+
+if [[ ! -d "$REPO_ROOT/.rulesync" ]]; then
+  fail "Missing rulesync directory: $REPO_ROOT/.rulesync"
+fi
+
+if [[ ! -f "$REPO_ROOT/rulesync.jsonc" ]]; then
+  fail "Missing rulesync config file: $REPO_ROOT/rulesync.jsonc"
+fi
+
 cp -R "$REPO_ROOT/.rulesync" "$RULESYNC_SOURCE_DIR/.rulesync"
 cp "$REPO_ROOT/rulesync.jsonc" "$RULESYNC_SOURCE_DIR/rulesync.jsonc"
 
