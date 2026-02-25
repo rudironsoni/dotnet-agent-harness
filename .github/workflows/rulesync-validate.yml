@@ -12,6 +12,8 @@ on:
       - "package-lock.json"
       - ".github/workflows/rulesync-validate.yml"
       - ".github/workflows/rulesync-generate.yml"
+      - ".github/workflows/plugins-sync-pr.yml"
+      - ".github/workflows/sync-plugins-for-pr.yml"
 
 jobs:
   validate:

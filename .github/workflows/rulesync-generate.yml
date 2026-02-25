@@ -1,4 +1,4 @@
-name: Generate And Commit Plugin Bundles
+name: Release Plugin Bundles
 
 on:
   push:
@@ -7,21 +7,23 @@ on:
       - "rulesync.jsonc"
       - ".rulesync/**"
       - "scripts/**"
+      - "plugins/**"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/rulesync-validate.yml"
       - ".github/workflows/rulesync-generate.yml"
+      - ".github/workflows/plugins-sync-pr.yml"
+      - ".github/workflows/sync-plugins-for-pr.yml"
 
 concurrency:
-  group: plugin-bundles-main
+  group: plugins-release-main
   cancel-in-progress: false
 
 jobs:
-  generate-and-commit:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,57 +42,23 @@ jobs:
         run: bash scripts/ci/validate_rulesync.sh
 
       - name: Build plugin and manual bundles
-        run: bash scripts/build/build_plugin_bundles.sh
+        run: bash scripts/build/build_plugin_bundles.sh --output-dir .tmp/plugins
 
       - name: Validate generated bundles
-        run: bash scripts/ci/validate_bundles.sh
+        run: bash scripts/ci/validate_bundles.sh --plugins-dir .tmp/plugins
 
       - name: Smoke install and runtime checks
-        run: bash scripts/ci/smoke_install.sh
+        run: bash scripts/ci/smoke_install.sh --plugins-dir .tmp/plugins
 
-      - name: Commit plugin bundles
-        id: commit_plugins
-        env:
-          GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
-        run: bash scripts/cd/commit_plugins.sh
-
-      - name: Show fallback PR
-        if: steps.commit_plugins.outputs.pr_url != ''
+      - name: Verify committed plugins are up to date
         run: |
-          echo "Created fallback plugin-bundle PR or compare URL: ${{ steps.commit_plugins.outputs.pr_url }}"
-
-      - name: Detect custom automation token
-        id: token_check
-        env:
-          CUSTOM_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN }}
-        run: |
-          if [[ -n "$CUSTOM_TOKEN" ]]; then
-            echo "has_custom_token=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_custom_token=false" >> "$GITHUB_OUTPUT"
+          if ! diff -qr plugins .tmp/plugins >/dev/null; then
+            echo "Committed plugins/* is stale compared to generated output."
+            diff -qr plugins .tmp/plugins || true
+            exit 1
           fi
 
-      - name: Warn when custom token is missing
-        if: steps.commit_plugins.outputs.pr_created == 'true' && steps.token_check.outputs.has_custom_token != 'true'
-        run: |
-          echo "Fallback PR was created, but DOTNET_HARNESS_TOOLKIT_GH_TOKEN is not configured."
-          echo "Skipping auto-approve and auto-merge because github.token cannot approve PRs."
-
-      - name: Auto-approve fallback PR
-        if: steps.commit_plugins.outputs.pr_created == 'true' && steps.token_check.outputs.has_custom_token == 'true'
-        continue-on-error: true
+      - name: Create semver release and upload assets
         env:
           GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
-        run: gh pr review --approve "${{ steps.commit_plugins.outputs.pr_url }}"
-
-      - name: Enable rebase auto-merge for fallback PR
-        if: steps.commit_plugins.outputs.pr_created == 'true' && steps.token_check.outputs.has_custom_token == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
-        run: gh pr merge --auto --rebase "${{ steps.commit_plugins.outputs.pr_url }}"
-
-      - name: Tag and release plugin bundles
-        if: steps.commit_plugins.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
-        run: bash scripts/cd/tag_and_release_plugins.sh "${{ steps.commit_plugins.outputs.commit_sha }}"
+        run: bash scripts/cd/release_plugins.sh --plugins-dir .tmp/plugins --output-dir .tmp/release-assets

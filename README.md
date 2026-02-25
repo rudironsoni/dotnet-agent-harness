@@ -123,10 +123,18 @@ GitHub workflows validate and package RuleSync outputs:
   - Validates RuleSync generation in an isolated workspace
   - Builds bundles with bash-only scripts
   - Validates manifests and runs install/runtime smoke checks
+- `.github/workflows/plugins-sync-pr.yml`
+  - Runs on every PR
+  - Regenerates full `plugins/**` from source-of-truth
+  - Auto-commits regenerated plugins for same-repo PR branches
+  - Fails fork PRs with maintainer action to run manual sync workflow
+- `.github/workflows/sync-plugins-for-pr.yml`
+  - Maintainer-triggered manual sync for fork PRs
+  - Regenerates full plugins for a target PR number and pushes when permitted
 - `.github/workflows/rulesync-generate.yml`
-  - Runs on merge/push to `main`
-  - Rebuilds and validates bundles
-  - Commits only `plugins/**` back to the repository
+  - Runs on push to `main`
+  - Verifies committed `plugins/**` matches generated output
+  - Publishes a single semver release (`vX.Y.Z`) with per-agent plugin assets and release notes
 
 ## Attribution
 

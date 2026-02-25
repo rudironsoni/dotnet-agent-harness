@@ -113,7 +113,7 @@ build_claudecode_bundle() {
     jq -n '{ hooks: {} }' > "$bundle_dir/hooks/hooks.json"
   fi
 
-  cat > "$bundle_dir/INSTALL.md" <<'EOF'
+  cat > "$bundle_dir/README.md" <<'EOF'
 # Claude Code Plugin Install
 
 ```bash
@@ -155,7 +155,7 @@ build_copilot_bundle() {
   copy_dir_if_exists "$WORK_DIR/.github/skills" "$bundle_dir/skills"
   copy_file_if_exists "$WORK_DIR/.vscode/mcp.json" "$bundle_dir/.mcp.json"
 
-  cat > "$bundle_dir/INSTALL.md" <<'EOF'
+  cat > "$bundle_dir/README.md" <<'EOF'
 # Copilot CLI Plugin Install
 
 ```bash
@@ -191,7 +191,7 @@ build_geminicli_bundle() {
   copy_dir_if_exists "$WORK_DIR/.gemini/skills" "$bundle_dir/.gemini/skills"
   copy_dir_if_exists "$WORK_DIR/.gemini/agents" "$bundle_dir/.gemini/agents"
 
-  cat > "$bundle_dir/INSTALL.md" <<'EOF'
+  cat > "$bundle_dir/README.md" <<'EOF'
 # Gemini CLI Extension Install
 
 ```bash
@@ -223,7 +223,7 @@ build_opencode_bundle() {
   copy_dir_if_exists "$WORK_DIR/.opencode/skill" "$bundle_dir/.opencode/skill"
   copy_dir_if_exists "$WORK_DIR/.opencode/plugins" "$bundle_dir/.opencode/plugins"
 
-  cat > "$bundle_dir/INSTALL.md" <<'EOF'
+  cat > "$bundle_dir/README.md" <<'EOF'
 # OpenCode Plugin Install
 
 ```bash
@@ -257,7 +257,7 @@ build_codex_manual_bundle() {
   copy_dir_if_exists "$WORK_DIR/.codex/agents" "$bundle_dir/workspace/.codex/agents"
   copy_dir_if_exists "$GLOBAL_HOME/.codex/prompts" "$bundle_dir/global/.codex/prompts"
 
-  cat > "$bundle_dir/INSTALL.md" <<'EOF'
+  cat > "$bundle_dir/README.md" <<'EOF'
 # Codex CLI Manual Install
 
 ```bash
@@ -294,7 +294,7 @@ build_antigravity_manual_bundle() {
   copy_dir_if_exists "$WORK_DIR/.agent/skills" "$bundle_dir/workspace/.agent/skills"
   copy_dir_if_exists "$antigravity_global_skills_source" "$bundle_dir/global/.gemini/antigravity/skills"
 
-  cat > "$bundle_dir/INSTALL.md" <<'EOF'
+  cat > "$bundle_dir/README.md" <<'EOF'
 # Antigravity Manual Install
 
 ```bash

@@ -1,0 +1,122 @@
+name: Sync Plugins For PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to sync plugins for
+        required: true
+        type: string
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Resolve PR metadata
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          pr_json="$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state,url,headRefName,headRepository,isCrossRepository,maintainerCanModify)"
+
+          pr_state="$(jq -r '.state' <<<"$pr_json")"
+          if [[ "$pr_state" != "OPEN" ]]; then
+            echo "PR #$PR_NUMBER is not open (state=$pr_state)."
+            exit 1
+          fi
+
+          head_repo="$(jq -r '.headRepository.nameWithOwner' <<<"$pr_json")"
+          head_ref="$(jq -r '.headRefName' <<<"$pr_json")"
+          is_cross_repo="$(jq -r '.isCrossRepository' <<<"$pr_json")"
+          maintainer_can_modify="$(jq -r '.maintainerCanModify' <<<"$pr_json")"
+          pr_url="$(jq -r '.url' <<<"$pr_json")"
+
+          {
+            echo "head_repo=$head_repo"
+            echo "head_ref=$head_ref"
+            echo "is_cross_repo=$is_cross_repo"
+            echo "maintainer_can_modify=$maintainer_can_modify"
+            echo "pr_url=$pr_url"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Checkout PR head branch
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.pr.outputs.head_repo }}
+          ref: ${{ steps.pr.outputs.head_ref }}
+          fetch-depth: 0
+          token: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Regenerate full plugin bundles
+        run: bash scripts/build/build_plugin_bundles.sh
+
+      - name: Validate generated bundles
+        run: bash scripts/ci/validate_bundles.sh
+
+      - name: Smoke install and runtime checks
+        run: bash scripts/ci/smoke_install.sh
+
+      - name: Detect plugin changes
+        id: plugin_changes
+        run: |
+          if git diff --quiet -- plugins; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit regenerated plugins
+        if: steps.plugin_changes.outputs.changed == 'true'
+        run: |
+          git add plugins
+          GIT_AUTHOR_NAME="github-actions[bot]" \
+          GIT_AUTHOR_EMAIL="41898282+github-actions[bot]@users.noreply.github.com" \
+          GIT_COMMITTER_NAME="github-actions[bot]" \
+          GIT_COMMITTER_EMAIL="41898282+github-actions[bot]@users.noreply.github.com" \
+          git commit -m "chore(plugins): regenerate bundles [ci-generated-plugins]"
+
+      - name: Push plugin commit to PR branch
+        if: steps.plugin_changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
+        run: |
+          if [[ "${{ steps.pr.outputs.is_cross_repo }}" == "true" && "${{ steps.pr.outputs.maintainer_can_modify }}" != "true" ]]; then
+            echo "Fork PR does not allow maintainer edits; cannot push generated plugins."
+            exit 1
+          fi
+
+          if [[ "${{ steps.pr.outputs.is_cross_repo }}" == "true" ]]; then
+            git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ steps.pr.outputs.head_repo }}.git"
+          fi
+
+          git push origin "HEAD:${{ steps.pr.outputs.head_ref }}"
+
+      - name: Comment PR sync result
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
+        run: |
+          if [[ "${{ steps.plugin_changes.outputs.changed }}" == "true" && "${{ job.status }}" == "success" ]]; then
+            gh pr comment "${{ inputs.pr_number }}" --repo "$GITHUB_REPOSITORY" --body "Plugin bundles were regenerated and committed by workflow dispatch."
+            exit 0
+          fi
+
+          if [[ "${{ steps.plugin_changes.outputs.changed }}" == "false" ]]; then
+            gh pr comment "${{ inputs.pr_number }}" --repo "$GITHUB_REPOSITORY" --body "Plugin bundles were already up to date."
+            exit 0
+          fi
+
+          gh pr comment "${{ inputs.pr_number }}" --repo "$GITHUB_REPOSITORY" --body "Plugin sync workflow ran but could not push generated plugins automatically. Please sync the branch manually and re-run checks." || true
