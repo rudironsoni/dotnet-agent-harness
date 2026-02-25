@@ -4,13 +4,13 @@ description: Enables nullable reference types. Annotation strategies, migration,
 license: MIT
 user-invocable: false
 targets: ["*"]
-tags: ["csharp", "core", "nullable", "nullability", "reference-types", "NRT"]
+tags: ["csharp", "dotnet", "skill"]
 version: "0.0.1"
 author: "dotnet-artisan"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
-  short-description: "Nullable reference type patterns"
+  short-description: ".NET skill guidance for csharp tasks"
 opencode:
   mode: "skill"
   version: "1.0.0"

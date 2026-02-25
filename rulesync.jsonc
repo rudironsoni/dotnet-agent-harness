@@ -1,37 +1,20 @@
 {
   "$schema": "https://raw.githubusercontent.com/dyoshikawa/rulesync/refs/heads/main/config-schema.json",
-  "project": {
-    "name": "dotnet-artisan",
-    "description": "Comprehensive .NET development skills for all AI agents"
+  "targets": ["claudecode", "copilot", "opencode", "geminicli", "codexcli"],
+  "features": {
+    "claudecode": ["rules", "ignore", "mcp", "commands", "subagents", "skills", "hooks"],
+    "copilot": ["rules", "ignore", "mcp", "commands", "subagents", "skills"],
+    "opencode": ["rules", "ignore", "mcp", "commands", "subagents", "skills", "hooks"],
+    "geminicli": ["rules", "ignore", "mcp", "commands", "subagents", "skills", "hooks"],
+    "codexcli": ["rules", "ignore", "mcp", "commands", "subagents", "skills"]
   },
-  "rules": {
-    "baseDir": "./.rulesync/rules",
-    "delete": false
-  },
-  "targets": {
-    "claudecode": {
-      "features": ["rules", "mcp", "commands", "subagents", "skills", "hooks"],
-      "output": { "rules": "./CLAUDE.md" }
-    },
-    "copilot": {
-      "features": ["rules", "skills", "subagents"],
-      "output": { "rules": "./.github/copilot-instructions.md" }
-    },
-    "opencode": {
-      "features": ["rules", "mcp", "commands", "subagents", "skills"],
-      "output": { "rules": "./opencode.json" }
-    },
-    "geminicli": {
-      "features": ["rules", "skills", "subagents", "hooks"],
-      "output": { "rules": "./.gemini/config.json" }
-    },
-    "codexcli": {
-      "features": ["rules", "mcp", "skills", "subagents"],
-      "output": { "rules": "./.codex/config.json" }
-    }
-  },
+  "baseDirs": ["."],
+  "delete": true,
+  "verbose": false,
   "sources": [
-    // Future: Fetch from upstream when novotnyllc adopts RuleSync
-    // { "source": "novotnyllc/dotnet-artisan", "path": "skills" }
+    // Declarative source example (disabled until upstream exposes RuleSync-ready skills)
+    // { "source": "novotnyllc/dotnet-artisan" },
+    // { "source": "anthropics/skills", "skills": ["skill-creator"] },
+    // { "source": "owner/repo@v1.0.0:path/to/skills" }
   ]
 }

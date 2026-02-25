@@ -1,16 +1,16 @@
 ---
 name: dotnet-advisor
 description: Routes .NET/C# work to domain skills. Loads coding-standards for code paths.
-license: MIT
 user-invocable: true
+license: MIT
 targets: ["*"]
-tags: ["foundation", "routing", "advisor", "index"]
+tags: ["foundation", "dotnet", "skill"]
 version: "0.0.1"
 author: "dotnet-artisan"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
-  short-description: "Router and index for all .NET development work"
+  short-description: ".NET skill guidance for foundation tasks"
 opencode:
   mode: "skill"
   version: "1.0.0"

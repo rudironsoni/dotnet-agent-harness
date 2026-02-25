@@ -1,9 +1,19 @@
 ---
-id: dotnet-testing-strategy
-title: .NET Testing Strategy
+name: dotnet-testing-strategy
 description: Decides how to test .NET code. Unit vs integration vs E2E decision tree, test doubles.
-tags: ["testing", "dotnet", "unit-testing", "integration-testing", "e2e-testing", "test-doubles", "xunit"]
-source: dotnet-artisan
+license: MIT
+user-invocable: false
+targets: ["*"]
+tags: ["testing", "dotnet", "skill"]
+version: "0.0.1"
+author: "dotnet-artisan"
+claudecode:
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+codexcli:
+  short-description: ".NET skill guidance for testing tasks"
+opencode:
+  mode: "skill"
+  version: "1.0.0"
 ---
 
 # dotnet-testing-strategy

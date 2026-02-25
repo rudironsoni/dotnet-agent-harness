@@ -4,13 +4,13 @@ description: Detects C# code smells during review. Anti-patterns, async misuse, 
 license: MIT
 user-invocable: false
 targets: ["*"]
-tags: ["csharp", "core", "code-smells", "anti-patterns", "review", "quality"]
+tags: ["csharp", "dotnet", "skill"]
 version: "0.0.1"
 author: "dotnet-artisan"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
-  short-description: "C# code smell detection"
+  short-description: ".NET skill guidance for csharp tasks"
 opencode:
   mode: "skill"
   version: "1.0.0"

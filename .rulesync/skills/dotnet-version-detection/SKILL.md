@@ -3,19 +3,23 @@ name: dotnet-version-detection
 description: Detects TFM/SDK from .csproj, global.json, Directory.Build.props. Runs first.
 license: MIT
 user-invocable: false
+context: fork
+model: haiku
 targets: ["*"]
-tags: ["foundation", "version", "detection", "tfm", "sdk"]
+tags: ["csharp", "dotnet", "skill"]
 version: "0.0.1"
 author: "dotnet-artisan"
 claudecode:
-  model: haiku
-  allowed-tools: ["Read", "Grep", "Glob", "Bash"]
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
-  short-description: "Detect .NET version from project files"
+  short-description: ".NET skill guidance for csharp tasks"
 opencode:
   mode: "skill"
   version: "1.0.0"
 ---
+
+```! dotnet --version 2>/dev/null
+```
 
 # dotnet-version-detection
 
@@ -37,6 +41,18 @@ Cross-cutting skill referenced by [skill:dotnet-advisor] and virtually all speci
 - .NET 10 file-based apps without .csproj -- see [skill:dotnet-file-based-apps]
 - Framework upgrade migration steps -- see [skill:dotnet-version-upgrade]
 - Multi-targeting polyfills and conditional compilation -- see [skill:dotnet-multi-targeting]
+
+---
+
+## Fast Repository Scan (Optional)
+
+For large repos, run the bundled scanner first to quickly inventory TFM/SDK signals before applying the precedence algorithm below:
+
+```bash
+python3 skills/dotnet-version-detection/scripts/scan-dotnet-targets.py --root . --json
+```
+
+Use the script output (`project_target_frameworks`, `global_json.sdk_version`, `workflow_dotnet_versions`) as discovery input. The precedence rules below remain authoritative for final TFM selection.
 
 ---
 

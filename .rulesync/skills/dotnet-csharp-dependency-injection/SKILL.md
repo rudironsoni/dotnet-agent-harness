@@ -4,13 +4,13 @@ description: Registers and resolves services with MS DI. Keyed services, scopes,
 license: MIT
 user-invocable: false
 targets: ["*"]
-tags: ["csharp", "core", "dependency-injection", "DI", "services", "lifetimes"]
+tags: ["csharp", "dotnet", "skill"]
 version: "0.0.1"
 author: "dotnet-artisan"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
-  short-description: "Microsoft.Extensions.DependencyInjection patterns"
+  short-description: ".NET skill guidance for csharp tasks"
 opencode:
   mode: "skill"
   version: "1.0.0"

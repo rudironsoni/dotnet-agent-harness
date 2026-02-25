@@ -4,13 +4,13 @@ description: Writing async/await code. Task patterns, ConfigureAwait, cancellati
 license: MIT
 user-invocable: false
 targets: ["*"]
-tags: ["csharp", "core", "async", "task", "cancellation", "patterns"]
+tags: ["csharp", "dotnet", "skill"]
 version: "0.0.1"
 author: "dotnet-artisan"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
-  short-description: "Async/await patterns and best practices"
+  short-description: ".NET skill guidance for csharp tasks"
 opencode:
   mode: "skill"
   version: "1.0.0"

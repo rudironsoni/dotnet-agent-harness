@@ -4,14 +4,13 @@ description: Builds .NET 10 file-based C# apps. Directives, CLI commands, csproj
 license: MIT
 user-invocable: false
 targets: ["*"]
-tags: ["foundation", "dotnet", "file-based-apps"]
+tags: ["foundation", "dotnet", "skill"]
 version: "0.0.1"
 author: "dotnet-artisan"
 claudecode:
-  model: haiku
-  allowed-tools: ["Read", "Grep", "Glob", "Bash"]
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
-  short-description: "Builds .NET 10 file-based C# apps with directives"
+  short-description: ".NET skill guidance for foundation tasks"
 opencode:
   mode: "skill"
   version: "1.0.0"

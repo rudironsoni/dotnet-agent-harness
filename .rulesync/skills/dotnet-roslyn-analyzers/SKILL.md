@@ -4,13 +4,13 @@ description: Authors Roslyn analyzers. DiagnosticAnalyzer, CodeFixProvider, Code
 license: MIT
 user-invocable: false
 targets: ["*"]
-tags: ["csharp", "core", "roslyn", "analyzers", "diagnostics", "code-fix"]
+tags: ["csharp", "dotnet", "skill"]
 version: "0.0.1"
 author: "dotnet-artisan"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
-  short-description: "Roslyn analyzer authoring"
+  short-description: ".NET skill guidance for csharp tasks"
 opencode:
   mode: "skill"
   version: "1.0.0"

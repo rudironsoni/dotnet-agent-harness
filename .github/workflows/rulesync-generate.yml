@@ -1,0 +1,41 @@
+name: RuleSync Generate
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "rulesync.jsonc"
+      - ".rulesync/**"
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install declarative sources
+        run: npx rulesync install
+
+      - name: Generate target files
+        run: npx rulesync generate
+
+      - name: Commit generated files
+        run: |
+          if git diff --quiet; then
+            echo "No generated changes"
+            exit 0
+          fi
+          git add -A
+          git commit -m "chore: regenerate agent configs"
+          git push

@@ -4,13 +4,13 @@ description: Using records, pattern matching, primary constructors, collection e
 license: MIT
 user-invocable: false
 targets: ["*"]
-tags: ["csharp", "core", "modern-patterns", "records", "pattern-matching", "primary-constructors", "collection-expressions"]
+tags: ["csharp", "dotnet", "skill"]
 version: "0.0.1"
 author: "dotnet-artisan"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
-  short-description: "Modern C# language features and patterns"
+  short-description: ".NET skill guidance for csharp tasks"
 opencode:
   mode: "skill"
   version: "1.0.0"

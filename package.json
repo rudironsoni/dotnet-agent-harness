@@ -6,7 +6,7 @@
     "rulesync:init": "rulesync init",
     "rulesync:generate": "rulesync generate",
     "rulesync:watch": "rulesync watch",
-    "rulesync:validate": "rulesync validate",
+    "rulesync:validate": "rulesync generate --check",
     "rulesync:install": "rulesync install"
   },
   "devDependencies": {

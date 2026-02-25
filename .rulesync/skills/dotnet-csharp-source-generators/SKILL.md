@@ -4,13 +4,13 @@ description: Creates Roslyn source generators. IIncrementalGenerator, GeneratedR
 license: MIT
 user-invocable: false
 targets: ["*"]
-tags: ["csharp", "core", "source-generators", "roslyn", "codegen", "IIncrementalGenerator"]
+tags: ["csharp", "dotnet", "skill"]
 version: "0.0.1"
 author: "dotnet-artisan"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
-  short-description: "Roslyn source generators"
+  short-description: ".NET skill guidance for csharp tasks"
 opencode:
   mode: "skill"
   version: "1.0.0"

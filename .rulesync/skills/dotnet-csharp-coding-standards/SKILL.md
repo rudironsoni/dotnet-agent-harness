@@ -4,13 +4,13 @@ description: Defines baseline C# conventions loaded first -- naming, file layout
 license: MIT
 user-invocable: false
 targets: ["*"]
-tags: ["csharp", "core", "coding-standards", "naming", "conventions", "style"]
+tags: ["csharp", "dotnet", "skill"]
 version: "0.0.1"
 author: "dotnet-artisan"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
-  short-description: "C# naming and coding conventions"
+  short-description: ".NET skill guidance for csharp tasks"
 opencode:
   mode: "skill"
   version: "1.0.0"

@@ -3,15 +3,16 @@ name: dotnet-project-analysis
 description: Analyzes .NET solution layout and build config -- .sln, .csproj, CPM.
 license: MIT
 user-invocable: false
+context: fork
+model: haiku
 targets: ["*"]
-tags: ["foundation", "dotnet", "project-analysis"]
+tags: ["foundation", "dotnet", "skill"]
 version: "0.0.1"
 author: "dotnet-artisan"
 claudecode:
-  model: haiku
-  allowed-tools: ["Read", "Grep", "Glob", "Bash"]
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
-  short-description: "Analyzes .NET solution layout and build configuration"
+  short-description: ".NET skill guidance for foundation tasks"
 opencode:
   mode: "skill"
   version: "1.0.0"
@@ -51,9 +52,9 @@ The traditional MSBuild solution format. Contains project paths and build config
 
 ```
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyApp", "src/MyApp/MyApp.csproj", "{GUID}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyApp", "src\MyApp\MyApp.csproj", "{GUID}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyApp.Tests", "tests/MyApp.Tests/MyApp.Tests.csproj", "{GUID}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyApp.Tests", "tests\MyApp.Tests\MyApp.Tests.csproj", "{GUID}"
 EndProject
 ```
 
@@ -147,8 +148,8 @@ Read `<ProjectReference>` elements from each `.csproj` to build the dependency g
 
 ```xml
 <ItemGroup>
-  <ProjectReference Include="../MyApp.Core/MyApp.Core.csproj" />
-  <ProjectReference Include="../MyApp.Infrastructure/MyApp.Infrastructure.csproj" />
+  <ProjectReference Include="..\MyApp.Core\MyApp.Core.csproj" />
+  <ProjectReference Include="..\MyApp.Infrastructure\MyApp.Infrastructure.csproj" />
 </ItemGroup>
 ```
 
@@ -374,7 +375,7 @@ If `.csproj` files exist that are not referenced by any solution file, report th
 ### Conditional ProjectReferences
 If `<ProjectReference>` is inside a `<When>` or has a `Condition` attribute:
 ```xml
-<ProjectReference Include="../MyApp.DevTools/MyApp.DevTools.csproj"
+<ProjectReference Include="..\MyApp.DevTools\MyApp.DevTools.csproj"
                   Condition="'$(Configuration)' == 'Debug'" />
 ```
 Report: "Conditional reference to MyApp.DevTools (Debug only)."
