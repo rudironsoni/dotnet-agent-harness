@@ -1,9 +1,17 @@
-name: RuleSync Validate
+name: Validate RuleSync And Bundles
 
 on:
-  push:
-    branches: ["**"]
   pull_request:
+  push:
+    branches: ["main"]
+    paths:
+      - "rulesync.jsonc"
+      - ".rulesync/**"
+      - "scripts/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/rulesync-validate.yml"
+      - ".github/workflows/rulesync-generate.yml"
 
 jobs:
   validate:
@@ -20,11 +28,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Validate RuleSync config (dry run)
-        run: npx rulesync generate --dry-run
+      - name: Validate RuleSync generation
+        run: bash scripts/ci/validate_rulesync.sh
 
-      - name: Install declarative sources
-        run: npx rulesync install --frozen || npx rulesync install
+      - name: Build plugin and manual bundles
+        run: bash scripts/build/build_plugin_bundles.sh --output-dir .tmp/plugins
 
-      - name: Generate target files
-        run: npx rulesync generate
+      - name: Validate generated bundles
+        run: bash scripts/ci/validate_bundles.sh --plugins-dir .tmp/plugins
+
+      - name: Smoke install and runtime checks
+        run: bash scripts/ci/smoke_install.sh --plugins-dir .tmp/plugins

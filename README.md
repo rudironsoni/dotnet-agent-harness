@@ -14,10 +14,18 @@ This repository solves that by using **RuleSync** as the source of truth.
 
 ## Goals
 
-- Make .NET guidance reusable across Claude Code, OpenCode, Codex CLI, Gemini CLI, and GitHub Copilot CLI
+- Make .NET guidance reusable across Claude Code, OpenCode, Codex CLI, Gemini CLI, GitHub Copilot CLI, and Antigravity
 - Keep frontmatter and metadata interoperable across agent ecosystems
 - Provide a strong .NET default workflow with onboarding and routing
 - Preserve and evolve the dotnet-harness-toolkit knowledge base in a portable format
+
+## Distribution modes
+
+- Plugin/extension bundles: `claudecode`, `copilot`, `geminicli`, `opencode`
+- Manual bundles: `codexcli`, `antigravity`
+- CD writes all distributables to `plugins/{agent}` on merges to `main`
+
+See `docs/install.md` for install commands per target.
 
 ## What is in this repo
 
@@ -41,7 +49,16 @@ This repository solves that by using **RuleSync** as the source of truth.
 
 ### Generated outputs
 
-RuleSync generates tool-specific files from the source above (for example `.claude/*`, `.github/*`, `.codex/*`, `.gemini/*`, `opencode.json`, and related files).
+RuleSync generates tool-specific files from the source above (for example `.claude/*`, `.github/*`, `.codex/*`, `.gemini/*`, `.agent/*`, `opencode.json`, and related files).
+
+CD then packages these generated outputs into distributable bundles under `plugins/`:
+
+- `plugins/claudecode`
+- `plugins/copilot`
+- `plugins/geminicli`
+- `plugins/opencode`
+- `plugins/codexcli`
+- `plugins/antigravity`
 
 ## How to use RuleSync in this repo
 
@@ -63,19 +80,19 @@ npx rulesync install
 npx rulesync generate
 ```
 
-### 4) Validate generated state in CI/local
+### 4) Run full local validation
 
 ```bash
-npx rulesync generate --check
+npm run ci:rulesync
+npm run ci:bundles
 ```
 
 ## Contributor workflow
 
-1. Edit only `.rulesync/*` and `rulesync.jsonc`
-2. Run `npx rulesync install` (if using `sources`)
-3. Run `npx rulesync generate`
-4. Run `npx rulesync generate --check`
-5. Commit source and generated changes together
+1. Edit only `.rulesync/*`, `rulesync.jsonc`, and bash automation under `scripts/`
+2. Run `npm run ci:rulesync`
+3. Run `npm run ci:bundles`
+4. Commit source changes (plugin bundles are committed by CD on `main`)
 
 ## Declarative sources
 
@@ -98,12 +115,18 @@ Use this when you want to import skills from upstream repos without manual copyi
   - `dotnet-version-detection`
   - `dotnet-project-analysis`
 
-## CI
+## CI/CD
 
-GitHub workflows validate and regenerate RuleSync outputs:
+GitHub workflows validate and package RuleSync outputs:
 
 - `.github/workflows/rulesync-validate.yml`
+  - Validates RuleSync generation in an isolated workspace
+  - Builds bundles with bash-only scripts
+  - Validates manifests and runs install/runtime smoke checks
 - `.github/workflows/rulesync-generate.yml`
+  - Runs on merge/push to `main`
+  - Rebuilds and validates bundles
+  - Commits only `plugins/**` back to the repository
 
 ## Attribution
 

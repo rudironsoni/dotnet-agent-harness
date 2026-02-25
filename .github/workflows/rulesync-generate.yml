@@ -1,4 +1,4 @@
-name: RuleSync Generate
+name: Generate And Commit Plugin Bundles
 
 on:
   push:
@@ -6,9 +6,18 @@ on:
     paths:
       - "rulesync.jsonc"
       - ".rulesync/**"
+      - "scripts/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/rulesync-validate.yml"
+      - ".github/workflows/rulesync-generate.yml"
+
+concurrency:
+  group: plugin-bundles-main
+  cancel-in-progress: false
 
 jobs:
-  generate:
+  generate-and-commit:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -24,20 +33,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install declarative sources
-        run: npx rulesync install
+      - name: Validate RuleSync generation
+        run: bash scripts/ci/validate_rulesync.sh
 
-      - name: Generate target files
-        run: npx rulesync generate
+      - name: Build plugin and manual bundles
+        run: bash scripts/build/build_plugin_bundles.sh
 
-      - name: Commit generated files
-        run: |
-          if git diff --quiet; then
-            echo "No generated changes"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "chore: regenerate agent configs"
-          git push
+      - name: Validate generated bundles
+        run: bash scripts/ci/validate_bundles.sh
+
+      - name: Smoke install and runtime checks
+        run: bash scripts/ci/smoke_install.sh
+
+      - name: Commit plugin bundles
+        run: bash scripts/cd/commit_plugins.sh
