@@ -1,0 +1,16 @@
+{
+  "name": "dotnet-artisan",
+  "version": "0.0.1",
+  "description": "Comprehensive .NET development skills for all AI agents",
+  "scripts": {
+    "rulesync:init": "rulesync init",
+    "rulesync:generate": "rulesync generate",
+    "rulesync:watch": "rulesync watch",
+    "rulesync:validate": "rulesync validate",
+    "rulesync:install": "rulesync install"
+  },
+  "devDependencies": {
+    "rulesync": "^7.6.3"
+  },
+  "license": "MIT"
+}

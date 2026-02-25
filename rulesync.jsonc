@@ -1,0 +1,37 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dyoshikawa/rulesync/refs/heads/main/config-schema.json",
+  "project": {
+    "name": "dotnet-artisan",
+    "description": "Comprehensive .NET development skills for all AI agents"
+  },
+  "rules": {
+    "baseDir": "./.rulesync/rules",
+    "delete": false
+  },
+  "targets": {
+    "claudecode": {
+      "features": ["rules", "mcp", "commands", "subagents", "skills", "hooks"],
+      "output": { "rules": "./CLAUDE.md" }
+    },
+    "copilot": {
+      "features": ["rules", "skills", "subagents"],
+      "output": { "rules": "./.github/copilot-instructions.md" }
+    },
+    "opencode": {
+      "features": ["rules", "mcp", "commands", "subagents", "skills"],
+      "output": { "rules": "./opencode.json" }
+    },
+    "geminicli": {
+      "features": ["rules", "skills", "subagents", "hooks"],
+      "output": { "rules": "./.gemini/config.json" }
+    },
+    "codexcli": {
+      "features": ["rules", "mcp", "skills", "subagents"],
+      "output": { "rules": "./.codex/config.json" }
+    }
+  },
+  "sources": [
+    // Future: Fetch from upstream when novotnyllc adopts RuleSync
+    // { "source": "novotnyllc/dotnet-artisan", "path": "skills" }
+  ]
+}
