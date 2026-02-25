@@ -23,7 +23,8 @@ done
 TMP_ROOT="$(mktemp -d)"
 
 cleanup() {
-  rm -rf "$TMP_ROOT"
+  cd "$REPO_ROOT" || true
+  rm -rf "$TMP_ROOT" || true
 }
 trap cleanup EXIT
 
