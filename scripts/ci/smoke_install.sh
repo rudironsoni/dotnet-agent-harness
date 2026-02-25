@@ -31,7 +31,9 @@ log "Smoke test: Claude plugin install"
 CLAUDE_HOME="$TMP_ROOT/claude-home"
 mkdir -p "$CLAUDE_HOME"
 
-HOME="$CLAUDE_HOME" run_claude plugin marketplace add "$PLUGINS_DIR/claudecode"
+CLAUDE_MARKETPLACE_PATH="$(realpath "$PLUGINS_DIR/claudecode")"
+
+HOME="$CLAUDE_HOME" run_claude plugin marketplace add "$CLAUDE_MARKETPLACE_PATH"
 HOME="$CLAUDE_HOME" run_claude plugin install dotnet-harness-toolkit@dotnet-harness-toolkit-marketplace
 
 CLAUDE_PLUGIN_LIST="$(HOME="$CLAUDE_HOME" run_claude plugin list)"
