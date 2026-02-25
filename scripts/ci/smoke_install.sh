@@ -50,9 +50,12 @@ log "Smoke test: Copilot plugin install"
 COPILOT_HOME="$TMP_ROOT/copilot-home"
 mkdir -p "$COPILOT_HOME"
 
-HOME="$COPILOT_HOME" run_copilot plugin install "$PLUGINS_DIR/copilot"
+COPILOT_MARKETPLACE_PATH="$(realpath "$PLUGINS_DIR/copilot")"
 
-COPILOT_PLUGIN_LIST="$(HOME="$COPILOT_HOME" run_copilot plugin list)"
+HOME="$COPILOT_HOME" npx -y @github/copilot plugin marketplace add "$COPILOT_MARKETPLACE_PATH"
+HOME="$COPILOT_HOME" npx -y @github/copilot plugin install dotnet-harness-toolkit@dotnet-harness-toolkit-marketplace
+
+COPILOT_PLUGIN_LIST="$(HOME="$COPILOT_HOME" npx -y @github/copilot plugin list)"
 if ! grep -q "dotnet-harness-toolkit" <<<"$COPILOT_PLUGIN_LIST"; then
   fail "Copilot plugin not found in plugin list"
 fi

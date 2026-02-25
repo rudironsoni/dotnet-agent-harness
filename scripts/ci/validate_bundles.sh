@@ -45,6 +45,7 @@ require_dir "$PLUGINS_DIR/antigravity"
 require_file "$PLUGINS_DIR/claudecode/.claude-plugin/plugin.json"
 require_file "$PLUGINS_DIR/claudecode/.claude-plugin/marketplace.json"
 require_file "$PLUGINS_DIR/copilot/plugin.json"
+require_file "$PLUGINS_DIR/copilot/.claude-plugin/marketplace.json"
 require_file "$PLUGINS_DIR/geminicli/gemini-extension.json"
 require_file "$PLUGINS_DIR/opencode/.opencode/plugins/rulesync-hooks.js"
 require_file "$PLUGINS_DIR/codexcli/INSTALL.md"
@@ -59,6 +60,9 @@ jq -e '.name == "dotnet-harness-toolkit-marketplace" and (.plugins | length > 0)
 
 jq -e '.name == "dotnet-harness-toolkit" and (.version | type == "string")' \
   "$PLUGINS_DIR/copilot/plugin.json" >/dev/null
+
+jq -e '.name == "dotnet-harness-toolkit-marketplace" and (.plugins | length > 0)' \
+  "$PLUGINS_DIR/copilot/.claude-plugin/marketplace.json" >/dev/null
 
 jq -e '.name == "dotnet-harness-toolkit" and (.version | type == "string") and (.contextFileName == "GEMINI.md")' \
   "$PLUGINS_DIR/geminicli/gemini-extension.json" >/dev/null

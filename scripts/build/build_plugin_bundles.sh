@@ -128,13 +128,25 @@ EOF
 build_copilot_bundle() {
   local bundle_dir="$OUTPUT_DIR/copilot"
 
-  mkdir -p "$bundle_dir"
+  mkdir -p "$bundle_dir" "$bundle_dir/.claude-plugin"
 
   jq -n '{
     name: "dotnet-harness-toolkit",
     description: "Comprehensive .NET development toolkit for GitHub Copilot CLI",
     version: "0.0.1"
   }' > "$bundle_dir/plugin.json"
+
+  jq -n '{
+    name: "dotnet-harness-toolkit-marketplace",
+    owner: { name: "dotnet-harness-toolkit" },
+    plugins: [
+      {
+        name: "dotnet-harness-toolkit",
+        source: "./",
+        description: "Comprehensive .NET development toolkit for GitHub Copilot CLI"
+      }
+    ]
+  }' > "$bundle_dir/.claude-plugin/marketplace.json"
 
   copy_file_if_exists "$WORK_DIR/.github/copilot-instructions.md" "$bundle_dir/copilot-instructions.md"
   copy_dir_if_exists "$WORK_DIR/.github/instructions" "$bundle_dir/instructions"
@@ -147,7 +159,8 @@ build_copilot_bundle() {
 # Copilot CLI Plugin Install
 
 ```bash
-npx -y @github/copilot plugin install ./plugins/copilot
+npx -y @github/copilot plugin marketplace add ./plugins/copilot
+npx -y @github/copilot plugin install dotnet-harness-toolkit@dotnet-harness-toolkit-marketplace
 npx -y @github/copilot plugin list
 ```
 EOF
