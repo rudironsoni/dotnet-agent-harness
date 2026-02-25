@@ -51,7 +51,7 @@ jobs:
       - name: Commit plugin bundles
         id: commit_plugins
         env:
-          GH_TOKEN: ${{ secrets.BOT_GH_TOKEN || github.token }}
+          GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
         run: bash scripts/cd/commit_plugins.sh
 
       - name: Show fallback PR
@@ -62,17 +62,17 @@ jobs:
       - name: Auto-approve fallback PR
         if: steps.commit_plugins.outputs.pr_created == 'true'
         env:
-          GH_TOKEN: ${{ secrets.BOT_GH_TOKEN || github.token }}
+          GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
         run: gh pr review --approve "${{ steps.commit_plugins.outputs.pr_url }}"
 
       - name: Enable rebase auto-merge for fallback PR
         if: steps.commit_plugins.outputs.pr_created == 'true'
         env:
-          GH_TOKEN: ${{ secrets.BOT_GH_TOKEN || github.token }}
+          GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
         run: gh pr merge --auto --rebase "${{ steps.commit_plugins.outputs.pr_url }}"
 
       - name: Tag and release plugin bundles
         if: steps.commit_plugins.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ secrets.BOT_GH_TOKEN || github.token }}
+          GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
         run: bash scripts/cd/tag_and_release_plugins.sh "${{ steps.commit_plugins.outputs.commit_sha }}"
