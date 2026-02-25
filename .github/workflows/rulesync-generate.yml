@@ -54,6 +54,7 @@ jobs:
         run: |
           if ! diff -qr plugins .tmp/plugins >/dev/null; then
             echo "Committed plugins/* is stale compared to generated output."
+            echo "Regenerate with: bash scripts/build/build_plugin_bundles.sh"
             diff -qr plugins .tmp/plugins || true
             exit 1
           fi
