@@ -1,0 +1,5 @@
+{
+  "name": "dotnet-harness-toolkit",
+  "description": "Comprehensive .NET development toolkit for GitHub Copilot CLI",
+  "version": "0.0.1"
+}

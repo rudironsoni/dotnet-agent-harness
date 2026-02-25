@@ -1,0 +1,13 @@
+{
+  "name": "dotnet-harness-toolkit-marketplace",
+  "owner": {
+    "name": "dotnet-harness-toolkit"
+  },
+  "plugins": [
+    {
+      "name": "dotnet-harness-toolkit",
+      "source": "./",
+      "description": "Comprehensive .NET development toolkit for GitHub Copilot CLI"
+    }
+  ]
+}
