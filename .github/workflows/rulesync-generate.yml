@@ -59,20 +59,31 @@ jobs:
         run: |
           echo "Created fallback plugin-bundle PR or compare URL: ${{ steps.commit_plugins.outputs.pr_url }}"
 
+      - name: Detect custom automation token
+        id: token_check
+        env:
+          CUSTOM_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN }}
+        run: |
+          if [[ -n "$CUSTOM_TOKEN" ]]; then
+            echo "has_custom_token=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_custom_token=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Warn when custom token is missing
-        if: steps.commit_plugins.outputs.pr_created == 'true' && secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN == ''
+        if: steps.commit_plugins.outputs.pr_created == 'true' && steps.token_check.outputs.has_custom_token != 'true'
         run: |
           echo "Fallback PR was created, but DOTNET_HARNESS_TOOLKIT_GH_TOKEN is not configured."
           echo "Skipping auto-approve and auto-merge because github.token cannot approve PRs."
 
       - name: Auto-approve fallback PR
-        if: steps.commit_plugins.outputs.pr_created == 'true' && secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN != ''
+        if: steps.commit_plugins.outputs.pr_created == 'true' && steps.token_check.outputs.has_custom_token == 'true'
         env:
           GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
         run: gh pr review --approve "${{ steps.commit_plugins.outputs.pr_url }}"
 
       - name: Enable rebase auto-merge for fallback PR
-        if: steps.commit_plugins.outputs.pr_created == 'true' && secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN != ''
+        if: steps.commit_plugins.outputs.pr_created == 'true' && steps.token_check.outputs.has_custom_token == 'true'
         env:
           GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
         run: gh pr merge --auto --rebase "${{ steps.commit_plugins.outputs.pr_url }}"
