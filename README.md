@@ -1,4 +1,4 @@
-# dotnet-harness-toolkit
+# dotnet-agent-harness
 
 Comprehensive .NET skills, subagents, commands, hooks, and MCP config for AI coding tools, maintained in RuleSync format.
 
@@ -7,43 +7,24 @@ Comprehensive .NET skills, subagents, commands, hooks, and MCP config for AI cod
 - 131 .NET-focused skills
 - 14 specialist subagents/agents
 - shared commands, hooks, and MCP definitions
-- source definitions mirrored at repository root for `rulesync fetch` convenience
 
 ## Install (project mode, full toolkit)
 
 Use this when you want the full harness (rules + skills + subagents + commands + hooks + MCP).
 
-No `--path` is required because this repository exposes RuleSync feature directories at the repo root.
-
 ```bash
-rulesync fetch rudironsoni/dotnet-harness-toolkit
+rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
 rulesync generate --targets "*" --features "*"
-```
-
-You can still use source-path syntax (RuleSync version dependent):
-
-```bash
-rulesync fetch rudironsoni/dotnet-harness-toolkit:.rulesync
 ```
 
 ## Install (declarative sources)
 
-RuleSync `install` is best for declarative source workflows, especially curated skills. If you use it, declare this repo as a source and then generate.
+RuleSync `install` is best for declarative source workflows, especially curated skills. Declare this repo as a source and then generate.
 
 ```jsonc
 {
   "sources": [
-    { "source": "rudironsoni/dotnet-harness-toolkit", "path": ".rulesync" }
-  ]
-}
-```
-
-Or simply:
-
-```jsonc
-{
-  "sources": [
-    { "source": "rudironsoni/dotnet-harness-toolkit" }
+    { "source": "rudironsoni/dotnet-agent-harness", "path": ".rulesync" }
   ]
 }
 ```
@@ -87,11 +68,6 @@ or
 rm -f .rulesync/rules/overview.md
 ```
 
-### Keeping root and `.rulesync/` in sync
-
-- Root directories (`rules/`, `skills/`, `subagents/`, `commands/`, `hooks/`, `hooks.json`, `mcp.json`, `.aiignore`) exist so `rulesync fetch owner/repo` works without `--path`.
-- `.rulesync/` remains for local RuleSync generation in this repository.
-
 ## Local development in this repository
 
 ```bash
@@ -101,13 +77,16 @@ npm run ci:rulesync
 
 ## Source layout
 
-- `.rulesync/rules/` - rules
-- `.rulesync/skills/` - skills
-- `.rulesync/subagents/` - agent definitions
-- `.rulesync/commands/` - slash commands
-- `.rulesync/hooks.json` and `.rulesync/hooks/` - hook config and scripts
-- `.rulesync/mcp.json` - MCP servers
-- `rules/`, `skills/`, `subagents/`, `commands/`, `hooks/`, `hooks.json`, `mcp.json` - mirrored fetch-friendly layout at repo root
+All authored content lives exclusively under `.rulesync/`:
+
+- `.rulesync/rules/` — rules
+- `.rulesync/skills/` — skills
+- `.rulesync/subagents/` — agent definitions
+- `.rulesync/commands/` — slash commands
+- `.rulesync/hooks.json` and `.rulesync/hooks/` — hook config and scripts
+- `.rulesync/mcp.json` — MCP servers
+
+Generated output (`.github/agents/`, `.github/skills/`, `AGENTS.md`, etc.) is gitignored and produced by `rulesync generate`.
 
 ## Attribution
 

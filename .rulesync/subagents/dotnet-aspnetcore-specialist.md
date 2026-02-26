@@ -1,14 +1,6 @@
 ---
 name: dotnet-aspnetcore-specialist
 description: "Analyzes ASP.NET Core middleware, request pipelines, minimal API design, DI lifetime selection, and diagnostic scenarios. Routes Blazor to [skill:dotnet-blazor-specialist], security to [skill:dotnet-security-reviewer], async internals to [skill:dotnet-async-performance-specialist]."
-model: sonnet
-capabilities:
-  - Evaluate middleware vs endpoint filter trade-offs for cross-cutting concerns
-  - Analyze minimal APIs vs controllers for API surface design
-  - Detect DI lifetime mismatches and captive dependency anti-patterns
-  - Optimize request pipeline ordering and short-circuiting
-  - Identify diagnostic scenarios from Fowler's AspNetCoreDiagnosticScenarios
-  - Guide HTTP client factory and resilience integration patterns
 tools:
   - Read
   - Grep
@@ -17,7 +9,7 @@ tools:
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 user-invocable: false
 claudecode:
   model: inherit
@@ -25,6 +17,8 @@ opencode:
   mode: "subagent"
   model: anthropic/claude-sonnet-4-20250514
   temperature: 0.1
+copilot:
+  tools: ["read", "search", "execute"]
 ---
 
 # dotnet-aspnetcore-specialist

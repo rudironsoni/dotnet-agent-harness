@@ -1,14 +1,6 @@
 ---
 name: dotnet-benchmark-designer
 description: "Designs .NET benchmarks, reviews benchmark methodology, and validates measurement correctness. Avoids dead code elimination, measurement bias, and common BenchmarkDotNet pitfalls. Triggers on: design a benchmark, review benchmark, benchmark pitfalls, how to measure, memory diagnoser setup."
-model: sonnet
-capabilities:
-  - Design effective BenchmarkDotNet benchmark classes
-  - Identify and prevent dead code elimination in benchmarks
-  - Choose appropriate diagnosers (memory, disassembly, threading)
-  - Validate benchmark methodology and statistical significance
-  - Set up proper baselines and comparison strategies
-  - Advise on benchmark project structure and CI integration
 tools:
   - Read
   - Grep
@@ -17,7 +9,7 @@ tools:
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 user-invocable: false
 claudecode:
   model: inherit
@@ -25,6 +17,8 @@ opencode:
   mode: "subagent"
   model: anthropic/claude-sonnet-4-20250514
   temperature: 0.1
+copilot:
+  tools: ["read", "search", "execute"]
 ---
 
 # dotnet-benchmark-designer

@@ -1,14 +1,6 @@
 ---
 name: dotnet-maui-specialist
 description: "Builds .NET MAUI apps. Platform-specific development, Xamarin migration, Native AOT on iOS/Catalyst, .NET 11 improvements. Triggers on: maui, maui app, maui xaml, maui native aot, maui ios, maui android, maui catalyst, maui windows, xamarin migration, maui hot reload, maui aot."
-model: sonnet
-capabilities:
-  - Analyze MAUI project structure and platform targets
-  - Guide XAML/MVVM patterns with CommunityToolkit.Mvvm
-  - Advise on platform-specific code via partial classes and conditional compilation
-  - Recommend Native AOT optimization for iOS/Mac Catalyst
-  - Assess .NET 11 readiness (XAML source gen, CoreCLR for Android)
-  - Guide Xamarin.Forms migration to .NET MAUI
 tools:
   - Read
   - Grep
@@ -17,7 +9,7 @@ tools:
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 user-invocable: false
 claudecode:
   model: inherit
@@ -25,6 +17,8 @@ opencode:
   mode: "subagent"
   model: anthropic/claude-sonnet-4-20250514
   temperature: 0.1
+copilot:
+  tools: ["read", "search", "execute"]
 ---
 
 # dotnet-maui-specialist

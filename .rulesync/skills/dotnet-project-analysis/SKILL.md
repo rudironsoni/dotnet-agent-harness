@@ -3,14 +3,13 @@ name: dotnet-project-analysis
 description: Analyzes .NET solution layout and build config -- .sln, .csproj, CPM.
 license: MIT
 user-invocable: false
-context: fork
-model: haiku
 targets: ["*"]
 tags: ["foundation", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  model: haiku
 codexcli:
   short-description: ".NET skill guidance for foundation tasks"
 opencode:

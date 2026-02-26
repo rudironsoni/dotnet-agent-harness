@@ -1,11 +1,11 @@
 ---
 root: true
 targets: ["*"]
-description: "dotnet-harness-toolkit: Comprehensive .NET development skills for all AI agents"
+description: "dotnet-agent-harness: Comprehensive .NET development skills for all AI agents"
 globs: ["**/*"]
 ---
 
-# dotnet-harness-toolkit
+# dotnet-agent-harness
 
 Comprehensive .NET development guidance for modern C#, ASP.NET Core, MAUI, Blazor, and cloud-native apps.
 
@@ -24,7 +24,7 @@ Compatible targets include Claude Code, GitHub Copilot CLI, OpenCode, Codex CLI,
 For full toolkit installation in a project:
 
 ```bash
-rulesync fetch rudironsoni/dotnet-harness-toolkit
+rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
 rulesync generate --targets "*" --features "*"
 ```
 
@@ -33,7 +33,7 @@ If you use declarative sources:
 ```jsonc
 {
   "sources": [
-    { "source": "rudironsoni/dotnet-harness-toolkit" }
+    { "source": "rudironsoni/dotnet-agent-harness", "path": ".rulesync" }
   ]
 }
 ```

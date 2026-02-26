@@ -1,14 +1,6 @@
 ---
 name: dotnet-cloud-specialist
 description: "Plans cloud deployment, .NET Aspire orchestration, AKS configuration, multi-stage CI/CD pipelines, distributed tracing, and infrastructure-as-code for .NET apps. Routes architecture to [skill:dotnet-architect], container images to [skill:dotnet-containers], security to [skill:dotnet-security-reviewer]."
-model: sonnet
-capabilities:
-  - Design .NET Aspire service discovery and orchestration patterns
-  - Plan AKS deployment strategies for .NET containerized applications
-  - Architect multi-stage GitHub Actions and Azure DevOps pipelines
-  - Configure distributed tracing with OpenTelemetry across services
-  - Evaluate infrastructure-as-code approaches (Bicep, Terraform) for .NET workloads
-  - Advise on cloud-native patterns (health checks, graceful shutdown, config providers)
 tools:
   - Read
   - Grep
@@ -17,7 +9,7 @@ tools:
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 user-invocable: false
 claudecode:
   model: inherit
@@ -25,6 +17,8 @@ opencode:
   mode: "subagent"
   model: anthropic/claude-sonnet-4-20250514
   temperature: 0.1
+copilot:
+  tools: ["read", "search", "execute"]
 ---
 
 # dotnet-cloud-specialist

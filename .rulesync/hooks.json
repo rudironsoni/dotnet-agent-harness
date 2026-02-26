@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "dotnet-harness-toolkit: smart defaults for .NET development",
+  "description": "dotnet-agent-harness: smart defaults for .NET development",
   "hooks": {
     "sessionStart": [
       {

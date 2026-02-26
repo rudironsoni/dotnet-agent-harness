@@ -1,14 +1,6 @@
 ---
 name: dotnet-uno-specialist
 description: "Builds cross-platform Uno Platform apps. Project setup, target configuration, Extensions ecosystem, MVUX patterns, Toolkit controls, theming, MCP integration. Triggers on: uno platform, uno app, uno wasm, uno mobile, uno desktop, uno extensions, mvux, uno toolkit, uno themes, cross-platform uno, uno embedded."
-model: sonnet
-capabilities:
-  - Analyze Uno Platform project structure and target configuration
-  - Guide Extensions ecosystem setup (Navigation, DI, Config, HTTP, Auth)
-  - Recommend MVUX reactive patterns and Toolkit controls
-  - Advise on per-target deployment and platform-specific gotchas
-  - Integrate Uno MCP server for live documentation lookups
-  - Assess AOT/trimming readiness per target platform
 tools:
   - Read
   - Grep
@@ -17,7 +9,7 @@ tools:
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 user-invocable: false
 claudecode:
   model: inherit
@@ -25,6 +17,8 @@ opencode:
   mode: "subagent"
   model: anthropic/claude-sonnet-4-20250514
   temperature: 0.1
+copilot:
+  tools: ["read", "search", "execute"]
 ---
 
 # dotnet-uno-specialist

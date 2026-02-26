@@ -1,14 +1,6 @@
 ---
 name: dotnet-security-reviewer
 description: "Reviews .NET code for security vulnerabilities, OWASP compliance, secrets exposure, and cryptographic misuse. Read-only analysis agent -- does not modify code."
-model: sonnet
-capabilities:
-  - Analyze code for OWASP Top 10 vulnerabilities
-  - Detect secrets and credentials in source code
-  - Review cryptographic algorithm usage and key management
-  - Identify deprecated security patterns (CAS, APTCA, BinaryFormatter)
-  - Assess authentication and authorization configuration
-  - Evaluate input validation and output encoding
 tools:
   - Read
   - Grep
@@ -16,7 +8,7 @@ tools:
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 user-invocable: false
 claudecode:
   model: inherit
@@ -24,6 +16,8 @@ opencode:
   mode: "subagent"
   model: anthropic/claude-sonnet-4-20250514
   temperature: 0.1
+copilot:
+  tools: ["read", "search"]
 ---
 
 # dotnet-security-reviewer

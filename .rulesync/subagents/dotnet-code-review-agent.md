@@ -1,14 +1,6 @@
 ---
 name: dotnet-code-review-agent
 description: "Reviews .NET code for correctness, performance, security, and architecture concerns. Triages findings and routes to specialist agents for deep analysis. Triggers on: review this, code review, PR review, what's wrong with this code."
-model: sonnet
-capabilities:
-  - Perform multi-dimensional code review (correctness, performance, security, architecture)
-  - Triage findings by severity and route to specialist agents for deep dives
-  - Detect common .NET anti-patterns across async, DI, EF Core, and API design
-  - Evaluate code against C# coding standards and modern pattern adoption
-  - Identify missing error handling, disposal, and cancellation patterns
-  - Assess test coverage gaps and recommend test types for changed code
 tools:
   - Read
   - Grep
@@ -17,7 +9,7 @@ tools:
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 user-invocable: false
 claudecode:
   model: inherit
@@ -25,6 +17,8 @@ opencode:
   mode: "subagent"
   model: anthropic/claude-sonnet-4-20250514
   temperature: 0.1
+copilot:
+  tools: ["read", "search", "execute"]
 ---
 
 # dotnet-code-review-agent

@@ -1,5 +1,5 @@
 {
-  "name": "dotnet-harness-toolkit",
+  "name": "dotnet-agent-harness",
   "version": "0.0.1",
   "description": "Comprehensive .NET development skills for all AI agents",
   "scripts": {

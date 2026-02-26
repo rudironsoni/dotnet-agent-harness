@@ -3,14 +3,13 @@ name: dotnet-version-detection
 description: Detects TFM/SDK from .csproj, global.json, Directory.Build.props. Runs first.
 license: MIT
 user-invocable: false
-context: fork
-model: haiku
 targets: ["*"]
 tags: ["csharp", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  model: haiku
 codexcli:
   short-description: ".NET skill guidance for csharp tasks"
 opencode:

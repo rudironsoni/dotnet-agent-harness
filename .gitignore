@@ -27,6 +27,7 @@ node_modules/
 .warp/
 
 # Root-level generated config files
+AGENTS.md
 CLAUDE.md
 opencode.json
 GEMINI.md
@@ -35,6 +36,14 @@ WARP.md
 replit.md
 .mcp.json
 .goosehints
+
+# Generated GitHub Copilot files
+.github/agents/
+.github/skills/
+.github/instructions/
+.github/prompts/
+.github/copilot-instructions.md
+.github/copilot-mcp.json
 
 # Generated ignore files
 .kilocodeignore

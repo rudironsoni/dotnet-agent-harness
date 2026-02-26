@@ -1,7 +1,6 @@
 ---
 name: dotnet-csharp-concurrency-specialist
 description: "Debugs race conditions, deadlocks, thread safety issues, concurrent access bugs, lock contention, async races, parallel execution problems, and synchronization issues in .NET code. Routes general async/await questions to [skill:dotnet-csharp-async-patterns]."
-model: sonnet
 tools:
   - Read
   - Grep
@@ -9,7 +8,7 @@ tools:
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 user-invocable: false
 claudecode:
   model: inherit
@@ -17,6 +16,8 @@ opencode:
   mode: "subagent"
   model: anthropic/claude-sonnet-4-20250514
   temperature: 0.1
+copilot:
+  tools: ["read", "search"]
 ---
 
 # dotnet-csharp-concurrency-specialist

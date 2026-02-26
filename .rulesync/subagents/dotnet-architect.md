@@ -1,14 +1,6 @@
 ---
 name: dotnet-architect
 description: "Analyzes .NET project context, requirements, and constraints to recommend architecture approaches, framework choices, and design patterns. Triggers on: what framework to use, how to structure a project, recommend an approach, architecture review."
-model: sonnet
-capabilities:
-  - Analyze project structure and dependencies
-  - Recommend architecture patterns for .NET applications
-  - Advise on UI framework selection (Blazor, MAUI, Uno, WinUI, WPF)
-  - Guide API design decisions (minimal APIs, gRPC, SignalR)
-  - Evaluate cloud-native deployment strategies
-  - Assess Native AOT and trimming readiness
 tools:
   - Read
   - Grep
@@ -17,7 +9,7 @@ tools:
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 user-invocable: true
 claudecode:
   model: inherit
@@ -25,6 +17,8 @@ opencode:
   mode: "primary"
   model: anthropic/claude-sonnet-4-20250514
   temperature: 0.1
+copilot:
+  tools: ["read", "search", "execute"]
 ---
 
 # dotnet-architect
