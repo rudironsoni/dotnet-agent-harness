@@ -22,7 +22,7 @@ user-invocable: true
 claudecode:
   model: inherit
 opencode:
-  mode: "subagent"
+  mode: "primary"
   model: anthropic/claude-sonnet-4-20250514
   temperature: 0.1
 ---

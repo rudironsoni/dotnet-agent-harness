@@ -1,3 +1,10 @@
+---
+root: true
+targets: ["*"]
+description: "dotnet-harness-toolkit: Comprehensive .NET development skills for all AI agents"
+globs: ["**/*"]
+---
+
 # dotnet-harness-toolkit
 
 Comprehensive .NET development guidance for modern C#, ASP.NET Core, MAUI, Blazor, and cloud-native apps.

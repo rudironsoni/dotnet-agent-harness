@@ -1,27 +1,33 @@
 # dotnet-harness-toolkit
 
-An agent-independent .NET skills toolkit, ported from `novotnyllc/dotnet-artisan`, distributed via RuleSync.
+Comprehensive .NET skills, subagents, commands, hooks, and MCP config for AI coding tools, maintained in RuleSync format.
 
-## Why this repository exists
+## What this repository provides
 
-AI coding CLIs all use different file formats and conventions (`CLAUDE.md`, Copilot instructions, Codex config, OpenCode config, Gemini config, etc.). Maintaining separate copies of the same rules and skills quickly becomes brittle.
+- 131 .NET-focused skills
+- 14 specialist subagents/agents
+- shared commands, hooks, and MCP definitions
+- a single source of truth in `.rulesync/`
 
-This repository solves that by using **RuleSync** as the source of truth.
+## Install (project mode, full toolkit)
 
-- Define once in `.rulesync/`
-- Generate for multiple agent CLIs
-- Keep skills, agents, commands, hooks, and MCP config consistent across tools
+Use this when you want the full harness (rules + skills + subagents + commands + hooks + MCP).
 
-## Goals
+```bash
+# In your target project directory
+rulesync fetch rudironsoni/dotnet-harness-toolkit --path .rulesync
+rulesync generate --targets "*" --features "*"
+```
 
-- Make .NET guidance reusable across Claude Code, OpenCode, Codex CLI, Gemini CLI, GitHub Copilot CLI, and Antigravity
-- Keep frontmatter and metadata interoperable across agent ecosystems
-- Provide a strong .NET default workflow with onboarding and routing
-- Preserve and evolve the dotnet-harness-toolkit knowledge base in a portable format
+You can also use source-path syntax (RuleSync version dependent):
 
-## Quick Start
+```bash
+rulesync fetch rudironsoni/dotnet-harness-toolkit:.rulesync
+```
 
-Add this repository as a declarative source in your `rulesync.jsonc`:
+## Install (declarative sources)
+
+RuleSync `install` is best for declarative source workflows, especially curated skills. If you use it, declare this repo as a source and then generate.
 
 ```jsonc
 {
@@ -31,137 +37,70 @@ Add this repository as a declarative source in your `rulesync.jsonc`:
 }
 ```
 
-Then install and generate:
-
 ```bash
-npx rulesync install && npx rulesync generate
+rulesync install && rulesync generate --targets "*" --features "*"
 ```
 
-This will install all 131 skills, 14 agents, hooks, commands, and MCP configuration into your project.
+## OpenCode: making `dotnet-architect` visible in Tab cycling
 
-## What's included
+OpenCode cycles only **primary** agents with Tab. Subagents are invoked with `@mention`.
 
-### Skills (131 total)
+- `dotnet-architect` is configured for OpenCode as a **primary** agent in this repo.
+- After generation, it should appear in OpenCode's main agent rotation.
 
-- **Foundation** (4 skills): Core project analysis and detection
-- **Core C#** (18 skills): Language patterns, async, concurrency
-- **Project Structure** (7 skills): Scaffolding and organization
-- **Architecture** (15 skills): Patterns, DI, messaging
-- **Testing** (10 skills): xUnit, integration, Playwright
-- **UI Frameworks** (14 skills): Blazor, MAUI, Uno, WPF
-- **Native AOT** (4 skills): Trimming and compilation
-- **Performance** (5 skills): Benchmarking and profiling
-- **CI/CD** (8 skills): GitHub Actions and Azure DevOps
-- **Documentation** (5 skills): Mermaid, XML docs
-- ...and more
+## Global mode notes
 
-See `AGENTS.md` for a complete skill listing.
+RuleSync global mode is useful for global rules, but it has feature limitations compared to project mode.
 
-### Agents (14 total)
+- If your goal is full harness behavior (including agent workflows), prefer **project mode** installation.
+- For OpenCode specifically, primary-agent UX is most reliable in project mode generation.
 
-- `dotnet-architect` - Main orchestrator for user invocation
-- `dotnet-blazor-specialist`
-- `dotnet-maui-specialist`
-- `dotnet-uno-specialist`
-- `dotnet-csharp-concurrency-specialist`
-- `dotnet-security-reviewer`
-- `dotnet-performance-analyst`
-- `dotnet-testing-specialist`
-- `dotnet-cloud-specialist`
-- ...and more
+## Troubleshooting
 
-See `AGENTS.md` for complete agent descriptions.
+### Error: `Multiple root rulesync rules found`
 
-## RuleSync Architecture
+This usually happens when both files exist:
 
-### Source-of-truth files
+- `.rulesync/rules/overview.md` (from `rulesync init`)
+- `.rulesync/rules/00-overview.md` (from some fetched repos)
 
-- `rulesync.jsonc` - generation targets, features, and declarative sources
-- `.rulesync/rules/` - global and scoped rule documents
-- `.rulesync/skills/` - portable skill definitions
-- `.rulesync/subagents/` - portable agent definitions
-- `.rulesync/commands/` - shared slash commands
-- `.rulesync/hooks.json` + `.rulesync/hooks/` - lifecycle hooks
-- `.rulesync/mcp.json` - MCP servers (Serena, Context7, Microsoft Docs, WinDbg)
+Keep only one `root: true` overview file.
 
-### Generated outputs
+```bash
+rm -f .rulesync/rules/00-overview.md
+```
 
-RuleSync generates tool-specific files from the source above:
-- `.claude/*` for Claude Code
-- `.github/*` for GitHub Copilot
-- `.codex/*` for Codex CLI
-- `.gemini/*` for Gemini CLI
-- `opencode.json` for OpenCode
-- `.agent/*` for Antigravity
+or
 
-### Workspace files
+```bash
+rm -f .rulesync/rules/overview.md
+```
 
-The root-level configuration files (CLAUDE.md, opencode.json, GEMINI.md, etc.) in this repository are auto-generated from `.rulesync/`. They serve as living examples of what RuleSync produces and are used for development of this toolkit itself.
+### `fetch` requires `--path .rulesync`
 
-## How to use RuleSync in this repo
+This repository stores RuleSync content under `.rulesync/`, so path-aware fetch is expected.
 
-### 1) Install dependencies
+## Local development in this repository
 
 ```bash
 npm install
-```
-
-### 2) Install declarative sources (if configured)
-
-```bash
-npx rulesync install
-```
-
-### 3) Generate all configured targets
-
-```bash
-npx rulesync generate
-```
-
-### 4) Run validation
-
-```bash
 npm run ci:rulesync
 ```
 
-## Hooks and onboarding
+## Source layout
 
-- Session and post-edit hooks are defined in `.rulesync/hooks.json`
-- Hook scripts live in `.rulesync/hooks/`
-- `/init-project` initializes .NET context and Serena onboarding checks
-
-## MCP Integration
-
-Includes Serena MCP for semantic code analysis:
-
-```json
-{
-  "mcpServers": {
-    "serena": {
-      "command": "uvx",
-      "args": ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "ide-assistant", "--project", "."]
-    }
-  }
-}
-```
-
-## CI/CD
-
-- `.github/workflows/rulesync-validate.yml` - Validates RuleSync configuration
-
-## Contributing
-
-1. Edit only `.rulesync/*`, `rulesync.jsonc`, and automation under `scripts/`
-2. Run `npm run ci:rulesync`
-3. Commit source changes
-
-See `CONTRIBUTING.md` for skill authoring guidelines.
+- `.rulesync/rules/` - rules
+- `.rulesync/skills/` - skills
+- `.rulesync/subagents/` - agent definitions
+- `.rulesync/commands/` - slash commands
+- `.rulesync/hooks.json` and `.rulesync/hooks/` - hook config and scripts
+- `.rulesync/mcp.json` - MCP servers
 
 ## Attribution
 
-- Original skills and agent corpus: `https://github.com/novotnyllc/dotnet-artisan`
+- Original corpus: `https://github.com/novotnyllc/dotnet-artisan`
 - RuleSync: `https://github.com/dyoshikawa/rulesync`
 
 ## License
 
-MIT License - See `LICENSE` file for details.
+MIT. See `LICENSE`.
