@@ -1,22 +1,23 @@
 ---
 name: dotnet-cloud-specialist
 description: "Plans cloud deployment, .NET Aspire orchestration, AKS configuration, multi-stage CI/CD pipelines, distributed tracing, and infrastructure-as-code for .NET apps. Routes architecture to [skill:dotnet-architect], container images to [skill:dotnet-containers], security to [skill:dotnet-security-reviewer]."
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
 author: "dotnet-agent-harness"
-user-invocable: false
 claudecode:
   model: inherit
+  allowed-tools:
+    - Read
+    - Grep
+    - Glob
+    - Bash
 opencode:
   mode: "subagent"
-  model: anthropic/claude-sonnet-4-20250514
-  temperature: 0.1
+  tools:
+    bash: true
+    edit: false
+    write: false
 copilot:
   tools: ["read", "search", "execute"]
 ---

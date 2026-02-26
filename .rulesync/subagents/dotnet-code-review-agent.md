@@ -1,22 +1,23 @@
 ---
 name: dotnet-code-review-agent
 description: "Reviews .NET code for correctness, performance, security, and architecture concerns. Triages findings and routes to specialist agents for deep analysis. Triggers on: review this, code review, PR review, what's wrong with this code."
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
 author: "dotnet-agent-harness"
-user-invocable: false
 claudecode:
   model: inherit
+  allowed-tools:
+    - Read
+    - Grep
+    - Glob
+    - Bash
 opencode:
   mode: "subagent"
-  model: anthropic/claude-sonnet-4-20250514
-  temperature: 0.1
+  tools:
+    bash: true
+    edit: false
+    write: false
 copilot:
   tools: ["read", "search", "execute"]
 ---

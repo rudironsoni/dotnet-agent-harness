@@ -1,22 +1,23 @@
 ---
 name: dotnet-async-performance-specialist
 description: "Analyzes async/await performance, ValueTask correctness, ConfigureAwait decisions, IO.Pipelines, ThreadPool tuning, and Channel selection in .NET code. Routes profiling interpretation to [skill:dotnet-performance-analyst], thread sync bugs to [skill:dotnet-csharp-concurrency-specialist]."
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
 author: "dotnet-agent-harness"
-user-invocable: false
 claudecode:
   model: inherit
+  allowed-tools:
+    - Read
+    - Grep
+    - Glob
+    - Bash
 opencode:
   mode: "subagent"
-  model: anthropic/claude-sonnet-4-20250514
-  temperature: 0.1
+  tools:
+    bash: true
+    edit: false
+    write: false
 copilot:
   tools: ["read", "search", "execute"]
 ---

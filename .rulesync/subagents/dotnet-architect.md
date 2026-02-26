@@ -1,22 +1,23 @@
 ---
 name: dotnet-architect
 description: "Analyzes .NET project context, requirements, and constraints to recommend architecture approaches, framework choices, and design patterns. Triggers on: what framework to use, how to structure a project, recommend an approach, architecture review."
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
 author: "dotnet-agent-harness"
-user-invocable: true
 claudecode:
   model: inherit
+  allowed-tools:
+    - Read
+    - Grep
+    - Glob
+    - Bash
 opencode:
   mode: "primary"
-  model: anthropic/claude-sonnet-4-20250514
-  temperature: 0.1
+  tools:
+    bash: true
+    edit: false
+    write: false
 copilot:
   tools: ["read", "search", "execute"]
 ---

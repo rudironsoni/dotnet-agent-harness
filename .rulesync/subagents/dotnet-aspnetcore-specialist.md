@@ -1,22 +1,23 @@
 ---
 name: dotnet-aspnetcore-specialist
 description: "Analyzes ASP.NET Core middleware, request pipelines, minimal API design, DI lifetime selection, and diagnostic scenarios. Routes Blazor to [skill:dotnet-blazor-specialist], security to [skill:dotnet-security-reviewer], async internals to [skill:dotnet-async-performance-specialist]."
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
 author: "dotnet-agent-harness"
-user-invocable: false
 claudecode:
   model: inherit
+  allowed-tools:
+    - Read
+    - Grep
+    - Glob
+    - Bash
 opencode:
   mode: "subagent"
-  model: anthropic/claude-sonnet-4-20250514
-  temperature: 0.1
+  tools:
+    bash: true
+    edit: false
+    write: false
 copilot:
   tools: ["read", "search", "execute"]
 ---

@@ -1,22 +1,23 @@
 ---
 name: dotnet-blazor-specialist
 description: "Guides Blazor development across all hosting models (Server, WASM, Hybrid, Auto). Component design, state management, authentication, and render mode selection. Triggers on: blazor component, render mode, blazor auth, editform, blazor state."
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
 author: "dotnet-agent-harness"
-user-invocable: false
 claudecode:
   model: inherit
+  allowed-tools:
+    - Read
+    - Grep
+    - Glob
+    - Bash
 opencode:
   mode: "subagent"
-  model: anthropic/claude-sonnet-4-20250514
-  temperature: 0.1
+  tools:
+    bash: true
+    edit: false
+    write: false
 copilot:
   tools: ["read", "search", "execute"]
 ---

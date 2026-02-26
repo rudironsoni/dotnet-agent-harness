@@ -1,22 +1,23 @@
 ---
 name: dotnet-testing-specialist
 description: "Designs test architecture, chooses test types (unit/integration/E2E), manages test data, tests microservices, and structures test projects. Routes benchmarking to [skill:dotnet-benchmark-designer], security auditing to [skill:dotnet-security-reviewer]."
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
 author: "dotnet-agent-harness"
-user-invocable: false
 claudecode:
   model: inherit
+  allowed-tools:
+    - Read
+    - Grep
+    - Glob
+    - Bash
 opencode:
   mode: "subagent"
-  model: anthropic/claude-sonnet-4-20250514
-  temperature: 0.1
+  tools:
+    bash: true
+    edit: false
+    write: false
 copilot:
   tools: ["read", "search", "execute"]
 ---

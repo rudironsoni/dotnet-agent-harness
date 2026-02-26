@@ -1,22 +1,23 @@
 ---
 name: dotnet-benchmark-designer
 description: "Designs .NET benchmarks, reviews benchmark methodology, and validates measurement correctness. Avoids dead code elimination, measurement bias, and common BenchmarkDotNet pitfalls. Triggers on: design a benchmark, review benchmark, benchmark pitfalls, how to measure, memory diagnoser setup."
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
 author: "dotnet-agent-harness"
-user-invocable: false
 claudecode:
   model: inherit
+  allowed-tools:
+    - Read
+    - Grep
+    - Glob
+    - Bash
 opencode:
   mode: "subagent"
-  model: anthropic/claude-sonnet-4-20250514
-  temperature: 0.1
+  tools:
+    bash: true
+    edit: false
+    write: false
 copilot:
   tools: ["read", "search", "execute"]
 ---

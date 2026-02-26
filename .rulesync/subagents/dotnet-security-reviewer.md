@@ -1,23 +1,26 @@
 ---
 name: dotnet-security-reviewer
 description: "Reviews .NET code for security vulnerabilities, OWASP compliance, secrets exposure, and cryptographic misuse. Read-only analysis agent -- does not modify code."
-tools:
-  - Read
-  - Grep
-  - Glob
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
 author: "dotnet-agent-harness"
-user-invocable: false
 claudecode:
   model: inherit
+  allowed-tools:
+    - Read
+    - Grep
+    - Glob
 opencode:
   mode: "subagent"
-  model: anthropic/claude-sonnet-4-20250514
-  temperature: 0.1
+  tools:
+    bash: false
+    edit: false
+    write: false
 copilot:
   tools: ["read", "search"]
+codexcli:
+  sandbox_mode: "read-only"
 ---
 
 # dotnet-security-reviewer
