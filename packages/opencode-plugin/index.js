@@ -6,9 +6,19 @@ const path = require('path');
  * 
  * This plugin bundles agents, skills, commands, and rules for .NET development
  * and installs them into the project's .opencode/ directory.
+ *
+ * Bundled directory layout (mirrors OpenCode's generated structure):
+ *   bundled/agent/      -> .opencode/agent/
+ *   bundled/command/    -> .opencode/command/
+ *   bundled/skill/      -> .opencode/skill/
+ *   bundled/memories/   -> .opencode/memories/
+ *   bundled/plugins/    -> .opencode/plugins/
  */
 
 const PLUGIN_NAME = 'dotnet-agent-harness';
+
+// Content directories to install (same names in bundled/ and .opencode/)
+const CONTENT_DIRS = ['agent', 'command', 'skill', 'memories', 'plugins'];
 
 /**
  * Get the bundled content directory
@@ -53,44 +63,13 @@ async function installBundledContent(projectDir) {
   const bundledDir = getBundledDir();
   const opencodeDir = path.join(projectDir, '.opencode');
   
-  // Install agents
-  const bundledAgents = path.join(bundledDir, 'agents');
-  if (fs.existsSync(bundledAgents)) {
-    const agentsDir = path.join(opencodeDir, 'agents');
-    copyDir(bundledAgents, agentsDir);
-    console.log(`[${PLUGIN_NAME}] Installed agents to ${agentsDir}`);
-  }
-  
-  // Install skills
-  const bundledSkills = path.join(bundledDir, 'skills');
-  if (fs.existsSync(bundledSkills)) {
-    const skillsDir = path.join(opencodeDir, 'skills');
-    copyDir(bundledSkills, skillsDir);
-    console.log(`[${PLUGIN_NAME}] Installed skills to ${skillsDir}`);
-  }
-  
-  // Install rules
-  const bundledRules = path.join(bundledDir, 'rules');
-  if (fs.existsSync(bundledRules)) {
-    const rulesDir = path.join(opencodeDir, 'rules');
-    copyDir(bundledRules, rulesDir);
-    console.log(`[${PLUGIN_NAME}] Installed rules to ${rulesDir}`);
-  }
-  
-  // Install commands
-  const bundledCommands = path.join(bundledDir, 'commands');
-  if (fs.existsSync(bundledCommands)) {
-    const commandsDir = path.join(opencodeDir, 'commands');
-    copyDir(bundledCommands, commandsDir);
-    console.log(`[${PLUGIN_NAME}] Installed commands to ${commandsDir}`);
-  }
-  
-  // Install hooks
-  const bundledHooks = path.join(bundledDir, 'hooks');
-  if (fs.existsSync(bundledHooks)) {
-    const hooksDir = path.join(opencodeDir, 'hooks');
-    copyDir(bundledHooks, hooksDir);
-    console.log(`[${PLUGIN_NAME}] Installed hooks to ${hooksDir}`);
+  for (const dirName of CONTENT_DIRS) {
+    const srcDir = path.join(bundledDir, dirName);
+    if (fs.existsSync(srcDir)) {
+      const destDir = path.join(opencodeDir, dirName);
+      copyDir(srcDir, destDir);
+      console.log(`[${PLUGIN_NAME}] Installed ${dirName}/ to ${destDir}`);
+    }
   }
 }
 

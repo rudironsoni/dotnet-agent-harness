@@ -58,6 +58,10 @@ replit.md
 # Temporary directories
 .tmp/
 
+# Build output
+dist/
+packages/opencode-plugin/bundled/
+
 # Local editor and OS files
 .DS_Store
 Thumbs.db

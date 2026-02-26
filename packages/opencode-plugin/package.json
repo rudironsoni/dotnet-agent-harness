@@ -10,11 +10,11 @@
     "bundled/"
   ],
   "bundled": {
-    "agents": "./bundled/agents",
-    "skills": "./bundled/skills",
-    "rules": "./bundled/rules",
-    "commands": "./bundled/commands",
-    "hooks": "./bundled/hooks"
+    "agent": "./bundled/agent",
+    "command": "./bundled/command",
+    "skill": "./bundled/skill",
+    "memories": "./bundled/memories",
+    "plugins": "./bundled/plugins"
   },
   "scripts": {
     "build": "node scripts/build.js",
