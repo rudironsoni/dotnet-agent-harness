@@ -32,7 +32,7 @@ jobs:
         run: npm ci
 
       - name: Regenerate full plugin bundles
-        run: bash scripts/build/build_plugin_bundles.sh
+        uses: ./.github/actions/build-plugin-bundles
 
       - name: Validate generated bundles
         uses: ./.github/actions/validate-plugin-bundles

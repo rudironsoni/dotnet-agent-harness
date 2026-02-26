@@ -41,10 +41,12 @@ jobs:
         run: npm ci
 
       - name: Validate RuleSync generation
-        run: bash scripts/ci/validate_rulesync.sh
+        uses: ./.github/actions/validate-rulesync
 
       - name: Build plugin and manual bundles
-        run: bash scripts/build/build_plugin_bundles.sh --output-dir .tmp/plugins
+        uses: ./.github/actions/build-plugin-bundles
+        with:
+          output-dir: .tmp/plugins
 
       - name: Validate generated bundles
         uses: ./.github/actions/validate-plugin-bundles
@@ -226,7 +228,7 @@ jobs:
             fi
           } > "$NOTES_FILE"
 
-          scope_logs "rulesync" ".rulesync" "rulesync.jsonc" "scripts/build/build_plugin_bundles.sh" "scripts/ci/validate_rulesync.sh"
+          scope_logs "rulesync" ".rulesync" "rulesync.jsonc" ".github/actions" "scripts/build/build_plugin_bundles.sh" "scripts/ci/validate_rulesync.sh"
           for agent in "${AGENTS[@]}"; do
             scope_logs "$agent" "plugins/$agent"
           done
