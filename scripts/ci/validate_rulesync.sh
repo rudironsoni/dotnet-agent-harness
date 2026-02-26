@@ -135,7 +135,7 @@ if [[ "$project_checksum_before" != "$project_checksum_after" ]]; then
   fail "RuleSync project generation is not deterministic across consecutive runs"
 fi
 
-log "Verifying generated target outputs"
+log "Verifying generated target output paths"
 require_path "$WORK_DIR/CLAUDE.md"
 require_path "$WORK_DIR/.claude/agents"
 require_path "$WORK_DIR/.github/copilot-instructions.md"
@@ -148,6 +148,103 @@ require_path "$WORK_DIR/.codex/agents"
 require_path "$WORK_DIR/.agent/rules"
 require_path "$WORK_DIR/.agent/workflows"
 require_path "$WORK_DIR/.agent/skills"
+
+log "Verifying generated subagent content"
+
+require_content() {
+  local file="$1" pattern="$2" desc="$3"
+  if ! grep -qE "$pattern" "$file" 2>/dev/null; then
+    fail "Generated file $(basename "$file") missing expected content: $desc"
+  fi
+}
+
+# Extract frontmatter only (between --- delimiters) from a markdown file
+extract_fm() {
+  sed -n '2,/^---$/{ /^---$/d; p; }' "$1"
+}
+
+# Check frontmatter does NOT contain a pattern
+reject_in_frontmatter() {
+  local file="$1" pattern="$2" desc="$3"
+  local fm
+  fm="$(extract_fm "$file")"
+  if printf '%s' "$fm" | grep -qE "$pattern" 2>/dev/null; then
+    fail "Generated file $(basename "$file") frontmatter should not contain: $desc"
+  fi
+}
+
+# Check frontmatter DOES contain a pattern
+require_in_frontmatter() {
+  local file="$1" pattern="$2" desc="$3"
+  local fm
+  fm="$(extract_fm "$file")"
+  if ! printf '%s' "$fm" | grep -qE "$pattern" 2>/dev/null; then
+    fail "Generated file $(basename "$file") frontmatter missing: $desc"
+  fi
+}
+
+# --- Read-only agent: security-reviewer ---
+require_in_frontmatter "$WORK_DIR/.claude/agents/dotnet-security-reviewer.md" \
+  "^allowed-tools:" "Claude Code allowed-tools field"
+require_in_frontmatter "$WORK_DIR/.claude/agents/dotnet-security-reviewer.md" \
+  "Read" "Claude Code Read tool"
+reject_in_frontmatter "$WORK_DIR/.claude/agents/dotnet-security-reviewer.md" \
+  "Bash" "Bash (read-only profile)"
+
+require_content "$WORK_DIR/.opencode/agent/dotnet-security-reviewer.md" \
+  "bash: false" "OpenCode bash: false"
+require_content "$WORK_DIR/.opencode/agent/dotnet-security-reviewer.md" \
+  "edit: false" "OpenCode edit: false"
+require_content "$WORK_DIR/.opencode/agent/dotnet-security-reviewer.md" \
+  "write: false" "OpenCode write: false"
+
+require_in_frontmatter "$WORK_DIR/.github/agents/dotnet-security-reviewer.md" \
+  "read" "Copilot read tool"
+require_in_frontmatter "$WORK_DIR/.github/agents/dotnet-security-reviewer.md" \
+  "search" "Copilot search tool"
+reject_in_frontmatter "$WORK_DIR/.github/agents/dotnet-security-reviewer.md" \
+  "execute" "execute (read-only profile)"
+
+require_content "$WORK_DIR/.codex/agents/dotnet-security-reviewer.toml" \
+  'sandbox_mode = "read-only"' "Codex CLI sandbox_mode read-only"
+
+# --- Standard agent: architect ---
+require_in_frontmatter "$WORK_DIR/.claude/agents/dotnet-architect.md" \
+  "Bash" "Claude Code Bash tool for standard agent"
+reject_in_frontmatter "$WORK_DIR/.claude/agents/dotnet-architect.md" \
+  "^\s+- Edit$" "Edit (standard profile)"
+reject_in_frontmatter "$WORK_DIR/.claude/agents/dotnet-architect.md" \
+  "^\s+- Write$" "Write (standard profile)"
+
+require_content "$WORK_DIR/.opencode/agent/dotnet-architect.md" \
+  "bash: true" "OpenCode bash: true for standard agent"
+require_content "$WORK_DIR/.opencode/agent/dotnet-architect.md" \
+  "edit: false" "OpenCode edit: false for standard agent"
+
+require_in_frontmatter "$WORK_DIR/.github/agents/dotnet-architect.md" \
+  "execute" "Copilot execute tool for standard agent"
+
+if grep -q "sandbox_mode" "$WORK_DIR/.codex/agents/dotnet-architect.toml" 2>/dev/null; then
+  fail "Generated Codex CLI architect should not have sandbox_mode (standard profile)"
+fi
+
+# --- Full agent: docs-generator ---
+require_in_frontmatter "$WORK_DIR/.claude/agents/dotnet-docs-generator.md" \
+  "Edit" "Claude Code Edit tool for full agent"
+require_in_frontmatter "$WORK_DIR/.claude/agents/dotnet-docs-generator.md" \
+  "Write" "Claude Code Write tool for full agent"
+
+require_content "$WORK_DIR/.opencode/agent/dotnet-docs-generator.md" \
+  "bash: true" "OpenCode bash: true for full agent"
+require_content "$WORK_DIR/.opencode/agent/dotnet-docs-generator.md" \
+  "edit: true" "OpenCode edit: true for full agent"
+require_content "$WORK_DIR/.opencode/agent/dotnet-docs-generator.md" \
+  "write: true" "OpenCode write: true for full agent"
+
+require_in_frontmatter "$WORK_DIR/.github/agents/dotnet-docs-generator.md" \
+  "edit" "Copilot edit tool for full agent"
+
+log "Generated subagent content checks passed"
 
 log "Running global codex command generation"
 HOME="$GLOBAL_HOME" run_rulesync generate --targets codexcli --features commands --global --silent

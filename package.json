@@ -8,7 +8,8 @@
     "rulesync:watch": "rulesync watch",
     "rulesync:validate": "bash scripts/ci/validate_rulesync.sh",
     "rulesync:install": "rulesync install",
-    "ci:rulesync": "bash scripts/ci/validate_rulesync.sh"
+    "validate:subagents": "bash scripts/ci/validate_subagents.sh",
+    "ci:rulesync": "bash scripts/ci/validate_subagents.sh && bash scripts/ci/validate_rulesync.sh"
   },
   "devDependencies": {
     "rulesync": "^7.6.3"
