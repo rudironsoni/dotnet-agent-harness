@@ -7,19 +7,20 @@ Comprehensive .NET skills, subagents, commands, hooks, and MCP config for AI cod
 - 131 .NET-focused skills
 - 14 specialist subagents/agents
 - shared commands, hooks, and MCP definitions
-- a single source of truth in `.rulesync/`
+- source definitions mirrored at repository root for `rulesync fetch` convenience
 
 ## Install (project mode, full toolkit)
 
 Use this when you want the full harness (rules + skills + subagents + commands + hooks + MCP).
 
+No `--path` is required because this repository exposes RuleSync feature directories at the repo root.
+
 ```bash
-# In your target project directory
-rulesync fetch rudironsoni/dotnet-harness-toolkit --path .rulesync
+rulesync fetch rudironsoni/dotnet-harness-toolkit
 rulesync generate --targets "*" --features "*"
 ```
 
-You can also use source-path syntax (RuleSync version dependent):
+You can still use source-path syntax (RuleSync version dependent):
 
 ```bash
 rulesync fetch rudironsoni/dotnet-harness-toolkit:.rulesync
@@ -33,6 +34,16 @@ RuleSync `install` is best for declarative source workflows, especially curated 
 {
   "sources": [
     { "source": "rudironsoni/dotnet-harness-toolkit", "path": ".rulesync" }
+  ]
+}
+```
+
+Or simply:
+
+```jsonc
+{
+  "sources": [
+    { "source": "rudironsoni/dotnet-harness-toolkit" }
   ]
 }
 ```
@@ -76,9 +87,10 @@ or
 rm -f .rulesync/rules/overview.md
 ```
 
-### `fetch` requires `--path .rulesync`
+### Keeping root and `.rulesync/` in sync
 
-This repository stores RuleSync content under `.rulesync/`, so path-aware fetch is expected.
+- Root directories (`rules/`, `skills/`, `subagents/`, `commands/`, `hooks/`, `hooks.json`, `mcp.json`, `.aiignore`) exist so `rulesync fetch owner/repo` works without `--path`.
+- `.rulesync/` remains for local RuleSync generation in this repository.
 
 ## Local development in this repository
 
@@ -95,6 +107,7 @@ npm run ci:rulesync
 - `.rulesync/commands/` - slash commands
 - `.rulesync/hooks.json` and `.rulesync/hooks/` - hook config and scripts
 - `.rulesync/mcp.json` - MCP servers
+- `rules/`, `skills/`, `subagents/`, `commands/`, `hooks/`, `hooks.json`, `mcp.json` - mirrored fetch-friendly layout at repo root
 
 ## Attribution
 

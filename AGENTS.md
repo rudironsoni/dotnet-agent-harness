@@ -17,7 +17,7 @@ Compatible targets include Claude Code, GitHub Copilot CLI, OpenCode, Codex CLI,
 For full toolkit installation in a project:
 
 ```bash
-rulesync fetch rudironsoni/dotnet-harness-toolkit --path .rulesync
+rulesync fetch rudironsoni/dotnet-harness-toolkit
 rulesync generate --targets "*" --features "*"
 ```
 
@@ -26,7 +26,7 @@ If you use declarative sources:
 ```jsonc
 {
   "sources": [
-    { "source": "rudironsoni/dotnet-harness-toolkit", "path": ".rulesync" }
+    { "source": "rudironsoni/dotnet-harness-toolkit" }
   ]
 }
 ```
