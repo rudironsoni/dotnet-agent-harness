@@ -1,4 +1,4 @@
-name: Validate RuleSync And Bundles
+name: Validate RuleSync
 
 on:
   pull_request:
@@ -7,14 +7,11 @@ on:
     paths:
       - "rulesync.jsonc"
       - ".rulesync/**"
-      - ".github/actions/**"
-      - "scripts/**"
+      - ".github/actions/validate-rulesync/**"
+      - "scripts/ci/validate_rulesync.sh"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/rulesync-validate.yml"
-      - ".github/workflows/rulesync-generate.yml"
-      - ".github/workflows/plugins-sync-pr.yml"
-      - ".github/workflows/sync-plugins-for-pr.yml"
 
 jobs:
   validate:
@@ -33,18 +30,3 @@ jobs:
 
       - name: Validate RuleSync generation
         uses: ./.github/actions/validate-rulesync
-
-      - name: Build plugin and manual bundles
-        uses: ./.github/actions/build-plugin-bundles
-        with:
-          output-dir: .tmp/plugins
-
-      - name: Validate generated bundles
-        uses: ./.github/actions/validate-plugin-bundles
-        with:
-          plugins-dir: .tmp/plugins
-
-      - name: Smoke install and runtime checks
-        uses: ./.github/actions/smoke-install
-        with:
-          plugins-dir: .tmp/plugins

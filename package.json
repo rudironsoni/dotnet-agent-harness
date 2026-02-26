@@ -8,9 +8,7 @@
     "rulesync:watch": "rulesync watch",
     "rulesync:validate": "bash scripts/ci/validate_rulesync.sh",
     "rulesync:install": "rulesync install",
-    "ci:rulesync": "bash scripts/ci/validate_rulesync.sh",
-    "ci:bundles": "bash scripts/build/build_plugin_bundles.sh --output-dir .tmp/plugins && bash scripts/ci/validate_bundles.sh --plugins-dir .tmp/plugins && bash scripts/ci/smoke_install.sh --plugins-dir .tmp/plugins",
-    "plugins:build": "bash scripts/build/build_plugin_bundles.sh"
+    "ci:rulesync": "bash scripts/ci/validate_rulesync.sh"
   },
   "devDependencies": {
     "rulesync": "^7.6.3"

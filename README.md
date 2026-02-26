@@ -1,6 +1,6 @@
 # dotnet-harness-toolkit
 
-An agent-independent .NET skills toolkit, ported from `novotnyllc/dotnet-artisan`, with a RuleSync-first architecture.
+An agent-independent .NET skills toolkit, ported from `novotnyllc/dotnet-artisan`, distributed via RuleSync.
 
 ## Why this repository exists
 
@@ -19,23 +19,60 @@ This repository solves that by using **RuleSync** as the source of truth.
 - Provide a strong .NET default workflow with onboarding and routing
 - Preserve and evolve the dotnet-harness-toolkit knowledge base in a portable format
 
-## Distribution modes
+## Quick Start
 
-- Plugin/extension bundles: `claudecode`, `copilot`, `geminicli`, `opencode`
-- Manual bundles: `codexcli`, `antigravity`
-- CD writes all distributables to `plugins/{agent}` on merges to `main`
+Add this repository as a declarative source in your `rulesync.jsonc`:
 
-See `docs/install.md` for install commands per target.
+```jsonc
+{
+  "sources": [
+    { "source": "rudironsoni/dotnet-harness-toolkit", "path": ".rulesync" }
+  ]
+}
+```
 
-## What is in this repo
+Then install and generate:
 
-- **131 skills** in `.rulesync/skills/`
-- **14 subagents** in `.rulesync/subagents/`
-- **1 main user-invocable orchestrator agent**: `dotnet-architect`
-- **13 specialist subagents** configured as non-user-invocable
-- Shared commands, hooks, rules, and MCP definitions for multi-agent workflows
+```bash
+npx rulesync install && npx rulesync generate
+```
 
-## RuleSync architecture
+This will install all 131 skills, 14 agents, hooks, commands, and MCP configuration into your project.
+
+## What's included
+
+### Skills (131 total)
+
+- **Foundation** (4 skills): Core project analysis and detection
+- **Core C#** (18 skills): Language patterns, async, concurrency
+- **Project Structure** (7 skills): Scaffolding and organization
+- **Architecture** (15 skills): Patterns, DI, messaging
+- **Testing** (10 skills): xUnit, integration, Playwright
+- **UI Frameworks** (14 skills): Blazor, MAUI, Uno, WPF
+- **Native AOT** (4 skills): Trimming and compilation
+- **Performance** (5 skills): Benchmarking and profiling
+- **CI/CD** (8 skills): GitHub Actions and Azure DevOps
+- **Documentation** (5 skills): Mermaid, XML docs
+- ...and more
+
+See `AGENTS.md` for a complete skill listing.
+
+### Agents (14 total)
+
+- `dotnet-architect` - Main orchestrator for user invocation
+- `dotnet-blazor-specialist`
+- `dotnet-maui-specialist`
+- `dotnet-uno-specialist`
+- `dotnet-csharp-concurrency-specialist`
+- `dotnet-security-reviewer`
+- `dotnet-performance-analyst`
+- `dotnet-testing-specialist`
+- `dotnet-cloud-specialist`
+- ...and more
+
+See `AGENTS.md` for complete agent descriptions.
+
+## RuleSync Architecture
 
 ### Source-of-truth files
 
@@ -49,16 +86,17 @@ See `docs/install.md` for install commands per target.
 
 ### Generated outputs
 
-RuleSync generates tool-specific files from the source above (for example `.claude/*`, `.github/*`, `.codex/*`, `.gemini/*`, `.agent/*`, `opencode.json`, and related files).
+RuleSync generates tool-specific files from the source above:
+- `.claude/*` for Claude Code
+- `.github/*` for GitHub Copilot
+- `.codex/*` for Codex CLI
+- `.gemini/*` for Gemini CLI
+- `opencode.json` for OpenCode
+- `.agent/*` for Antigravity
 
-CD then packages these generated outputs into distributable bundles under `plugins/`:
+### Workspace files
 
-- `plugins/claudecode`
-- `plugins/copilot`
-- `plugins/geminicli`
-- `plugins/opencode`
-- `plugins/codexcli`
-- `plugins/antigravity`
+The root-level configuration files (CLAUDE.md, opencode.json, GEMINI.md, etc.) in this repository are auto-generated from `.rulesync/`. They serve as living examples of what RuleSync produces and are used for development of this toolkit itself.
 
 ## How to use RuleSync in this repo
 
@@ -80,25 +118,11 @@ npx rulesync install
 npx rulesync generate
 ```
 
-### 4) Run full local validation
+### 4) Run validation
 
 ```bash
 npm run ci:rulesync
-npm run ci:bundles
 ```
-
-## Contributor workflow
-
-1. Edit only `.rulesync/*`, `rulesync.jsonc`, and bash automation under `scripts/`
-2. Run `npm run ci:rulesync`
-3. Run `npm run ci:bundles`
-4. Commit source changes (plugin bundles are committed by CD on `main`)
-
-## Declarative sources
-
-This repo is configured to support RuleSync declarative source ingestion via `sources` in `rulesync.jsonc`.
-
-Use this when you want to import skills from upstream repos without manual copying. Example patterns are included in `rulesync.jsonc` comments.
 
 ## Hooks and onboarding
 
@@ -106,37 +130,38 @@ Use this when you want to import skills from upstream repos without manual copyi
 - Hook scripts live in `.rulesync/hooks/`
 - `/init-project` initializes .NET context and Serena onboarding checks
 
-## Agent model
+## MCP Integration
 
-- `dotnet-architect` is the main entry agent for user invocation
-- All other agents are specialist subagents and are non-user-invocable
-- Routing relies on foundation skills such as:
-  - `dotnet-advisor`
-  - `dotnet-version-detection`
-  - `dotnet-project-analysis`
+Includes Serena MCP for semantic code analysis:
+
+```json
+{
+  "mcpServers": {
+    "serena": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "ide-assistant", "--project", "."]
+    }
+  }
+}
+```
 
 ## CI/CD
 
-GitHub workflows validate and package RuleSync outputs:
+- `.github/workflows/rulesync-validate.yml` - Validates RuleSync configuration
 
-- `.github/workflows/rulesync-validate.yml`
-  - Validates RuleSync generation in an isolated workspace
-  - Builds bundles with bash-only scripts
-  - Validates manifests and runs install/runtime smoke checks
-- `.github/workflows/plugins-sync-pr.yml`
-  - Runs on every PR
-  - Regenerates full `plugins/**` from source-of-truth
-  - Auto-commits regenerated plugins for same-repo PR branches
-  - Fails fork PRs with maintainer action to run manual sync workflow
-- `.github/workflows/sync-plugins-for-pr.yml`
-  - Maintainer-triggered manual sync for fork PRs
-  - Regenerates full plugins for a target PR number and pushes when permitted
-- `.github/workflows/rulesync-generate.yml`
-  - Runs on push to `main`
-  - Verifies committed `plugins/**` matches generated output
-  - Publishes a single semver release (`vX.Y.Z`) with per-agent plugin assets and release notes
+## Contributing
+
+1. Edit only `.rulesync/*`, `rulesync.jsonc`, and automation under `scripts/`
+2. Run `npm run ci:rulesync`
+3. Commit source changes
+
+See `CONTRIBUTING.md` for skill authoring guidelines.
 
 ## Attribution
 
 - Original skills and agent corpus: `https://github.com/novotnyllc/dotnet-artisan`
 - RuleSync: `https://github.com/dyoshikawa/rulesync`
+
+## License
+
+MIT License - See `LICENSE` file for details.

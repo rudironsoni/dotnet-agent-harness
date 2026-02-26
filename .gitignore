@@ -1,6 +1,58 @@
+# Dependencies
 node_modules/
+
+# RuleSync generated files and directories
+# These are generated from .rulesync/ via `npx rulesync generate`
+.claude/
+.opencode/
+.vscode/
+.clinerules/
+.augment/
+.cline/
+.factory/
+.agent/
+.goose/
+.codex/
+.gemini/
+.zed/
+.kilocode/
+.junie/
+.qwen/
 .serena/
+.windsurf/
+.agents/
+.kiro/
+.cursor/
+.roo/
+.warp/
+
+# Root-level generated config files
+CLAUDE.md
+opencode.json
+GEMINI.md
+QWEN.md
+WARP.md
+replit.md
+.mcp.json
+.goosehints
+
+# Generated ignore files
+.kilocodeignore
+.gooseignore
+.cursorignore
+.aiignore
+.augmentignore
+.geminiignore
+.rooignore
+.clineignore
+.codeiumignore
+
+# Temporary directories
+.tmp/
 
 # Local editor and OS files
 .DS_Store
 Thumbs.db
+
+# Serena local cache
+.serena/
