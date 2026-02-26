@@ -1,19 +1,17 @@
 ---
 name: dotnet-ui-chooser
 description: Selects a .NET UI framework. Decision tree across Blazor, MAUI, Uno, WinUI, WPF, WinForms.
-user-invocable: true
 license: MIT
 targets: ["*"]
 tags: ["ui", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
   short-description: ".NET skill guidance for ui tasks"
 opencode:
-  mode: "skill"
-  version: "1.0.0"
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 ---
 
 # dotnet-ui-chooser

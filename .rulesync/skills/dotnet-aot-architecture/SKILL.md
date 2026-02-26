@@ -2,18 +2,16 @@
 name: dotnet-aot-architecture
 description: Designs AOT-first apps. Source gen over reflection, AOT-safe DI, serialization, factories.
 license: MIT
-user-invocable: false
 targets: ["*"]
 tags: ["aot", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
   short-description: ".NET skill guidance for aot tasks"
 opencode:
-  mode: "skill"
-  version: "1.0.0"
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 ---
 
 # dotnet-aot-architecture

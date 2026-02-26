@@ -2,18 +2,16 @@
 name: dotnet-cryptography
 description: Selects crypto algorithms and usage. Hashing, AES-GCM, RSA, ECDSA, PQC key derivation.
 license: MIT
-user-invocable: false
 targets: ["*"]
 tags: ["security", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
   short-description: ".NET skill guidance for security tasks"
 opencode:
-  mode: "skill"
-  version: "1.0.0"
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 ---
 
 # dotnet-cryptography

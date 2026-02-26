@@ -2,18 +2,16 @@
 name: dotnet-security-owasp
 description: Hardens .NET apps per OWASP Top 10 -- injection, auth, XSS, deprecated security APIs.
 license: MIT
-user-invocable: false
 targets: ["*"]
 tags: ["security", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
   short-description: ".NET skill guidance for security tasks"
 opencode:
-  mode: "skill"
-  version: "1.0.0"
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 ---
 
 # dotnet-security-owasp

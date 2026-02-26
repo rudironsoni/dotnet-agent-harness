@@ -2,18 +2,16 @@
 name: dotnet-realtime-communication
 description: Builds real-time features. SignalR hubs, SSE (.NET 10), JSON-RPC 2.0, gRPC streaming, scaling.
 license: MIT
-user-invocable: false
 targets: ["*"]
 tags: ["api", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
   short-description: ".NET skill guidance for api tasks"
 opencode:
-  mode: "skill"
-  version: "1.0.0"
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 ---
 
 # dotnet-realtime-communication

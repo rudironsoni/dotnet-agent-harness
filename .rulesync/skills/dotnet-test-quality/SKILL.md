@@ -2,18 +2,16 @@
 name: dotnet-test-quality
 description: Measures test effectiveness. Coverlet code coverage, Stryker.NET mutation testing, flaky tests.
 license: MIT
-user-invocable: false
 targets: ["*"]
 tags: ["testing", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
   short-description: ".NET skill guidance for testing tasks"
 opencode:
-  mode: "skill"
-  version: "1.0.0"
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 ---
 
 # dotnet-test-quality

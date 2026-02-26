@@ -15,12 +15,12 @@ MSG=""
 if [ "$SLN_COUNT" -gt 0 ] || [ "$CSPROJ_COUNT" -gt 0 ] || [ "$CS_COUNT" -gt 0 ] || [ "$HAS_GLOBAL_JSON" = true ]; then
   read -r -d '' MSG <<'EOF' || true
 <system-reminder>
-<dotnet-harness-toolkit-routing>
+<dotnet-agent-harness-routing>
 1. Mandatory first action: invoke [skill:dotnet-advisor].
 2. Do not plan, reason, design, or implement until [skill:dotnet-advisor] has been invoked.
 3. Follow advisor routing and invoke the relevant downstream skills.
 4. Apply standards defined by the routed skills.
-</dotnet-harness-toolkit-routing>
+</dotnet-agent-harness-routing>
 </system-reminder>
 EOF
 fi

@@ -1,29 +1,26 @@
 ---
 name: dotnet-performance-analyst
 description: "Analyzes .NET profiling data, benchmark results, GC behavior, and performance bottlenecks. Interprets flame graphs, heap dumps, and benchmark comparisons. Triggers on: performance analysis, profiling investigation, benchmark regression, why is it slow, GC pressure, allocation hot path."
-model: sonnet
-capabilities:
-  - Interpret dotnet-trace flame graphs and CPU sampling data
-  - Analyze dotnet-dump heap snapshots and SOS commands output
-  - Read BenchmarkDotNet comparison reports and identify regressions
-  - Correlate GC metrics and threadpool counters with application behavior
-  - Identify allocation hot paths and recommend zero-allocation alternatives
-  - Root-cause benchmark regressions across commits
-tools:
-  - Read
-  - Grep
-  - Glob
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
-user-invocable: false
+author: "dotnet-agent-harness"
 claudecode:
   model: inherit
+  allowed-tools:
+    - Read
+    - Grep
+    - Glob
 opencode:
   mode: "subagent"
-  model: anthropic/claude-sonnet-4-20250514
-  temperature: 0.1
+  tools:
+    bash: false
+    edit: false
+    write: false
+copilot:
+  tools: ["read", "search"]
+codexcli:
+  sandbox_mode: "read-only"
 ---
 
 # dotnet-performance-analyst

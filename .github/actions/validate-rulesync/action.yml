@@ -4,6 +4,12 @@ description: Validate RuleSync generation outputs and determinism
 runs:
   using: composite
   steps:
+    - name: Validate subagent frontmatter
+      shell: bash
+      run: |
+        echo "Validating subagent frontmatter..."
+        bash "$GITHUB_WORKSPACE/scripts/ci/validate_subagents.sh"
+
     - name: Validate RuleSync outputs and deterministic generation
       shell: bash
       run: |

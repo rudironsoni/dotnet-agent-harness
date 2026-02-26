@@ -2,18 +2,16 @@
 name: dotnet-gha-build-test
 description: Configures GitHub Actions .NET build/test -- setup-dotnet, NuGet cache, reporting.
 license: MIT
-user-invocable: false
 targets: ["*"]
 tags: ["testing", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
   short-description: ".NET skill guidance for testing tasks"
 opencode:
-  mode: "skill"
-  version: "1.0.0"
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 ---
 
 # dotnet-gha-build-test

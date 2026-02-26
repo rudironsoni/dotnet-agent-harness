@@ -1,32 +1,27 @@
 ---
 name: dotnet-docs-generator
 description: "Generates documentation for .NET projects. Analyzes project structure, recommends doc tooling, generates Mermaid architecture diagrams, writes XML doc comment skeletons, and scaffolds GitHub-native docs. Triggers on: generate docs, add documentation, create README, document this project, add XML docs, generate architecture diagram."
-model: sonnet
-capabilities:
-  - Analyze project structure and detect existing documentation
-  - Recommend documentation tooling (Starlight, Docusaurus, DocFX)
-  - Generate Mermaid architecture diagrams for .NET solutions
-  - Write XML doc comment skeletons for public APIs
-  - Scaffold GitHub-native docs (README, CONTRIBUTING, issue/PR templates)
-  - Configure GenerateDocumentationFile and doc-related MSBuild properties
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - Edit
-  - Write
 targets: ["*"]
 tags: ["dotnet", "subagent"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
-user-invocable: false
+author: "dotnet-agent-harness"
 claudecode:
   model: inherit
+  allowed-tools:
+    - Read
+    - Grep
+    - Glob
+    - Bash
+    - Edit
+    - Write
 opencode:
   mode: "subagent"
-  model: anthropic/claude-sonnet-4-20250514
-  temperature: 0.1
+  tools:
+    bash: true
+    edit: true
+    write: true
+copilot:
+  tools: ["read", "search", "execute", "edit"]
 ---
 
 # dotnet-docs-generator

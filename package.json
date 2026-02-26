@@ -1,5 +1,5 @@
 {
-  "name": "dotnet-harness-toolkit",
+  "name": "dotnet-agent-harness",
   "version": "0.0.1",
   "description": "Comprehensive .NET development skills for all AI agents",
   "scripts": {
@@ -8,7 +8,10 @@
     "rulesync:watch": "rulesync watch",
     "rulesync:validate": "bash scripts/ci/validate_rulesync.sh",
     "rulesync:install": "rulesync install",
-    "ci:rulesync": "bash scripts/ci/validate_rulesync.sh"
+    "validate:subagents": "bash scripts/ci/validate_subagents.sh",
+    "ci:rulesync": "bash scripts/ci/validate_subagents.sh && bash scripts/ci/validate_rulesync.sh",
+    "build:bundles": "bash scripts/build/build_plugin_bundles.sh",
+    "build:opencode-plugin": "cd packages/opencode-plugin && npm run build"
   },
   "devDependencies": {
     "rulesync": "^7.6.3"

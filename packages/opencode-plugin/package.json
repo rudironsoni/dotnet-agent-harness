@@ -1,0 +1,49 @@
+{
+  "name": "@dotnet-agent-harness/opencode-plugin",
+  "version": "0.0.1",
+  "description": "OpenCode plugin for dotnet-agent-harness - bundles agents, skills, commands, and rules",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "bundled/"
+  ],
+  "bundled": {
+    "agent": "./bundled/agent",
+    "command": "./bundled/command",
+    "skill": "./bundled/skill",
+    "memories": "./bundled/memories",
+    "plugins": "./bundled/plugins"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "opencode",
+    "plugin",
+    "dotnet",
+    "agent",
+    "harness",
+    "ai",
+    "coding"
+  ],
+  "author": "dotnet-agent-harness",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rudironsoni/dotnet-agent-harness-plugin"
+  },
+  "bugs": {
+    "url": "https://github.com/rudironsoni/dotnet-agent-harness-plugin/issues"
+  },
+  "homepage": "https://github.com/rudironsoni/dotnet-agent-harness-plugin#readme",
+  "peerDependencies": {
+    "opencode": ">=0.5.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

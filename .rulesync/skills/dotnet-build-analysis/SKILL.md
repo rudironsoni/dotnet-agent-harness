@@ -2,20 +2,17 @@
 name: dotnet-build-analysis
 description: Interprets MSBuild output, NuGet errors, analyzer warnings. Error codes, CI drift.
 license: MIT
-user-invocable: false
-context: fork
-model: haiku
 targets: ["*"]
 tags: ["foundation", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  model: haiku
 codexcli:
   short-description: ".NET skill guidance for foundation tasks"
 opencode:
-  mode: "skill"
-  version: "1.0.0"
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 ---
 
 # dotnet-build-analysis

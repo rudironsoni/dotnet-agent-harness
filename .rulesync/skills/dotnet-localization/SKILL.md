@@ -2,18 +2,16 @@
 name: dotnet-localization
 description: Localizes .NET apps. .resx resources, IStringLocalizer, source generators, pluralization, RTL.
 license: MIT
-user-invocable: false
 targets: ["*"]
 tags: ["csharp", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
   short-description: ".NET skill guidance for csharp tasks"
 opencode:
-  mode: "skill"
-  version: "1.0.0"
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 ---
 
 # dotnet-localization

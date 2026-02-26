@@ -2,18 +2,16 @@
 name: dotnet-io-pipelines
 description: Builds high-perf network I/O. PipeReader/PipeWriter, backpressure, protocol parsers, Kestrel.
 license: MIT
-user-invocable: false
 targets: ["*"]
 tags: ["cicd", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
   short-description: ".NET skill guidance for cicd tasks"
 opencode:
-  mode: "skill"
-  version: "1.0.0"
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 ---
 
 # dotnet-io-pipelines

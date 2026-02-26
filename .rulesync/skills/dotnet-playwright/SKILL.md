@@ -2,18 +2,16 @@
 name: dotnet-playwright
 description: Automates browser tests in .NET. Playwright E2E, CI browser caching, trace viewer, codegen.
 license: MIT
-user-invocable: false
 targets: ["*"]
 tags: ["testing", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
   short-description: ".NET skill guidance for testing tasks"
 opencode:
-  mode: "skill"
-  version: "1.0.0"
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 ---
 
 # dotnet-playwright

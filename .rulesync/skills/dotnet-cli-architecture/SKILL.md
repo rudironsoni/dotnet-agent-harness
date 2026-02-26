@@ -2,18 +2,16 @@
 name: dotnet-cli-architecture
 description: Structures CLI app layers. Command/handler/service separation, clig.dev principles, exit codes.
 license: MIT
-user-invocable: false
 targets: ["*"]
 tags: ["architecture", "dotnet", "skill"]
 version: "0.0.1"
-author: "dotnet-harness-toolkit"
+author: "dotnet-agent-harness"
 claudecode:
   allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 codexcli:
   short-description: ".NET skill guidance for architecture tasks"
 opencode:
-  mode: "skill"
-  version: "1.0.0"
+  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 ---
 
 # dotnet-cli-architecture
