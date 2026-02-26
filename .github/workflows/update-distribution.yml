@@ -1,0 +1,195 @@
+name: Update Distribution Repo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.rulesync/**'
+      - 'rulesync.jsonc'
+      - 'scripts/build/**'
+      - 'packages/opencode-plugin/**'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (skip PR creation)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  update-distribution:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate and build bundles
+        run: bash scripts/build/build_plugin_bundles.sh
+
+      - name: Build OpenCode plugin
+        run: npm run build:opencode-plugin
+
+      - name: Get source commit info
+        id: source_info
+        run: |
+          echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "MSG=$(git log -1 --format='%s')" >> $GITHUB_OUTPUT
+          echo "SHA_FULL=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Clone distribution repo
+        run: |
+          git clone --recurse-submodules \
+            "https://x-access-token:${{ secrets.DIST_REPO_TOKEN }}@github.com/rudironsoni/dotnet-agent-harness-plugin.git" \
+            /tmp/dist-repo
+
+      - name: Update distribution content
+        run: |
+          DIST="/tmp/dist-repo"
+
+          # ===================================================================
+          # PROTECTED (never removed):
+          #   .git/  .gitmodules  dotnet-agent-harness/  (submodule)
+          #   README.md  LICENSE  .gitignore
+          #   .github/workflows/  .github/actions/  (dist-repo CI, if any)
+          #
+          # MANAGED (removed + replaced each run):
+          #   Bundle directories and root files listed below, plus
+          #   copilot content inside .github/ (agents, instructions, prompts,
+          #   skills, copilot-instructions.md) — but NOT .github/workflows/
+          #   or .github/actions/.
+          # ===================================================================
+
+          # Bundle directories that are fully managed (safe to rm -rf)
+          BUNDLE_DIRS=(
+            ".claude"
+            ".opencode"
+            ".codex"
+            ".gemini"
+            ".agents"
+            ".agent"
+            "packages"
+          )
+
+          # Copilot subdirectories inside .github/ (surgical removal)
+          COPILOT_SUBDIRS=(
+            "agents"
+            "instructions"
+            "prompts"
+            "skills"
+          )
+          COPILOT_ROOT_FILES=(
+            "copilot-instructions.md"
+          )
+
+          # Root files that bundles may include
+          BUNDLE_ROOT_FILES=(
+            "AGENTS.md"
+            "GEMINI.md"
+          )
+
+          # 1. Remove managed bundle directories
+          for dir in "${BUNDLE_DIRS[@]}"; do
+            rm -rf "${DIST}/${dir}"
+          done
+
+          # 2. Remove copilot content inside .github/ (preserve workflows/actions)
+          for subdir in "${COPILOT_SUBDIRS[@]}"; do
+            rm -rf "${DIST}/.github/${subdir}"
+          done
+          for f in "${COPILOT_ROOT_FILES[@]}"; do
+            rm -f "${DIST}/.github/${f}"
+          done
+
+          # 3. Remove managed root files
+          for f in "${BUNDLE_ROOT_FILES[@]}"; do
+            rm -f "${DIST}/${f}"
+          done
+
+          # 4. Extract each bundle into the distribution repo
+          for zip_file in dist/*.zip; do
+            echo "Extracting $(basename "$zip_file")..."
+            unzip -o "$zip_file" -d "$DIST"
+          done
+
+          # 5. Copy the OpenCode plugin package
+          mkdir -p "${DIST}/packages/opencode-plugin"
+          cp -r packages/opencode-plugin/package.json "${DIST}/packages/opencode-plugin/"
+          cp -r packages/opencode-plugin/index.js "${DIST}/packages/opencode-plugin/"
+          cp -r packages/opencode-plugin/index.d.ts "${DIST}/packages/opencode-plugin/"
+          cp -r packages/opencode-plugin/README.md "${DIST}/packages/opencode-plugin/"
+          if [[ -d packages/opencode-plugin/bundled ]]; then
+            cp -r packages/opencode-plugin/bundled "${DIST}/packages/opencode-plugin/"
+          fi
+
+          # 6. Update submodule reference to latest source commit
+          cd "${DIST}/dotnet-agent-harness"
+          git fetch origin main
+          git checkout "${{ steps.source_info.outputs.SHA_FULL }}"
+          cd "${DIST}"
+
+      - name: Check for changes
+        id: changes
+        run: |
+          cd /tmp/dist-repo
+          git add -A
+          if git diff --cached --quiet; then
+            echo "HAS_CHANGES=false" >> $GITHUB_OUTPUT
+            echo "No changes to distribute."
+          else
+            echo "HAS_CHANGES=true" >> $GITHUB_OUTPUT
+            echo "Changes detected:"
+            git diff --cached --stat
+          fi
+
+      - name: Create PR on distribution repo
+        if: steps.changes.outputs.HAS_CHANGES == 'true' && (inputs.dry_run != 'true')
+        env:
+          GH_TOKEN: ${{ secrets.DIST_REPO_TOKEN }}
+        run: |
+          cd /tmp/dist-repo
+
+          BRANCH="update/source-${{ steps.source_info.outputs.SHA }}"
+          SOURCE_MSG="${{ steps.source_info.outputs.MSG }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "$BRANCH"
+          git commit -m "chore: update plugins from source (${{ steps.source_info.outputs.SHA }})" \
+            -m "Source commit: rudironsoni/dotnet-agent-harness@${{ steps.source_info.outputs.SHA_FULL }}" \
+            -m "Source message: ${SOURCE_MSG}"
+
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --repo "rudironsoni/dotnet-agent-harness-plugin" \
+            --base main \
+            --head "$BRANCH" \
+            --title "chore: update plugins from source (${{ steps.source_info.outputs.SHA }})" \
+            --body "## Plugin Update
+
+          Automated update from source repo [\`dotnet-agent-harness\`](https://github.com/rudironsoni/dotnet-agent-harness).
+
+          **Source commit:** [\`${{ steps.source_info.outputs.SHA }}\`](https://github.com/rudironsoni/dotnet-agent-harness/commit/${{ steps.source_info.outputs.SHA_FULL }})
+          **Source message:** ${SOURCE_MSG}
+
+          ### What changed
+          - Rebuilt all platform bundles (claudecode, opencode, copilot, codexcli, geminicli, agentsmd, antigravity)
+          - Updated OpenCode plugin package
+          - Updated submodule reference to latest source commit
+
+          ### Preserved
+          - Submodule (\`dotnet-agent-harness/\`)
+          - Repository metadata (\`README.md\`, \`LICENSE\`, \`.gitignore\`, \`.gitmodules\`)"
+
+          echo "PR created successfully."
