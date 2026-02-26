@@ -35,10 +35,10 @@ jobs:
         run: bash scripts/build/build_plugin_bundles.sh
 
       - name: Validate generated bundles
-        run: bash scripts/ci/validate_bundles.sh
+        uses: ./.github/actions/validate-plugin-bundles
 
       - name: Smoke install and runtime checks
-        run: bash scripts/ci/smoke_install.sh
+        uses: ./.github/actions/smoke-install
 
       - name: Detect plugin changes
         id: plugin_changes

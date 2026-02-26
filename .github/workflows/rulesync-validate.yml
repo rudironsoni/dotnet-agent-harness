@@ -7,6 +7,7 @@ on:
     paths:
       - "rulesync.jsonc"
       - ".rulesync/**"
+      - ".github/actions/**"
       - "scripts/**"
       - "package.json"
       - "package-lock.json"
@@ -37,7 +38,11 @@ jobs:
         run: bash scripts/build/build_plugin_bundles.sh --output-dir .tmp/plugins
 
       - name: Validate generated bundles
-        run: bash scripts/ci/validate_bundles.sh --plugins-dir .tmp/plugins
+        uses: ./.github/actions/validate-plugin-bundles
+        with:
+          plugins-dir: .tmp/plugins
 
       - name: Smoke install and runtime checks
-        run: bash scripts/ci/smoke_install.sh --plugins-dir .tmp/plugins
+        uses: ./.github/actions/smoke-install
+        with:
+          plugins-dir: .tmp/plugins
