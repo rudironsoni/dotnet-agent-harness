@@ -59,7 +59,21 @@ jobs:
             exit 1
           fi
 
-      - name: Create semver release and upload assets
-        env:
-          GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}
+      - name: Prepare semver release assets
+        id: prepare_release
         run: bash scripts/cd/release_plugins.sh --plugins-dir .tmp/plugins --output-dir .tmp/release-assets
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.prepare_release.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ steps.prepare_release.outputs.tag }}
+          body_path: ${{ steps.prepare_release.outputs.notes_file }}
+          files: |
+            .tmp/release-assets/*.tar.gz
+            .tmp/release-assets/*.zip
+            .tmp/release-assets/checksums-*.txt
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN || github.token }}

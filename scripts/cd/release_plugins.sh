@@ -26,24 +26,26 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-for command_name in gh jq zip tar sha256sum; do
+if [[ "$PLUGINS_DIR" != /* ]]; then
+  PLUGINS_DIR="$REPO_ROOT/$PLUGINS_DIR"
+fi
+
+if [[ "$OUTPUT_DIR" != /* ]]; then
+  OUTPUT_DIR="$REPO_ROOT/$OUTPUT_DIR"
+fi
+
+for command_name in git zip tar sha256sum; do
   if ! command -v "$command_name" >/dev/null 2>&1; then
     fail "Required command is missing: $command_name"
   fi
 done
 
 TMP_ROOT="$(mktemp -d)"
-NOTES_FILE="$TMP_ROOT/release-notes.md"
-created_tag=""
+NOTES_FILE=""
+TAG_FILE=""
 
 cleanup_on_exit() {
   local exit_code="$1"
-
-  if [[ "$exit_code" -ne 0 && -n "$created_tag" ]]; then
-    log "Release failed; deleting newly created tag: $created_tag"
-    git tag -d "$created_tag" >/dev/null 2>&1 || true
-    git push origin ":refs/tags/$created_tag" >/dev/null 2>&1 || true
-  fi
 
   rm -rf "$TMP_ROOT"
   popd >/dev/null || true
@@ -87,14 +89,13 @@ else
     previous_tag="$latest_tag"
   fi
 
-  log "Creating release tag: $next_tag"
-  git tag -a "$next_tag" -m "Release $next_tag"
-  git push origin "$next_tag"
-  created_tag="$next_tag"
+  log "Using next release tag: $next_tag"
 fi
 
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
+NOTES_FILE="$OUTPUT_DIR/release-notes.md"
+TAG_FILE="$OUTPUT_DIR/release-tag.txt"
 
 for agent in "${AGENTS[@]}"; do
   log "Packaging plugin bundle: $agent"
@@ -169,18 +170,17 @@ for agent in "${AGENTS[@]}"; do
   scope_logs "$agent" "plugins/$agent"
 done
 
-repo_slug="${REPO_SLUG:-$(gh repo view --json nameWithOwner -q .nameWithOwner)}"
+printf '%s\n' "$next_tag" > "$TAG_FILE"
 
-if gh release view "$next_tag" -R "$repo_slug" >/dev/null 2>&1; then
-  log "Updating existing release: $next_tag"
-  gh release edit "$next_tag" -R "$repo_slug" --title "$next_tag" --notes-file "$NOTES_FILE"
-  gh release upload "$next_tag" "$OUTPUT_DIR"/* -R "$repo_slug" --clobber
-else
-  log "Creating release: $next_tag"
-  gh release create "$next_tag" "$OUTPUT_DIR"/* -R "$repo_slug" --title "$next_tag" --notes-file "$NOTES_FILE"
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+  {
+    echo "tag=$next_tag"
+    echo "notes_file=$NOTES_FILE"
+    echo "tag_file=$TAG_FILE"
+  } >> "$GITHUB_OUTPUT"
 fi
 
-log "Release assets uploaded for $next_tag"
+log "Prepared release assets for $next_tag in $OUTPUT_DIR"
 
 trap - EXIT
 cleanup_on_exit 0
