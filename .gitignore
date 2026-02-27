@@ -60,7 +60,7 @@ replit.md
 
 # Build output
 dist/
-packages/dotnet-harness-opencode/bundled/
+packages/dotnet-harness-*/bundled/
 
 # Local editor and OS files
 .DS_Store

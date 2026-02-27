@@ -112,13 +112,13 @@ Generated output (`.github/agents/`, `.github/skills/`, `AGENTS.md`, etc.) is gi
 - **Humans edit only in source repo** (`dotnet-harness`):
   - `.rulesync/**`
   - generation scripts/workflows/docs
-  - plugin package source under `packages/dotnet-harness-opencode/**` (except generated bundle payload)
+  - platform package source under `packages/dotnet-harness-*/**` (except generated bundle payload)
 - **Generated-only in distribution repo** (`dotnet-harness-plugin`):
   - `.claude/**`, `.opencode/**`, `.codex/**`, `.gemini/**`, `.agents/**`, `.agent/**`
   - `.github/agents/**`, `.github/skills/**`, `.github/instructions/**`, `.github/prompts/**`,
     `.github/copilot-instructions.md`
   - `AGENTS.md`, `GEMINI.md`
-  - `packages/dotnet-harness-opencode/{index.js,index.d.ts,README.md,bundled/**,package.json}` (as currently mirrored)
+  - `packages/dotnet-harness-*/**` (all platform package assets)
 
 ### Branch protection + policy
 
@@ -141,7 +141,7 @@ In `dotnet-harness`:
   - keeps zip release + GitHub Packages publish
 - `update-distribution.yml` (existing concept, keep but harden):
   - trigger on source-of-truth path changes + manual dispatch
-  - generate bundles + opencode package outputs
+  - generate bundles + platform package outputs
   - sync into `dotnet-harness-plugin`
   - open/refresh PR in distribution repo
 - `verify-generation.yml` (recommended new):
@@ -160,7 +160,14 @@ In `dotnet-harness-plugin`:
 ### Release and distribution matrix (single source of truth doc)
 
 - Claude Code marketplace: `dotnet-harness-plugin` repo content
-- OpenCode: GitHub Packages npm package `@rudironsoni/dotnet-harness-opencode`
+- Platform npm packages on GitHub Packages:
+  - `@rudironsoni/dotnet-harness-opencode`
+  - `@rudironsoni/dotnet-harness-claudecode`
+  - `@rudironsoni/dotnet-harness-copilot`
+  - `@rudironsoni/dotnet-harness-codexcli`
+  - `@rudironsoni/dotnet-harness-geminicli`
+  - `@rudironsoni/dotnet-harness-agentsmd`
+  - `@rudironsoni/dotnet-harness-antigravity`
 - Manual platforms: zip artifacts from source repo releases (`dist/*.zip`) and/or distribution repo snapshot
 - Source authoring: only `dotnet-harness`
 

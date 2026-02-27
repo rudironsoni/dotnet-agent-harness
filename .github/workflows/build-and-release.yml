@@ -114,16 +114,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build OpenCode plugin
+      - name: Build platform packages
         run: |
           set -euo pipefail
-          cd packages/dotnet-harness-opencode
-          npm run build
+          npm run build:platform-packages
 
       - name: Publish to GitHub Packages
         run: |
           set -euo pipefail
-          cd packages/dotnet-harness-opencode
-          npm publish
+          for pkg in packages/dotnet-harness-*; do
+            if [[ ! -d "$pkg" ]]; then
+              continue
+            fi
+            if [[ ! -f "$pkg/package.json" ]]; then
+              continue
+            fi
+            echo "Publishing $(basename "$pkg")"
+            cd "$pkg"
+            npm publish
+            cd - >/dev/null
+          done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

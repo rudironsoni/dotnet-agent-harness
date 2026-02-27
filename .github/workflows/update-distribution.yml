@@ -7,7 +7,7 @@ on:
       - ".rulesync/**"
       - "rulesync.jsonc"
       - "scripts/build/**"
-      - "packages/dotnet-harness-opencode/**"
+      - "packages/dotnet-harness-*/**"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -45,10 +45,10 @@ jobs:
           set -euo pipefail
           bash scripts/build/build_plugin_bundles.sh
 
-      - name: Build OpenCode plugin
+      - name: Build platform packages
         run: |
           set -euo pipefail
-          npm run build:opencode-plugin
+          npm run build:platform-packages
 
       - name: Get source commit info
         id: source_info
@@ -145,15 +145,26 @@ jobs:
             unzip -o "$zip_file" -d "$DIST"
           done
 
-          # 5. Copy the OpenCode plugin package
-          mkdir -p "${DIST}/packages/dotnet-harness-opencode"
-          cp -r packages/dotnet-harness-opencode/package.json "${DIST}/packages/dotnet-harness-opencode/"
-          cp -r packages/dotnet-harness-opencode/index.js "${DIST}/packages/dotnet-harness-opencode/"
-          cp -r packages/dotnet-harness-opencode/index.d.ts "${DIST}/packages/dotnet-harness-opencode/"
-          cp -r packages/dotnet-harness-opencode/README.md "${DIST}/packages/dotnet-harness-opencode/"
-          if [[ -d packages/dotnet-harness-opencode/bundled ]]; then
-            cp -r packages/dotnet-harness-opencode/bundled "${DIST}/packages/dotnet-harness-opencode/"
-          fi
+          # 5. Copy all platform package directories
+          mkdir -p "${DIST}/packages"
+          for pkg in packages/dotnet-harness-*; do
+            if [[ ! -d "${pkg}" ]]; then
+              continue
+            fi
+            pkg_name="$(basename "${pkg}")"
+            rm -rf "${DIST}/packages/${pkg_name}"
+            mkdir -p "${DIST}/packages/${pkg_name}"
+
+            for f in package.json README.md index.js index.d.ts; do
+              if [[ -f "${pkg}/${f}" ]]; then
+                cp -r "${pkg}/${f}" "${DIST}/packages/${pkg_name}/"
+              fi
+            done
+
+            if [[ -d "${pkg}/bundled" ]]; then
+              cp -r "${pkg}/bundled" "${DIST}/packages/${pkg_name}/"
+            fi
+          done
 
           # 6. Update submodule reference to latest source commit
           cd "${DIST}/dotnet-harness"
@@ -232,7 +243,7 @@ jobs:
 
           ### What changed
           - Rebuilt all platform bundles (claudecode, opencode, copilot, codexcli, geminicli, agentsmd, antigravity)
-          - Updated OpenCode plugin package
+          - Updated platform npm packages
           - Updated submodule reference to latest source commit
 
           ### Preserved
