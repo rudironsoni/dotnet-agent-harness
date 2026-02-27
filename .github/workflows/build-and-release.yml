@@ -152,6 +152,11 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+
       - name: Download artifacts
         uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
@@ -197,6 +202,107 @@ jobs:
             exit 1
           fi
 
+      - name: Generate descriptive changelog for distribution release
+        id: changelog
+        env:
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
+        run: |
+          set -euo pipefail
+
+          previous_tag="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | grep -vx "$VERSION" | head -n1 || true)"
+          if [[ -n "$previous_tag" ]]; then
+            range="${previous_tag}..HEAD"
+            compare_text="Compared against ${previous_tag}."
+          else
+            range="HEAD"
+            compare_text="First release baseline (no previous semver tag found)."
+          fi
+
+          changed_files="$(git diff --name-only $range || true)"
+
+          touches_shared=false
+          if printf '%s\n' "$changed_files" | grep -Eq '^(\.rulesync/|scripts/build/|\.github/workflows/|package\.json|package-lock\.json|README\.md$)'; then
+            touches_shared=true
+          fi
+
+          touched() {
+            local pattern="$1"
+            if [[ "$touches_shared" == true ]]; then
+              return 0
+            fi
+            printf '%s\n' "$changed_files" | grep -Eq "$pattern"
+          }
+
+          status_line() {
+            local changed="$1"
+            if [[ "$changed" == true ]]; then
+              printf '%s' "Changed"
+            else
+              printf '%s' "No direct content change"
+            fi
+          }
+
+          claudecode=false
+          opencode=false
+          copilot=false
+          codexcli=false
+          geminicli=false
+          agentsmd=false
+          antigravity=false
+
+          touched '^(packages/dotnet-harness-claudecode/|\.rulesync/rules/targets/claudecode\.md)' && claudecode=true || true
+          touched '^(packages/dotnet-harness-opencode/|\.rulesync/rules/targets/opencode\.md)' && opencode=true || true
+          touched '^(packages/dotnet-harness-copilot/|\.rulesync/rules/targets/copilot\.md|\.github/)' && copilot=true || true
+          touched '^(packages/dotnet-harness-codexcli/|\.rulesync/rules/targets/codexcli\.md)' && codexcli=true || true
+          touched '^(packages/dotnet-harness-geminicli/|\.rulesync/rules/targets/geminicli\.md)' && geminicli=true || true
+          touched '^(packages/dotnet-harness-agentsmd/|\.rulesync/rules/targets/agentsmd\.md)' && agentsmd=true || true
+          touched '^(packages/dotnet-harness-antigravity/|\.rulesync/rules/targets/antigravity\.md)' && antigravity=true || true
+
+          cat > dist/release-notes-plugin.md <<EOF
+          ## Release Summary
+
+          - Source version: ${VERSION}
+          - ${compare_text}
+          - This release packages regenerated plugin artifacts from the source-of-truth RuleSync definitions.
+
+          ## Plugin Changelog and Rationale
+
+          ### dotnet-harness-claudecode
+          - Status: $(status_line "$claudecode")
+          - What changed: Refreshed Claude Code bundle content under \\.claude with latest generated agents, skills, commands, and rules.
+          - Rationale: Keep Claude plugin installs aligned with current source guidance and avoid stale local bootstrap content.
+
+          ### dotnet-harness-opencode
+          - Status: $(status_line "$opencode")
+          - What changed: Rebuilt OpenCode plugin payload and bundled manifests for generated agents, skills, commands, memories, and plugin config.
+          - Rationale: Ensure OpenCode consumers get consistent behavior with the latest source changes and package metadata.
+
+          ### dotnet-harness-copilot
+          - Status: $(status_line "$copilot")
+          - What changed: Updated generated Copilot instructions/prompts/skills/agents artifacts and copilot instruction entrypoint.
+          - Rationale: Keep Copilot prompt/instruction surfaces synchronized with source-authored rules and platform capabilities.
+
+          ### dotnet-harness-codexcli
+          - Status: $(status_line "$codexcli")
+          - What changed: Regenerated Codex CLI bundle and root AGENTS documentation payload for package consumers.
+          - Rationale: Preserve compatibility between Codex CLI installs and the canonical multi-agent rule definitions.
+
+          ### dotnet-harness-geminicli
+          - Status: $(status_line "$geminicli")
+          - What changed: Refreshed Gemini CLI bundle and GEMINI markdown guidance payload.
+          - Rationale: Ensure Gemini users receive current operational instructions and generated skill/agent content.
+
+          ### dotnet-harness-agentsmd
+          - Status: $(status_line "$agentsmd")
+          - What changed: Rebuilt AGENTS.md-focused bundle and associated generated \\.agents assets.
+          - Rationale: Keep AGENTS.md consumers aligned with latest source orchestration and role definitions.
+
+          ### dotnet-harness-antigravity
+          - Status: $(status_line "$antigravity")
+          - What changed: Regenerated Antigravity-compatible bundle under \\.agent.
+          - Rationale: Maintain parity for Antigravity installs with source-maintained cross-platform guidance.
+          EOF
+
       - name: Create release in distribution repo
         env:
           GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN }}
@@ -208,9 +314,12 @@ jobs:
             gh release upload "$VERSION" dist/*.zip \
               --repo rudironsoni/dotnet-harness-plugin \
               --clobber
+            gh release edit "$VERSION" \
+              --repo rudironsoni/dotnet-harness-plugin \
+              --notes-file dist/release-notes-plugin.md
           else
             gh release create "$VERSION" dist/*.zip \
               --repo rudironsoni/dotnet-harness-plugin \
               --title "Release $VERSION" \
-              --generate-notes
+              --notes-file dist/release-notes-plugin.md
           fi
