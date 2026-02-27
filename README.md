@@ -89,6 +89,107 @@ All authored content lives exclusively under `.rulesync/`:
 Generated output (`.github/agents/`, `.github/skills/`, `AGENTS.md`, etc.) is gitignored and produced by
 `rulesync generate`.
 
+## Distribution strategy decision
+
+### Decision
+
+- Keep **two repos**:
+  - `dotnet-agent-harness` = authored source + generation orchestration
+  - `dotnet-agent-harness-plugin` = generated artifacts only (marketplace/distribution surface)
+- Treat the plugin repo as **bot-managed output**, not a development repo.
+
+### Why this is the best fit
+
+- Matches your channel reality:
+  - Claude Code uses repo as marketplace
+  - OpenCode uses npm artifacts
+  - Other platforms need manual-copy bundles
+- Reduces contributor friction by keeping generated churn out of source `main`.
+- Gives a clean public "install surface" for consumers while preserving clean source ownership.
+
+### Ownership boundaries
+
+- **Humans edit only in source repo** (`dotnet-agent-harness`):
+  - `.rulesync/**`
+  - generation scripts/workflows/docs
+  - plugin package source under `packages/opencode-plugin/**` (except generated bundle payload)
+- **Generated-only in distribution repo** (`dotnet-agent-harness-plugin`):
+  - `.claude/**`, `.opencode/**`, `.codex/**`, `.gemini/**`, `.agents/**`, `.agent/**`
+  - `.github/agents/**`, `.github/skills/**`, `.github/instructions/**`, `.github/prompts/**`,
+    `.github/copilot-instructions.md`
+  - `AGENTS.md`, `GEMINI.md`
+  - `packages/opencode-plugin/{index.js,index.d.ts,README.md,bundled/**,package.json}` (as currently mirrored)
+
+### Branch protection + policy
+
+- On `dotnet-agent-harness-plugin` `main`:
+  - require PRs (no direct pushes)
+  - require status checks:
+    - `enforce-generated-only`
+    - `enforce-bot-author-for-generated`
+  - restrict who can push/merge (bot + maintainers)
+- Policy rules:
+  - any change under generated paths must be authored by `github-actions[bot]` (or your dedicated bot account)
+  - optional: block non-generated files from changing in distribution repo except allowlist (`README.md`, `LICENSE`,
+    workflow files)
+
+### Minimal workflow set
+
+In `dotnet-agent-harness`:
+
+- `build-and-release.yml` (already present):
+  - keeps zip release + GitHub Packages publish
+- `update-distribution.yml` (existing concept, keep but harden):
+  - trigger on source-of-truth path changes + manual dispatch
+  - generate bundles + opencode package outputs
+  - sync into `dotnet-agent-harness-plugin`
+  - open/refresh PR in distribution repo
+- `verify-generation.yml` (recommended new):
+  - PR check in source repo
+  - regenerate outputs
+  - fail if generated output doesn't match expectations (drift detection)
+
+In `dotnet-agent-harness-plugin`:
+
+- `enforce-generated-policy.yml` (recommended new):
+  - on PR/push, ensure:
+    - changed generated paths are bot-authored
+    - only allowed file areas changed
+  - fail otherwise
+
+### Release and distribution matrix (single source of truth doc)
+
+- Claude Code marketplace: `dotnet-agent-harness-plugin` repo content
+- OpenCode: GitHub Packages npm package `@rudironsoni/opencode-plugin`
+- Manual platforms: zip artifacts from source repo releases (`dist/*.zip`) and/or distribution repo snapshot
+- Source authoring: only `dotnet-agent-harness`
+
+### Runbook (ops)
+
+- **Normal update**
+  - merge source change to `dotnet-agent-harness/main`
+  - bot workflow opens/updates PR in plugin repo
+  - checks pass, merge PR
+- **Sync failed**
+  - rerun failed workflow in source repo
+  - if PR branch stale/conflicted, close and regenerate branch via rerun
+- **Policy check failed in plugin repo**
+  - inspect changed files: usually manual edit slipped in
+  - revert manual change, let bot regenerate
+- **Hotfix required for consumer**
+  - make fix in source repo only
+  - trigger manual dispatch for distribution sync
+- **Rollback**
+  - revert source commit in source repo
+  - rerun sync workflow to regenerate prior known-good state in plugin repo
+
+### Governance rules
+
+- No human manual edits to generated payload in plugin repo.
+- No git hooks relied upon for security enforcement.
+- CI + branch protection are the enforcement mechanism.
+- Document this in both repos' README "Contributing" sections.
+
 ## Attribution
 
 - Original corpus: `https://github.com/novotnyllc/dotnet-artisan`
