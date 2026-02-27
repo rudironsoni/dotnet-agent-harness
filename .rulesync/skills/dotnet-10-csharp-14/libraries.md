@@ -50,29 +50,6 @@ public class UserService
 }
 ```
 
-## Mapping
-
-### Mapster
-
-```bash
-dotnet add package Mapster.DependencyInjection
-```
-
-```csharp
-// Registration
-builder.Services.AddMapster();
-
-// Usage
-var dto = user.Adapt<UserDto>();
-
-// Or with config
-var config = new TypeAdapterConfig();
-config.ForType<User, UserDto>()
-    .Map(dest => dest.FullName, src => $"{src.FirstName} {src.LastName}");
-
-var dto = user.Adapt<UserDto>(config);
-```
-
 ## Result Pattern
 
 ### ErrorOr
@@ -104,36 +81,47 @@ return result.Match(
 
 ## Mediator Pattern
 
-### MediatR
+### Mediator (Source Generator)
+
+High-performance mediator implementation using Roslyn source generators. Zero reflection, minimal allocations.
 
 ```bash
-dotnet add package MediatR
+dotnet add package Mediator.SourceGenerator
+dotnet add package Mediator.Abstractions
 ```
 
 ```csharp
-// Command
-public record CreateUserCommand(string Name, string Email) : IRequest<ErrorOr<User>>;
+// Message
+public sealed record CreateUserCommand(string Name, string Email) : ICommand<ErrorOr<User>>;
 
 // Handler
-public class CreateUserHandler : IRequestHandler<CreateUserCommand, ErrorOr<User>>
+public sealed class CreateUserHandler : ICommandHandler<CreateUserCommand, ErrorOr<User>>
 {
     private readonly IUserRepository _repository;
 
-    public async Task<ErrorOr<User>> Handle(CreateUserCommand request, CancellationToken ct)
+    public async ValueTask<ErrorOr<User>> Handle(CreateUserCommand command, CancellationToken ct)
     {
-        var user = new User(request.Name, request.Email);
+        var user = new User(command.Name, command.Email);
         await _repository.CreateAsync(user, ct);
         return user;
     }
 }
 
 // Registration
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssemblyContaining<CreateUserHandler>());
+builder.Services.AddMediator(options =>
+    options.ServiceLifetime = ServiceLifetime.Scoped);
 
 // Usage
-var result = await mediator.Send(new CreateUserCommand("John", "john@example.com"));
+var result = await mediator.Send(new CreateUserCommand("John", "john@example.com"), ct);
 ```
+
+**Key differences from MediatR:**
+
+- Source generator eliminates reflection
+- `ICommand<T>` / `IQuery<T>` / `INotification` interfaces
+- `ValueTask<T>` returns for better performance
+- Automatic handler discovery at compile time
+- ~10x faster than reflection-based mediators
 
 ## API Documentation
 
@@ -199,10 +187,7 @@ See [infrastructure.md](infrastructure.md) for Serilog configuration.
 | Category   | Library          | Package                                          |
 | ---------- | ---------------- | ------------------------------------------------ |
 | Validation | FluentValidation | `FluentValidation.DependencyInjectionExtensions` |
-| Mapping    | Mapster          | `Mapster.DependencyInjection`                    |
-| Result     | ErrorOr          | `ErrorOr`                                        |
-| Mediator   | MediatR          | `MediatR`                                        |
-| API Docs   | Scalar           | `Scalar.AspNetCore`                              |
-| Testing    | FluentAssertions | `FluentAssertions`                               |
-| Testing    | NSubstitute      | `NSubstitute`                                    |
-| Logging    | Serilog          | `Serilog.AspNetCore`                             |
+
+| Result | ErrorOr | `ErrorOr` | | Mediator | Mediator | `Mediator.SourceGenerator` | | API Docs | Scalar |
+`Scalar.AspNetCore` | | Testing | FluentAssertions | `FluentAssertions` | | Testing | NSubstitute | `NSubstitute` | |
+Logging | Serilog | `Serilog.AspNetCore` |
