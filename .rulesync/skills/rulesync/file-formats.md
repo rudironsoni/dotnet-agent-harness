@@ -273,9 +273,11 @@ tmp/
 credentials/
 
 ```text
+
+## References
+
+- [RuleSync Documentation](https://rulesync.dyoshikawa.com/)
+
+```
 ````
 `````
-
-```
-
-```

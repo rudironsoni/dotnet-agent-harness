@@ -760,9 +760,12 @@ when a new version is published.
 1. **OpenAPI UI (Scalar, Swagger UI) should only be exposed in development** -- wrap `MapScalarApiReference` and
     `UseSwaggerUI` in `if (app.Environment.IsDevelopment())` guards. Production exposure of interactive API docs is a
     security consideration.
+
+## References
+
+- [Mermaid Live Editor](https://mermaid.live/)
+- [Mermaid Documentation](https://mermaid.js.org/)
+
+```
 ````
 `````
-
-```
-
-```

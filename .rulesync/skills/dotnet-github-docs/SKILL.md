@@ -144,10 +144,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 See [CHANGELOG.md](CHANGELOG.md) for a history of changes. For changelog format conventions, see
 [skill:dotnet-release-management].
-`````
-``````
-
-`````
 
 ### Architecture Diagram in README
 
@@ -646,3 +642,4 @@ Example: "High-performance JSON serialization library for .NET 8+ with source ge
     patterns to embed in architecture sections.
 ````
 `````
+``````
