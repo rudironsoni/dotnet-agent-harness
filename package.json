@@ -49,7 +49,7 @@
     "markdown-link-check": "^3.14.2",
     "markdownlint-cli2": "^0.21.0",
     "prettier": "^3.8.1",
-    "rulesync": "^7.9.0",
+    "rulesync": "^7.10.0",
     "shellcheck": "^4.1.0",
     "shfmt": "^0.0.1",
     "yaml": "^2.7.0",
