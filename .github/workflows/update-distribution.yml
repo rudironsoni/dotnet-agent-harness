@@ -208,7 +208,7 @@ jobs:
           fi
 
       - name: Create PR on distribution repo
-        if: steps.changes.outputs.HAS_CHANGES == 'true' && (inputs.dry_run != 'true')
+        if: steps.changes.outputs.HAS_CHANGES == 'true' && !inputs.dry_run
         env:
           GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN }}
           SOURCE_SHA: ${{ steps.source_info.outputs.SHA }}
