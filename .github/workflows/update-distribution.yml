@@ -167,6 +167,7 @@ jobs:
           done
 
           # 6. Update submodule reference to latest source commit
+          git -C "${DIST}" submodule update --init --recursive
           cd "${DIST}/dotnet-harness"
           git fetch origin main
           git checkout "$SOURCE_SHA_FULL"
