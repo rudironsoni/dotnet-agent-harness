@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const process = require('node:process');
 const { execSync } = require('child_process');
 
 function copyDir(src, dest) {
