@@ -1,20 +1,78 @@
 {
   "mcpServers": {
-    "serena": {
-      "description": "Semantic code analysis and editing toolkit",
+    "serena-claude-code": {
+      "description": "Serena for Claude Code - per-project semantic analysis",
       "type": "stdio",
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/oraios/serena@v0.1.4",
+        "git+https://github.com/oraios/serena",
         "serena",
         "start-mcp-server",
         "--context",
-        "ide-assistant",
-        "--enable-web-dashboard",
-        "false",
+        "claude-code",
         "--project",
-        "."
+        "${PWD}"
+      ],
+      "env": {}
+    },
+    "serena-vscode": {
+      "description": "Serena for VSCode - IDE integration",
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide",
+        "--project",
+        "${workspaceFolder}"
+      ],
+      "env": {}
+    },
+    "serena-codex": {
+      "description": "Serena for Codex CLI - requires project activation",
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "codex"
+      ],
+      "env": {}
+    },
+    "serena-global": {
+      "description": "Serena global config for Claude Desktop/Antigravity",
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide"
+      ],
+      "env": {}
+    },
+    "serena-jetbrains": {
+      "description": "Serena for JetBrains IDEs - IDE integration",
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide",
+        "--project",
+        "${PWD}"
       ],
       "env": {}
     },
