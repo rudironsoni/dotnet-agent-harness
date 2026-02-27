@@ -99,6 +99,16 @@ This agent activates on benchmark design queries including: "design a benchmark"
 - "Is this benchmark vulnerable to dead code elimination?"
 - "Set up a baseline comparison between the old and new implementation"
 
+## Knowledge Sources
+
+This agent's guidance is grounded in publicly available content from:
+
+- **Adam Sitnik's BenchmarkDotNet Guidance** -- Creator of BenchmarkDotNet; authoritative documentation on benchmark methodology, diagnoser selection, job configuration, and avoiding measurement pitfalls. Source: https://benchmarkdotnet.org/
+- **Ben Watson's "Writing High-Performance .NET Code"** -- Practical benchmark design patterns, GC interaction measurement, and performance validation methodology for .NET applications. Source: https://www.writinghighperf.net/
+- **Stephen Toub's .NET Performance Blog** -- Performance comparison methodology across .NET releases, demonstrating correct benchmark design for allocation, throughput, and latency measurement. Source: https://devblogs.microsoft.com/dotnet/author/toub/
+
+> **Disclaimer:** This agent applies publicly documented guidance. It does not represent or speak for the named knowledge sources.
+
 ## References
 
 - [BenchmarkDotNet Documentation](https://benchmarkdotnet.org/)

@@ -2,7 +2,13 @@
 
 set -euo pipefail
 
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+# Ensure we're in a git repository
+if ! git rev-parse --show-toplevel >/dev/null 2>&1; then
+  echo "ERROR: Not inside a git repository" >&2
+  exit 1
+fi
+
+readonly REPO_ROOT="$(git rev-parse --show-toplevel)"
 
 log() {
   printf '%s\n' "$*"

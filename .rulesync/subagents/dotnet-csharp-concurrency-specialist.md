@@ -201,6 +201,19 @@ public int Current => Volatile.Read(ref _counter);
 | `ImmutableArray<T>` | N/A (immutable) | Shared read-only collections |
 | `ReaderWriterLockSlim` | No | Many readers, few writers (prefer `lock` unless profiled) |
 
+## Trigger Lexicon
+
+This agent activates on concurrency investigation queries including: "race condition", "deadlock", "thread safety", "concurrent access", "lock contention", "async race", "parallel execution problem", "synchronization issue", "thread pool starvation", "data corruption from threading", "is this thread-safe", "ConcurrentDictionary usage".
+
+## Example Prompts
+
+- "Is this code thread-safe? Multiple requests access this shared dictionary"
+- "I'm getting intermittent data corruption -- help me find the race condition"
+- "This API deadlocks under load -- what's causing it?"
+- "Review this ConcurrentDictionary usage for correctness"
+- "Should I use lock, SemaphoreSlim, or Channel for this producer-consumer scenario?"
+- "Why does this code work in unit tests but fail with concurrent requests in production?"
+
 ## When to Escalate
 
 - If the issue involves distributed concurrency (multiple processes/nodes), this is beyond single-process thread safety -- recommend distributed locks, message queues, or actor frameworks

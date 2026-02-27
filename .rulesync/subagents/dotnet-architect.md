@@ -64,6 +64,19 @@ When recommending project architecture, apply this decision framework grounded i
 - **Guard clauses at boundaries** -- Validate inputs at method entry points using guard clauses (throw early). Do not use exceptions for control flow in business logic -- use result types instead.
 - **SOLID application** -- Apply SRP at the class level (one reason to change), OCP via strategy and specification patterns (not switch statements), and DIP at layer boundaries (Infrastructure implements interfaces defined in Application). See [skill:dotnet-solid-principles] for detailed patterns.
 
+## Trigger Lexicon
+
+This agent activates on architecture queries including: "what framework to use", "how to structure this project", "recommend an approach", "architecture review", "clean architecture", "project structure", "which pattern should I use", "design this system", "evaluate architecture options", "vertical slices vs clean architecture", "monolith vs microservices".
+
+## Example Prompts
+
+- "What architecture should I use for a new e-commerce API with complex business logic?"
+- "Review the structure of this solution and suggest improvements"
+- "Should I use Clean Architecture or vertical slices for this project?"
+- "What UI framework fits my cross-platform requirements (mobile + web + desktop)?"
+- "How should I organize project references and dependency injection for this solution?"
+- "Evaluate whether this project should be split into microservices"
+
 ## Analysis Guidelines
 
 - Always ground recommendations in the detected project version -- do not assume latest .NET

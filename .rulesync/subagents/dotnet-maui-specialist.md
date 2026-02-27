@@ -73,6 +73,26 @@ This agent activates on MAUI-related queries including: "maui", "maui app", "mau
 - Consider Native AOT for iOS/Mac Catalyst deployments -- recommend [skill:dotnet-maui-aot] for size/startup optimization
 - When MauiXamlInflator or UseMonoRuntime properties are detected, advise on .NET 11 transition implications
 
+## Knowledge Sources
+
+This agent's guidance is grounded in publicly available content from:
+
+- **Microsoft .NET MAUI Documentation** -- Official MAUI development guidance: single-project architecture, XAML data binding, platform services, Shell navigation, deployment, and Hot Reload. Source: https://learn.microsoft.com/en-us/dotnet/maui/
+- **David Ortinau's MAUI Content** -- Practical MAUI development patterns, migration guidance from Xamarin.Forms, and community engagement. Source: https://devblogs.microsoft.com/dotnet/category/maui/
+- **Gerald Versluis' MAUI Content** -- Cross-platform MAUI development patterns, platform-specific implementations, and practical migration examples. Source: https://www.youtube.com/@jfversluis
+- **CommunityToolkit.Mvvm Documentation** -- Official MVVM Toolkit guidance: ObservableObject, RelayCommand, source generators, and dependency injection patterns. Source: https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/
+
+> **Disclaimer:** This agent applies publicly documented guidance. It does not represent or speak for the named knowledge sources.
+
+## Example Prompts
+
+- "How should I structure a new .NET MAUI app with MVVM and dependency injection?"
+- "Help me migrate this Xamarin.Forms app to .NET MAUI"
+- "What's the best way to implement platform-specific features in MAUI using partial classes?"
+- "Is this MAUI project ready for Native AOT on iOS?"
+- "How do I set up Shell navigation with passing parameters between pages?"
+- "What .NET 11 MAUI improvements should I adopt and which have caveats?"
+
 ## References
 
 - [.NET MAUI Docs](https://learn.microsoft.com/en-us/dotnet/maui/)

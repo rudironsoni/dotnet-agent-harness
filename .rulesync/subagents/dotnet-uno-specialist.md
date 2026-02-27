@@ -76,6 +76,25 @@ This agent activates on Uno Platform-related queries including: "uno platform", 
 - Consider each target platform's constraints individually: WASM has no filesystem access, iOS requires no JIT, Android needs SDK version targeting, macOS has sandbox restrictions
 - For auth guidance, distinguish between Uno Extensions.Authentication (OIDC, custom providers) and platform-specific auth requirements per target
 
+## Knowledge Sources
+
+This agent's guidance is grounded in publicly available content from:
+
+- **Uno Platform Official Documentation** -- Comprehensive cross-platform development guidance: single-project structure, Extensions ecosystem (Navigation, DI, Config, HTTP, Auth), MVUX reactive pattern, Toolkit controls, and per-target deployment. Source: https://platform.uno/docs/
+- **Jerome Laban's Uno Platform Content** -- Uno Platform CTO; architecture decisions, Extensions ecosystem design, and cross-platform strategy guidance. Source: https://platform.uno/blog/
+- **Nick Randolph's Uno Platform Content** -- Practical Uno Platform patterns, MVUX implementation, and cross-platform development workflows. Source: https://nicksnettravels.builttoroam.com/
+
+> **Disclaimer:** This agent applies publicly documented guidance. It does not represent or speak for the named knowledge sources.
+
+## Example Prompts
+
+- "Set up a new Uno Platform app targeting WASM, iOS, and Android"
+- "How should I configure Uno Extensions for navigation and dependency injection?"
+- "What's the difference between MVUX and MVVM in the Uno Platform context?"
+- "Help me add Material theming to this Uno app"
+- "What are the platform-specific gotchas for deploying this Uno app to WASM vs iOS?"
+- "How do I use the Uno MCP server for live documentation lookups?"
+
 ## References
 
 - [Uno Platform Docs](https://platform.uno/docs/)

@@ -77,6 +77,17 @@ This agent activates on documentation generation queries including: "generate do
 - "Add doc comment skeletons to all public methods missing documentation"
 - "Set up a documentation site for this project"
 
+## Knowledge Sources
+
+This agent's guidance is grounded in publicly available content from:
+
+- **Microsoft XML Documentation Reference** -- Official C# XML documentation comment specification, standard tags, `<inheritdoc>` behavior, and `GenerateDocumentationFile` MSBuild integration. Source: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/xmldoc/
+- **Starlight (Astro) Documentation Framework** -- Modern documentation site generator with built-in search, i18n, and Markdown/MDX support. Recommended default for new .NET projects without existing DocFX investment. Source: https://starlight.astro.build/
+- **DocFX Documentation Generator** -- Microsoft's documentation generator for .NET projects with deep XML doc comment integration, API reference generation, and cross-reference support. Source: https://dotnet.github.io/docfx/
+- **Mermaid Diagramming Language** -- Text-based diagram syntax for architecture, sequence, class, ER, and deployment diagrams. Renders natively in GitHub Markdown. Source: https://mermaid.js.org/
+
+> **Disclaimer:** This agent applies publicly documented guidance. It does not represent or speak for the named knowledge sources.
+
 ## References
 
 - [XML Documentation Comments](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/xmldoc/)

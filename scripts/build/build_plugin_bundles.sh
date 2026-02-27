@@ -17,6 +17,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 DIST_DIR="${PROJECT_ROOT}/dist"
 
+# Check required dependencies
+if ! command -v zip >/dev/null 2>&1; then
+    echo "ERROR: 'zip' is required but not installed." >&2
+    exit 1
+fi
+
 echo "Building plugin bundles..."
 echo "Project root: ${PROJECT_ROOT}"
 echo "Output: ${DIST_DIR}"
@@ -49,6 +55,8 @@ PLATFORM_CONFIGS=(
 # Only these subdirectories and files are copilot-generated content:
 COPILOT_SUBDIRS=("agents" "instructions" "prompts" "skills")
 COPILOT_ROOT_FILES=("copilot-instructions.md")
+
+BUNDLES_CREATED=0
 
 # Build bundles for each platform
 echo ""
@@ -83,20 +91,20 @@ for config in "${PLATFORM_CONFIGS[@]}"; do
             fi
         done
         if [[ ${#local_args[@]} -gt 0 ]]; then
-            zip -r "${bundle_path}" "${local_args[@]}" || {
-                echo "Warning: Could not create zip for ${platform}"
+            if ! zip -r "${bundle_path}" "${local_args[@]}"; then
+                echo "ERROR: Failed to create zip for ${platform}" >&2
                 continue
-            }
+            fi
         else
             echo "Warning: No copilot content found in .github/"
             continue
         fi
     else
         # All other platforms: zip the entire directory
-        zip -r "${bundle_path}" "${dir_name}" -x "*.git*" -x "*/node_modules/*" 2>/dev/null || {
-            echo "Warning: Could not create zip for ${platform}"
+        if ! zip -r "${bundle_path}" "${dir_name}" -x "*.git*" -x "*/node_modules/*"; then
+            echo "ERROR: Failed to create zip for ${platform}" >&2
             continue
-        }
+        fi
     fi
 
     # Add root-level files if specified
@@ -104,7 +112,7 @@ for config in "${PLATFORM_CONFIGS[@]}"; do
         IFS=',' read -ra files <<< "$root_files"
         for rf in "${files[@]}"; do
             if [[ -f "${PROJECT_ROOT}/${rf}" ]]; then
-                zip "${bundle_path}" "${rf}" 2>/dev/null || true
+                zip "${bundle_path}" "${rf}" || echo "Warning: failed to add ${rf} to ${bundle_name}" >&2
             fi
         done
     fi
@@ -112,11 +120,18 @@ for config in "${PLATFORM_CONFIGS[@]}"; do
     if [[ -f "$bundle_path" ]]; then
         size=$(du -h "$bundle_path" | cut -f1)
         echo "  Created ${bundle_name} (${size})"
+        BUNDLES_CREATED=$((BUNDLES_CREATED + 1))
     fi
 done
 
 # Summary
 echo ""
 echo "=== Build complete ==="
-echo "Bundles in ${DIST_DIR}:"
-ls -lh "${DIST_DIR}"/*.zip 2>/dev/null || echo "  (no bundles created)"
+
+if [[ "$BUNDLES_CREATED" -eq 0 ]]; then
+    echo "ERROR: No bundles were created. Check for errors above." >&2
+    exit 1
+fi
+
+echo "Created ${BUNDLES_CREATED} bundle(s) in ${DIST_DIR}:"
+ls -lh "${DIST_DIR}"/*.zip

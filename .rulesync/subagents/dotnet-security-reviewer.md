@@ -83,6 +83,29 @@ Always load these skills before analysis:
 | Low | Best practice deviation with minimal direct risk (e.g., permissive CORS in internal API, SHA-1 for non-security checksum) |
 | Informational | Observation or recommendation (e.g., PQC readiness, upcoming deprecation) |
 
+## Knowledge Sources
+
+This agent's guidance is grounded in publicly available content from:
+
+- **OWASP Foundation** -- OWASP Top 10 (2021 edition) vulnerability categories, attack patterns, and mitigations. Source: https://owasp.org/www-project-top-ten/
+- **Microsoft Security Documentation** -- ASP.NET Core security best practices, secure coding guidelines for .NET, and data protection APIs. Source: https://learn.microsoft.com/en-us/aspnet/core/security/
+- **CWE/SANS Top 25** -- Common Weakness Enumeration for cross-referencing vulnerability categories. Source: https://cwe.mitre.org/top25/
+
+> **Disclaimer:** This agent applies publicly documented guidance. It does not represent or speak for the named knowledge sources.
+
+## Trigger Lexicon
+
+This agent activates on security review queries including: "security review", "review for vulnerabilities", "check for secrets", "OWASP compliance", "security audit", "find security issues", "check for injection", "cryptography review", "secrets exposure", "is this secure", "security scan".
+
+## Example Prompts
+
+- "Review this ASP.NET Core API for OWASP Top 10 vulnerabilities"
+- "Check this project for hardcoded secrets or exposed credentials"
+- "Is the cryptography in this authentication service implemented correctly?"
+- "Audit the authorization configuration across all controllers"
+- "Scan for SQL injection and XSS vulnerabilities in the data access layer"
+- "Review the cookie and session configuration for security best practices"
+
 ## Read-Only Constraints
 
 - **Never modify files** -- use Read, Grep, and Glob only

@@ -33,8 +33,10 @@ if command -v jq &>/dev/null; then
     }
   }'
 else
-  # Fallback: manual JSON with printf escaping newlines
-  ESCAPED=$(printf '%s' "$MSG" | sed 's/\\/\\\\/g; s/"/\\"/g' | tr '\n' ' ' | sed 's/ /\\n/g')
+  # Fallback: escape JSON special characters, then replace newlines with \n literal
+  ESCAPED="$(printf '%s' "$MSG" | sed 's/\\/\\\\/g; s/"/\\"/g' | while IFS= read -r line; do printf '%s\\n' "$line"; done)"
+  # Remove trailing \n
+  ESCAPED="${ESCAPED%\\n}"
   printf '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"%s"}}\n' "$ESCAPED"
 fi
 

@@ -46,6 +46,27 @@ require_path() {
   fi
 }
 
+# Paths to checksum for determinism verification (defined once, used twice)
+CHECKSUM_PATHS=(
+  .agent
+  .claude
+  .codex
+  .gemini
+  .geminiignore
+  .opencode
+  .vscode
+  .github/agents
+  .github/instructions
+  .github/prompts
+  .github/skills
+  .github/copilot-instructions.md
+  .mcp.json
+  AGENTS.md
+  CLAUDE.md
+  GEMINI.md
+  opencode.json
+)
+
 checksum_paths() {
   local root="$1"
   shift
@@ -88,48 +109,12 @@ run_rulesync install --frozen --silent || run_rulesync install
 log "Running rulesync generate"
 run_rulesync generate --silent
 
-project_checksum_before="$(checksum_paths "$WORK_DIR" \
-  .agent \
-  .claude \
-  .codex \
-  .gemini \
-  .geminiignore \
-  .opencode \
-  .vscode \
-  .github/agents \
-  .github/instructions \
-  .github/prompts \
-  .github/skills \
-  .github/copilot-instructions.md \
-  .mcp.json \
-  AGENTS.md \
-  CLAUDE.md \
-  GEMINI.md \
-  opencode.json
-)"
+project_checksum_before="$(checksum_paths "$WORK_DIR" "${CHECKSUM_PATHS[@]}")"
 
 log "Running rulesync generate again for determinism check"
 run_rulesync generate --silent
 
-project_checksum_after="$(checksum_paths "$WORK_DIR" \
-  .agent \
-  .claude \
-  .codex \
-  .gemini \
-  .geminiignore \
-  .opencode \
-  .vscode \
-  .github/agents \
-  .github/instructions \
-  .github/prompts \
-  .github/skills \
-  .github/copilot-instructions.md \
-  .mcp.json \
-  AGENTS.md \
-  CLAUDE.md \
-  GEMINI.md \
-  opencode.json
-)"
+project_checksum_after="$(checksum_paths "$WORK_DIR" "${CHECKSUM_PATHS[@]}")"
 
 if [[ "$project_checksum_before" != "$project_checksum_after" ]]; then
   fail "RuleSync project generation is not deterministic across consecutive runs"

@@ -12,6 +12,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=../lib/common.sh
 source "$SCRIPT_DIR/../lib/common.sh"
 
+# Check required dependency
+if ! command -v yq >/dev/null 2>&1; then
+  fail "'yq' is required but not installed. Install with: brew install yq"
+fi
+
 SUBAGENTS_DIR="$REPO_ROOT/.rulesync/subagents"
 ERRORS=0
 CHECKED=0
@@ -47,6 +52,7 @@ validate_subagent() {
   CHECKED=$((CHECKED + 1))
 
   # ---- Required top-level fields ----
+  local val
   for field in name description targets; do
     val="$(yq_val "$fm" ".$field")"
     if [[ "$val" == "null" || -z "$val" ]]; then
@@ -75,13 +81,16 @@ validate_subagent() {
   cc_tools="$(yq_val "$fm" '.claudecode."allowed-tools"')"
   if [[ "$cc_tools" != "null" ]]; then
     local cc_tool_list
-    cc_tool_list="$(printf '%s' "$fm" | yq -r '.claudecode."allowed-tools"[]' 2>/dev/null)"
-    while IFS= read -r tool; do
-      case "$tool" in
-        Read|Grep|Glob|Bash|Edit|Write) ;;
-        *) err "$basename" "claudecode.allowed-tools: invalid tool name '$tool' (valid: Read, Grep, Glob, Bash, Edit, Write)" ;;
-      esac
-    done <<< "$cc_tool_list"
+    cc_tool_list="$(printf '%s' "$fm" | yq -r '.claudecode."allowed-tools"[]' 2>/dev/null)" || true
+    if [[ -n "$cc_tool_list" ]]; then
+      while IFS= read -r tool; do
+        [[ -z "$tool" ]] && continue
+        case "$tool" in
+          Read|Grep|Glob|Bash|Edit|Write) ;;
+          *) err "$basename" "claudecode.allowed-tools: invalid tool name '$tool' (valid: Read, Grep, Glob, Bash, Edit, Write)" ;;
+        esac
+      done <<< "$cc_tool_list"
+    fi
   else
     err "$basename" "claudecode.allowed-tools is missing"
   fi
@@ -95,8 +104,8 @@ validate_subagent() {
     err "$basename" "opencode.mode='$oc_mode' is invalid (must be 'primary' or 'subagent')"
   fi
 
+  local oc_tool_val
   for tool_key in bash edit write; do
-    local oc_tool_val
     oc_tool_val="$(yq_val "$fm" ".opencode.tools.$tool_key")"
     if [[ "$oc_tool_val" == "null" ]]; then
       err "$basename" "opencode.tools.$tool_key is missing (must be true or false)"
@@ -110,13 +119,16 @@ validate_subagent() {
   cp_tools="$(yq_val "$fm" '.copilot.tools')"
   if [[ "$cp_tools" != "null" ]]; then
     local cp_tool_list
-    cp_tool_list="$(printf '%s' "$fm" | yq -r '.copilot.tools[]' 2>/dev/null)"
-    while IFS= read -r tool; do
-      case "$tool" in
-        read|search|execute|edit) ;;
-        *) err "$basename" "copilot.tools: invalid tool name '$tool' (valid: read, search, execute, edit)" ;;
-      esac
-    done <<< "$cp_tool_list"
+    cp_tool_list="$(printf '%s' "$fm" | yq -r '.copilot.tools[]' 2>/dev/null)" || true
+    if [[ -n "$cp_tool_list" ]]; then
+      while IFS= read -r tool; do
+        [[ -z "$tool" ]] && continue
+        case "$tool" in
+          read|search|execute|edit) ;;
+          *) err "$basename" "copilot.tools: invalid tool name '$tool' (valid: read, search, execute, edit)" ;;
+        esac
+      done <<< "$cp_tool_list"
+    fi
   else
     err "$basename" "copilot.tools is missing"
   fi
@@ -144,9 +156,9 @@ validate_subagent() {
   # Check Claude Code tools match the profile
   if [[ "$cc_tools" != "null" && "$profile" != "unknown" ]]; then
     local has_cc_bash has_cc_edit has_cc_write
-    has_cc_bash="$(printf '%s' "$fm" | yq -r '.claudecode."allowed-tools"[] | select(. == "Bash")' 2>/dev/null)"
-    has_cc_edit="$(printf '%s' "$fm" | yq -r '.claudecode."allowed-tools"[] | select(. == "Edit")' 2>/dev/null)"
-    has_cc_write="$(printf '%s' "$fm" | yq -r '.claudecode."allowed-tools"[] | select(. == "Write")' 2>/dev/null)"
+    has_cc_bash="$(printf '%s' "$fm" | yq -r '.claudecode."allowed-tools"[] | select(. == "Bash")' 2>/dev/null)" || true
+    has_cc_edit="$(printf '%s' "$fm" | yq -r '.claudecode."allowed-tools"[] | select(. == "Edit")' 2>/dev/null)" || true
+    has_cc_write="$(printf '%s' "$fm" | yq -r '.claudecode."allowed-tools"[] | select(. == "Write")' 2>/dev/null)" || true
 
     case "$profile" in
       read-only)
@@ -170,8 +182,8 @@ validate_subagent() {
   # Check Copilot tools match the profile
   if [[ "$cp_tools" != "null" && "$profile" != "unknown" ]]; then
     local has_cp_execute has_cp_edit
-    has_cp_execute="$(printf '%s' "$fm" | yq -r '.copilot.tools[] | select(. == "execute")' 2>/dev/null)"
-    has_cp_edit="$(printf '%s' "$fm" | yq -r '.copilot.tools[] | select(. == "edit")' 2>/dev/null)"
+    has_cp_execute="$(printf '%s' "$fm" | yq -r '.copilot.tools[] | select(. == "execute")' 2>/dev/null)" || true
+    has_cp_edit="$(printf '%s' "$fm" | yq -r '.copilot.tools[] | select(. == "edit")' 2>/dev/null)" || true
 
     case "$profile" in
       read-only)
