@@ -351,3 +351,92 @@ jobs:
               --title "Release $VERSION" \
               --notes-file dist/release-notes-plugin.md
           fi
+
+  verify-distribution-release:
+    needs:
+      - release
+      - release-distribution-repo
+    runs-on: ubuntu-latest
+    if: (startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-')) || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+    steps:
+      - name: Resolve version
+        id: get_version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            VERSION="$INPUT_VERSION"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version must be strict semver in the form vMAJOR.MINOR.PATCH"
+            echo "Received: $VERSION"
+            exit 1
+          fi
+
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Validate source/distribution release alignment
+        env:
+          GH_TOKEN: ${{ secrets.DOTNET_HARNESS_TOOLKIT_GH_TOKEN }}
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
+        run: |
+          set -euo pipefail
+
+          src_json="$(gh release view "$VERSION" --repo rudironsoni/dotnet-harness --json tagName,assets)"
+          dst_json="$(gh release view "$VERSION" --repo rudironsoni/dotnet-harness-plugin --json tagName,assets,body)"
+
+          src_assets="$(printf '%s' "$src_json" | jq -r '.assets[].name' | sort)"
+          dst_assets="$(printf '%s' "$dst_json" | jq -r '.assets[].name' | sort)"
+
+          if [[ "$src_assets" != "$dst_assets" ]]; then
+            echo "Source and distribution release assets differ for $VERSION"
+            echo "--- source assets ---"
+            printf '%s\n' "$src_assets"
+            echo "--- distribution assets ---"
+            printf '%s\n' "$dst_assets"
+            exit 1
+          fi
+
+          required_assets=(
+            "dotnet-harness-claudecode.zip"
+            "dotnet-harness-opencode.zip"
+            "dotnet-harness-copilot.zip"
+            "dotnet-harness-codexcli.zip"
+            "dotnet-harness-geminicli.zip"
+            "dotnet-harness-agentsmd.zip"
+            "dotnet-harness-antigravity.zip"
+          )
+
+          for a in "${required_assets[@]}"; do
+            if ! printf '%s\n' "$dst_assets" | grep -Fxq "$a"; then
+              echo "Missing required distribution asset: $a"
+              exit 1
+            fi
+          done
+
+          body="$(printf '%s' "$dst_json" | jq -r '.body')"
+          required_sections=(
+            "## Release Summary"
+            "## Plugin Changelog and Rationale"
+            "### dotnet-harness-claudecode"
+            "### dotnet-harness-opencode"
+            "### dotnet-harness-copilot"
+            "### dotnet-harness-codexcli"
+            "### dotnet-harness-geminicli"
+            "### dotnet-harness-agentsmd"
+            "### dotnet-harness-antigravity"
+          )
+
+          for section in "${required_sections[@]}"; do
+            if ! printf '%s\n' "$body" | grep -Fq "$section"; then
+              echo "Distribution release notes missing section: $section"
+              exit 1
+            fi
+          done
