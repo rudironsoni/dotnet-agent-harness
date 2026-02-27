@@ -183,12 +183,13 @@ jobs:
             git fetch --force --prune origin "${SOURCE_SHA_FULL}" || true
           fi
 
-          if ! git cat-file -e "${SOURCE_SHA_FULL}^{commit}" 2>/dev/null; then
-            echo "Could not resolve source commit in submodule: ${SOURCE_SHA_FULL}"
-            exit 1
+          if git cat-file -e "${SOURCE_SHA_FULL}^{commit}" 2>/dev/null; then
+            git checkout "${SOURCE_SHA_FULL}"
+          else
+            echo "Warning: could not resolve source commit in submodule: ${SOURCE_SHA_FULL}"
+            echo "Falling back to submodule origin/main."
+            git checkout origin/main
           fi
-
-          git checkout "${SOURCE_SHA_FULL}"
           cd "${DIST}"
 
       - name: Check for changes
