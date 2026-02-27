@@ -53,7 +53,7 @@ the offending target, determine why incrementality failed, and apply the fix.
 
 ### Diagnosis Workflow
 
-```text
+````text
 
 1. Symptom: Build takes longer than expected, or output says
    "Building target 'X' completely" on every build
@@ -471,3 +471,4 @@ Build-level warning configuration affects build time when analyzers are involved
 - [Graph Build](https://github.com/dotnet/msbuild/blob/main/documentation/specs/static-graph.md)
 - [NuGet Lock Files](https://learn.microsoft.com/en-us/nuget/consume-packages/package-references-in-project-files#locking-dependencies)
 - [Customize Your Build](https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-your-build)
+````

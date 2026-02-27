@@ -49,7 +49,7 @@ Default configuration sources in `WebApplication.CreateBuilder` (last wins):
 4. Environment variables
 5. Command-line arguments
 
-```csharp
+````csharp
 
 var builder = WebApplication.CreateBuilder(args);
 // Sources above are loaded automatically. Add custom sources:
@@ -557,3 +557,4 @@ public void Configuration_BindsCorrectly()
 - [Feature management in .NET](https://learn.microsoft.com/en-us/azure/azure-app-configuration/use-feature-flags-dotnet-core)
 - [IValidateOptions](https://learn.microsoft.com/en-us/dotnet/core/extensions/options#options-validation)
 - [.NET Framework Design Guidelines](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/)
+````

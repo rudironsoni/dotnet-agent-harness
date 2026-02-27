@@ -2,21 +2,22 @@
 name: dotnet-modernize
 description: Analyzes .NET code for modernization. Outdated TFMs, deprecated packages, superseded patterns.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-modernize
 
-Analyze existing .NET code for modernization opportunities. Identifies outdated target frameworks, deprecated packages, superseded API patterns, and missing modern best practices. Provides actionable recommendations for each finding.
+Analyze existing .NET code for modernization opportunities. Identifies outdated target frameworks, deprecated packages,
+superseded API patterns, and missing modern best practices. Provides actionable recommendations for each finding.
 
 ## Scope
 
@@ -30,34 +31,38 @@ Analyze existing .NET code for modernization opportunities. Identifies outdated 
 - Actual migration paths and polyfill strategies -- see [skill:dotnet-version-upgrade]
 - Multi-targeting guidance -- see [skill:dotnet-multi-targeting]
 
-**Prerequisites:** Run [skill:dotnet-version-detection] first to determine the current SDK, TFM, and language version. Run [skill:dotnet-project-analysis] to understand solution structure and dependencies.
+**Prerequisites:** Run [skill:dotnet-version-detection] first to determine the current SDK, TFM, and language version.
+Run [skill:dotnet-project-analysis] to understand solution structure and dependencies.
 
-Cross-references: [skill:dotnet-project-structure] for modern layout conventions, [skill:dotnet-add-analyzers] for analyzer-based detection of deprecated patterns, [skill:dotnet-scaffold-project] for the target state of a fully modernized project.
+Cross-references: [skill:dotnet-project-structure] for modern layout conventions, [skill:dotnet-add-analyzers] for
+analyzer-based detection of deprecated patterns, [skill:dotnet-scaffold-project] for the target state of a fully
+modernized project.
 
 ---
 
 ## Modernization Checklist
 
-Run through this checklist against the existing codebase. Each section identifies what to look for and what the modern replacement is.
+Run through this checklist against the existing codebase. Each section identifies what to look for and what the modern
+replacement is.
 
 ### 1. Target Framework
 
 Check `<TargetFramework>` in `.csproj` files (or `Directory.Build.props`):
 
-| Current TFM | Status | Recommendation |
-|-------------|--------|----------------|
-| `net8.0` | LTS -- supported until Nov 2026 | Plan upgrade to `net10.0` (LTS) |
-| `net9.0` | STS -- support ends May 2026 | Upgrade to `net10.0` promptly |
-| `net7.0` | End of life | Upgrade immediately |
-| `net6.0` | End of life | Upgrade immediately |
-| `net5.0` or lower | End of life | Upgrade immediately |
-| `netstandard2.0/2.1` | Supported (library compat) | Keep if multi-targeting for broad reach |
-| `netcoreapp3.1` | End of life | Upgrade immediately |
-| `.NET Framework 4.x` | Legacy | Evaluate migration feasibility |
+| Current TFM          | Status                          | Recommendation                          |
+| -------------------- | ------------------------------- | --------------------------------------- |
+| `net8.0`             | LTS -- supported until Nov 2026 | Plan upgrade to `net10.0` (LTS)         |
+| `net9.0`             | STS -- support ends May 2026    | Upgrade to `net10.0` promptly           |
+| `net7.0`             | End of life                     | Upgrade immediately                     |
+| `net6.0`             | End of life                     | Upgrade immediately                     |
+| `net5.0` or lower    | End of life                     | Upgrade immediately                     |
+| `netstandard2.0/2.1` | Supported (library compat)      | Keep if multi-targeting for broad reach |
+| `netcoreapp3.1`      | End of life                     | Upgrade immediately                     |
+| `.NET Framework 4.x` | Legacy                          | Evaluate migration feasibility          |
 
 To scan all projects:
 
-```bash
+````bash
 
 # Find all TFMs in the solution
 find . -name "*.csproj" -exec grep -h "TargetFramework" {} \; | sort -u
@@ -205,3 +210,4 @@ Provide findings in a structured format:
 - [.NET Release Lifecycle](https://dotnet.microsoft.com/en-us/platform/support/policy)
 - [Obsolete APIs in .NET](https://learn.microsoft.com/en-us/dotnet/core/compatibility/obsolete-apis)
 - [PackageDeprecation on NuGet](https://devblogs.microsoft.com/nuget/deprecating-packages/)
+````

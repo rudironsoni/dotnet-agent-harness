@@ -2,21 +2,23 @@
 name: dotnet-semantic-kernel
 description: Integrates AI/LLM via Semantic Kernel. Plugins, prompt templates, memory stores, agents.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-semantic-kernel
 
-Microsoft Semantic Kernel for AI and LLM orchestration in .NET applications. Covers kernel setup and configuration, plugin/function calling, prompt templates with Handlebars and Liquid syntax, memory and vector store integration, planners, the agents framework, and integration with Azure OpenAI, OpenAI, and local models.
+Microsoft Semantic Kernel for AI and LLM orchestration in .NET applications. Covers kernel setup and configuration,
+plugin/function calling, prompt templates with Handlebars and Liquid syntax, memory and vector store integration,
+planners, the agents framework, and integration with Azure OpenAI, OpenAI, and local models.
 
 ## Scope
 
@@ -34,31 +36,35 @@ Microsoft Semantic Kernel for AI and LLM orchestration in .NET applications. Cov
 - HTTP client resilience and retry policies -- see [skill:dotnet-resilience]
 - Configuration binding (options pattern, secrets) -- see [skill:dotnet-csharp-configuration]
 
-Cross-references: [skill:dotnet-csharp-async-patterns] for async streaming patterns used with chat completions, [skill:dotnet-csharp-dependency-injection] for kernel service registration in ASP.NET Core, [skill:dotnet-resilience] for retry policies on AI service calls, [skill:dotnet-csharp-configuration] for managing API keys and model configuration.
+Cross-references: [skill:dotnet-csharp-async-patterns] for async streaming patterns used with chat completions,
+[skill:dotnet-csharp-dependency-injection] for kernel service registration in ASP.NET Core, [skill:dotnet-resilience]
+for retry policies on AI service calls, [skill:dotnet-csharp-configuration] for managing API keys and model
+configuration.
 
 ---
 
 ## Kernel Setup
 
-The `Kernel` is the central object in Semantic Kernel. It manages AI service connections, plugins, and function invocation.
+The `Kernel` is the central object in Semantic Kernel. It manages AI service connections, plugins, and function
+invocation.
 
 ### Package Landscape
 
-| Package | Purpose |
-|---------|---------|
-| `Microsoft.SemanticKernel` | Core kernel, function calling, prompt templates |
-| `Microsoft.SemanticKernel.Connectors.AzureOpenAI` | Azure OpenAI chat/embedding/image services |
-| `Microsoft.SemanticKernel.Connectors.OpenAI` | OpenAI chat/embedding/image services |
-| `Microsoft.SemanticKernel.Connectors.Ollama` | Ollama local model integration |
-| `Microsoft.SemanticKernel.Plugins.Core` | Built-in plugins (time, math, text) |
-| `Microsoft.SemanticKernel.Agents.Core` | Agent framework (chat agents, group chat) |
-| `Microsoft.Extensions.VectorData.Abstractions` | Vector store abstraction layer |
-| `Microsoft.SemanticKernel.Connectors.Qdrant` | Qdrant vector store connector |
-| `Microsoft.SemanticKernel.Connectors.AzureAISearch` | Azure AI Search vector store connector |
+| Package                                             | Purpose                                         |
+| --------------------------------------------------- | ----------------------------------------------- |
+| `Microsoft.SemanticKernel`                          | Core kernel, function calling, prompt templates |
+| `Microsoft.SemanticKernel.Connectors.AzureOpenAI`   | Azure OpenAI chat/embedding/image services      |
+| `Microsoft.SemanticKernel.Connectors.OpenAI`        | OpenAI chat/embedding/image services            |
+| `Microsoft.SemanticKernel.Connectors.Ollama`        | Ollama local model integration                  |
+| `Microsoft.SemanticKernel.Plugins.Core`             | Built-in plugins (time, math, text)             |
+| `Microsoft.SemanticKernel.Agents.Core`              | Agent framework (chat agents, group chat)       |
+| `Microsoft.Extensions.VectorData.Abstractions`      | Vector store abstraction layer                  |
+| `Microsoft.SemanticKernel.Connectors.Qdrant`        | Qdrant vector store connector                   |
+| `Microsoft.SemanticKernel.Connectors.AzureAISearch` | Azure AI Search vector store connector          |
 
 ### Basic Kernel Configuration
 
-```csharp
+````csharp
 
 using Microsoft.SemanticKernel;
 
@@ -676,3 +682,4 @@ await foreach (var chunk in chatService.GetStreamingChatMessageContentsAsync(
 - [Semantic Kernel agents](https://learn.microsoft.com/en-us/semantic-kernel/frameworks/agent/)
 - [Vector store connectors](https://learn.microsoft.com/en-us/semantic-kernel/concepts/vector-store-connectors/)
 - [Semantic Kernel samples](https://github.com/microsoft/semantic-kernel/tree/main/dotnet/samples)
+````

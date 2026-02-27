@@ -49,7 +49,7 @@ SignalR, [skill:dotnet-playwright] for E2E testing, [skill:dotnet-ui-chooser] fo
 
 ### Lifecycle Methods
 
-```csharp
+````csharp
 
 @code {
     // 1. Called when parameters are set/updated
@@ -713,3 +713,4 @@ Blazor component patterns in this skill are grounded in guidance from:
 - [Blazor Forms and Validation](https://learn.microsoft.com/en-us/aspnet/core/blazor/forms/?view=aspnetcore-10.0)
 - [QuickGrid Component](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/quickgrid?view=aspnetcore-10.0)
 - [Cascading Values and Parameters](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/cascading-values-and-parameters?view=aspnetcore-10.0)
+````

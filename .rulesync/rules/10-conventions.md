@@ -43,7 +43,7 @@ antigravity:
 
 ### Platform-specific blocks
 
-```yaml
+````yaml
 
 claudecode:
   model: optional # sonnet | opus | haiku | inherit
@@ -98,3 +98,4 @@ This toolkit uses three standard profiles:
 | Read-only | `Read`, `Grep`, `Glob`                          | `bash: false`, `edit: false`, `write: false` | `["read", "search"]`                    | `"read-only"`            |
 | Standard  | `Read`, `Grep`, `Glob`, `Bash`                  | `bash: true`, `edit: false`, `write: false`  | `["read", "search", "execute"]`         | _(inherits parent)_      |
 | Full      | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` | `bash: true`, `edit: true`, `write: true`    | `["read", "search", "execute", "edit"]` | _(inherits parent)_      |
+````

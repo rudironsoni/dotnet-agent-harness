@@ -1,6 +1,7 @@
 # dotnet-agent-harness
 
-Comprehensive .NET skills, subagents, commands, hooks, and MCP config for AI coding tools, maintained in RuleSync format.
+Comprehensive .NET skills, subagents, commands, hooks, and MCP config for AI coding tools, maintained in RuleSync
+format.
 
 ## What this repository provides
 
@@ -19,13 +20,12 @@ rulesync generate --targets "*" --features "*"
 
 ## Install (declarative sources)
 
-RuleSync `install` is best for declarative source workflows, especially curated skills. Declare this repo as a source and then generate.
+RuleSync `install` is best for declarative source workflows, especially curated skills. Declare this repo as a source
+and then generate.
 
 ```jsonc
 {
-  "sources": [
-    { "source": "rudironsoni/dotnet-agent-harness", "path": ".rulesync" }
-  ]
+  "sources": [{ "source": "rudironsoni/dotnet-agent-harness", "path": ".rulesync" }],
 }
 ```
 
@@ -86,7 +86,8 @@ All authored content lives exclusively under `.rulesync/`:
 - `.rulesync/hooks.json` and `.rulesync/hooks/` — hook config and scripts
 - `.rulesync/mcp.json` — MCP servers
 
-Generated output (`.github/agents/`, `.github/skills/`, `AGENTS.md`, etc.) is gitignored and produced by `rulesync generate`.
+Generated output (`.github/agents/`, `.github/skills/`, `AGENTS.md`, etc.) is gitignored and produced by
+`rulesync generate`.
 
 ## Attribution
 

@@ -71,7 +71,7 @@ distributed transactions (which most brokers do not support) or consumer-side de
 
 ### Azure Service Bus Topics
 
-```csharp
+````csharp
 
 // Publisher -- send event to a topic
 await using var client = new ServiceBusClient(connectionString);
@@ -575,3 +575,4 @@ clients, implement envelopes explicitly.
 - [MassTransit documentation](https://masstransit.io/documentation/concepts)
 - [MassTransit sagas](https://masstransit.io/documentation/patterns/saga)
 - [Enterprise Integration Patterns](https://www.enterpriseintegrationpatterns.com/)
+````

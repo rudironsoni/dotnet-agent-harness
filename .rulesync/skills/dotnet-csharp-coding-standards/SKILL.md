@@ -68,7 +68,7 @@ interface level.
 
 Suffix async methods with `Async`:
 
-```csharp
+````csharp
 
 // Correct
 public Task<Order> GetOrderAsync(int id);
@@ -490,3 +490,4 @@ Conventions in this skill are grounded in publicly available content from:
 - [C# Identifier Naming Rules](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/identifier-names)
 - [.editorconfig for .NET](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/code-style-rule-options)
 - [C# Language Design Notes](https://github.com/dotnet/csharplang/tree/main/meetings)
+````

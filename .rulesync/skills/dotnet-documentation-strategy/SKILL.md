@@ -66,7 +66,7 @@ Choose documentation tooling based on project context, team capabilities, and ex
 
 ### Decision Flowchart
 
-```text
+`````text
 
 Start: New documentation site for .NET project
   |
@@ -612,7 +612,7 @@ graph LR
 ```text
 
 
-````
+`````
 
 See [skill:dotnet-mermaid-diagrams] for .NET-specific diagram types (C4 architecture, async patterns, EF Core models, DI
 graphs).
@@ -643,7 +643,7 @@ DocFX-to-Starlight migration is the most common path for .NET projects modernizi
 
 **Checklist:**
 
-```bash
+````bash
 
 # Find all DocFX-specific syntax to convert
 grep -rn "xref:" articles/                # Cross-references
@@ -700,3 +700,4 @@ grep -rn "^\s*uid:" articles/             # UID metadata
 1. **Starlight versioning is directory-based, not command-based** -- unlike Docusaurus (`npx docusaurus docs:version`),
    Starlight uses directory structure or community plugins for versioning. Do not suggest Docusaurus versioning commands
    for Starlight projects.
+````

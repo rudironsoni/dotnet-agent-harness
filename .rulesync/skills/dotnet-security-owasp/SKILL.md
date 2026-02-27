@@ -2,21 +2,23 @@
 name: dotnet-security-owasp
 description: Hardens .NET apps per OWASP Top 10 -- injection, auth, XSS, deprecated security APIs.
 license: MIT
-targets: ["*"]
-tags: ["security", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['security', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for security tasks"
+  short-description: '.NET skill guidance for security tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-security-owasp
 
-OWASP Top 10 (2021) security guidance for .NET applications. Each category includes the vulnerability description, .NET-specific risk, mitigation code examples, and common pitfalls. This skill is the canonical owner of deprecated security pattern warnings (CAS, APTCA, .NET Remoting, DCOM, BinaryFormatter).
+OWASP Top 10 (2021) security guidance for .NET applications. Each category includes the vulnerability description,
+.NET-specific risk, mitigation code examples, and common pitfalls. This skill is the canonical owner of deprecated
+security pattern warnings (CAS, APTCA, .NET Remoting, DCOM, BinaryFormatter).
 
 ## Scope
 
@@ -35,19 +37,23 @@ OWASP Top 10 (2021) security guidance for .NET applications. Each category inclu
 - Configuration binding and Options pattern -- see [skill:dotnet-csharp-configuration]
 - Secrets storage and management -- see [skill:dotnet-secrets-management]
 
-Cross-references: [skill:dotnet-secrets-management] for secrets handling, [skill:dotnet-cryptography] for cryptographic best practices, [skill:dotnet-csharp-coding-standards] for secure coding conventions.
+Cross-references: [skill:dotnet-secrets-management] for secrets handling, [skill:dotnet-cryptography] for cryptographic
+best practices, [skill:dotnet-csharp-coding-standards] for secure coding conventions.
 
 ---
 
 ## A01: Broken Access Control
 
-**Vulnerability:** Users act outside their intended permissions -- accessing other users' data, elevating privileges, or bypassing access checks.
+**Vulnerability:** Users act outside their intended permissions -- accessing other users' data, elevating privileges, or
+bypassing access checks.
 
-**Risk in .NET:** Missing `[Authorize]` attributes on controllers/endpoints, insecure direct object references (IDOR) where user IDs are taken from route parameters without ownership validation, and CORS misconfiguration allowing unintended origins.
+**Risk in .NET:** Missing `[Authorize]` attributes on controllers/endpoints, insecure direct object references (IDOR)
+where user IDs are taken from route parameters without ownership validation, and CORS misconfiguration allowing
+unintended origins.
 
 ### Mitigation
 
-```csharp
+````csharp
 
 // 1. Apply authorization globally, then opt out explicitly
 builder.Services.AddAuthorizationBuilder()
@@ -677,3 +683,4 @@ Do **not** set `System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerializ
 - [Rate Limiting Middleware](https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit?view=aspnetcore-10.0)
 - [NuGet Package Source Mapping](https://learn.microsoft.com/en-us/nuget/consume-packages/package-source-mapping)
 - [BinaryFormatter Migration Guide](https://learn.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-migration-guide/)
+````

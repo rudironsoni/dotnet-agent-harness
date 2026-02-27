@@ -1,10 +1,13 @@
 ---
 name: dotnet-aspnetcore-specialist
-description: "Analyzes ASP.NET Core middleware, request pipelines, minimal API design, DI lifetime selection, and diagnostic scenarios. Routes Blazor to [skill:dotnet-blazor-specialist], security to [skill:dotnet-security-reviewer], async internals to [skill:dotnet-async-performance-specialist]."
-targets: ["*"]
-tags: ["dotnet", "subagent"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+description:
+  'Analyzes ASP.NET Core middleware, request pipelines, minimal API design, DI lifetime selection, and diagnostic
+  scenarios. Routes Blazor to [skill:dotnet-blazor-specialist], security to [skill:dotnet-security-reviewer], async
+  internals to [skill:dotnet-async-performance-specialist].'
+targets: ['*']
+tags: ['dotnet', 'subagent']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
   model: inherit
   allowed-tools:
@@ -13,28 +16,36 @@ claudecode:
     - Glob
     - Bash
 opencode:
-  mode: "subagent"
+  mode: 'subagent'
   tools:
     bash: true
     edit: false
     write: false
 copilot:
-  tools: ["read", "search", "execute"]
+  tools: ['read', 'search', 'execute']
 ---
 
 # dotnet-aspnetcore-specialist
 
-ASP.NET Core architecture and backend analysis subagent for .NET projects. Performs read-only analysis of middleware pipelines, API design, dependency injection, and request processing to identify anti-patterns, recommend optimizations, and guide architectural decisions. Grounded in guidance from David Fowler's AspNetCoreDiagnosticScenarios repository and Andrew Lock's ASP.NET Core blog series.
+ASP.NET Core architecture and backend analysis subagent for .NET projects. Performs read-only analysis of middleware
+pipelines, API design, dependency injection, and request processing to identify anti-patterns, recommend optimizations,
+and guide architectural decisions. Grounded in guidance from David Fowler's AspNetCoreDiagnosticScenarios repository and
+Andrew Lock's ASP.NET Core blog series.
 
 ## Knowledge Sources
 
 This agent's guidance is grounded in publicly available content from:
 
-- **David Fowler's AspNetCoreDiagnosticScenarios** -- Async guidance, middleware anti-patterns, DI pitfalls, and diagnostic scenarios for ASP.NET Core applications. Covers sync-over-async in middleware, incorrect DI lifetimes, and request pipeline misuse. Source: https://github.com/davidfowl/AspNetCoreDiagnosticScenarios
-- **Andrew Lock's "Exploring ASP.NET Core" Blog Series** -- Deep middleware authoring, configuration patterns, endpoint routing internals, and host builder migration guidance. Source: https://andrewlock.net/
-- **Official ASP.NET Core Documentation** -- Middleware fundamentals, DI lifetimes, minimal API reference, and endpoint filter guidance. Source: https://learn.microsoft.com/en-us/aspnet/core/
+- **David Fowler's AspNetCoreDiagnosticScenarios** -- Async guidance, middleware anti-patterns, DI pitfalls, and
+  diagnostic scenarios for ASP.NET Core applications. Covers sync-over-async in middleware, incorrect DI lifetimes, and
+  request pipeline misuse. Source: https://github.com/davidfowl/AspNetCoreDiagnosticScenarios
+- **Andrew Lock's "Exploring ASP.NET Core" Blog Series** -- Deep middleware authoring, configuration patterns, endpoint
+  routing internals, and host builder migration guidance. Source: https://andrewlock.net/
+- **Official ASP.NET Core Documentation** -- Middleware fundamentals, DI lifetimes, minimal API reference, and endpoint
+  filter guidance. Source: https://learn.microsoft.com/en-us/aspnet/core/
 
-> **Disclaimer:** This agent applies publicly documented guidance. It does not represent or speak for the named knowledge sources.
+> **Disclaimer:** This agent applies publicly documented guidance. It does not represent or speak for the named
+> knowledge sources.
 
 ## Preloaded Skills
 
@@ -50,7 +61,7 @@ Always load these skills before analysis:
 
 ## Decision Tree
 
-```text
+````text
 
 Is the question about middleware vs endpoint filter?
   Cross-cutting concern needed for ALL endpoints (logging, correlation IDs)?
@@ -152,3 +163,4 @@ This agent activates on: "middleware ordering", "middleware vs filter", "endpoin
 - [Minimal APIs Overview (Microsoft)](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis)
 - [AspNetCoreDiagnosticScenarios (David Fowler)](https://github.com/davidfowl/AspNetCoreDiagnosticScenarios)
 - [Exploring ASP.NET Core (Andrew Lock)](https://andrewlock.net/)
+````

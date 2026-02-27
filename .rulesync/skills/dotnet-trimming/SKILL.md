@@ -2,23 +2,27 @@
 name: dotnet-trimming
 description: Trims .NET 8+ apps and libraries. Annotations, ILLink descriptors, IL2xxx warnings, IsTrimmable.
 license: MIT
-targets: ["*"]
-tags: ["aot", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['aot', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for aot tasks"
+  short-description: '.NET skill guidance for aot tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-trimming
 
-Trim-safe development for .NET 8+ applications and libraries: trimming annotations (`[RequiresUnreferencedCode]`, `[DynamicallyAccessedMembers]`, `[DynamicDependency]`), ILLink descriptor XML for type preservation, `TrimmerSingleWarn` for granular diagnostics, testing trimmed output, fixing IL2xxx/IL3xxx warnings, and library authoring with `IsTrimmable`.
+Trim-safe development for .NET 8+ applications and libraries: trimming annotations (`[RequiresUnreferencedCode]`,
+`[DynamicallyAccessedMembers]`, `[DynamicDependency]`), ILLink descriptor XML for type preservation, `TrimmerSingleWarn`
+for granular diagnostics, testing trimmed output, fixing IL2xxx/IL3xxx warnings, and library authoring with
+`IsTrimmable`.
 
-**Version assumptions:** .NET 8.0+ baseline. Trimming shipped in .NET 6, but .NET 8 provides the most complete annotation surface and analyzer coverage. .NET 9 improved warning accuracy and library compat.
+**Version assumptions:** .NET 8.0+ baseline. Trimming shipped in .NET 6, but .NET 8 provides the most complete
+annotation surface and analyzer coverage. .NET 9 improved warning accuracy and library compat.
 
 ## Scope
 
@@ -41,17 +45,20 @@ Trim-safe development for .NET 8+ applications and libraries: trimming annotatio
 - Container deployment -- see [skill:dotnet-containers]
 - Performance patterns (Span, pooling) -- see [skill:dotnet-performance-patterns]
 
-Cross-references: [skill:dotnet-native-aot] for AOT compilation pipeline, [skill:dotnet-aot-architecture] for AOT-safe design patterns, [skill:dotnet-serialization] for AOT-safe serialization, [skill:dotnet-csharp-source-generators] for source gen as trimming enabler.
+Cross-references: [skill:dotnet-native-aot] for AOT compilation pipeline, [skill:dotnet-aot-architecture] for AOT-safe
+design patterns, [skill:dotnet-serialization] for AOT-safe serialization, [skill:dotnet-csharp-source-generators] for
+source gen as trimming enabler.
 
 ---
 
 ## MSBuild Properties: Apps vs Libraries
 
-Apps and libraries use different MSBuild properties for trimming. This distinction is critical -- using the wrong property causes subtle issues.
+Apps and libraries use different MSBuild properties for trimming. This distinction is critical -- using the wrong
+property causes subtle issues.
 
 ### For Applications
 
-```xml
+````xml
 
 <PropertyGroup>
   <!-- Enable trimming on publish -->
@@ -399,3 +406,4 @@ public class ServiceRegistry
 - [Introduction to trim warnings](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/fixing-warnings)
 - [Trimming annotation attributes](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/prepare-libraries-for-trimming#trimming-annotation-attributes)
 - [ILLink descriptor format](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trimming-options#descriptor-format)
+````

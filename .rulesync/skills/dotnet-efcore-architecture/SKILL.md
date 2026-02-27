@@ -65,7 +65,7 @@ Separate read models (queries) from write models (commands) to optimize each pat
 
 ### Approach: Separate DbContext Types
 
-```csharp
+````csharp
 
 // Write context: full change tracking, navigation properties, interceptors
 public sealed class WriteDbContext : DbContext
@@ -598,3 +598,4 @@ data.
 - [Domain-driven design with EF Core](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/)
 - [EF Core query tags](https://learn.microsoft.com/en-us/ef/core/querying/tags)
 - [Keyset pagination in EF Core](https://learn.microsoft.com/en-us/ef/core/querying/pagination#keyset-pagination)
+````

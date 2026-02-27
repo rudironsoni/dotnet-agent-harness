@@ -2,23 +2,30 @@
 name: dotnet-xml-docs
 description: Writes XML doc comments. Tags, inheritdoc, GenerateDocumentationFile, warning suppression.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-xml-docs
 
-XML documentation comments for .NET: all standard tags (`<summary>`, `<param>`, `<returns>`, `<exception>`, `<remarks>`, `<example>`, `<value>`, `<typeparam>`, `<typeparamref>`, `<paramref>`), advanced tags (`<inheritdoc>` for interface and base class inheritance, `<see cref="..."/>`, `<seealso>`, `<c>` and `<code>`), enabling XML doc generation with `<GenerateDocumentationFile>` MSBuild property, warning suppression strategies for internal APIs (`CS1591`, `<NoWarn>`, `InternalsVisibleTo`), XML doc conventions for public NuGet libraries, auto-generation tooling (IDE quick-fix `///` trigger, GhostDoc-style patterns), and IntelliSense integration showing XML docs in IDE tooltips and autocomplete.
+XML documentation comments for .NET: all standard tags (`<summary>`, `<param>`, `<returns>`, `<exception>`, `<remarks>`,
+`<example>`, `<value>`, `<typeparam>`, `<typeparamref>`, `<paramref>`), advanced tags (`<inheritdoc>` for interface and
+base class inheritance, `<see cref="..."/>`, `<seealso>`, `<c>` and `<code>`), enabling XML doc generation with
+`<GenerateDocumentationFile>` MSBuild property, warning suppression strategies for internal APIs (`CS1591`, `<NoWarn>`,
+`InternalsVisibleTo`), XML doc conventions for public NuGet libraries, auto-generation tooling (IDE quick-fix `///`
+trigger, GhostDoc-style patterns), and IntelliSense integration showing XML docs in IDE tooltips and autocomplete.
 
-**Version assumptions:** .NET 8.0+ baseline. XML documentation comments are a C# language feature available in all .NET versions. `<GenerateDocumentationFile>` MSBuild property works with .NET SDK 6+. `<inheritdoc>` fully supported since C# 9.0 / .NET 5+.
+**Version assumptions:** .NET 8.0+ baseline. XML documentation comments are a C# language feature available in all .NET
+versions. `<GenerateDocumentationFile>` MSBuild property works with .NET SDK 6+. `<inheritdoc>` fully supported since C#
+9.0 / .NET 5+.
 
 ## Scope
 
@@ -34,7 +41,9 @@ XML documentation comments for .NET: all standard tags (`<summary>`, `<param>`, 
 - General C# coding conventions and naming standards -- see [skill:dotnet-csharp-coding-standards]
 - CI/CD deployment of documentation sites -- see [skill:dotnet-gha-deploy]
 
-Cross-references: [skill:dotnet-api-docs] for downstream API documentation generation from XML comments, [skill:dotnet-csharp-coding-standards] for general C# coding conventions, [skill:dotnet-gha-deploy] for doc site deployment.
+Cross-references: [skill:dotnet-api-docs] for downstream API documentation generation from XML comments,
+[skill:dotnet-csharp-coding-standards] for general C# coding conventions, [skill:dotnet-gha-deploy] for doc site
+deployment.
 
 ---
 
@@ -44,7 +53,7 @@ Cross-references: [skill:dotnet-api-docs] for downstream API documentation gener
 
 Enable XML documentation file generation in the project or `Directory.Build.props`:
 
-```xml
+````xml
 
 <!-- In .csproj or Directory.Build.props -->
 <PropertyGroup>
@@ -142,3 +151,4 @@ For complete tag examples (summary, param, returns, exception, remarks, example,
 1. **Do not generate API documentation sites from XML comments** -- API doc site generation (DocFX, OpenAPI-as-docs) belongs to [skill:dotnet-api-docs]. This skill covers the XML comment authoring side only.
 
 1. **Document cancellation tokens with a single standard line** -- use "A token to cancel the asynchronous operation." for all `CancellationToken` parameters. Do not over-document the cancellation pattern.
+````

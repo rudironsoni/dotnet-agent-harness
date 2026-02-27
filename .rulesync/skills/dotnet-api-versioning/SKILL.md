@@ -52,7 +52,7 @@ OpenAPI documents.
 
 Install for Minimal APIs:
 
-```xml
+````xml
 
 <PackageReference Include="Asp.Versioning.Http" Version="8.*" />
 
@@ -357,3 +357,4 @@ migrating from an existing strategy or when specific client constraints require 
 - [Asp.Versioning.Http NuGet](https://www.nuget.org/packages/Asp.Versioning.Http)
 - [Asp.Versioning.Mvc NuGet](https://www.nuget.org/packages/Asp.Versioning.Mvc)
 - [RFC 8594 - The Sunset HTTP Header](https://datatracker.ietf.org/doc/html/rfc8594)
+````

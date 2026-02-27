@@ -2,23 +2,25 @@
 name: dotnet-project-structure
 description: Sets up .NET solution layout. .slnx, Directory.Build.props, CPM, .editorconfig, analyzers.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-project-structure
 
-Reference guide for modern .NET project structure and solution layout. Use when creating new solutions, reviewing existing structure, or recommending improvements.
+Reference guide for modern .NET project structure and solution layout. Use when creating new solutions, reviewing
+existing structure, or recommending improvements.
 
-**Prerequisites:** Run [skill:dotnet-version-detection] first to determine TFM and SDK version — this affects which features are available (e.g., .slnx requires .NET 9+ SDK).
+**Prerequisites:** Run [skill:dotnet-version-detection] first to determine TFM and SDK version — this affects which
+features are available (e.g., .slnx requires .NET 9+ SDK).
 
 ## Scope
 
@@ -33,13 +35,15 @@ Reference guide for modern .NET project structure and solution layout. Use when 
 - Build output organization (UseArtifactsOutput) -- see [skill:dotnet-artifacts-output]
 - MSBuild authoring (custom targets, conditions) -- see [skill:dotnet-msbuild-authoring]
 
-Cross-references: [skill:dotnet-project-analysis] for analyzing existing projects, [skill:dotnet-scaffold-project] for generating a new project from scratch, [skill:dotnet-artifacts-output] for centralized build output layout (`UseArtifactsOutput`).
+Cross-references: [skill:dotnet-project-analysis] for analyzing existing projects, [skill:dotnet-scaffold-project] for
+generating a new project from scratch, [skill:dotnet-artifacts-output] for centralized build output layout
+(`UseArtifactsOutput`).
 
 ---
 
 ## Recommended Solution Layout
 
-```text
+````text
 
 MyApp/
 ├── .editorconfig
@@ -459,3 +463,4 @@ Key properties:
 - [Directory.Build.props](https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-your-build)
 - [SourceLink](https://learn.microsoft.com/en-us/dotnet/standard/library-guidance/sourcelink)
 - [NuGet Audit](https://learn.microsoft.com/en-us/nuget/concepts/auditing-packages)
+````

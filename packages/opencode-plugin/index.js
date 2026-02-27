@@ -4,7 +4,7 @@ const path = require('path');
 
 /**
  * dotnet-agent-harness OpenCode Plugin
- * 
+ *
  * This plugin bundles agents, skills, commands, and rules for .NET development
  * and installs them into the project's .opencode/ directory.
  *
@@ -84,7 +84,9 @@ async function installBundledContent(projectDir) {
   try {
     await fsp.access(bundledDir);
   } catch {
-    console.warn(`[${PLUGIN_NAME}] Warning: bundled directory not found at ${bundledDir}. Run 'npm run build' first.`);
+    console.warn(
+      `[${PLUGIN_NAME}] Warning: bundled directory not found at ${bundledDir}. Run 'npm run build' first.`
+    );
     return;
   }
 
@@ -105,7 +107,7 @@ async function installBundledContent(projectDir) {
 
 /**
  * Main plugin export
- * 
+ *
  * @param {Object} context - OpenCode plugin context
  * @param {Object} [context.project] - Project information
  * @param {Object} [context.client] - OpenCode client
@@ -151,7 +153,7 @@ module.exports = function dotnetAgentHarnessPlugin(context) {
       version: PLUGIN_VERSION,
       description: '.NET Agent Harness - 14 specialist agents, 131 skills, commands, and rules',
       agents: 14,
-      skills: 131
-    })
+      skills: 131,
+    }),
   };
 };

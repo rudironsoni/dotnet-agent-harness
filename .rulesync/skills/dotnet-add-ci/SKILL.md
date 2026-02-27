@@ -55,7 +55,7 @@ Detect the CI platform from existing repo indicators:
 
 Create `.github/workflows/build.yml`:
 
-```yaml
+````yaml
 
 name: Build and Test
 
@@ -270,3 +270,4 @@ This starter covers build-test-pack. For advanced scenarios, see the CI/CD depth
 - [Azure Pipelines for .NET](https://learn.microsoft.com/en-us/azure/devops/pipelines/ecosystems/dotnet-core)
 - [setup-dotnet Action](https://github.com/actions/setup-dotnet)
 - [UseDotNet Task](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/use-dotnet-v2)
+````

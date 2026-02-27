@@ -57,8 +57,7 @@ A well-structured README provides immediate context for contributors and consume
 
 Place badges at the top of the README, grouped by category:
 
-```markdown
-
+``````markdown
 # My.Library
 
 [![NuGet](https://img.shields.io/nuget/v/My.Library.svg)](https://www.nuget.org/packages/My.Library)
@@ -67,7 +66,7 @@ Place badges at the top of the README, grouped by category:
 [![codecov](https://codecov.io/gh/mycompany/my-library/branch/main/graph/badge.svg)](https://codecov.io/gh/mycompany/my-library)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-```yaml
+`````yaml
 
 **Badge categories for .NET projects:**
 
@@ -145,8 +144,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 See [CHANGELOG.md](CHANGELOG.md) for a history of changes. For changelog format conventions, see
 [skill:dotnet-release-management].
+`````
+``````
 
-````
+`````
 
 ### Architecture Diagram in README
 
@@ -154,10 +155,9 @@ Embed a Mermaid architecture diagram directly in the README for visual context. 
 blocks natively:
 
 ````markdown
-
 ## Architecture
 
-```mermaid
+````mermaid
 
 graph TB
     subgraph Client
@@ -174,7 +174,7 @@ graph TB
 
 ```text
 
-
+````
 ````
 
 See [skill:dotnet-mermaid-diagrams] for .NET-specific diagram patterns including C4-style architecture, sequence
@@ -187,7 +187,6 @@ diagrams for API flows, and class diagrams for domain models.
 ### Fork-PR Workflow
 
 ````markdown
-
 # Contributing to My.Library
 
 Thank you for your interest in contributing! This document provides guidelines and instructions for contributing.
@@ -210,19 +209,19 @@ Thank you for your interest in contributing! This document provides guidelines a
 
 ### Building
 
-```shell
+````shell
 
 dotnet restore
 dotnet build
 
 ```bash
 
-
+````
 ````
 
 ### Running Tests
 
-```shell
+````shell
 
 dotnet test
 
@@ -267,12 +266,11 @@ dotnet test --collect:"XPlat Code Coverage"
 ### Bug Report Template
 
 ```yaml
-
 # .github/ISSUE_TEMPLATE/bug_report.yml
 name: Bug Report
 description: Report a bug in the library
-title: "[Bug]: "
-labels: ["bug", "triage"]
+title: '[Bug]: '
+labels: ['bug', 'triage']
 body:
   - type: markdown
     attributes:
@@ -320,8 +318,8 @@ body:
     id: dotnet-version
     attributes:
       label: .NET Version
-      description: "Output of `dotnet --version`"
-      placeholder: "8.0.100"
+      description: 'Output of `dotnet --version`'
+      placeholder: '8.0.100'
     validations:
       required: true
 
@@ -341,12 +339,11 @@ body:
     attributes:
       label: Additional Context
       description: Any other context about the problem (project type, related packages, etc.)
-
-````
+```
 
 ### Feature Request Template
 
-```yaml
+````yaml
 
 # .github/ISSUE_TEMPLATE/feature_request.yml
 name: Feature Request
@@ -647,3 +644,5 @@ Example: "High-performance JSON serialization library for .NET 8+ with source ge
 1. **Mermaid diagrams in README render natively on GitHub** -- no special configuration is needed. Use standard fenced
     code blocks with the `mermaid` language identifier. See [skill:dotnet-mermaid-diagrams] for .NET-specific diagram
     patterns to embed in architecture sections.
+````
+`````

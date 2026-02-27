@@ -50,7 +50,7 @@ considerations, [skill:dotnet-serialization] for serialization format performanc
 
 ## Package Setup
 
-```xml
+````xml
 
 <!-- Benchmarks.csproj -->
 <Project Sdk="Microsoft.NET.Sdk">
@@ -521,3 +521,4 @@ overhead that BenchmarkDotNet excludes from timing, but it still affects GC pres
    independently with proper statistical analysis.
 7. **Export JSON for CI** -- use `[JsonExporterAttribute.Full]` to produce machine-readable artifacts for regression
    detection, not just Markdown.
+````

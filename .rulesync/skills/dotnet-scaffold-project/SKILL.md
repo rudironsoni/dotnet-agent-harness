@@ -2,23 +2,25 @@
 name: dotnet-scaffold-project
 description: Creates a new .NET project. Generates solution with CPM, analyzers, editorconfig, SourceLink.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-scaffold-project
 
-Scaffolds a new .NET project with all modern best practices applied. Generates the full solution structure including Central Package Management, analyzers, .editorconfig, SourceLink, and deterministic builds.
+Scaffolds a new .NET project with all modern best practices applied. Generates the full solution structure including
+Central Package Management, analyzers, .editorconfig, SourceLink, and deterministic builds.
 
-**Prerequisites:** Run [skill:dotnet-version-detection] first to determine available SDK version — this affects which features and templates are available.
+**Prerequisites:** Run [skill:dotnet-version-detection] first to determine available SDK version — this affects which
+features and templates are available.
 
 ## Scope
 
@@ -32,7 +34,8 @@ Scaffolds a new .NET project with all modern best practices applied. Generates t
 - Analyzer configuration details -- see [skill:dotnet-add-analyzers]
 - CI workflow generation -- see [skill:dotnet-add-ci]
 
-Cross-references: [skill:dotnet-project-structure] for layout rationale, [skill:dotnet-add-analyzers] for analyzer configuration, [skill:dotnet-add-ci] for adding CI after scaffolding.
+Cross-references: [skill:dotnet-project-structure] for layout rationale, [skill:dotnet-add-analyzers] for analyzer
+configuration, [skill:dotnet-add-ci] for adding CI after scaffolding.
 
 ---
 
@@ -40,7 +43,7 @@ Cross-references: [skill:dotnet-project-structure] for layout rationale, [skill:
 
 Create the directory layout and solution file.
 
-```bash
+````bash
 
 # Create the directory structure
 mkdir -p MyApp/src MyApp/tests
@@ -381,3 +384,4 @@ MyApp/
 - [SourceLink](https://learn.microsoft.com/en-us/dotnet/standard/library-guidance/sourcelink)
 - [NuGet Audit](https://learn.microsoft.com/en-us/nuget/concepts/auditing-packages)
 - [dotnet new Templates](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-new)
+````

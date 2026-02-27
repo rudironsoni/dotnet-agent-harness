@@ -50,7 +50,7 @@ release automation, [skill:dotnet-add-ci] for starter publish templates.
 
 ### Push with `DotNetCoreCLI@2`
 
-```yaml
+````yaml
 
 trigger:
   tags:
@@ -564,3 +564,4 @@ stages:
    authentication; service connections store credentials securely and rotate independently.
 8. **Tag triggers require explicit `tags.include` in the trigger section** -- tags are not included by default CI
    triggers; add `tags: include: ['v*']` to trigger on version tags.
+````

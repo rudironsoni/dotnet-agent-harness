@@ -68,7 +68,7 @@ tools. These translate directly to .NET patterns.
 
 ### Stdout vs Stderr in .NET
 
-```csharp
+````csharp
 
 // Data output -- goes to stdout (can be piped)
 Console.Out.WriteLine(JsonSerializer.Serialize(result, jsonContext.Options));
@@ -620,3 +620,4 @@ public async Task List_StderrContainsLogs_StdoutContainsDataOnly()
 - [12 Factor CLI Apps](https://medium.com/@jdxcode/12-factor-cli-apps-dd3c227a0e46)
 - [Generic Host in .NET](https://learn.microsoft.com/en-us/dotnet/core/extensions/generic-host)
 - [Console logging in .NET](https://learn.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter)
+````

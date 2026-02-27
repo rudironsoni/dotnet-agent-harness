@@ -2,21 +2,24 @@
 name: dotnet-version-upgrade
 description: Upgrades .NET to a newer TFM. LTS-to-LTS, staged through STS, preview, upgrade paths.
 license: MIT
-targets: ["*"]
-tags: ["csharp", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['csharp', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for csharp tasks"
+  short-description: '.NET skill guidance for csharp tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-version-upgrade
 
-Comprehensive guide for .NET version upgrade planning and execution. This skill consumes the structured output from [skill:dotnet-version-detection] (current TFM, SDK version, preview flags) and provides actionable upgrade guidance based on three defined upgrade lanes. Covers TFM migration, package updates, breaking change detection, deprecated API replacement, and test validation.
+Comprehensive guide for .NET version upgrade planning and execution. This skill consumes the structured output from
+[skill:dotnet-version-detection] (current TFM, SDK version, preview flags) and provides actionable upgrade guidance
+based on three defined upgrade lanes. Covers TFM migration, package updates, breaking change detection, deprecated API
+replacement, and test validation.
 
 ## Scope
 
@@ -33,7 +36,8 @@ Comprehensive guide for .NET version upgrade planning and execution. This skill 
 - Cloud deployment configuration
 - CI/CD pipeline changes
 
-Cross-references: [skill:dotnet-version-detection] for TFM resolution and version matrix, [skill:dotnet-multi-targeting] for polyfill-first multi-targeting strategies when maintaining backward compatibility during migration.
+Cross-references: [skill:dotnet-version-detection] for TFM resolution and version matrix, [skill:dotnet-multi-targeting]
+for polyfill-first multi-targeting strategies when maintaining backward compatibility during migration.
 
 ---
 
@@ -41,11 +45,11 @@ Cross-references: [skill:dotnet-version-detection] for TFM resolution and versio
 
 Select the appropriate upgrade lane based on project requirements and ecosystem constraints.
 
-| Lane | Path | Use Case | Risk Level |
-|------|------|----------|------------|
-| **Production (default)** | net8.0 -> net10.0 | LTS-to-LTS, recommended for most apps | Low -- both endpoints are LTS with long support windows |
-| **Staged production** | net8.0 -> net9.0 -> net10.0 | When ecosystem dependencies require incremental migration | Medium -- intermediate STS version has shorter support |
-| **Experimental** | net10.0 -> net11.0 (preview) | Non-production exploration of upcoming features | High -- preview APIs may change or be removed |
+| Lane                     | Path                         | Use Case                                                  | Risk Level                                              |
+| ------------------------ | ---------------------------- | --------------------------------------------------------- | ------------------------------------------------------- |
+| **Production (default)** | net8.0 -> net10.0            | LTS-to-LTS, recommended for most apps                     | Low -- both endpoints are LTS with long support windows |
+| **Staged production**    | net8.0 -> net9.0 -> net10.0  | When ecosystem dependencies require incremental migration | Medium -- intermediate STS version has shorter support  |
+| **Experimental**         | net10.0 -> net11.0 (preview) | Non-production exploration of upcoming features           | High -- preview APIs may change or be removed           |
 
 ### Lane Selection Decision Flow
 
@@ -57,13 +61,14 @@ Select the appropriate upgrade lane based on project requirements and ecosystem 
 
 ## Production Lane: LTS-to-LTS (net8.0 -> net10.0)
 
-The recommended default upgrade path. Both .NET 8 and .NET 10 are Long-Term Support releases, providing a stable migration with well-documented breaking changes.
+The recommended default upgrade path. Both .NET 8 and .NET 10 are Long-Term Support releases, providing a stable
+migration with well-documented breaking changes.
 
 ### Upgrade Checklist
 
 #### Step 1: Update TFM in project files
 
-```xml
+````xml
 
 <!-- Before -->
 <PropertyGroup>
@@ -523,3 +528,4 @@ Pinned versions are recommended for deterministic CI; floating versions are usef
 - [Target Framework Monikers](https://learn.microsoft.com/en-us/dotnet/standard/frameworks)
 - [.NET Analyzers Overview](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/overview)
 - [Package Validation](https://learn.microsoft.com/en-us/dotnet/fundamentals/package-validation/overview)
+````

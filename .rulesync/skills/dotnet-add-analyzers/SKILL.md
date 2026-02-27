@@ -45,7 +45,7 @@ code style preferences, naming rules, and global AnalyzerConfig files.
 
 .NET SDK ships built-in analyzers controlled by `AnalysisLevel`. Configure in `Directory.Build.props`:
 
-```xml
+````xml
 
 <PropertyGroup>
   <AnalysisLevel>latest-all</AnalysisLevel>
@@ -325,3 +325,4 @@ dotnet build 2>&1 | grep -oE 'CA[0-9]+' | sort | uniq -c | sort -rn
 - [Trimming Analyzer](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/prepare-libraries-for-trimming)
 - [AOT Compatibility](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/)
 - [EditorConfig for .NET](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/code-style-rule-options)
+````

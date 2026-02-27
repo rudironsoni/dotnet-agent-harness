@@ -2,21 +2,23 @@
 name: dotnet-solid-principles
 description: Applies SOLID and DRY principles. C# anti-patterns, fixes, SRP compliance checks.
 license: MIT
-targets: ["*"]
-tags: ["cicd", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['cicd', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for cicd tasks"
+  short-description: '.NET skill guidance for cicd tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-solid-principles
 
-Foundational design principles for .NET applications. Covers each SOLID principle with concrete C# anti-patterns and fixes, plus DRY guidance with nuance on when duplication is acceptable. These principles guide class design, interface contracts, and dependency management across all .NET project types.
+Foundational design principles for .NET applications. Covers each SOLID principle with concrete C# anti-patterns and
+fixes, plus DRY guidance with nuance on when duplication is acceptable. These principles guide class design, interface
+contracts, and dependency management across all .NET project types.
 
 ## Scope
 
@@ -31,17 +33,21 @@ Foundational design principles for .NET applications. Covers each SOLID principl
 - DI container mechanics (registration, lifetimes, keyed services) -- see [skill:dotnet-csharp-dependency-injection]
 - Code smells and anti-pattern detection -- see [skill:dotnet-csharp-code-smells]
 
-Cross-references: [skill:dotnet-architecture-patterns] for clean architecture and vertical slices, [skill:dotnet-csharp-dependency-injection] for DI registration patterns and lifetime management, [skill:dotnet-csharp-code-smells] for anti-pattern detection, [skill:dotnet-csharp-coding-standards] for naming and style conventions.
+Cross-references: [skill:dotnet-architecture-patterns] for clean architecture and vertical slices,
+[skill:dotnet-csharp-dependency-injection] for DI registration patterns and lifetime management,
+[skill:dotnet-csharp-code-smells] for anti-pattern detection, [skill:dotnet-csharp-coding-standards] for naming and
+style conventions.
 
 ---
 
 ## Single Responsibility Principle (SRP)
 
-A class should have only one reason to change. Apply the "describe in one sentence" test: if you cannot describe what a class does in one sentence without using "and" or "or", it likely violates SRP.
+A class should have only one reason to change. Apply the "describe in one sentence" test: if you cannot describe what a
+class does in one sentence without using "and" or "or", it likely violates SRP.
 
 ### Anti-Pattern: God Class
 
-```csharp
+````csharp
 
 // WRONG -- OrderService handles validation, persistence, email, and PDF generation
 public class OrderService
@@ -707,3 +713,4 @@ SOLID and DRY guidance in this skill is grounded in publicly available content f
 ## Attribution
 
 Adapted from [Aaronontheweb/dotnet-skills](https://github.com/Aaronontheweb/dotnet-skills) (MIT license).
+````

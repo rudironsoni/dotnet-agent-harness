@@ -2,21 +2,24 @@
 name: dotnet-serialization
 description: Serializes data. System.Text.Json source generators, Protobuf, MessagePack, AOT-safe patterns.
 license: MIT
-targets: ["*"]
-tags: ["csharp", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['csharp', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for csharp tasks"
+  short-description: '.NET skill guidance for csharp tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-serialization
 
-AOT-friendly serialization patterns for .NET applications. Covers System.Text.Json source generators for compile-time serialization, Protocol Buffers (Protobuf) for efficient binary serialization, and MessagePack for high-performance compact binary format. Includes performance tradeoff guidance for choosing the right serializer and warnings about reflection-based serialization in AOT scenarios.
+AOT-friendly serialization patterns for .NET applications. Covers System.Text.Json source generators for compile-time
+serialization, Protocol Buffers (Protobuf) for efficient binary serialization, and MessagePack for high-performance
+compact binary format. Includes performance tradeoff guidance for choosing the right serializer and warnings about
+reflection-based serialization in AOT scenarios.
 
 ## Scope
 
@@ -32,36 +35,42 @@ AOT-friendly serialization patterns for .NET applications. Covers System.Text.Js
 - HTTP client factory and resilience pipelines -- see [skill:dotnet-http-client] and [skill:dotnet-resilience]
 - Native AOT architecture and trimming -- see [skill:dotnet-native-aot] and [skill:dotnet-trimming]
 
-Cross-references: [skill:dotnet-csharp-source-generators] for understanding how STJ source generators work under the hood. See [skill:dotnet-integration-testing] for testing serialization round-trip correctness.
+Cross-references: [skill:dotnet-csharp-source-generators] for understanding how STJ source generators work under the
+hood. See [skill:dotnet-integration-testing] for testing serialization round-trip correctness.
 
 ---
 
 ## Serialization Format Comparison
 
-| Format | Library | AOT-Safe | Human-Readable | Relative Size | Relative Speed | Best For |
-|--------|---------|----------|----------------|---------------|----------------|----------|
-| JSON | System.Text.Json (source gen) | Yes | Yes | Largest | Good | APIs, config, web clients |
-| Protobuf | Google.Protobuf | Yes | No | Smallest | Fastest | Service-to-service, gRPC wire format |
-| MessagePack | MessagePack-CSharp | Yes (with AOT resolver) | No | Small | Fast | High-throughput caching, real-time |
-| JSON | Newtonsoft.Json | **No** (reflection) | Yes | Largest | Slower | **Legacy only -- do not use for AOT** |
+| Format      | Library                       | AOT-Safe                | Human-Readable | Relative Size | Relative Speed | Best For                              |
+| ----------- | ----------------------------- | ----------------------- | -------------- | ------------- | -------------- | ------------------------------------- |
+| JSON        | System.Text.Json (source gen) | Yes                     | Yes            | Largest       | Good           | APIs, config, web clients             |
+| Protobuf    | Google.Protobuf               | Yes                     | No             | Smallest      | Fastest        | Service-to-service, gRPC wire format  |
+| MessagePack | MessagePack-CSharp            | Yes (with AOT resolver) | No             | Small         | Fast           | High-throughput caching, real-time    |
+| JSON        | Newtonsoft.Json               | **No** (reflection)     | Yes            | Largest       | Slower         | **Legacy only -- do not use for AOT** |
 
 ### When to Choose What
 
-- **System.Text.Json with source generators**: Default choice for APIs, configuration, and any scenario where human-readable output or web client consumption matters. AOT-safe when using source generators.
-- **Protobuf**: Default wire format for gRPC. Best throughput and smallest payload size for service-to-service communication. Schema-first development with `.proto` files.
-- **MessagePack**: When you need binary compactness without `.proto` schema management. Good for caching layers, real-time messaging, and high-throughput scenarios where schema evolution is managed via attributes.
+- **System.Text.Json with source generators**: Default choice for APIs, configuration, and any scenario where
+  human-readable output or web client consumption matters. AOT-safe when using source generators.
+- **Protobuf**: Default wire format for gRPC. Best throughput and smallest payload size for service-to-service
+  communication. Schema-first development with `.proto` files.
+- **MessagePack**: When you need binary compactness without `.proto` schema management. Good for caching layers,
+  real-time messaging, and high-throughput scenarios where schema evolution is managed via attributes.
 
 ---
 
 ## System.Text.Json Source Generators
 
-System.Text.Json source generators produce compile-time serialization code, eliminating runtime reflection. This is **required** for Native AOT and strongly recommended for all new projects. See [skill:dotnet-csharp-source-generators] for the underlying incremental generator mechanics.
+System.Text.Json source generators produce compile-time serialization code, eliminating runtime reflection. This is
+**required** for Native AOT and strongly recommended for all new projects. See [skill:dotnet-csharp-source-generators]
+for the underlying incremental generator mechanics.
 
 ### Basic Setup
 
 Define a `JsonSerializerContext` with `[JsonSerializable]` attributes for each type you serialize:
 
-```csharp
+````csharp
 
 using System.Text.Json.Serialization;
 
@@ -432,3 +441,4 @@ See [skill:dotnet-native-aot] for comprehensive AOT compilation pipeline, [skill
 - [Protocol Buffers for .NET](https://learn.microsoft.com/en-us/dotnet/architecture/grpc-for-wcf-developers/protobuf-data-types)
 - [MessagePack-CSharp](https://github.com/MessagePack-CSharp/MessagePack-CSharp)
 - [Native AOT deployment](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/)
+````

@@ -70,7 +70,7 @@ strategic EF Core patterns, [skill:dotnet-csharp-dependency-injection] for servi
 - You are building with .NET Aspire (EF Core has first-class Aspire integration)
 - Query performance is acceptable with projections and `AsNoTracking()`
 
-```csharp
+````csharp
 
 // EF Core: expressive, type-safe, with change tracking
 var order = await db.Orders
@@ -458,3 +458,4 @@ Dapper wraps `IDbConnection` extension methods around existing ADO.NET code. Mig
 - [NpgsqlDataSource and dependency injection](https://www.npgsql.org/doc/basic-usage.html#data-source)
 - [ADO.NET overview](https://learn.microsoft.com/en-us/dotnet/framework/data/adonet/)
 - [Native AOT deployment](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/)
+````

@@ -1,6 +1,7 @@
 # Simulated Commands, Subagents and Skills
 
-Simulated commands, subagents and skills allow you to generate simulated features for cursor, codexcli and etc. This is useful for shortening your prompts.
+Simulated commands, subagents and skills allow you to generate simulated features for cursor, codexcli and etc. This is
+useful for shortening your prompts.
 
 1. Prepare `.rulesync/commands/*.md`, `.rulesync/subagents/*.md` and `.rulesync/skills/*/SKILL.md` for your purposes.
 2. Generate simulated commands, subagents and skills for specific tools that are included in cursor, codexcli and etc.

@@ -58,7 +58,7 @@ Resource files (`.resx`) are the standard .NET localization format. They compile
 
 Resources resolve in order of specificity, falling back until a match is found:
 
-```text
+````text
 
 sr-Cyrl-RS.resx -> sr-Cyrl.resx -> sr.resx -> Resources.resx (default/neutral)
 
@@ -711,3 +711,4 @@ For WPF Host builder, MVVM Toolkit, and theming patterns, see [skill:dotnet-wpf-
    Windows needs `Resource Language` entries.
 
 ---
+````

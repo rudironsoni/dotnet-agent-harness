@@ -2,23 +2,26 @@
 name: dotnet-winui
 description: Builds WinUI 3 desktop apps. Windows App SDK, XAML patterns, MSIX/unpackaged, UWP migration.
 license: MIT
-targets: ["*"]
-tags: ["ui", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['ui', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for ui tasks"
+  short-description: '.NET skill guidance for ui tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-winui
 
-WinUI 3 / Windows App SDK development: project setup with `UseWinUI` and Windows 10 TFM, XAML patterns with compiled bindings (`x:Bind`) and deferred loading (`x:Load`), MVVM with CommunityToolkit.Mvvm, MSIX and unpackaged deployment modes, Windows integration (lifecycle, notifications, widgets), UWP migration guidance, and common agent pitfalls.
+WinUI 3 / Windows App SDK development: project setup with `UseWinUI` and Windows 10 TFM, XAML patterns with compiled
+bindings (`x:Bind`) and deferred loading (`x:Load`), MVVM with CommunityToolkit.Mvvm, MSIX and unpackaged deployment
+modes, Windows integration (lifecycle, notifications, widgets), UWP migration guidance, and common agent pitfalls.
 
-**Version assumptions:** .NET 8.0+ baseline. Windows App SDK 1.6+ (current stable). TFM `net8.0-windows10.0.19041.0`. .NET 9 features explicitly marked.
+**Version assumptions:** .NET 8.0+ baseline. Windows App SDK 1.6+ (current stable). TFM `net8.0-windows10.0.19041.0`.
+.NET 9 features explicitly marked.
 
 ## Scope
 
@@ -36,15 +39,20 @@ WinUI 3 / Windows App SDK development: project setup with `UseWinUI` and Windows
 - UI framework selection decision tree -- see [skill:dotnet-ui-chooser]
 - WPF patterns -- see [skill:dotnet-wpf-modern]
 
-Cross-references: [skill:dotnet-ui-testing-core] for desktop testing, [skill:dotnet-wpf-modern] for WPF patterns, [skill:dotnet-wpf-migration] for migration guidance, [skill:dotnet-native-aot] for general AOT, [skill:dotnet-ui-chooser] for framework selection, [skill:dotnet-native-interop] for general P/Invoke patterns (CsWin32 generates P/Invoke declarations), [skill:dotnet-accessibility] for accessibility patterns (AutomationProperties, AutomationPeer, UI Automation).
+Cross-references: [skill:dotnet-ui-testing-core] for desktop testing, [skill:dotnet-wpf-modern] for WPF patterns,
+[skill:dotnet-wpf-migration] for migration guidance, [skill:dotnet-native-aot] for general AOT,
+[skill:dotnet-ui-chooser] for framework selection, [skill:dotnet-native-interop] for general P/Invoke patterns (CsWin32
+generates P/Invoke declarations), [skill:dotnet-accessibility] for accessibility patterns (AutomationProperties,
+AutomationPeer, UI Automation).
 
 ---
 
 ## Project Setup
 
-WinUI 3 uses the Windows App SDK (formerly Project Reunion) as its runtime and API layer. Projects target a Windows 10 version-specific TFM.
+WinUI 3 uses the Windows App SDK (formerly Project Reunion) as its runtime and API layer. Projects target a Windows 10
+version-specific TFM.
 
-```xml
+````xml
 
 <!-- MyWinUIApp.csproj -->
 <Project Sdk="Microsoft.NET.Sdk">
@@ -584,3 +592,4 @@ For comprehensive migration path guidance across frameworks, see [skill:dotnet-w
 - [UWP to WinUI Migration](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/migrate-to-windows-app-sdk/)
 - [MSIX Packaging](https://learn.microsoft.com/en-us/windows/msix/)
 - [Windows App SDK Deployment Guide](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/deploy-overview)
+````

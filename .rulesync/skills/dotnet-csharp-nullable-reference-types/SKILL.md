@@ -55,7 +55,7 @@ upgraded to net8.0 may not have it enabled.
 
 ### Project-Wide (Recommended)
 
-```xml
+````xml
 
 <!-- In .csproj or Directory.Build.props -->
 <PropertyGroup>
@@ -369,3 +369,4 @@ the few valid uses of the null-forgiving operator.
 - [Attributes for null-state static analysis](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis)
 - [Nullable reference type migration](https://learn.microsoft.com/en-us/dotnet/csharp/nullable-migration-strategies)
 - [.NET Framework Design Guidelines](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/)
+````

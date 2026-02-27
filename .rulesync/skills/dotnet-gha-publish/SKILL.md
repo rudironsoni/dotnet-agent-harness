@@ -51,7 +51,7 @@ release automation, [skill:dotnet-add-ci] for starter publish templates.
 
 ### Tag-Triggered Package Publishing
 
-```yaml
+````yaml
 
 name: Publish NuGet Package
 
@@ -520,3 +520,4 @@ jobs:
    `if: github.ref_type == 'tag'` as an extra guard if needed.
 8. **GHCR authentication uses `GITHUB_TOKEN`, not a PAT** -- for public repositories, `packages: write` permission is
    sufficient; PATs are only needed for cross-repository access.
+````

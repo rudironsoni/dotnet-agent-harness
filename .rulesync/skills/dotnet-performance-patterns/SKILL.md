@@ -2,23 +2,27 @@
 name: dotnet-performance-patterns
 description: Optimizes .NET allocations and throughput. Span, ArrayPool, ref struct, sealed, stackalloc.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-performance-patterns
 
-Performance-oriented architecture patterns for .NET applications. Covers zero-allocation coding with Span\<T\> and Memory\<T\>, buffer pooling with ArrayPool\<T\>, struct design for performance (readonly struct, ref struct, in parameters), sealed class devirtualization by the JIT, stack-based allocation with stackalloc, and string handling performance. Focuses on the **why** (performance rationale and measurement) rather than the **how** (language syntax).
+Performance-oriented architecture patterns for .NET applications. Covers zero-allocation coding with Span\<T\> and
+Memory\<T\>, buffer pooling with ArrayPool\<T\>, struct design for performance (readonly struct, ref struct, in
+parameters), sealed class devirtualization by the JIT, stack-based allocation with stackalloc, and string handling
+performance. Focuses on the **why** (performance rationale and measurement) rather than the **how** (language syntax).
 
-**Version assumptions:** .NET 8.0+ baseline. Span\<T\> and Memory\<T\> are available from .NET Core 2.1+ but this skill targets modern usage patterns on .NET 8+.
+**Version assumptions:** .NET 8.0+ baseline. Span\<T\> and Memory\<T\> are available from .NET Core 2.1+ but this skill
+targets modern usage patterns on .NET 8+.
 
 ## Scope
 
@@ -38,7 +42,10 @@ Performance-oriented architecture patterns for .NET applications. Covers zero-al
 - Serialization format performance -- see [skill:dotnet-serialization]
 - Architecture patterns (caching, resilience, DI) -- see [skill:dotnet-architecture-patterns]
 
-Cross-references: [skill:dotnet-benchmarkdotnet] for measuring the impact of these patterns, [skill:dotnet-csharp-modern-patterns] for Span/Memory syntax foundation, [skill:dotnet-csharp-coding-standards] for sealed class style conventions, [skill:dotnet-native-aot] for AOT performance characteristics and trimming impact on pattern choices, [skill:dotnet-serialization] for serialization performance context.
+Cross-references: [skill:dotnet-benchmarkdotnet] for measuring the impact of these patterns,
+[skill:dotnet-csharp-modern-patterns] for Span/Memory syntax foundation, [skill:dotnet-csharp-coding-standards] for
+sealed class style conventions, [skill:dotnet-native-aot] for AOT performance characteristics and trimming impact on
+pattern choices, [skill:dotnet-serialization] for serialization performance context.
 
 ---
 
@@ -46,11 +53,13 @@ Cross-references: [skill:dotnet-benchmarkdotnet] for measuring the impact of the
 
 ### Why Span\<T\> Matters for Performance
 
-`Span<T>` provides a safe, bounds-checked view over contiguous memory without allocating. It enables slicing arrays, strings, and stack memory without copying. For syntax details see [skill:dotnet-csharp-modern-patterns]; this section focuses on performance rationale.
+`Span<T>` provides a safe, bounds-checked view over contiguous memory without allocating. It enables slicing arrays,
+strings, and stack memory without copying. For syntax details see [skill:dotnet-csharp-modern-patterns]; this section
+focuses on performance rationale.
 
 ### Zero-Allocation String Processing
 
-```csharp
+````csharp
 
 // BAD: Substring allocates a new string on each call
 public static (string Key, string Value) ParseHeader_Allocating(string header)
@@ -422,3 +431,4 @@ Performance patterns in this skill are grounded in guidance from:
 - **Nick Chapsas** -- Modern .NET performance patterns and benchmarking methodology.
 
 > These sources inform the patterns and rationale presented above. This skill does not claim to represent or speak for any individual.
+````

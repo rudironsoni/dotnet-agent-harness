@@ -61,7 +61,7 @@ control, and completion signaling.
 
 ### Pipe, PipeReader, PipeWriter
 
-```csharp
+````csharp
 
 // Create a pipe with default options (uses ArrayPool internally)
 var pipe = new Pipe();
@@ -503,3 +503,4 @@ static bool TryParseHeader(
 - [PipeWriter API reference](https://learn.microsoft.com/en-us/dotnet/api/system.io.pipelines.pipewriter)
 - [SequenceReader<T>](https://learn.microsoft.com/en-us/dotnet/api/system.buffers.sequencereader-1)
 - [Kestrel connection middleware](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/endpoints)
+````

@@ -50,7 +50,7 @@ Understanding what the SDK provides implicitly is essential to avoid redundant o
 
 ### Annotated XML Example
 
-```xml
+````xml
 
 <!-- The Sdk attribute imports default props at the top and targets at the bottom -->
 <!-- This single line replaces dozens of Import statements from legacy .csproj -->
@@ -644,3 +644,4 @@ explaining why.
 - [Directory.Build.props/targets](https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory)
 - [MSBuild Conditions](https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-conditions)
 - [SDK-style Project Format](https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview)
+````

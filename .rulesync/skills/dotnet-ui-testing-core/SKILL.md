@@ -2,21 +2,23 @@
 name: dotnet-ui-testing-core
 description: Tests UI across frameworks. Page objects, test selectors, async waits, accessibility.
 license: MIT
-targets: ["*"]
-tags: ["testing", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['testing', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for testing tasks"
+  short-description: '.NET skill guidance for testing tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-ui-testing-core
 
-Core UI testing patterns applicable across .NET UI frameworks (Blazor, MAUI, Uno Platform). Covers the page object model for maintainable test structure, test selector strategies for reliable element identification, async wait patterns for non-deterministic UI, and accessibility testing approaches.
+Core UI testing patterns applicable across .NET UI frameworks (Blazor, MAUI, Uno Platform). Covers the page object model
+for maintainable test structure, test selector strategies for reliable element identification, async wait patterns for
+non-deterministic UI, and accessibility testing approaches.
 
 **Version assumptions:** .NET 8.0+ baseline. Framework-specific details are delegated to dedicated skills.
 
@@ -35,19 +37,24 @@ Core UI testing patterns applicable across .NET UI frameworks (Blazor, MAUI, Uno
 - Browser automation specifics -- see [skill:dotnet-playwright]
 - Test project scaffolding -- see [skill:dotnet-add-testing]
 
-**Prerequisites:** A test project scaffolded via [skill:dotnet-add-testing]. Familiarity with test strategy decisions from [skill:dotnet-testing-strategy].
+**Prerequisites:** A test project scaffolded via [skill:dotnet-add-testing]. Familiarity with test strategy decisions
+from [skill:dotnet-testing-strategy].
 
-Cross-references: [skill:dotnet-testing-strategy] for deciding when UI tests are appropriate, [skill:dotnet-playwright] for browser-based E2E automation, [skill:dotnet-blazor-testing] for Blazor component testing, [skill:dotnet-maui-testing] for mobile/desktop UI testing, [skill:dotnet-uno-testing] for Uno Platform testing.
+Cross-references: [skill:dotnet-testing-strategy] for deciding when UI tests are appropriate, [skill:dotnet-playwright]
+for browser-based E2E automation, [skill:dotnet-blazor-testing] for Blazor component testing,
+[skill:dotnet-maui-testing] for mobile/desktop UI testing, [skill:dotnet-uno-testing] for Uno Platform testing.
 
 ---
 
 ## Page Object Model
 
-The page object model (POM) encapsulates page structure and interactions behind a class, isolating tests from UI implementation details. When the UI changes, only the page object needs updating -- not every test that touches that page.
+The page object model (POM) encapsulates page structure and interactions behind a class, isolating tests from UI
+implementation details. When the UI changes, only the page object needs updating -- not every test that touches that
+page.
 
 ### Structure
 
-```text
+````text
 
 PageObjects/
   LoginPage.cs           -- login form interactions
@@ -409,3 +416,4 @@ public async Task OrderForm_TabOrder_FollowsLogicalSequence()
 - [axe-core Accessibility Rules](https://dequeuniversity.com/rules/axe/)
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
 - [Testing Library Guiding Principles](https://testing-library.com/docs/guiding-principles)
+````

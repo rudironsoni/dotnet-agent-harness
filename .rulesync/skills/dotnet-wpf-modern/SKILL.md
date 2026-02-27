@@ -2,23 +2,26 @@
 name: dotnet-wpf-modern
 description: Builds WPF on .NET 8+. Host builder, MVVM Toolkit, Fluent theme, performance, modern C# patterns.
 license: MIT
-targets: ["*"]
-tags: ["ui", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['ui', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for ui tasks"
+  short-description: '.NET skill guidance for ui tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-wpf-modern
 
-WPF on .NET 8+: Host builder and dependency injection, MVVM with CommunityToolkit.Mvvm source generators, hardware-accelerated rendering improvements, modern C# patterns (records, primary constructors, pattern matching), Fluent theme (.NET 9+), system theme detection, and what changed from .NET Framework WPF.
+WPF on .NET 8+: Host builder and dependency injection, MVVM with CommunityToolkit.Mvvm source generators,
+hardware-accelerated rendering improvements, modern C# patterns (records, primary constructors, pattern matching),
+Fluent theme (.NET 9+), system theme detection, and what changed from .NET Framework WPF.
 
-**Version assumptions:** .NET 8.0+ baseline (current LTS). TFM `net8.0-windows`. .NET 9 features (Fluent theme) explicitly marked.
+**Version assumptions:** .NET 8.0+ baseline (current LTS). TFM `net8.0-windows`. .NET 9 features (Fluent theme)
+explicitly marked.
 
 ## Scope
 
@@ -37,17 +40,21 @@ WPF on .NET 8+: Host builder and dependency injection, MVVM with CommunityToolki
 - General Native AOT patterns -- see [skill:dotnet-native-aot]
 - UI framework selection -- see [skill:dotnet-ui-chooser]
 
-Cross-references: [skill:dotnet-ui-testing-core] for desktop testing, [skill:dotnet-winui] for WinUI 3 patterns, [skill:dotnet-wpf-migration] for migration guidance, [skill:dotnet-native-aot] for general AOT, [skill:dotnet-ui-chooser] for framework selection, [skill:dotnet-accessibility] for accessibility patterns (AutomationProperties, AutomationPeer, UI Automation).
+Cross-references: [skill:dotnet-ui-testing-core] for desktop testing, [skill:dotnet-winui] for WinUI 3 patterns,
+[skill:dotnet-wpf-migration] for migration guidance, [skill:dotnet-native-aot] for general AOT,
+[skill:dotnet-ui-chooser] for framework selection, [skill:dotnet-accessibility] for accessibility patterns
+(AutomationProperties, AutomationPeer, UI Automation).
 
 ---
 
 ## .NET 8+ Differences
 
-WPF on .NET 8+ is a significant modernization from .NET Framework WPF. The project format, DI pattern, language features, and runtime behavior have all changed.
+WPF on .NET 8+ is a significant modernization from .NET Framework WPF. The project format, DI pattern, language
+features, and runtime behavior have all changed.
 
 ### New Project Template
 
-```xml
+````xml
 
 <!-- MyWpfApp.csproj (SDK-style) -->
 <Project Sdk="Microsoft.NET.Sdk">
@@ -505,3 +512,4 @@ public void ApplyTheme(AppTheme theme)
 - [WPF Fluent Theme (.NET 9)](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/whats-new/net90)
 - [Microsoft.Extensions.Hosting](https://learn.microsoft.com/en-us/dotnet/core/extensions/generic-host)
 - [WPF Performance](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/advanced/optimizing-performance)
+````

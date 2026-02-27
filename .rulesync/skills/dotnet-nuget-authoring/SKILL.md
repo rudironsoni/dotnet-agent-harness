@@ -2,23 +2,29 @@
 name: dotnet-nuget-authoring
 description: Creates NuGet packages. SDK-style csproj, source generators, multi-TFM, symbols, signing.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-nuget-authoring
 
-NuGet package authoring for .NET library authors: SDK-style `.csproj` package properties (`PackageId`, `PackageTags`, `PackageReadmeFile`, `PackageLicenseExpression`), source generator NuGet packaging with `analyzers/dotnet/cs/` folder layout and `buildTransitive` targets, multi-TFM packages, symbol packages (snupkg) with deterministic builds, package signing (author signing with certificates, repository signing), package validation (`EnablePackageValidation`, `Microsoft.DotNet.ApiCompat.Task` for API compatibility), and NuGet versioning strategies (SemVer 2.0, pre-release suffixes, NBGV integration).
+NuGet package authoring for .NET library authors: SDK-style `.csproj` package properties (`PackageId`, `PackageTags`,
+`PackageReadmeFile`, `PackageLicenseExpression`), source generator NuGet packaging with `analyzers/dotnet/cs/` folder
+layout and `buildTransitive` targets, multi-TFM packages, symbol packages (snupkg) with deterministic builds, package
+signing (author signing with certificates, repository signing), package validation (`EnablePackageValidation`,
+`Microsoft.DotNet.ApiCompat.Task` for API compatibility), and NuGet versioning strategies (SemVer 2.0, pre-release
+suffixes, NBGV integration).
 
-**Version assumptions:** .NET 8.0+ baseline. NuGet client bundled with .NET 8+ SDK. `Microsoft.DotNet.ApiCompat.Task` 8.0+ for API compatibility validation.
+**Version assumptions:** .NET 8.0+ baseline. NuGet client bundled with .NET 8+ SDK. `Microsoft.DotNet.ApiCompat.Task`
+8.0+ for API compatibility validation.
 
 ## Scope
 
@@ -37,17 +43,22 @@ NuGet package authoring for .NET library authors: SDK-style `.csproj` package pr
 - Roslyn analyzer authoring -- see [skill:dotnet-roslyn-analyzers]
 - Release lifecycle and NBGV setup -- see [skill:dotnet-release-management]
 
-Cross-references: [skill:dotnet-project-structure] for CPM, SourceLink, nuget.config, [skill:dotnet-gha-publish] for CI NuGet push workflows, [skill:dotnet-ado-publish] for ADO NuGet push workflows, [skill:dotnet-cli-packaging] for CLI tool distribution formats, [skill:dotnet-csharp-source-generators] for Roslyn source generator authoring, [skill:dotnet-release-management] for release lifecycle and NBGV setup, [skill:dotnet-roslyn-analyzers] for Roslyn analyzer authoring.
+Cross-references: [skill:dotnet-project-structure] for CPM, SourceLink, nuget.config, [skill:dotnet-gha-publish] for CI
+NuGet push workflows, [skill:dotnet-ado-publish] for ADO NuGet push workflows, [skill:dotnet-cli-packaging] for CLI tool
+distribution formats, [skill:dotnet-csharp-source-generators] for Roslyn source generator authoring,
+[skill:dotnet-release-management] for release lifecycle and NBGV setup, [skill:dotnet-roslyn-analyzers] for Roslyn
+analyzer authoring.
 
 ---
 
 ## SDK-Style Package Properties
 
-Every NuGet package starts with MSBuild properties in the `.csproj`. SDK-style projects produce NuGet packages with `dotnet pack` -- no `.nuspec` file required.
+Every NuGet package starts with MSBuild properties in the `.csproj`. SDK-style projects produce NuGet packages with
+`dotnet pack` -- no `.nuspec` file required.
 
 ### Essential Package Metadata
 
-```xml
+````xml
 
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -635,3 +646,4 @@ unzip -l MyCompany.Generators.1.0.0.nupkg | grep analyzers/
 1. **Never hardcode API keys in CLI examples** -- always use environment variable placeholders (`$NUGET_API_KEY`) with a note about CI secret storage.
 
 1. **`ContinuousIntegrationBuild` must be conditional on CI** -- setting it unconditionally breaks local debugging by making PDBs non-reproducible with local file paths.
+````

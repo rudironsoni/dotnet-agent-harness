@@ -75,7 +75,7 @@ templates. Render modes can be set globally, per-page, or per-component.
 
 **Global (App.razor):**
 
-```razor
+````razor
 
 <!-- Sets default render mode for all pages -->
 <Routes @rendermode="InteractiveServer" />
@@ -609,3 +609,4 @@ debug render mode boundaries and component lifecycle issues during development.
 - [Streaming Rendering](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/rendering?view=aspnetcore-10.0#streaming-rendering)
 - [Blazor Hybrid](https://learn.microsoft.com/en-us/aspnet/core/blazor/hybrid/?view=aspnetcore-10.0)
 - [AOT Deployment](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/)
+````

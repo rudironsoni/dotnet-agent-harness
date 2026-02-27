@@ -2,21 +2,24 @@
 name: dotnet-structured-logging
 description: Designs log pipelines. Aggregation, structured queries, sampling, PII scrubbing, correlation.
 license: MIT
-targets: ["*"]
-tags: ["architecture", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['architecture', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for architecture tasks"
+  short-description: '.NET skill guidance for architecture tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-structured-logging
 
-Log pipeline design and operations for .NET distributed systems. Covers log aggregation architecture (ELK, Seq, Grafana Loki), structured query patterns for each platform, log sampling and volume management strategies, PII scrubbing and destructuring policies, and cross-service correlation beyond single-service log scopes. This skill addresses what happens _after_ log emission -- the pipeline, query, and operations layer.
+Log pipeline design and operations for .NET distributed systems. Covers log aggregation architecture (ELK, Seq, Grafana
+Loki), structured query patterns for each platform, log sampling and volume management strategies, PII scrubbing and
+destructuring policies, and cross-service correlation beyond single-service log scopes. This skill addresses what
+happens _after_ log emission -- the pipeline, query, and operations layer.
 
 ## Scope
 
@@ -32,7 +35,8 @@ Log pipeline design and operations for .NET distributed systems. Covers log aggr
 - Application configuration and options pattern -- see [skill:dotnet-csharp-configuration]
 - Distributed tracing setup and trace context propagation -- see [skill:dotnet-observability]
 
-Cross-references: [skill:dotnet-observability] for log emission, Serilog/MEL configuration, and OpenTelemetry logging export, [skill:dotnet-csharp-configuration] for appsettings.json configuration patterns used in log pipeline setup.
+Cross-references: [skill:dotnet-observability] for log emission, Serilog/MEL configuration, and OpenTelemetry logging
+export, [skill:dotnet-csharp-configuration] for appsettings.json configuration patterns used in log pipeline setup.
 
 ---
 
@@ -40,18 +44,18 @@ Cross-references: [skill:dotnet-observability] for log emission, Serilog/MEL con
 
 ### Architecture Options
 
-| Platform | Ingest | Storage | Query | Best for |
-|----------|--------|---------|-------|----------|
-| **ELK** (Elasticsearch, Logstash, Kibana) | Logstash / Filebeat | Elasticsearch | KQL in Kibana | Large-scale, flexible schema, full-text search |
-| **Seq** | HTTP API / Serilog sink | Built-in | Seq signal expressions | .NET-native, developer-friendly, structured queries |
-| **Grafana Loki** | Promtail / OTel Collector | Loki (label-indexed) | LogQL | Cost-effective, Grafana ecosystem, label-based queries |
-| **Azure Monitor** | OTel Collector / Application Insights SDK | Log Analytics workspace | KQL (Kusto) | Azure-native, integrated alerting, cost management |
+| Platform                                  | Ingest                                    | Storage                 | Query                  | Best for                                               |
+| ----------------------------------------- | ----------------------------------------- | ----------------------- | ---------------------- | ------------------------------------------------------ |
+| **ELK** (Elasticsearch, Logstash, Kibana) | Logstash / Filebeat                       | Elasticsearch           | KQL in Kibana          | Large-scale, flexible schema, full-text search         |
+| **Seq**                                   | HTTP API / Serilog sink                   | Built-in                | Seq signal expressions | .NET-native, developer-friendly, structured queries    |
+| **Grafana Loki**                          | Promtail / OTel Collector                 | Loki (label-indexed)    | LogQL                  | Cost-effective, Grafana ecosystem, label-based queries |
+| **Azure Monitor**                         | OTel Collector / Application Insights SDK | Log Analytics workspace | KQL (Kusto)            | Azure-native, integrated alerting, cost management     |
 
 ### Recommended Pipeline Patterns
 
 #### Pattern 1: OTel Collector as central router
 
-```text
+````text
 
 App (OTLP) --> OTel Collector --> Elasticsearch / Loki / Azure Monitor
                   |
@@ -461,3 +465,4 @@ processor.ProcessMessageAsync += async args =>
 - [Serilog PII masking](https://github.com/serilog/serilog/wiki/Structured-Data#masking-sensitive-data)
 - [Azure Monitor KQL reference](https://learn.microsoft.com/en-us/azure/data-explorer/kusto/query/)
 - [W3C Trace Context specification](https://www.w3.org/TR/trace-context/)
+````

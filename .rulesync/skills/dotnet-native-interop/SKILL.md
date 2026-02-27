@@ -2,23 +2,27 @@
 name: dotnet-native-interop
 description: Calls native libraries via P/Invoke. LibraryImport, marshalling, cross-platform resolution.
 license: MIT
-targets: ["*"]
-tags: ["csharp", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['csharp', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for csharp tasks"
+  short-description: '.NET skill guidance for csharp tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-native-interop
 
-Platform Invoke (P/Invoke) patterns for calling native C/C++ libraries from .NET: `[LibraryImport]` (preferred, .NET 7+) vs `[DllImport]` (legacy), struct marshalling, string marshalling, function pointer callbacks, `NativeLibrary.SetDllImportResolver` for cross-platform library resolution, and platform-specific considerations for Windows, macOS, Linux, iOS, and Android.
+Platform Invoke (P/Invoke) patterns for calling native C/C++ libraries from .NET: `[LibraryImport]` (preferred, .NET 7+)
+vs `[DllImport]` (legacy), struct marshalling, string marshalling, function pointer callbacks,
+`NativeLibrary.SetDllImportResolver` for cross-platform library resolution, and platform-specific considerations for
+Windows, macOS, Linux, iOS, and Android.
 
-**Version assumptions:** .NET 7.0+ baseline for `[LibraryImport]`. `[DllImport]` available in all .NET versions. `NativeLibrary` API available since .NET Core 3.0.
+**Version assumptions:** .NET 7.0+ baseline for `[LibraryImport]`. `[DllImport]` available in all .NET versions.
+`NativeLibrary` API available since .NET Core 3.0.
 
 ## Scope
 
@@ -33,28 +37,33 @@ Platform Invoke (P/Invoke) patterns for calling native C/C++ libraries from .NET
 - COM interop and CsWin32 source generator -- see [skill:dotnet-winui]
 - WASM JavaScript interop (JSImport/JSExport) -- see [skill:dotnet-aot-wasm]
 
-Cross-references: [skill:dotnet-native-aot] for AOT-specific P/Invoke and `[LibraryImport]` in publish scenarios, [skill:dotnet-aot-architecture] for AOT-first design patterns including source-generated interop, [skill:dotnet-winui] for CsWin32 source generator and COM interop, [skill:dotnet-aot-wasm] for WASM JavaScript interop (not native P/Invoke).
+Cross-references: [skill:dotnet-native-aot] for AOT-specific P/Invoke and `[LibraryImport]` in publish scenarios,
+[skill:dotnet-aot-architecture] for AOT-first design patterns including source-generated interop, [skill:dotnet-winui]
+for CsWin32 source generator and COM interop, [skill:dotnet-aot-wasm] for WASM JavaScript interop (not native P/Invoke).
 
 ---
 
 ## LibraryImport vs DllImport
 
-`[LibraryImport]` (.NET 7+) is the preferred attribute for new P/Invoke declarations. It uses source generation to produce marshalling code at compile time, making it fully AOT-compatible and eliminating runtime codegen overhead.
+`[LibraryImport]` (.NET 7+) is the preferred attribute for new P/Invoke declarations. It uses source generation to
+produce marshalling code at compile time, making it fully AOT-compatible and eliminating runtime codegen overhead.
 
-`[DllImport]` is the legacy attribute. It relies on runtime marshalling, which may require codegen not available in AOT scenarios. Use `[DllImport]` only when targeting .NET 6 or earlier, or when the SYSLIB1054 analyzer indicates `[LibraryImport]` cannot handle a specific signature.
+`[DllImport]` is the legacy attribute. It relies on runtime marshalling, which may require codegen not available in AOT
+scenarios. Use `[DllImport]` only when targeting .NET 6 or earlier, or when the SYSLIB1054 analyzer indicates
+`[LibraryImport]` cannot handle a specific signature.
 
 ### Decision Guide
 
-| Scenario | Use |
-|----------|-----|
-| New code targeting .NET 7+ | `[LibraryImport]` |
-| Targeting .NET 6 or earlier | `[DllImport]` |
-| SYSLIB1054 analyzer flags incompatibility | `[DllImport]` (with comment explaining why) |
-| Publishing with Native AOT | `[LibraryImport]` (required for full AOT compat) |
+| Scenario                                  | Use                                              |
+| ----------------------------------------- | ------------------------------------------------ |
+| New code targeting .NET 7+                | `[LibraryImport]`                                |
+| Targeting .NET 6 or earlier               | `[DllImport]`                                    |
+| SYSLIB1054 analyzer flags incompatibility | `[DllImport]` (with comment explaining why)      |
+| Publishing with Native AOT                | `[LibraryImport]` (required for full AOT compat) |
 
 ### LibraryImport Declaration
 
-```csharp
+````csharp
 
 using System.Runtime.InteropServices;
 
@@ -556,3 +565,4 @@ Do not use C# `long` for C/C++ `long` -- they have different sizes on Unix 64-bi
 - [Type marshalling](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/type-marshalling)
 - [Customizing struct marshalling](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/customize-struct-marshalling)
 - [NativeLibrary class](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.nativelibrary)
+````

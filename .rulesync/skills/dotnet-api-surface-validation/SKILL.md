@@ -59,7 +59,7 @@ exposure and undocumented surface area changes.
 
 Install the analyzer package:
 
-```xml
+````xml
 
 <ItemGroup>
   <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.3.*" PrivateAssets="all" />
@@ -630,3 +630,4 @@ duplicating configuration.
 - [Microsoft.DotNet.ApiCompat.Tool](https://www.nuget.org/packages/Microsoft.DotNet.ApiCompat.Tool)
 - [Verify library](https://github.com/VerifyTests/Verify) -- snapshot testing framework
 - [PublicApiAnalyzers diagnostics reference](https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/api-design-rules)
+````

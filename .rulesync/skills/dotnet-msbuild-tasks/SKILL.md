@@ -2,23 +2,27 @@
 name: dotnet-msbuild-tasks
 description: Writes custom MSBuild tasks. ITask, ToolTask, IIncrementalTask, inline tasks, UsingTask.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-msbuild-tasks
 
-Guidance for authoring custom MSBuild tasks: implementing the `ITask` interface, extending `ToolTask` for CLI wrappers, using `IIncrementalTask` (MSBuild 17.8+) for incremental execution, defining inline tasks with `CodeTaskFactory`, registering tasks via `UsingTask`, declaring task parameters, debugging tasks, and packaging tasks as NuGet packages.
+Guidance for authoring custom MSBuild tasks: implementing the `ITask` interface, extending `ToolTask` for CLI wrappers,
+using `IIncrementalTask` (MSBuild 17.8+) for incremental execution, defining inline tasks with `CodeTaskFactory`,
+registering tasks via `UsingTask`, declaring task parameters, debugging tasks, and packaging tasks as NuGet packages.
 
-**Version assumptions:** .NET 8.0+ SDK (MSBuild 17.8+). `IIncrementalTask` requires MSBuild 17.8+ (VS 2022 17.8+, .NET 8 SDK). All examples use SDK-style projects. All C# examples assume `using Microsoft.Build.Framework;` and `using Microsoft.Build.Utilities;` are in scope unless shown explicitly.
+**Version assumptions:** .NET 8.0+ SDK (MSBuild 17.8+). `IIncrementalTask` requires MSBuild 17.8+ (VS 2022 17.8+, .NET 8
+SDK). All examples use SDK-style projects. All C# examples assume `using Microsoft.Build.Framework;` and
+`using Microsoft.Build.Utilities;` are in scope unless shown explicitly.
 
 ## Scope
 
@@ -33,17 +37,19 @@ Guidance for authoring custom MSBuild tasks: implementing the `ITask` interface,
 
 - MSBuild project system authoring (targets, props, items, conditions) -- see [skill:dotnet-msbuild-authoring]
 
-Cross-references: [skill:dotnet-msbuild-authoring] for custom targets, import ordering, items, conditions, and property functions.
+Cross-references: [skill:dotnet-msbuild-authoring] for custom targets, import ordering, items, conditions, and property
+functions.
 
 ---
 
 ## ITask Interface
 
-All MSBuild tasks implement `Microsoft.Build.Framework.ITask`. The simplest approach is to inherit from `Microsoft.Build.Utilities.Task`, which provides default implementations for `BuildEngine` and `HostObject`.
+All MSBuild tasks implement `Microsoft.Build.Framework.ITask`. The simplest approach is to inherit from
+`Microsoft.Build.Utilities.Task`, which provides default implementations for `BuildEngine` and `HostObject`.
 
 ### Minimal Custom Task
 
-```csharp
+````csharp
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -129,3 +135,4 @@ For detailed code examples (ToolTask, IIncrementalTask, task parameters, inline 
 - [MSBuild Task Parameters](https://learn.microsoft.com/en-us/visualstudio/msbuild/task-writing#task-parameters)
 - [Creating a NuGet Package with MSBuild Tasks](https://learn.microsoft.com/en-us/nuget/create-packages/creating-a-package-msbuild)
 - [Debugging MSBuild Tasks](https://learn.microsoft.com/en-us/visualstudio/msbuild/how-to-debug-msbuild-custom-task)
+````

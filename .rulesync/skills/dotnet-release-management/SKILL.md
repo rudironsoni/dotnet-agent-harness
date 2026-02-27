@@ -2,21 +2,26 @@
 name: dotnet-release-management
 description: Manages .NET release lifecycle. NBGV versioning, SemVer, changelogs, pre-release, branching.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-release-management
 
-Release lifecycle management for .NET projects: Nerdbank.GitVersioning (NBGV) setup with `version.json` configuration, version height calculation, and public release vs pre-release modes; SemVer 2.0 strategy for .NET libraries (when to bump major/minor/patch, API compatibility considerations) and applications (build metadata, deployment versioning); changelog generation (Keep a Changelog format, auto-generation with git-cliff and conventional commits); pre-release version workflows (alpha, beta, rc, stable progression); and release branching patterns (release branches, hotfix branches, trunk-based releases with tags).
+Release lifecycle management for .NET projects: Nerdbank.GitVersioning (NBGV) setup with `version.json` configuration,
+version height calculation, and public release vs pre-release modes; SemVer 2.0 strategy for .NET libraries (when to
+bump major/minor/patch, API compatibility considerations) and applications (build metadata, deployment versioning);
+changelog generation (Keep a Changelog format, auto-generation with git-cliff and conventional commits); pre-release
+version workflows (alpha, beta, rc, stable progression); and release branching patterns (release branches, hotfix
+branches, trunk-based releases with tags).
 
 **Version assumptions:** .NET 8.0+ baseline. `Nerdbank.GitVersioning` 3.6+ (current stable). SemVer 2.0 specification.
 
@@ -35,17 +40,20 @@ Release lifecycle management for .NET projects: Nerdbank.GitVersioning (NBGV) se
 - NuGet package metadata and signing -- see [skill:dotnet-nuget-authoring]
 - Project-level configuration (SourceLink, CPM) -- see [skill:dotnet-project-structure]
 
-Cross-references: [skill:dotnet-gha-publish] for CI publish workflows, [skill:dotnet-ado-publish] for ADO publish workflows, [skill:dotnet-nuget-authoring] for NuGet package versioning properties.
+Cross-references: [skill:dotnet-gha-publish] for CI publish workflows, [skill:dotnet-ado-publish] for ADO publish
+workflows, [skill:dotnet-nuget-authoring] for NuGet package versioning properties.
 
 ---
 
 ## NBGV (Nerdbank.GitVersioning)
 
-NBGV calculates deterministic version numbers from git history. The version is derived from a `version.json` file and the git commit height (number of commits since the version was set), producing unique versions for every commit without manual version bumps.
+NBGV calculates deterministic version numbers from git history. The version is derived from a `version.json` file and
+the git commit height (number of commits since the version was set), producing unique versions for every commit without
+manual version bumps.
 
 ### Installation
 
-```bash
+````bash
 
 # Install NBGV CLI tool
 dotnet tool install --global nbgv
@@ -642,3 +650,4 @@ For most .NET open-source libraries, trunk-based with tags and NBGV is sufficien
 1. **Keep a Changelog `[Unreleased]` section must be updated before release** -- move entries from `[Unreleased]` to the new version section, update comparison links, and add a new empty `[Unreleased]` section.
 
 1. **`nbgv prepare-release` modifies both the new branch and the current branch** -- it bumps the version on the current branch to the next minor. Run it from the branch you want to continue development on (usually `main`).
+````

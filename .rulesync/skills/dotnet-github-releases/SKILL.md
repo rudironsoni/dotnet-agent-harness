@@ -50,7 +50,7 @@ Cross-references: [skill:dotnet-cli-release-pipeline] for CLI-specific release p
 
 ### Basic Release from Tag
 
-```bash
+````bash
 
 # Create a release from an existing tag
 gh release create v1.2.3 \
@@ -527,3 +527,4 @@ gh release list --json tagName,isPrerelease,publishedAt
 
 1. **`gh release create` with `--target` creates the tag if it does not exist** -- this is useful for CI but can cause
    confusion if the tag already exists on a different commit.
+````

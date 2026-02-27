@@ -56,7 +56,7 @@ MemoryMappedFile usage and POH buffer patterns in file I/O.
 | **Throughput**    | Lower                 | Higher                       |
 | **Default for**   | Console apps, desktop | ASP.NET Core web apps        |
 
-```xml
+````xml
 
 <!-- In the .csproj file -->
 <PropertyGroup>
@@ -677,3 +677,4 @@ PerfView.exe /ClrEvents:GC+Stack /MaxCollectSec:30 collect
 - [Stephen Toub -- Performance Improvements in .NET series](https://devblogs.microsoft.com/dotnet/author/toub/)
   (published annually)
 - [IDisposable pattern](https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose)
+````

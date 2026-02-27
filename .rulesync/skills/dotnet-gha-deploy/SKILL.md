@@ -53,7 +53,7 @@ CLI-specific release automation.
 
 Deploy a .NET project's documentation site to GitHub Pages:
 
-```yaml
+````yaml
 
 name: Deploy Docs
 
@@ -626,3 +626,4 @@ jobs:
    are immutable and guarantee the exact image bytes.
 8. **Separate build and deploy jobs** -- build artifacts once, deploy to multiple environments from the same artifact to
    ensure consistency.
+````

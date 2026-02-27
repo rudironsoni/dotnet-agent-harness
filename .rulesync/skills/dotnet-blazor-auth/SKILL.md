@@ -66,7 +66,7 @@ Authentication patterns differ significantly across Blazor hosting models:
 Server-side Blazor uses cookie authentication. The user authenticates via a standard ASP.NET Core login flow, and the
 cookie is sent with the initial HTTP request that establishes the SignalR circuit.
 
-```csharp
+````csharp
 
 // Program.cs
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -588,3 +588,4 @@ var token = result.AccessToken;
 - [ASP.NET Core Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-10.0)
 - [External Login Providers](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/social/?view=aspnetcore-10.0)
 - [Role/Policy-Based Authorization](https://learn.microsoft.com/en-us/aspnet/core/security/authorization/roles?view=aspnetcore-10.0)
+````

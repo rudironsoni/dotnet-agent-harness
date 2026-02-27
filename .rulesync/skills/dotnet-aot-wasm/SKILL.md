@@ -85,7 +85,7 @@ because it skips IL interpretation at runtime.
 
 ### Enabling AOT
 
-```xml
+````xml
 
 <!-- Blazor WASM .csproj -->
 <PropertyGroup>
@@ -367,7 +367,7 @@ Pre-compressed `.br` files are served automatically when the `Accept-Encoding: b
      <InvariantGlobalization>true</InvariantGlobalization>
    </PropertyGroup>
 
-   ```
+````
 
 1. **Remove unused framework features:**
 

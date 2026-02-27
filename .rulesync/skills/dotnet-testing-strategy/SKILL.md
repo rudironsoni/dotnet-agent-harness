@@ -2,21 +2,23 @@
 name: dotnet-testing-strategy
 description: Decides how to test .NET code. Unit vs integration vs E2E decision tree, test doubles.
 license: MIT
-targets: ["*"]
-tags: ["testing", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['testing', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for testing tasks"
+  short-description: '.NET skill guidance for testing tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-testing-strategy
 
-Decision framework for choosing the right test type, organizing test projects, and selecting test doubles in .NET applications. Covers unit vs integration vs E2E trade-offs with concrete criteria, naming conventions, and when to use mocks vs fakes vs stubs.
+Decision framework for choosing the right test type, organizing test projects, and selecting test doubles in .NET
+applications. Covers unit vs integration vs E2E trade-offs with concrete criteria, naming conventions, and when to use
+mocks vs fakes vs stubs.
 
 ## Scope
 
@@ -31,17 +33,21 @@ Decision framework for choosing the right test type, organizing test projects, a
 - Code coverage tooling and mutation testing -- see [skill:dotnet-test-quality]
 - CI test reporting and pipeline integration -- see [skill:dotnet-gha-build-test] and [skill:dotnet-ado-build-test]
 
-**Prerequisites:** Run [skill:dotnet-project-analysis] to understand the solution structure before designing a test strategy.
+**Prerequisites:** Run [skill:dotnet-project-analysis] to understand the solution structure before designing a test
+strategy.
 
-Cross-references: [skill:dotnet-xunit] for xUnit v3 testing framework features, [skill:dotnet-integration-testing] for WebApplicationFactory and Testcontainers patterns, [skill:dotnet-snapshot-testing] for Verify-based approval testing, [skill:dotnet-test-quality] for coverage and mutation testing, [skill:dotnet-add-testing] for test project scaffolding.
+Cross-references: [skill:dotnet-xunit] for xUnit v3 testing framework features, [skill:dotnet-integration-testing] for
+WebApplicationFactory and Testcontainers patterns, [skill:dotnet-snapshot-testing] for Verify-based approval testing,
+[skill:dotnet-test-quality] for coverage and mutation testing, [skill:dotnet-add-testing] for test project scaffolding.
 
 ---
 
 ## Test Type Decision Tree
 
-Use this decision tree to determine which test type fits a given scenario. Start at the top and follow the first matching criterion.
+Use this decision tree to determine which test type fits a given scenario. Start at the top and follow the first
+matching criterion.
 
-```text
+````text
 
 Does the code under test depend on external infrastructure?
   (database, HTTP service, file system, message broker)
@@ -377,3 +383,4 @@ Assert.True(order.IsExpired(fakeTime));
 - [Integration tests in ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests)
 - [NSubstitute documentation](https://nsubstitute.github.io/help/getting-started/)
 - [TimeProvider in .NET 8](https://learn.microsoft.com/en-us/dotnet/api/system.timeprovider)
+````

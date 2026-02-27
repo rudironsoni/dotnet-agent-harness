@@ -2,23 +2,27 @@
 name: dotnet-native-aot
 description: Publishes Native AOT binaries. PublishAot, ILLink descriptors, P/Invoke, size optimization.
 license: MIT
-targets: ["*"]
-tags: ["aot", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['aot', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for aot tasks"
+  short-description: '.NET skill guidance for aot tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-native-aot
 
-Full Native AOT compilation pipeline for .NET 8+ applications: `PublishAot` configuration, ILLink descriptor XML for type preservation, reflection-free coding patterns, P/Invoke considerations, binary size optimization, self-contained deployment with `runtime-deps` base images, and diagnostic analyzers (`EnableAotAnalyzer`/`EnableTrimAnalyzer`).
+Full Native AOT compilation pipeline for .NET 8+ applications: `PublishAot` configuration, ILLink descriptor XML for
+type preservation, reflection-free coding patterns, P/Invoke considerations, binary size optimization, self-contained
+deployment with `runtime-deps` base images, and diagnostic analyzers (`EnableAotAnalyzer`/`EnableTrimAnalyzer`).
 
-**Version assumptions:** .NET 8.0+ baseline. Native AOT for ASP.NET Core Minimal APIs and console apps shipped in .NET 8. .NET 9 improved trimming warnings and library compat. .NET 10 enhanced request delegate generator and expanded Minimal API AOT support.
+**Version assumptions:** .NET 8.0+ baseline. Native AOT for ASP.NET Core Minimal APIs and console apps shipped in
+.NET 8. .NET 9 improved trimming warnings and library compat. .NET 10 enhanced request delegate generator and expanded
+Minimal API AOT support.
 
 ## Scope
 
@@ -41,7 +45,11 @@ Full Native AOT compilation pipeline for .NET 8+ applications: `PublishAot` conf
 - Serialization depth -- see [skill:dotnet-serialization]
 - Container deployment orchestration -- see [skill:dotnet-containers]
 
-Cross-references: [skill:dotnet-aot-architecture] for AOT-first design patterns, [skill:dotnet-trimming] for trim-safe library authoring, [skill:dotnet-aot-wasm] for WebAssembly AOT, [skill:dotnet-maui-aot] for MAUI-specific AOT, [skill:dotnet-containers] for `runtime-deps` base images, [skill:dotnet-serialization] for AOT-safe serialization, [skill:dotnet-csharp-source-generators] for source gen as AOT enabler, [skill:dotnet-csharp-dependency-injection] for AOT-safe DI, [skill:dotnet-native-interop] for general P/Invoke patterns and cross-platform library resolution.
+Cross-references: [skill:dotnet-aot-architecture] for AOT-first design patterns, [skill:dotnet-trimming] for trim-safe
+library authoring, [skill:dotnet-aot-wasm] for WebAssembly AOT, [skill:dotnet-maui-aot] for MAUI-specific AOT,
+[skill:dotnet-containers] for `runtime-deps` base images, [skill:dotnet-serialization] for AOT-safe serialization,
+[skill:dotnet-csharp-source-generators] for source gen as AOT enabler, [skill:dotnet-csharp-dependency-injection] for
+AOT-safe DI, [skill:dotnet-native-interop] for general P/Invoke patterns and cross-platform library resolution.
 
 ---
 
@@ -49,7 +57,7 @@ Cross-references: [skill:dotnet-aot-architecture] for AOT-first design patterns,
 
 ### Enabling Native AOT
 
-```xml
+````xml
 
 <!-- App .csproj -->
 <PropertyGroup>
@@ -447,3 +455,4 @@ Use `CreateSlimBuilder` for Native AOT applications. It excludes features that r
 - [ILLink descriptor format](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trimming-options#descriptor-format)
 - [LibraryImport source generation](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke-source-generation)
 - [Optimize AOT deployments](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/optimizing)
+````

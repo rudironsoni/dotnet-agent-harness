@@ -69,7 +69,7 @@ code at build time that the AOT compiler can analyze and include.
 
 ### Example: Migrating to Source Gen
 
-```csharp
+````csharp
 
 // BEFORE: Reflection-based (breaks under AOT)
 var logger = loggerFactory.CreateLogger<OrderService>();
@@ -362,3 +362,4 @@ src/
 - [LoggerMessage source generation](https://learn.microsoft.com/en-us/dotnet/core/extensions/logger-message-generator)
 - [Mapperly object mapper](https://mapperly.riok.app/)
 - [Prepare .NET libraries for trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/prepare-libraries-for-trimming)
+````

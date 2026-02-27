@@ -4,7 +4,7 @@
 
 You can try adding the following to `.claude/settings.json` or `.claude/settings.local.json`:
 
-```diff
+````diff
 
 {
 + "enableAllProjectMcpServers": true
@@ -39,3 +39,4 @@ echo "**/.agent/skills/" >> .git/info/exclude
 `.git/info/exclude` works like `.gitignore` but is local-only, so it won't affect Antigravity's ability to load the rules while still excluding these directories from Git.
 
 Note: `.git/info/exclude` can't be shared with your team since it's not committed to the repository.
+````

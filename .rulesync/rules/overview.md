@@ -25,7 +25,7 @@ Compatible targets include Claude Code, GitHub Copilot CLI, OpenCode, Codex CLI,
 
 For full toolkit installation in a project:
 
-```bash
+````bash
 
 rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
 rulesync generate --targets "*" --features "*"
@@ -66,3 +66,4 @@ Edit source files in `.rulesync/` and validate with `npm run ci:rulesync`.
 ## License
 
 MIT License. See `LICENSE`.
+````

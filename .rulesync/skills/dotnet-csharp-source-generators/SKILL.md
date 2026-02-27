@@ -44,7 +44,7 @@ Cross-references: [skill:dotnet-csharp-modern-patterns] for partial properties a
 
 Source generators are shipped as analyzers targeting `netstandard2.0`.
 
-```xml
+````xml
 
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -608,3 +608,4 @@ Add `Generated/` to `.gitignore`.
 - [Compile-time logging source generation](https://learn.microsoft.com/en-us/dotnet/core/extensions/logger-message-generator)
 - [System.Text.Json source generation](https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/source-generation)
 - [.NET Framework Design Guidelines](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/)
+````

@@ -33,10 +33,13 @@ function detectLanguage(content, index) {
   const lines = before.split('\n');
   const context = lines.slice(-5).join('\n').toLowerCase();
 
-  if (context.includes('bash') || context.includes('shell') || context.includes('command')) return 'bash';
-  if (context.includes('csharp') || context.includes('.cs') || context.includes('c#')) return 'csharp';
+  if (context.includes('bash') || context.includes('shell') || context.includes('command'))
+    return 'bash';
+  if (context.includes('csharp') || context.includes('.cs') || context.includes('c#'))
+    return 'csharp';
   if (context.includes('json')) return 'json';
-  if (context.includes('xml') || context.includes('.csproj') || context.includes('.props')) return 'xml';
+  if (context.includes('xml') || context.includes('.csproj') || context.includes('.props'))
+    return 'xml';
   if (context.includes('yaml') || context.includes('yml')) return 'yaml';
   if (context.includes('dockerfile')) return 'dockerfile';
   if (context.includes('powershell') || context.includes('ps1')) return 'powershell';
@@ -45,7 +48,8 @@ function detectLanguage(content, index) {
   if (context.includes('typescript') || context.includes('.ts')) return 'typescript';
 
   // Check if it looks like a terminal/output block
-  if (context.includes('output') || context.includes('result') || context.includes('console')) return 'text';
+  if (context.includes('output') || context.includes('result') || context.includes('console'))
+    return 'text';
 
   return 'text';
 }
@@ -84,7 +88,6 @@ function fixTables(content) {
 function fixOrderedLists(content) {
   // Fix MD029: Reset ordered list numbering to 1/2/3 pattern
   const lines = content.split('\n');
-  let inList = false;
   let expectedNum = 1;
   const result = [];
 

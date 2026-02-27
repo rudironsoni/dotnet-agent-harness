@@ -51,7 +51,7 @@ Creating `HttpClient` instances directly causes two problems:
 `IHttpClientFactory` solves both by managing `HttpMessageHandler` lifetimes with automatic pooling and rotation
 (default: 2-minute handler lifetime).
 
-```csharp
+````csharp
 
 // Do not do this
 var client = new HttpClient(); // Socket exhaustion risk
@@ -660,3 +660,4 @@ unnecessary ceremony.
 - [HttpClient message handlers](https://learn.microsoft.com/en-us/aspnet/web-api/overview/advanced/httpclient-message-handlers)
 - [Typed clients](https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients)
 - [Microsoft.Extensions.Http.Resilience](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience)
+````

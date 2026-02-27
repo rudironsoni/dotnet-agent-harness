@@ -2,25 +2,33 @@
 name: dotnet-system-commandline
 description: Builds .NET CLI apps with System.CommandLine 2.0. Commands, options, SetAction, parsing, testing.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-system-commandline
 
-System.CommandLine 2.0 stable API for building .NET CLI applications. Covers RootCommand, Command, Option\<T\>, Argument\<T\>, SetAction for handler binding, ParseResult-based value access, custom type parsing, validation, tab completion, and testing with TextWriter capture.
+System.CommandLine 2.0 stable API for building .NET CLI applications. Covers RootCommand, Command, Option\<T\>,
+Argument\<T\>, SetAction for handler binding, ParseResult-based value access, custom type parsing, validation, tab
+completion, and testing with TextWriter capture.
 
-**Version assumptions:** .NET 8.0+ baseline. System.CommandLine 2.0.0+ (stable NuGet package, GA since November 2025). All examples target the 2.0.0 GA API surface.
+**Version assumptions:** .NET 8.0+ baseline. System.CommandLine 2.0.0+ (stable NuGet package, GA since November 2025).
+All examples target the 2.0.0 GA API surface.
 
-**Breaking change note:** System.CommandLine 2.0.0 GA differs significantly from the pre-release beta4 API. Key changes: `SetHandler` replaced by `SetAction`, `ICommandHandler` removed in favor of `SynchronousCommandLineAction`/`AsynchronousCommandLineAction`, `InvocationContext` removed (ParseResult passed directly), `CommandLineBuilder` and `AddMiddleware` removed, `IConsole` removed in favor of TextWriter properties, and the `System.CommandLine.Hosting`/`System.CommandLine.NamingConventionBinder` packages discontinued. Do not use beta-era patterns.
+**Breaking change note:** System.CommandLine 2.0.0 GA differs significantly from the pre-release beta4 API. Key changes:
+`SetHandler` replaced by `SetAction`, `ICommandHandler` removed in favor of
+`SynchronousCommandLineAction`/`AsynchronousCommandLineAction`, `InvocationContext` removed (ParseResult passed
+directly), `CommandLineBuilder` and `AddMiddleware` removed, `IConsole` removed in favor of TextWriter properties, and
+the `System.CommandLine.Hosting`/`System.CommandLine.NamingConventionBinder` packages discontinued. Do not use beta-era
+patterns.
 
 ## Scope
 
@@ -35,7 +43,8 @@ System.CommandLine 2.0 stable API for building .NET CLI applications. Covers Roo
 
 ## Out of scope
 
-- CLI application architecture patterns (layered design, exit codes, stdin/stdout/stderr) -- see [skill:dotnet-cli-architecture]
+- CLI application architecture patterns (layered design, exit codes, stdin/stdout/stderr) -- see
+  [skill:dotnet-cli-architecture]
 - Native AOT compilation -- see [skill:dotnet-native-aot]
 - CLI distribution strategy -- see [skill:dotnet-cli-distribution]
 - General CI/CD patterns -- see [skill:dotnet-gha-patterns] and [skill:dotnet-ado-patterns]
@@ -43,13 +52,15 @@ System.CommandLine 2.0 stable API for building .NET CLI applications. Covers Roo
 - General coding standards -- see [skill:dotnet-csharp-coding-standards]
 - CLI packaging for Homebrew, apt, winget -- see [skill:dotnet-cli-packaging]
 
-Cross-references: [skill:dotnet-cli-architecture] for CLI design patterns, [skill:dotnet-native-aot] for AOT publishing CLI tools, [skill:dotnet-csharp-dependency-injection] for DI fundamentals, [skill:dotnet-csharp-configuration] for configuration integration, [skill:dotnet-csharp-coding-standards] for naming and style conventions.
+Cross-references: [skill:dotnet-cli-architecture] for CLI design patterns, [skill:dotnet-native-aot] for AOT publishing
+CLI tools, [skill:dotnet-csharp-dependency-injection] for DI fundamentals, [skill:dotnet-csharp-configuration] for
+configuration integration, [skill:dotnet-csharp-coding-standards] for naming and style conventions.
 
 ---
 
 ## Package Reference
 
-```xml
+````xml
 
 <ItemGroup>
   <PackageReference Include="System.CommandLine" Version="2.0.*" />
@@ -322,3 +333,4 @@ For detailed examples (custom parsing, validation, configuration, tab completion
 ## Attribution
 
 Adapted from [Aaronontheweb/dotnet-skills](https://github.com/Aaronontheweb/dotnet-skills) (MIT license).
+````

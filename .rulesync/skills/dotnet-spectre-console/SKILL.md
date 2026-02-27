@@ -2,23 +2,26 @@
 name: dotnet-spectre-console
 description: Renders rich console output. Spectre.Console tables, trees, progress, prompts, live displays.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-spectre-console
 
-Spectre.Console for building rich console output (tables, trees, progress bars, prompts, markup, live displays) and Spectre.Console.Cli for structured command-line application parsing. Cross-platform across Windows, macOS, and Linux terminals.
+Spectre.Console for building rich console output (tables, trees, progress bars, prompts, markup, live displays) and
+Spectre.Console.Cli for structured command-line application parsing. Cross-platform across Windows, macOS, and Linux
+terminals.
 
-**Version assumptions:** .NET 8.0+ baseline. Spectre.Console 0.54.0 (latest stable). Spectre.Console.Cli 0.53.1 (latest stable). Both packages target net8.0+ and netstandard2.0.
+**Version assumptions:** .NET 8.0+ baseline. Spectre.Console 0.54.0 (latest stable). Spectre.Console.Cli 0.53.1 (latest
+stable). Both packages target net8.0+ and netstandard2.0.
 
 ## Scope
 
@@ -29,15 +32,19 @@ Spectre.Console for building rich console output (tables, trees, progress bars, 
 
 - Full TUI applications (windows, menus, dialogs, views) -- see [skill:dotnet-terminal-gui]
 - System.CommandLine parsing -- see [skill:dotnet-system-commandline]
-- CLI application architecture and distribution -- see [skill:dotnet-cli-architecture] and [skill:dotnet-cli-distribution]
+- CLI application architecture and distribution -- see [skill:dotnet-cli-architecture] and
+  [skill:dotnet-cli-distribution]
 
-Cross-references: [skill:dotnet-terminal-gui] for full TUI alternative, [skill:dotnet-system-commandline] for System.CommandLine scope boundary, [skill:dotnet-cli-architecture] for CLI structure, [skill:dotnet-csharp-async-patterns] for async patterns, [skill:dotnet-csharp-dependency-injection] for DI with Spectre.Console.Cli, [skill:dotnet-accessibility] for TUI accessibility limitations and screen reader considerations.
+Cross-references: [skill:dotnet-terminal-gui] for full TUI alternative, [skill:dotnet-system-commandline] for
+System.CommandLine scope boundary, [skill:dotnet-cli-architecture] for CLI structure,
+[skill:dotnet-csharp-async-patterns] for async patterns, [skill:dotnet-csharp-dependency-injection] for DI with
+Spectre.Console.Cli, [skill:dotnet-accessibility] for TUI accessibility limitations and screen reader considerations.
 
 ---
 
 ## Package References
 
-```xml
+````xml
 
 <ItemGroup>
   <!-- Rich console output: markup, tables, trees, progress, prompts, live displays -->
@@ -656,3 +663,4 @@ console.Write(new Table().AddColumn("Col").AddRow("Val"));
 - [Spectre.Console NuGet](https://www.nuget.org/packages/Spectre.Console) -- package downloads and version history
 - [Spectre.Console.Cli NuGet](https://www.nuget.org/packages/Spectre.Console.Cli) -- CLI framework package
 - [Spectre.Console Examples](https://github.com/spectreconsole/spectre.console/tree/main/examples) -- official example projects
+````

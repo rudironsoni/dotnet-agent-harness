@@ -61,7 +61,7 @@ API shape. Make the decision once, correctly.
 
 ### Size Guidelines
 
-```text
+````text
 
 <= 16 bytes:  Ideal struct -- fits in two registers, passed efficiently
 17-64 bytes:  Acceptable struct -- measure copy cost vs allocation cost
@@ -375,3 +375,4 @@ public readonly record struct Money(decimal Amount, string Currency);
 - [ref struct types](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/ref-struct)
 - [Span\<T\> usage guidelines](https://learn.microsoft.com/dotnet/standard/memory-and-spans/memory-t-usage-guidelines)
 - [Records (C# reference)](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/record)
+````

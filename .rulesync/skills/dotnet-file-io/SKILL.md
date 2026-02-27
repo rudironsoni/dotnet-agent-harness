@@ -50,7 +50,7 @@ ArrayPool usage, [skill:dotnet-csharp-async-patterns] for async/await patterns u
 FileStream async methods (`ReadAsync`, `WriteAsync`) silently block the calling thread unless the stream is opened with
 the async flag. This is the most common file I/O mistake in .NET code.
 
-```csharp
+````csharp
 
 // CORRECT: async-capable FileStream
 await using var fs = new FileStream(
@@ -610,3 +610,4 @@ reads and can degrade performance for random access patterns.
 - [Memory-mapped files](https://learn.microsoft.com/en-us/dotnet/standard/io/memory-mapped-files)
 - [Path traversal prevention (OWASP)](https://owasp.org/www-community/attacks/Path_Traversal)
 - [Secure temp files](https://docs.datadoghq.com/security/code_security/static_analysis/static_analysis_rules/csharp-security/unsafe-temp-file/)
+````

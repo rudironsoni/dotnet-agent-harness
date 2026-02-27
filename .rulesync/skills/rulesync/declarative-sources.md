@@ -1,12 +1,15 @@
 # Declarative Skill Sources
 
-Rulesync can fetch skills from external GitHub repositories using the `install` command. Instead of manually running `fetch` for each skill source, declare them in your `rulesync.jsonc` and run `rulesync install` to resolve and fetch them. Then `rulesync generate` picks them up as local curated skills. Typical workflow: `rulesync install && rulesync generate`.
+Rulesync can fetch skills from external GitHub repositories using the `install` command. Instead of manually running
+`fetch` for each skill source, declare them in your `rulesync.jsonc` and run `rulesync install` to resolve and fetch
+them. Then `rulesync generate` picks them up as local curated skills. Typical workflow:
+`rulesync install && rulesync generate`.
 
 ## Configuration
 
 Add a `sources` array to your `rulesync.jsonc`:
 
-```jsonc
+````jsonc
 
 {
   "$schema": "https://raw.githubusercontent.com/dyoshikawa/rulesync/refs/heads/main/config-schema.json",
@@ -125,3 +128,4 @@ GITHUB_TOKEN=$(gh auth token) npx rulesync install
 | `.rulesync/skills/.curated/<name>/` | Curated | Lower      | No (gitignored)  |
 
 When both a local and a curated skill share the same name, the local skill is used and the remote one is not fetched.
+````

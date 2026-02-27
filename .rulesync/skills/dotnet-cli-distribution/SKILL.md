@@ -122,7 +122,7 @@ Target the four primary RIDs for broad coverage:
 
 ### RID Configuration in .csproj
 
-```xml
+````xml
 
 <!-- Set per publish, not in csproj (avoids accidental RID lock-in) -->
 <!-- Use dotnet publish -r <rid> instead -->
@@ -385,3 +385,4 @@ See [skill:dotnet-cli-release-pipeline] for automating this in GitHub Actions.
 - [Native AOT deployment](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/)
 - [Runtime Identifier (RID) catalog](https://learn.microsoft.com/en-us/dotnet/core/rid-catalog)
 - [Trimming options](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trimming-options)
+````

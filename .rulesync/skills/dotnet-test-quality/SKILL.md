@@ -2,23 +2,27 @@
 name: dotnet-test-quality
 description: Measures test effectiveness. Coverlet code coverage, Stryker.NET mutation testing, flaky tests.
 license: MIT
-targets: ["*"]
-tags: ["testing", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['testing', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for testing tasks"
+  short-description: '.NET skill guidance for testing tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-test-quality
 
-Test quality analysis for .NET projects. Covers code coverage collection with coverlet, human-readable coverage reports with ReportGenerator, CRAP (Change Risk Anti-Patterns) score analysis to identify undertested complex code, mutation testing with Stryker.NET to evaluate test suite effectiveness, and strategies for detecting and managing flaky tests.
+Test quality analysis for .NET projects. Covers code coverage collection with coverlet, human-readable coverage reports
+with ReportGenerator, CRAP (Change Risk Anti-Patterns) score analysis to identify undertested complex code, mutation
+testing with Stryker.NET to evaluate test suite effectiveness, and strategies for detecting and managing flaky tests.
 
-**Version assumptions:** Coverlet 6.x+, ReportGenerator 5.x+, Stryker.NET 4.x+ (.NET 8.0+ baseline). Coverlet supports both the MSBuild integration (`coverlet.msbuild`) and the `coverlet.collector` data collector; examples use `coverlet.collector` as the recommended approach.
+**Version assumptions:** Coverlet 6.x+, ReportGenerator 5.x+, Stryker.NET 4.x+ (.NET 8.0+ baseline). Coverlet supports
+both the MSBuild integration (`coverlet.msbuild`) and the `coverlet.collector` data collector; examples use
+`coverlet.collector` as the recommended approach.
 
 ## Scope
 
@@ -34,19 +38,22 @@ Test quality analysis for .NET projects. Covers code coverage collection with co
 - Testing strategy and test type decisions -- see [skill:dotnet-testing-strategy]
 - CI test reporting and pipeline integration -- see [skill:dotnet-gha-build-test] and [skill:dotnet-ado-build-test]
 
-**Prerequisites:** Test project already scaffolded via [skill:dotnet-add-testing] with coverlet packages referenced. .NET 8.0+ baseline required.
+**Prerequisites:** Test project already scaffolded via [skill:dotnet-add-testing] with coverlet packages referenced.
+.NET 8.0+ baseline required.
 
-Cross-references: [skill:dotnet-testing-strategy] for deciding what to test and coverage target guidance, [skill:dotnet-xunit] for xUnit test framework features and configuration.
+Cross-references: [skill:dotnet-testing-strategy] for deciding what to test and coverage target guidance,
+[skill:dotnet-xunit] for xUnit test framework features and configuration.
 
 ---
 
 ## Code Coverage with Coverlet
 
-Coverlet is the standard open-source code coverage library for .NET. It instruments assemblies at build time or via a data collector and produces coverage reports in multiple formats.
+Coverlet is the standard open-source code coverage library for .NET. It instruments assemblies at build time or via a
+data collector and produces coverage reports in multiple formats.
 
 ### Packages
 
-```xml
+````xml
 
 <!-- Data collector approach (recommended) -->
 <PackageReference Include="coverlet.collector" Version="8.0.0">
@@ -597,3 +604,4 @@ Do not delete flaky tests. Skip them with an issue reference and fix them system
 - [TimeProvider in .NET 8](https://learn.microsoft.com/en-us/dotnet/api/system.timeprovider)
 - [Microsoft.Extensions.TimeProvider.Testing](https://www.nuget.org/packages/Microsoft.Extensions.TimeProvider.Testing)
 - [CRAP metric explanation](https://testing.googleblog.com/2011/02/this-code-is-crap.html)
+````

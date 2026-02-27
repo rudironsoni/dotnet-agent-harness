@@ -55,7 +55,7 @@ Produced by the Roslyn C# compiler. These are language-level issues in source co
 
 **Example output:**
 
-```csharp
+````csharp
 
 src/MyApp.Api/Services/OrderService.cs(42,17): error CS0246: The type or namespace name 'OrderDto' could not be found (are you missing a using directive or an assembly reference?)
 src/MyApp.Api/Models/User.cs(15,9): warning CS8618: Non-nullable property 'Name' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
@@ -673,3 +673,4 @@ requiring MD5), add a `Justification` string explaining the constraint.
 - [.NET Code Analysis Rules](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/categories)
 - [Central Package Management](https://learn.microsoft.com/en-us/nuget/consume-packages/Central-Package-Management)
 - [.NET Trimming Warnings](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/fixing-warnings)
+````

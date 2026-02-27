@@ -49,7 +49,7 @@ Cross-references: [skill:dotnet-csharp-async-patterns] for `BackgroundService` a
 
 Never inject a shorter-lived service into a longer-lived one:
 
-```csharp
+````csharp
 
 // WRONG -- scoped DbContext captured in singleton = same context for all requests
 builder.Services.AddSingleton<OrderService>();    // singleton
@@ -365,3 +365,4 @@ For unit tests, prefer direct constructor injection with mocks rather than build
 - [Background tasks with hosted services](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services)
 - [Service lifetimes](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection#service-lifetimes)
 - [.NET Framework Design Guidelines](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/)
+````

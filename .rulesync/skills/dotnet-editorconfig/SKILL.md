@@ -55,7 +55,7 @@ EditorConfig files apply hierarchically. The compiler searches upward from the s
 merging settings from each `.editorconfig` found. **Closest file wins** -- a setting in `src/MyApp/.editorconfig`
 overrides the same setting in the repo root `.editorconfig`.
 
-```text
+````text
 
 repo-root/
   .editorconfig              # Shared baseline (root = true)
@@ -466,3 +466,4 @@ particularly relevant when using source generators -- see [skill:dotnet-csharp-s
 - [Configuration options for code analysis](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-options)
 - [Global AnalyzerConfig files](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-files#global-analyzerconfig)
 - [Naming rule configuration](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/naming-rules)
+````

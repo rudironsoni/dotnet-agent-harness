@@ -60,7 +60,7 @@ platform frameworks.
 
 ### Publish Configuration
 
-```xml
+````xml
 
 <!-- Enable Native AOT for iOS/Mac Catalyst -->
 <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-ios' Or
@@ -436,3 +436,4 @@ For MAUI testing patterns (Appium, XHarness), see [skill:dotnet-maui-testing].
 - [Prepare .NET Libraries for Trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/prepare-libraries-for-trimming)
 - [Trimming Descriptor Format](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trimming-options#descriptor-format)
 - [.NET 11 Preview 1 Announcement](https://devblogs.microsoft.com/dotnet/dotnet-11-preview-1/)
+````

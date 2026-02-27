@@ -69,7 +69,7 @@ via an endpoint filter.
 
 ### Setup
 
-```csharp
+````csharp
 
 // <PackageReference Include="Microsoft.Extensions.Validation" Version="10.*" />
 builder.Services.AddValidation();
@@ -720,3 +720,4 @@ For OWASP injection prevention beyond input validation (SQL injection, XSS, comm
 - [Handle Errors in ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/error-handling?view=aspnetcore-10.0)
 - [OWASP Input Validation Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html)
 - [.NET Regular Expression Source Generators](https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-source-generators)
+````

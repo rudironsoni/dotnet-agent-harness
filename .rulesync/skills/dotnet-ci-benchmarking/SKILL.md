@@ -51,7 +51,7 @@ Cross-references: [skill:dotnet-benchmarkdotnet] for benchmark class setup and J
 BenchmarkDotNet's JSON exporter produces machine-readable results for automated comparison. Configure the exporter in
 benchmark classes:
 
-```csharp
+````csharp
 
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Exporters.Json;
@@ -586,3 +586,4 @@ For scheduled workflow patterns and matrix builds across TFMs, see [skill:dotnet
    `continue-on-error: true` on the baseline download step and skip comparison when no baseline exists.
 7. **Export JSON, not just Markdown** -- Markdown reports are human-readable but not machine-parseable for automated
    regression detection. Always include `[JsonExporterAttribute.Full]` or `JsonExporter.Full` in the config.
+````

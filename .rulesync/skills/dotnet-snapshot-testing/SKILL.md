@@ -2,23 +2,28 @@
 name: dotnet-snapshot-testing
 description: Verifies complex outputs with Verify. API responses, scrubbing non-deterministic values.
 license: MIT
-targets: ["*"]
-tags: ["testing", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['testing', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for testing tasks"
+  short-description: '.NET skill guidance for testing tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-snapshot-testing
 
-Snapshot (approval) testing with the Verify library for .NET. Covers verifying API responses, serialized objects, rendered emails, and other complex outputs by comparing them against approved baseline files. Includes scrubbing and filtering patterns to handle non-deterministic values (dates, GUIDs, timestamps), custom converters for domain-specific types, and strategies for organizing and reviewing snapshot files.
+Snapshot (approval) testing with the Verify library for .NET. Covers verifying API responses, serialized objects,
+rendered emails, and other complex outputs by comparing them against approved baseline files. Includes scrubbing and
+filtering patterns to handle non-deterministic values (dates, GUIDs, timestamps), custom converters for domain-specific
+types, and strategies for organizing and reviewing snapshot files.
 
-**Version assumptions:** Verify 20.x+ (.NET 8.0+ baseline). Examples use the `Verify.Xunit` integration package; equivalent packages exist for NUnit (`Verify.NUnit`) and MSTest (`Verify.MSTest`). Verify auto-discovers the test framework from the referenced package.
+**Version assumptions:** Verify 20.x+ (.NET 8.0+ baseline). Examples use the `Verify.Xunit` integration package;
+equivalent packages exist for NUnit (`Verify.NUnit`) and MSTest (`Verify.MSTest`). Verify auto-discovers the test
+framework from the referenced package.
 
 ## Scope
 
@@ -34,9 +39,11 @@ Snapshot (approval) testing with the Verify library for .NET. Covers verifying A
 - Testing strategy and test type decisions -- see [skill:dotnet-testing-strategy]
 - Integration test infrastructure (WebApplicationFactory, Testcontainers) -- see [skill:dotnet-integration-testing]
 
-**Prerequisites:** Test project already scaffolded via [skill:dotnet-add-testing] with Verify packages referenced. .NET 8.0+ baseline required.
+**Prerequisites:** Test project already scaffolded via [skill:dotnet-add-testing] with Verify packages referenced. .NET
+8.0+ baseline required.
 
-Cross-references: [skill:dotnet-testing-strategy] for deciding when snapshot tests are appropriate, [skill:dotnet-integration-testing] for combining Verify with WebApplicationFactory and Testcontainers.
+Cross-references: [skill:dotnet-testing-strategy] for deciding when snapshot tests are appropriate,
+[skill:dotnet-integration-testing] for combining Verify with WebApplicationFactory and Testcontainers.
 
 ---
 
@@ -44,7 +51,7 @@ Cross-references: [skill:dotnet-testing-strategy] for deciding when snapshot tes
 
 ### Packages
 
-```xml
+````xml
 
 <PackageReference Include="Verify.Xunit" Version="20.*" />
 <!-- For HTTP response verification -->
@@ -671,3 +678,4 @@ public static void Init()
 - [Scrubbing and filtering](https://github.com/VerifyTests/Verify/blob/main/docs/scrubbers.md)
 - [Custom converters](https://github.com/VerifyTests/Verify/blob/main/docs/converters.md)
 - [DiffEngine (diff tool integration)](https://github.com/VerifyTests/DiffEngine)
+````

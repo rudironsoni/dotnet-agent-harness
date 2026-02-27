@@ -52,7 +52,7 @@ build testing considerations.
 
 ### Packages
 
-```xml
+````xml
 
 <PackageReference Include="Appium.WebDriver" Version="5.*" />
 <PackageReference Include="xunit.v3" Version="3.2.2" />
@@ -505,3 +505,4 @@ public static MauiApp CreateMauiApp()
 - [XHarness](https://github.com/dotnet/xharness)
 - [UIAutomator2 Driver](https://github.com/appium/appium-uiautomator2-driver)
 - [XCUITest Driver](https://github.com/appium/appium-xcuitest-driver)
+````

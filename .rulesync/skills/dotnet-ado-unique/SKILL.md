@@ -56,7 +56,7 @@ release automation.
 Environments are first-class Azure DevOps resources that provide deployment targeting, approval gates, and deployment
 history:
 
-```yaml
+````yaml
 
 stages:
   - stage: DeployStaging
@@ -630,3 +630,4 @@ NuGet/npm/Maven formats:
    decorator changes in a separate organization or project to avoid breaking all pipelines.
 8. **Universal packages have a 4 GiB size limit per file** -- for larger artifacts, split files or use Azure Blob
    Storage with a SAS token instead.
+````

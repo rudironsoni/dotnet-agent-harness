@@ -47,7 +47,7 @@ ASP.NET Core Identity provides user management, password hashing, role-based aut
 authentication out of the box. It is the recommended starting point for applications that manage their own user
 accounts.
 
-```csharp
+````csharp
 
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options =>
 {
@@ -461,3 +461,4 @@ to apply correctly.
 - [CORS in ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-10.0)
 - [Rate Limiting Middleware](https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit?view=aspnetcore-10.0)
 - [WebAuthn/Passkeys](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/passkeys?view=aspnetcore-10.0)
+````

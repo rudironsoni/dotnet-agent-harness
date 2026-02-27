@@ -2,21 +2,24 @@
 name: dotnet-msbuild-authoring
 description: Authors MSBuild targets, props, conditions, incremental builds, and Directory.Build patterns.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-msbuild-authoring
 
-Guidance for authoring MSBuild project system elements: custom targets with `BeforeTargets`/`AfterTargets`/`DependsOnTargets`, incremental build with `Inputs`/`Outputs`, props vs targets import ordering, items and item metadata (`Include`/`Exclude`/`Update`/`Remove`), conditions, property functions, well-known metadata, and advanced `Directory.Build.props`/`Directory.Build.targets` patterns.
+Guidance for authoring MSBuild project system elements: custom targets with
+`BeforeTargets`/`AfterTargets`/`DependsOnTargets`, incremental build with `Inputs`/`Outputs`, props vs targets import
+ordering, items and item metadata (`Include`/`Exclude`/`Update`/`Remove`), conditions, property functions, well-known
+metadata, and advanced `Directory.Build.props`/`Directory.Build.targets` patterns.
 
 **Version assumptions:** .NET 8.0+ SDK (MSBuild 17.8+). All examples use SDK-style projects.
 
@@ -36,17 +39,19 @@ Guidance for authoring MSBuild project system elements: custom targets with `Bef
 - MSBuild error interpretation and CI drift diagnosis -- see [skill:dotnet-build-analysis]
 - Reading and modifying .csproj files -- see [skill:dotnet-csproj-reading]
 
-Cross-references: [skill:dotnet-project-structure] for solution layout and basic Directory.Build.props structure, [skill:dotnet-build-analysis] for interpreting MSBuild errors and CI drift.
+Cross-references: [skill:dotnet-project-structure] for solution layout and basic Directory.Build.props structure,
+[skill:dotnet-build-analysis] for interpreting MSBuild errors and CI drift.
 
 ---
 
 ## Custom Targets
 
-Targets are the unit of execution in MSBuild. Each target runs a sequence of tasks and can declare ordering relationships with other targets.
+Targets are the unit of execution in MSBuild. Each target runs a sequence of tasks and can declare ordering
+relationships with other targets.
 
 ### Defining a Custom Target
 
-```xml
+````xml
 
 <Target Name="PrintBuildInfo"
         BeforeTargets="Build">
@@ -580,3 +585,4 @@ Properties set in `.targets` files cannot be overridden by project-level `Proper
 - [MSBuild Well-Known Item Metadata](https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-well-known-item-metadata)
 - [Customize Your Build](https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-your-build)
 - [Directory.Build.props and Directory.Build.targets](https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory)
+````

@@ -2,20 +2,20 @@
 name: dotnet-project-analysis
 description: Analyzes .NET solution layout and build config -- .sln, .csproj, CPM.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
   model: haiku
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
-```! find . -maxdepth 3 \( -name "*.csproj" -o -name "*.sln" -o -name "*.slnx" \) 2>/dev/null | head -20
+````! find . -maxdepth 3 ( -name "*.csproj" -o -name "*.sln" -o -name "*.slnx" ) 2>/dev/null | head -20
 
 
 ```bash
@@ -399,3 +399,4 @@ Report: "Conditional reference to MyApp.DevTools (Debug only)."
 
 ### Web Project Without launchSettings.json
 If a web project has no `Properties/launchSettings.json`, note: "No `launchSettings.json` found. The project uses default Kestrel settings. Consider adding launch profiles for development."
+````

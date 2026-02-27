@@ -49,7 +49,7 @@ architecture guidance, [skill:dotnet-ci-benchmarking] for benchmark CI integrati
 
 ### Build
 
-```yaml
+````yaml
 
 steps:
   - task: UseDotNet@2
@@ -533,3 +533,4 @@ jobs:
    must define all variable names used in the job.
 9. **Never hardcode credentials in pipeline YAML** -- use variable groups linked to Azure Key Vault or pipeline-level
    secret variables; hardcoded secrets are visible in repository history.
+````

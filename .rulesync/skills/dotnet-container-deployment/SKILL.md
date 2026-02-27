@@ -44,7 +44,7 @@ health check endpoint patterns used by Kubernetes probes.
 
 A production-ready Kubernetes Deployment for a .NET API:
 
-```yaml
+````yaml
 
 apiVersion: apps/v1
 kind: Deployment
@@ -544,3 +544,4 @@ steps:
 - [ASP.NET Core health checks](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks)
 - [Graceful shutdown in .NET](https://learn.microsoft.com/en-us/dotnet/core/extensions/generic-host#host-shutdown)
 - [GitHub Actions: Publishing Docker images](https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images)
+````

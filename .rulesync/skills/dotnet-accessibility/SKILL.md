@@ -100,7 +100,7 @@ build accessible Blazor apps.
 
 ### Semantic HTML and ARIA
 
-```razor
+````razor
 
 @* Use semantic HTML elements for structure *@
 <nav aria-label="Main navigation">
@@ -616,3 +616,4 @@ accessibility compliance requirements, which vary by jurisdiction and applicatio
 - [UI Automation Overview](https://learn.microsoft.com/en-us/windows/desktop/WinAuto/uiauto-uiautomationoverview)
 - [Accessibility Insights](https://accessibilityinsights.io/)
 - [axe-core (Deque)](https://github.com/dequelabs/axe-core)
+````

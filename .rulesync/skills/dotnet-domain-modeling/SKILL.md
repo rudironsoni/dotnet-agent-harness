@@ -53,7 +53,7 @@ point -- all modifications to the aggregate pass through it.
 
 Entities have identity that persists across state changes. Use a base class to standardize identity and equality:
 
-```csharp
+````csharp
 
 public abstract class Entity<TId> : IEquatable<Entity<TId>>
     where TId : notnull
@@ -716,3 +716,4 @@ not let infrastructure concerns like HTTP status codes leak into the domain laye
 - [Aggregate design rules (Vaughn Vernon)](https://www.dddcommunity.org/library/vernon_2011/)
 - [EF Core owned entity types](https://learn.microsoft.com/en-us/ef/core/modeling/owned-entities)
 - [Repository pattern in .NET](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-design)
+````

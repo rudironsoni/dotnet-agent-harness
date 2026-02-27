@@ -2,23 +2,25 @@
 name: dotnet-playwright
 description: Automates browser tests in .NET. Playwright E2E, CI browser caching, trace viewer, codegen.
 license: MIT
-targets: ["*"]
-tags: ["testing", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['testing', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for testing tasks"
+  short-description: '.NET skill guidance for testing tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-playwright
 
-Playwright for .NET: browser automation and end-to-end testing. Covers browser lifecycle management, page interactions, assertions, CI caching of browser binaries, trace viewer for debugging failures, and codegen for rapid test scaffolding.
+Playwright for .NET: browser automation and end-to-end testing. Covers browser lifecycle management, page interactions,
+assertions, CI caching of browser binaries, trace viewer for debugging failures, and codegen for rapid test scaffolding.
 
-**Version assumptions:** Playwright 1.40+ for .NET, .NET 8.0+ baseline. Playwright supports Chromium, Firefox, and WebKit browsers.
+**Version assumptions:** Playwright 1.40+ for .NET, .NET 8.0+ baseline. Playwright supports Chromium, Firefox, and
+WebKit browsers.
 
 ## Scope
 
@@ -34,15 +36,17 @@ Playwright for .NET: browser automation and end-to-end testing. Covers browser l
 - Testing strategy (when E2E vs unit vs integration) -- see [skill:dotnet-testing-strategy]
 - Test project scaffolding -- see [skill:dotnet-add-testing]
 
-**Prerequisites:** Test project scaffolded via [skill:dotnet-add-testing] with Playwright packages referenced. Browsers installed via `pwsh bin/Debug/net8.0/playwright.ps1 install` or `dotnet tool run playwright install`.
+**Prerequisites:** Test project scaffolded via [skill:dotnet-add-testing] with Playwright packages referenced. Browsers
+installed via `pwsh bin/Debug/net8.0/playwright.ps1 install` or `dotnet tool run playwright install`.
 
-Cross-references: [skill:dotnet-ui-testing-core] for page object model and selector strategies, [skill:dotnet-testing-strategy] for deciding when E2E tests are appropriate.
+Cross-references: [skill:dotnet-ui-testing-core] for page object model and selector strategies,
+[skill:dotnet-testing-strategy] for deciding when E2E tests are appropriate.
 
 ---
 
 ## Package Setup
 
-```xml
+````xml
 
 <PackageReference Include="Microsoft.Playwright" Version="1.*" />
 <!-- For xUnit integration: -->
@@ -616,3 +620,4 @@ steps:
 - [Playwright Codegen](https://playwright.dev/dotnet/docs/codegen)
 - [Playwright CI Configuration](https://playwright.dev/dotnet/docs/ci)
 - [Playwright Browser Downloads](https://playwright.dev/dotnet/docs/browsers)
+````

@@ -56,7 +56,7 @@ requests without network overhead, exercising the full middleware pipeline, rout
 
 ### Package
 
-```xml
+````xml
 
 <!-- Version must match target framework: 8.x for net8.0, 9.x for net9.0, etc. -->
 <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
@@ -705,3 +705,4 @@ public class CacheServiceTests
 - [.NET Aspire testing](https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/testing)
 - [Respawn](https://github.com/jbogard/Respawn)
 - [Testcontainers PostgreSQL module](https://dotnet.testcontainers.org/modules/postgres/)
+````

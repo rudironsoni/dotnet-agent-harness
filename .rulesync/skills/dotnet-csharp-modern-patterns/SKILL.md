@@ -54,7 +54,7 @@ rather than identity.
 
 ### Record Classes (reference type)
 
-```csharp
+````csharp
 
 // Positional record: concise, immutable, value equality
 public record OrderSummary(int OrderId, decimal Total, DateOnly OrderDate);
@@ -460,3 +460,4 @@ Feature guidance in this skill is grounded in publicly available language design
 - [What's new in C# 14](https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-14)
 - [C# Language Design Notes](https://github.com/dotnet/csharplang/tree/main/meetings)
 - [.NET Framework Design Guidelines](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/)
+````

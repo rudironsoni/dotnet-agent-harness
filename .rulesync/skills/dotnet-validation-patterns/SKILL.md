@@ -2,21 +2,24 @@
 name: dotnet-validation-patterns
 description: Validates models and IOptions. DataAnnotations, IValidatableObject, IValidateOptions<T>.
 license: MIT
-targets: ["*"]
-tags: ["csharp", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['csharp', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for csharp tasks"
+  short-description: '.NET skill guidance for csharp tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-validation-patterns
 
-Built-in .NET validation patterns that do not require third-party packages. Covers DataAnnotations attributes, `IValidatableObject` for cross-property validation, `IValidateOptions<T>` for options validation at startup, custom `ValidationAttribute` authoring, and `Validator.TryValidateObject` for manual validation. Prefer these built-in mechanisms as the default; reserve FluentValidation for complex domain rules that outgrow declarative attributes.
+Built-in .NET validation patterns that do not require third-party packages. Covers DataAnnotations attributes,
+`IValidatableObject` for cross-property validation, `IValidateOptions<T>` for options validation at startup, custom
+`ValidationAttribute` authoring, and `Validator.TryValidateObject` for manual validation. Prefer these built-in
+mechanisms as the default; reserve FluentValidation for complex domain rules that outgrow declarative attributes.
 
 ## Scope
 
@@ -31,7 +34,10 @@ Built-in .NET validation patterns that do not require third-party packages. Cove
 - Options pattern binding and ValidateOnStart registration -- see [skill:dotnet-csharp-configuration]
 - Architectural placement of validation in layers -- see [skill:dotnet-architecture-patterns]
 
-Cross-references: [skill:dotnet-input-validation] for API pipeline validation and FluentValidation, [skill:dotnet-csharp-configuration] for Options pattern binding and `ValidateOnStart()`, [skill:dotnet-architecture-patterns] for validation placement in architecture layers, [skill:dotnet-csharp-coding-standards] for naming conventions.
+Cross-references: [skill:dotnet-input-validation] for API pipeline validation and FluentValidation,
+[skill:dotnet-csharp-configuration] for Options pattern binding and `ValidateOnStart()`,
+[skill:dotnet-architecture-patterns] for validation placement in architecture layers,
+[skill:dotnet-csharp-coding-standards] for naming conventions.
 
 ---
 
@@ -39,23 +45,32 @@ Cross-references: [skill:dotnet-input-validation] for API pipeline validation an
 
 Choose the validation approach based on complexity:
 
-1. **DataAnnotations** (default) -- declarative `[Required]`, `[Range]`, `[StringLength]`, `[RegularExpression]` attributes. Best for: simple property-level constraints on DTOs, request models, and options classes.
-2. **`IValidatableObject`** -- implement `Validate()` for cross-property rules within the same object. Best for: date range comparisons, conditional required fields, business rules that span multiple properties.
-3. **Custom `ValidationAttribute`** -- subclass `ValidationAttribute` for reusable property-level rules. Best for: domain-specific constraints (SKU format, postal code, currency code) applied across multiple models.
-4. **`IValidateOptions<T>`** -- validate configuration/options classes at startup with access to DI services. Best for: cross-property options checks, environment-dependent validation, fail-fast startup.
-5. **FluentValidation** -- third-party library for complex, testable validation with fluent API. Best for: async validators, database-dependent rules, deeply nested object graphs. See [skill:dotnet-input-validation] for FluentValidation patterns.
+1. **DataAnnotations** (default) -- declarative `[Required]`, `[Range]`, `[StringLength]`, `[RegularExpression]`
+   attributes. Best for: simple property-level constraints on DTOs, request models, and options classes.
+2. **`IValidatableObject`** -- implement `Validate()` for cross-property rules within the same object. Best for: date
+   range comparisons, conditional required fields, business rules that span multiple properties.
+3. **Custom `ValidationAttribute`** -- subclass `ValidationAttribute` for reusable property-level rules. Best for:
+   domain-specific constraints (SKU format, postal code, currency code) applied across multiple models.
+4. **`IValidateOptions<T>`** -- validate configuration/options classes at startup with access to DI services. Best for:
+   cross-property options checks, environment-dependent validation, fail-fast startup.
+5. **FluentValidation** -- third-party library for complex, testable validation with fluent API. Best for: async
+   validators, database-dependent rules, deeply nested object graphs. See [skill:dotnet-input-validation] for
+   FluentValidation patterns.
 
-General guidance: start with DataAnnotations. Add `IValidatableObject` when cross-property rules emerge. Introduce FluentValidation only when rules outgrow declarative attributes.
+General guidance: start with DataAnnotations. Add `IValidatableObject` when cross-property rules emerge. Introduce
+FluentValidation only when rules outgrow declarative attributes.
 
 ---
 
 ## DataAnnotations
 
-The `System.ComponentModel.DataAnnotations` namespace provides declarative validation through attributes. These attributes work with MVC model binding, `Validator.TryValidateObject`, and the .NET 10 source-generated validation pipeline.
+The `System.ComponentModel.DataAnnotations` namespace provides declarative validation through attributes. These
+attributes work with MVC model binding, `Validator.TryValidateObject`, and the .NET 10 source-generated validation
+pipeline.
 
 ### Standard Attributes
 
-```csharp
+````csharp
 
 using System.ComponentModel.DataAnnotations;
 
@@ -572,3 +587,4 @@ public static class RecursiveValidator
 ## Attribution
 
 Adapted from [Aaronontheweb/dotnet-skills](https://github.com/Aaronontheweb/dotnet-skills) (MIT license).
+````

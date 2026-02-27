@@ -49,7 +49,7 @@ customization.
 Route groups organize related endpoints under a shared prefix, applying common configuration (filters, metadata,
 authorization) once. They replace repetitive chaining of `MapGet`/`MapPost` with shared prefixes.
 
-```csharp
+````csharp
 
 var app = builder.Build();
 
@@ -488,3 +488,4 @@ Minimal API patterns in this skill are grounded in guidance from:
 - [Endpoint Filters](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/min-api-filters?view=aspnetcore-10.0)
 - [OpenAPI in ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/overview?view=aspnetcore-10.0)
 - [Carter Library](https://github.com/CarterCommunity/Carter)
+````

@@ -177,6 +177,5 @@ deployment.
 1. **Do not use Font Awesome icon syntax (`fa:fa-user`) in diagrams intended for GitHub** -- GitHub's native Mermaid
    renderer does not load Font Awesome CSS. Icons render as literal text. Use plain text labels instead.
 
-1. **Do not configure Mermaid rendering in doc platforms** -- platform setup (Starlight remark plugin, Docusaurus
-    theme, DocFX template) belongs to [skill:dotnet-documentation-strategy]. This skill provides the diagram content
-    only.
+1. **Do not configure Mermaid rendering in doc platforms** -- platform setup (Starlight remark plugin, Docusaurus theme,
+   DocFX template) belongs to [skill:dotnet-documentation-strategy]. This skill provides the diagram content only.

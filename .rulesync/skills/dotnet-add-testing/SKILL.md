@@ -42,7 +42,7 @@ test-specific analyzer suppressions.
 
 Follow the convention of mirroring `src/` project names under `tests/`:
 
-```text
+````text
 
 MyApp/
 ├── src/
@@ -369,3 +369,4 @@ This skill covers test project scaffolding. For deeper testing guidance:
 - [.NET Testing Best Practices](https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices)
 - [Microsoft.NET.Test.Sdk](https://www.nuget.org/packages/Microsoft.NET.Test.Sdk)
 - [ReportGenerator](https://github.com/danielpalme/ReportGenerator)
+````

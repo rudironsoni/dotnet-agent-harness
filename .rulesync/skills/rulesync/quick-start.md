@@ -2,7 +2,7 @@
 
 ## New Project
 
-```bash
+````bash
 
 # Install rulesync globally
 npm install -g rulesync
@@ -95,3 +95,4 @@ rulesync update --check
 rulesync update --force
 
 ```text
+````

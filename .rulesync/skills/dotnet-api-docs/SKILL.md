@@ -55,7 +55,7 @@ documentation tool with native `docfx metadata` extraction from .NET projects.
 
 ### Installation
 
-```bash
+`````bash
 
 # Install DocFX as a .NET global tool
 dotnet tool install -g docfx
@@ -572,7 +572,7 @@ Structure migration guides by the action required:
 ```text
 
 
-````
+`````
 
 ## Step 2: Fix Compilation Errors
 
@@ -580,7 +580,7 @@ Structure migration guides by the action required:
 
 All synchronous methods have been removed. Replace synchronous calls with async equivalents:
 
-```csharp
+````csharp
 
 // Before (v2.x)
 var widget = service.Create("name");
@@ -627,12 +627,11 @@ public Widget Create(string name)
 {
 }
 
-````
+```
 
 Track deprecated APIs in a dedicated document:
 
-```markdown
-
+`````markdown
 # Deprecated APIs
 
 | API                            | Deprecated In | Removed In     | Replacement                               |
@@ -641,7 +640,7 @@ Track deprecated APIs in a dedicated document:
 | `Widget.Name` setter           | v3.0          | v4.0 (planned) | `WidgetService.RenameAsync(Guid, string)` |
 | `WidgetOptions.EnableCache`    | v3.1          | v5.0 (planned) | `WidgetOptions.CachePolicy`               |
 
-```text
+````text
 
 For changelog format conventions and SemVer versioning strategy, see [skill:dotnet-release-management].
 
@@ -761,3 +760,9 @@ when a new version is published.
 1. **OpenAPI UI (Scalar, Swagger UI) should only be exposed in development** -- wrap `MapScalarApiReference` and
     `UseSwaggerUI` in `if (app.Environment.IsDevelopment())` guards. Production exposure of interactive API docs is a
     security consideration.
+````
+`````
+
+```
+
+```

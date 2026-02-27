@@ -2,7 +2,7 @@
 
 ## Package Managers
 
-```bash
+````bash
 
 npm install -g rulesync
 # or
@@ -109,3 +109,4 @@ Get-FileHash rulesync.exe -Algorithm SHA256 | ForEach-Object {
 }
 
 ```text
+````

@@ -51,7 +51,7 @@ artifact upload path adjustments when using centralized build output layout.
 
 ### Basic Setup
 
-```yaml
+````yaml
 
 steps:
   - uses: actions/checkout@v4
@@ -486,3 +486,4 @@ jobs:
    `path` must include that directory in its glob pattern.
 8. **Never commit NuGet credentials to workflow files** -- use `${{ secrets.* }}` references for all authentication
    tokens; the `NUGET_AUTH_TOKEN` environment variable is the standard pattern.
+````

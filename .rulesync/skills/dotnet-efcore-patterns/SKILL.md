@@ -48,7 +48,7 @@ for strategic data patterns, [skill:dotnet-data-access-strategy] for data access
 
 `DbContext` is a unit of work and should be short-lived. In ASP.NET Core, register it as scoped (one per request):
 
-```csharp
+````csharp
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -595,3 +595,4 @@ uses database-level uniqueness constraints to prevent duplicates.
 - [EF Core migrations overview](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/)
 - [EF Core compiled queries](https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics#compiled-queries)
 - [EF Core connection resiliency](https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency)
+````

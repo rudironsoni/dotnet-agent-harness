@@ -2,21 +2,23 @@
 name: dotnet-openapi
 description: Generates OpenAPI docs. MS.AspNetCore.OpenApi (.NET 9+), Swashbuckle migration, NSwag.
 license: MIT
-targets: ["*"]
-tags: ["api", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['api', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for api tasks"
+  short-description: '.NET skill guidance for api tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-openapi
 
-OpenAPI/Swagger integration for ASP.NET Core. Microsoft.AspNetCore.OpenApi is the recommended first-party approach for .NET 9+ and is the default in new project templates. Swashbuckle is no longer actively maintained; existing projects using Swashbuckle should plan migration. NSwag remains an alternative for client generation and advanced scenarios.
+OpenAPI/Swagger integration for ASP.NET Core. Microsoft.AspNetCore.OpenApi is the recommended first-party approach for
+.NET 9+ and is the default in new project templates. Swashbuckle is no longer actively maintained; existing projects
+using Swashbuckle should plan migration. NSwag remains an alternative for client generation and advanced scenarios.
 
 ## Scope
 
@@ -32,17 +34,19 @@ OpenAPI/Swagger integration for ASP.NET Core. Microsoft.AspNetCore.OpenApi is th
 - API versioning strategies -- see [skill:dotnet-api-versioning]
 - Authentication and authorization -- see [skill:dotnet-api-security]
 
-Cross-references: [skill:dotnet-minimal-apis] for endpoint patterns that generate OpenAPI metadata, [skill:dotnet-api-versioning] for versioned OpenAPI documents.
+Cross-references: [skill:dotnet-minimal-apis] for endpoint patterns that generate OpenAPI metadata,
+[skill:dotnet-api-versioning] for versioned OpenAPI documents.
 
 ---
 
 ## Microsoft.AspNetCore.OpenApi (Recommended)
 
-Microsoft.AspNetCore.OpenApi is the first-party OpenAPI package for ASP.NET Core 9+ and is included by default in new project templates. .NET 10 adds OpenAPI 3.1 support with JSON Schema draft 2020-12 compliance.
+Microsoft.AspNetCore.OpenApi is the first-party OpenAPI package for ASP.NET Core 9+ and is included by default in new
+project templates. .NET 10 adds OpenAPI 3.1 support with JSON Schema draft 2020-12 compliance.
 
 ### Basic Setup
 
-```csharp
+````csharp
 
 // Microsoft.AspNetCore.OpenApi -- included by default in .NET 9+ project templates
 // If not present, add: <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.*" />
@@ -411,3 +415,4 @@ builder.Services.AddOpenApi(options =>
 - [Migrate from Swashbuckle](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/aspnetcore-openapi?view=aspnetcore-10.0#migrate-from-swashbuckle)
 - [NSwag](https://github.com/RicoSuter/NSwag)
 - [Scalar API Reference](https://github.com/ScalarHQ/scalar)
+````

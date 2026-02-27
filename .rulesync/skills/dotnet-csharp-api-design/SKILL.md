@@ -79,7 +79,7 @@ Follow the .NET Framework Design Guidelines naming patterns for public API types
 Spell out words in public APIs even if internal code uses abbreviations. Public APIs are consumed by developers who may
 not share the team's domain shorthand:
 
-```csharp
+````csharp
 
 // WRONG -- abbreviations in public surface
 public IReadOnlyList<TxnResult> GetRecentTxns(int cnt);
@@ -432,3 +432,4 @@ Before shipping a new public API, verify each concern:
 - [Breaking changes reference](https://learn.microsoft.com/dotnet/core/compatibility/categories)
 - [System.Text.Json serialization](https://learn.microsoft.com/dotnet/standard/serialization/system-text-json/overview)
 - [CA1068: CancellationToken parameters must come last](https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1068)
+````

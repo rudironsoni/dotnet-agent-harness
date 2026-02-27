@@ -48,7 +48,7 @@ application memory (`IEnumerable<T>`).
 
 ### The Problem
 
-```csharp
+````csharp
 
 // DANGEROUS: Materializes entire table into memory, then filters in C#
 IEnumerable<Order> orders = dbContext.Orders;
@@ -478,3 +478,4 @@ await dbContext.Orders
 - [MemoryExtensions class](https://learn.microsoft.com/en-us/dotnet/api/system.memoryextensions)
 - [EF Core ExecuteUpdate and ExecuteDelete](https://learn.microsoft.com/en-us/ef/core/saving/execute-insert-update-delete)
 - [Keyset pagination in EF Core](https://learn.microsoft.com/en-us/ef/core/querying/pagination#keyset-pagination)
+````

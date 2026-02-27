@@ -45,7 +45,7 @@ language-level features.
 Every method in the async call chain must be `async` and `await`ed. Mixing sync and async causes deadlocks or thread
 pool starvation.
 
-```csharp
+````csharp
 
 // Correct: async all the way
 public async Task<Order> GetOrderAsync(int id, CancellationToken ct = default)
@@ -396,3 +396,4 @@ Async patterns in this skill are grounded in publicly available content from:
 - [Task-based asynchronous pattern (TAP)](https://learn.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap)
 - [ConfigureAwait FAQ](https://devblogs.microsoft.com/dotnet/configureawait-faq/)
 - [Framework Design Guidelines](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/)
+````

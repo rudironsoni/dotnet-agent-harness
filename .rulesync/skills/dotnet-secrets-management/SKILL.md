@@ -2,21 +2,24 @@
 name: dotnet-secrets-management
 description: Manages secrets and sensitive config. User secrets, environment variables, rotation.
 license: MIT
-targets: ["*"]
-tags: ["security", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['security', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for security tasks"
+  short-description: '.NET skill guidance for security tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-secrets-management
 
-Cloud-agnostic secrets management for .NET applications. Covers the full lifecycle: user secrets for local development, environment variables for production, IConfiguration binding patterns, secret rotation, and managed identity as a production best practice. Includes anti-patterns to avoid (secrets in source, appsettings.json, hardcoded connection strings).
+Cloud-agnostic secrets management for .NET applications. Covers the full lifecycle: user secrets for local development,
+environment variables for production, IConfiguration binding patterns, secret rotation, and managed identity as a
+production best practice. Includes anti-patterns to avoid (secrets in source, appsettings.json, hardcoded connection
+strings).
 
 ## Scope
 
@@ -29,34 +32,39 @@ Cloud-agnostic secrets management for .NET applications. Covers the full lifecyc
 
 ## Out of scope
 
-- Cloud-provider-specific vault services (Azure Key Vault, AWS Secrets Manager, GCP Secret Manager) -- see [skill:dotnet-advisor]
-- Authentication/authorization implementation (OAuth, Identity) -- see [skill:dotnet-api-security] and [skill:dotnet-blazor-auth]
+- Cloud-provider-specific vault services (Azure Key Vault, AWS Secrets Manager, GCP Secret Manager) -- see
+  [skill:dotnet-advisor]
+- Authentication/authorization implementation (OAuth, Identity) -- see [skill:dotnet-api-security] and
+  [skill:dotnet-blazor-auth]
 - Cryptographic algorithm selection -- see [skill:dotnet-cryptography]
 - General Options pattern and configuration sources -- see [skill:dotnet-csharp-configuration]
 
-Cross-references: [skill:dotnet-security-owasp] for OWASP A02 (Cryptographic Failures) and deprecated pattern warnings, [skill:dotnet-csharp-configuration] for Options pattern and configuration source precedence.
+Cross-references: [skill:dotnet-security-owasp] for OWASP A02 (Cryptographic Failures) and deprecated pattern warnings,
+[skill:dotnet-csharp-configuration] for Options pattern and configuration source precedence.
 
 ---
 
 ## Secrets Lifecycle
 
-| Environment | Secret Source | Mechanism |
-|-------------|-------------|-----------|
-| Local dev | User secrets | `dotnet user-secrets` CLI, `secrets.json` outside repo |
-| CI/CD | Pipeline variables | Injected as environment variables, never in YAML |
+| Environment        | Secret Source                  | Mechanism                                              |
+| ------------------ | ------------------------------ | ------------------------------------------------------ |
+| Local dev          | User secrets                   | `dotnet user-secrets` CLI, `secrets.json` outside repo |
+| CI/CD              | Pipeline variables             | Injected as environment variables, never in YAML       |
 | Staging/Production | Environment variables or vault | OS-level env vars, managed identity, or vault provider |
 
-**Principle:** Secrets must never exist in the source repository or in any file committed to version control. Each environment tier uses the appropriate mechanism for its trust boundary.
+**Principle:** Secrets must never exist in the source repository or in any file committed to version control. Each
+environment tier uses the appropriate mechanism for its trust boundary.
 
 ---
 
 ## User Secrets (Local Development)
 
-User secrets store sensitive configuration outside the project directory in the user profile, preventing accidental commits.
+User secrets store sensitive configuration outside the project directory in the user profile, preventing accidental
+commits.
 
 ### Setup
 
-```bash
+````bash
 
 # Initialize user secrets for a project (creates UserSecretsId in csproj)
 dotnet user-secrets init
@@ -516,3 +524,4 @@ logger.LogInformation("Database connection configured for {Server}", new SqlConn
 - [ASP.NET Core Security](https://learn.microsoft.com/en-us/aspnet/core/security/?view=aspnetcore-10.0)
 - [Secure Coding Guidelines for .NET](https://learn.microsoft.com/en-us/dotnet/standard/security/secure-coding-guidelines)
 - [Use Managed Identities](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview)
+````

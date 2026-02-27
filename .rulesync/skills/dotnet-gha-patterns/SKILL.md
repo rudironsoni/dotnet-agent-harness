@@ -56,7 +56,7 @@ benchmark-specific CI integration.
 Reusable workflows allow callers to invoke an entire workflow as a single step. Define inputs, outputs, and secrets for
 a clean contract:
 
-```yaml
+````yaml
 
 # .github/workflows/build-reusable.yml
 name: Build (Reusable)
@@ -594,3 +594,4 @@ Input types: `string`, `boolean`, `choice`, `environment` (selects from configur
    workflows to limit exposure.
 8. **Concurrency groups for deploys must use `cancel-in-progress: false`** -- cancelling an in-progress deployment can
    leave infrastructure in an inconsistent state.
+````

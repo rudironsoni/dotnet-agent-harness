@@ -66,7 +66,7 @@ Tradeoffs:
 
 Add `UseArtifactsOutput` to your `Directory.Build.props` at the repo root:
 
-```xml
+````xml
 
 <Project>
   <PropertyGroup>
@@ -325,3 +325,4 @@ When enabling artifacts output on an existing project:
 - [Artifacts output layout](https://learn.microsoft.com/en-us/dotnet/core/sdk/artifacts-output)
 - [Customize your build (Directory.Build.props)](https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-your-build)
 - [dotnet new buildprops](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-new-sdk-templates#buildprops)
+````

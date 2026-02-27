@@ -57,7 +57,7 @@ Cross-references: [skill:dotnet-security-owasp] for OWASP A02 (Cryptographic Fai
 Use SHA-256/384/512 for integrity verification, checksums, and content-addressable storage. Never use hashing alone for
 passwords (see Key Derivation below).
 
-```csharp
+````csharp
 
 using System.Security.Cryptography;
 
@@ -524,3 +524,4 @@ warnings.
 - [NIST FIPS 203 (ML-KEM)](https://csrc.nist.gov/pubs/fips/203/final)
 - [NIST FIPS 204 (ML-DSA)](https://csrc.nist.gov/pubs/fips/204/final)
 - [NIST FIPS 205 (SLH-DSA)](https://csrc.nist.gov/pubs/fips/205/final)
+````

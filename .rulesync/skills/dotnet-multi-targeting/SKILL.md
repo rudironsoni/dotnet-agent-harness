@@ -2,21 +2,24 @@
 name: dotnet-multi-targeting
 description: Targets multiple TFMs via polyfills and conditional compilation. PolySharp, API compat.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-multi-targeting
 
-Comprehensive guide for .NET multi-targeting strategies with a polyfill-first approach. This skill consumes the structured output from [skill:dotnet-version-detection] (TFM, C# version, preview flags) and provides actionable guidance on backporting language features, handling runtime gaps, and validating API compatibility across target frameworks.
+Comprehensive guide for .NET multi-targeting strategies with a polyfill-first approach. This skill consumes the
+structured output from [skill:dotnet-version-detection] (TFM, C# version, preview flags) and provides actionable
+guidance on backporting language features, handling runtime gaps, and validating API compatibility across target
+frameworks.
 
 ## Scope
 
@@ -34,7 +37,8 @@ Comprehensive guide for .NET multi-targeting strategies with a polyfill-first ap
 - Platform-specific UI frameworks (MAUI, Blazor) -- see respective framework skills
 - Cloud deployment configuration
 
-Cross-references: [skill:dotnet-version-detection] for TFM resolution and version matrix, [skill:dotnet-version-upgrade] for upgrade lane guidance and migration strategies.
+Cross-references: [skill:dotnet-version-detection] for TFM resolution and version matrix, [skill:dotnet-version-upgrade]
+for upgrade lane guidance and migration strategies.
 
 ---
 
@@ -42,12 +46,12 @@ Cross-references: [skill:dotnet-version-detection] for TFM resolution and versio
 
 Use this matrix to select the correct strategy for each type of gap between your highest and lowest TFMs.
 
-| Gap Type | Strategy | When to Use | Example |
-|----------|----------|-------------|---------|
-| Language/syntax feature | Polyfill (PolySharp) | Compiler needs attribute/type stubs to emit newer syntax on older TFMs | `required` modifier, `init` properties, `SetsRequiredMembers` on net8.0 |
-| BCL API addition | Polyfill (SimonCropp/Polyfill) if available, else `#if` | A newer BCL type or method is missing on older TFMs | `System.Threading.Lock` on net8.0, `Index`/`Range` on netstandard2.0 |
-| Runtime behavior difference | Conditional compilation (`#if`) or adapter pattern | Behavior differs at runtime regardless of compilation | Runtime-async (net11.0 only), different GC modes, `SearchValues<T>` runtime optimizations |
-| Platform API divergence | Conditional compilation with `[SupportedOSPlatform]` | API exists only on specific OS targets | Windows Registry APIs, Android-specific intents, iOS keychain |
+| Gap Type                    | Strategy                                                | When to Use                                                            | Example                                                                                   |
+| --------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Language/syntax feature     | Polyfill (PolySharp)                                    | Compiler needs attribute/type stubs to emit newer syntax on older TFMs | `required` modifier, `init` properties, `SetsRequiredMembers` on net8.0                   |
+| BCL API addition            | Polyfill (SimonCropp/Polyfill) if available, else `#if` | A newer BCL type or method is missing on older TFMs                    | `System.Threading.Lock` on net8.0, `Index`/`Range` on netstandard2.0                      |
+| Runtime behavior difference | Conditional compilation (`#if`) or adapter pattern      | Behavior differs at runtime regardless of compilation                  | Runtime-async (net11.0 only), different GC modes, `SearchValues<T>` runtime optimizations |
+| Platform API divergence     | Conditional compilation with `[SupportedOSPlatform]`    | API exists only on specific OS targets                                 | Windows Registry APIs, Android-specific intents, iOS keychain                             |
 
 **Decision flow:**
 
@@ -60,7 +64,8 @@ Use this matrix to select the correct strategy for each type of gap between your
 
 ## PolySharp (Compiler-Synthesized Polyfills)
 
-PolySharp is a source generator that synthesizes the attribute and type stubs the C# compiler needs to emit newer language features when targeting older TFMs. It operates entirely at compile time -- no runtime dependencies are added.
+PolySharp is a source generator that synthesizes the attribute and type stubs the C# compiler needs to emit newer
+language features when targeting older TFMs. It operates entirely at compile time -- no runtime dependencies are added.
 
 ### What PolySharp Provides
 
@@ -78,7 +83,7 @@ PolySharp is a source generator that synthesizes the attribute and type stubs th
 
 ### Setup
 
-```xml
+````xml
 
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -572,3 +577,4 @@ dotnet tool run apicompat --left-assembly bin/Release/net8.0/MyLib.dll \
 - [Package Validation Overview](https://learn.microsoft.com/en-us/dotnet/fundamentals/package-validation/overview)
 - [API Compatibility Overview](https://learn.microsoft.com/en-us/dotnet/fundamentals/apicompat/overview)
 - [MSBuild Target Framework Properties](https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#targetframework)
+````

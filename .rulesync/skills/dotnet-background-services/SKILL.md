@@ -56,7 +56,7 @@ for Channel<T> patterns used in background work queues.
 
 ### Basic Polling Worker
 
-```csharp
+````csharp
 
 public sealed class OrderProcessorWorker(
     IServiceScopeFactory scopeFactory,
@@ -385,3 +385,4 @@ public sealed class HealthCheckReporter(
 - [IHostedService interface](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.hosting.ihostedservice)
 - [Generic host shutdown](https://learn.microsoft.com/en-us/dotnet/core/extensions/generic-host#host-shutdown)
 - [PeriodicTimer](https://learn.microsoft.com/en-us/dotnet/api/system.threading.periodictimer)
+````

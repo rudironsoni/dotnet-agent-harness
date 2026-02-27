@@ -2,21 +2,24 @@
 name: dotnet-uno-targets
 description: Deploys Uno Platform apps. Per-target guidance for WASM, iOS, Android, macOS, Windows, Linux.
 license: MIT
-targets: ["*"]
-tags: ["ui", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['ui', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for ui tasks"
+  short-description: '.NET skill guidance for ui tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-uno-targets
 
-Per-target deployment guidance for Uno Platform applications: Web/WASM, iOS, Android, macOS (Catalyst), Windows, Linux (Skia/GTK), and Embedded (Skia/Framebuffer). Each target section covers project setup, debugging workflow, packaging/distribution, platform-specific gotchas, AOT/trimming implications, and behavior differences from other targets.
+Per-target deployment guidance for Uno Platform applications: Web/WASM, iOS, Android, macOS (Catalyst), Windows, Linux
+(Skia/GTK), and Embedded (Skia/Framebuffer). Each target section covers project setup, debugging workflow,
+packaging/distribution, platform-specific gotchas, AOT/trimming implications, and behavior differences from other
+targets.
 
 ## Scope
 
@@ -33,23 +36,26 @@ Per-target deployment guidance for Uno Platform applications: Web/WASM, iOS, And
 - General AOT/trimming patterns -- see [skill:dotnet-aot-wasm]
 - UI framework selection -- see [skill:dotnet-ui-chooser]
 
-Cross-references: [skill:dotnet-uno-platform] for core development, [skill:dotnet-uno-mcp] for MCP integration, [skill:dotnet-uno-testing] for testing, [skill:dotnet-aot-wasm] for general WASM AOT patterns, [skill:dotnet-ui-chooser] for framework selection.
+Cross-references: [skill:dotnet-uno-platform] for core development, [skill:dotnet-uno-mcp] for MCP integration,
+[skill:dotnet-uno-testing] for testing, [skill:dotnet-aot-wasm] for general WASM AOT patterns, [skill:dotnet-ui-chooser]
+for framework selection.
 
 ---
 
 ## Target Platform Overview
 
-| Target | TFM | Tooling | Packaging | Key Constraints |
-|--------|-----|---------|-----------|----------------|
-| Web/WASM | `net8.0-browserwasm` | Browser DevTools | Static hosting / Azure SWA | No filesystem access, AOT recommended, limited threading |
-| iOS | `net8.0-ios` | Xcode / VS Code / Rider | App Store / TestFlight | Provisioning profiles, entitlements, no JIT |
-| Android | `net8.0-android` | Android SDK / Emulator | Play Store / APK sideload | SDK version targeting, permissions |
-| macOS (Catalyst) | `net8.0-maccatalyst` | Xcode | Mac App Store / notarization | Sandbox restrictions, entitlements |
-| Windows | `net8.0-windows10.0.19041` | Visual Studio | MSIX / Windows Store | WinAppSDK version alignment |
-| Linux | `net8.0-desktop` | Skia/GTK host | AppImage / Flatpak / Snap | GTK dependencies, Skia rendering |
-| Embedded | `net8.0-desktop` | Skia/Framebuffer | Direct deployment | No windowing system, headless rendering |
+| Target           | TFM                        | Tooling                 | Packaging                    | Key Constraints                                          |
+| ---------------- | -------------------------- | ----------------------- | ---------------------------- | -------------------------------------------------------- |
+| Web/WASM         | `net8.0-browserwasm`       | Browser DevTools        | Static hosting / Azure SWA   | No filesystem access, AOT recommended, limited threading |
+| iOS              | `net8.0-ios`               | Xcode / VS Code / Rider | App Store / TestFlight       | Provisioning profiles, entitlements, no JIT              |
+| Android          | `net8.0-android`           | Android SDK / Emulator  | Play Store / APK sideload    | SDK version targeting, permissions                       |
+| macOS (Catalyst) | `net8.0-maccatalyst`       | Xcode                   | Mac App Store / notarization | Sandbox restrictions, entitlements                       |
+| Windows          | `net8.0-windows10.0.19041` | Visual Studio           | MSIX / Windows Store         | WinAppSDK version alignment                              |
+| Linux            | `net8.0-desktop`           | Skia/GTK host           | AppImage / Flatpak / Snap    | GTK dependencies, Skia rendering                         |
+| Embedded         | `net8.0-desktop`           | Skia/Framebuffer        | Direct deployment            | No windowing system, headless rendering                  |
 
-**TFM note:** Use version-agnostic globs (`net*-ios`, `net*-android`) when detecting platform targets programmatically to avoid false negatives on older or newer TFMs.
+**TFM note:** Use version-agnostic globs (`net*-ios`, `net*-android`) when detecting platform targets programmatically
+to avoid false negatives on older or newer TFMs.
 
 ---
 
@@ -57,7 +63,7 @@ Cross-references: [skill:dotnet-uno-platform] for core development, [skill:dotne
 
 ### Project Setup
 
-```bash
+````bash
 
 # Run the WASM target
 dotnet run -f net8.0-browserwasm --project MyApp/MyApp.csproj
@@ -591,3 +597,4 @@ Direct deployment to device filesystem. No app store or package manager.
 - [iOS Deployment](https://learn.microsoft.com/en-us/dotnet/maui/ios/deployment/)
 - [Android Deployment](https://learn.microsoft.com/en-us/dotnet/maui/android/deployment/)
 - [Linux with Skia/GTK](https://platform.uno/docs/articles/get-started-with-linux.html)
+````

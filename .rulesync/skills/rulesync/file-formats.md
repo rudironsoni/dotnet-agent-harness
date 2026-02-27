@@ -4,37 +4,38 @@
 
 Example:
 
-```md
-
+`````md
 ---
 root: true # true that is less than or equal to one file for overview such as `AGENTS.md`, false for details such as `.agents/memories/*.md`
 localRoot: false # (optional, default: false) true for project-specific local rules. Claude Code: generates CLAUDE.local.md; Others: appends to root file
-targets: ["*"] # * = all, or specific tools
-description: "Rulesync project overview and development guidelines for unified AI rules management CLI tool"
-globs: ["**/*"] # file patterns to match (e.g., ["*.md", "*.txt"])
+targets: ['*'] # * = all, or specific tools
+description: 'Rulesync project overview and development guidelines for unified AI rules management CLI tool'
+globs: ['**/*'] # file patterns to match (e.g., ["*.md", "*.txt"])
 agentsmd: # agentsmd and codexcli specific parameters
   # Support for using nested AGENTS.md files for subprojects in a large monorepo.
   # This option is available only if root is false.
   # If subprojectPath is provided, the file is located in `${subprojectPath}/AGENTS.md`.
   # If subprojectPath is not provided and root is false, the file is located in `.agents/memories/*.md`.
-  subprojectPath: "path/to/subproject"
+  subprojectPath: 'path/to/subproject'
 cursor: # cursor specific parameters
   alwaysApply: true
-  description: "Rulesync project overview and development guidelines for unified AI rules management CLI tool"
-  globs: ["*"]
+  description: 'Rulesync project overview and development guidelines for unified AI rules management CLI tool'
+  globs: ['*']
 antigravity: # antigravity specific parameters
-  trigger: "always_on" # always_on, glob, manual, or model_decision
-  globs: ["**/*"] # (optional) file patterns to match when trigger is "glob"
-  description: "When to apply this rule" # (optional) used with "model_decision" trigger
+  trigger: 'always_on' # always_on, glob, manual, or model_decision
+  globs: ['**/*'] # (optional) file patterns to match when trigger is "glob"
+  description: 'When to apply this rule' # (optional) used with "model_decision" trigger
 ---
 
 # Rulesync Project Overview
 
-This is Rulesync, a Node.js CLI tool that automatically generates configuration files for various AI development tools from unified AI rule files. The project enables teams to maintain consistent AI coding assistant rules across multiple tools.
+This is Rulesync, a Node.js CLI tool that automatically generates configuration files for various AI development tools
+from unified AI rule files. The project enables teams to maintain consistent AI coding assistant rules across multiple
+tools.
 
 ...
 
-```javascript
+````javascript
 
 ## `.rulesync/hooks.json`
 
@@ -272,3 +273,9 @@ tmp/
 credentials/
 
 ```text
+````
+`````
+
+```
+
+```

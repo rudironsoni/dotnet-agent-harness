@@ -48,7 +48,7 @@ Multi-stage builds separate the build environment from the runtime environment, 
 
 ### Standard Multi-Stage Pattern
 
-```dockerfile
+````dockerfile
 
 # Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
@@ -444,3 +444,4 @@ ENV DOTNET_EnableDiagnostics=0
 - [Chiseled Ubuntu containers for .NET](https://devblogs.microsoft.com/dotnet/dotnet-6-is-now-in-ubuntu-2204/#chiseled-ubuntu-containers)
 - [ASP.NET Core health checks](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks)
 - [Docker multi-stage builds](https://docs.docker.com/build/building/multi-stage/)
+````

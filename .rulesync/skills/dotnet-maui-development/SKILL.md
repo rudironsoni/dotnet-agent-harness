@@ -52,7 +52,7 @@ patterns, [skill:dotnet-version-detection] for TFM detection, [skill:dotnet-nati
 MAUI uses a single-project architecture. One `.csproj` targets all platforms via multi-targeting, with platform-specific
 code in platform folders.
 
-```xml
+````xml
 
 <!-- MyApp.csproj -->
 <Project Sdk="Microsoft.NET.Sdk">
@@ -177,3 +177,4 @@ Reload), see `examples.md` in this skill directory.
 - [MAUI Shell Navigation](https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/shell/)
 - [MAUI Single Project](https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/single-project)
 - [MAUI Platform Integration](https://learn.microsoft.com/en-us/dotnet/maui/platform-integration/)
+````

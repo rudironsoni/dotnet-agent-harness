@@ -39,6 +39,8 @@ export default [
       '.agents/**',
       '.agent/**',
       'packages/opencode-plugin/bundled/**',
+      '**/*.d.ts',
+      '**/*.ts',
     ],
   },
 ];

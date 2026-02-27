@@ -2,23 +2,28 @@
 name: dotnet-resilience
 description: Adds fault tolerance. Polly v8 + MS.Extensions.Http.Resilience, retry/circuit breaker/timeout.
 license: MIT
-targets: ["*"]
-tags: ["architecture", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['architecture', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for architecture tasks"
+  short-description: '.NET skill guidance for architecture tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-resilience
 
-Modern resilience patterns for .NET applications using Polly v8 and `Microsoft.Extensions.Http.Resilience`. Covers the standard resilience pipeline (rate limiter, total timeout, retry, circuit breaker, attempt timeout), custom pipeline configuration, and integration with the .NET dependency injection system.
+Modern resilience patterns for .NET applications using Polly v8 and `Microsoft.Extensions.Http.Resilience`. Covers the
+standard resilience pipeline (rate limiter, total timeout, retry, circuit breaker, attempt timeout), custom pipeline
+configuration, and integration with the .NET dependency injection system.
 
-**Superseded package:** `Microsoft.Extensions.Http.Polly` is superseded by `Microsoft.Extensions.Http.Resilience`. Do not use `Microsoft.Extensions.Http.Polly` for new projects. See the [migration guide](https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/resilience/migration-guide) for upgrading existing code.
+**Superseded package:** `Microsoft.Extensions.Http.Polly` is superseded by `Microsoft.Extensions.Http.Resilience`. Do
+not use `Microsoft.Extensions.Http.Polly` for new projects. See the
+[migration guide](https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/resilience/migration-guide) for
+upgrading existing code.
 
 ## Scope
 
@@ -34,23 +39,25 @@ Modern resilience patterns for .NET applications using Polly v8 and `Microsoft.E
 - HTTP client factory patterns (typed clients, DelegatingHandlers) -- see [skill:dotnet-http-client]
 - Testing resilience policies -- see [skill:dotnet-integration-testing] and [skill:dotnet-xunit]
 
-Cross-references: [skill:dotnet-csharp-dependency-injection] for service registration, [skill:dotnet-csharp-async-patterns] for cancellation token propagation, [skill:dotnet-http-client] for applying resilience to HTTP clients.
+Cross-references: [skill:dotnet-csharp-dependency-injection] for service registration,
+[skill:dotnet-csharp-async-patterns] for cancellation token propagation, [skill:dotnet-http-client] for applying
+resilience to HTTP clients.
 
 ---
 
 ## Package Landscape
 
-| Package | Status | Purpose |
-|---------|--------|---------|
-| `Polly` (v8+) | **Current** | Core resilience library -- strategies, pipelines, telemetry |
-| `Microsoft.Extensions.Resilience` | **Current** | DI integration for non-HTTP resilience pipelines |
-| `Microsoft.Extensions.Http.Resilience` | **Current** | DI integration for `IHttpClientFactory` resilience pipelines |
-| `Microsoft.Extensions.Http.Polly` | **Superseded** | Legacy HTTP resilience -- migrate to `Microsoft.Extensions.Http.Resilience` |
-| `Polly` (v7 and earlier) | **Legacy** | Older API -- migrate to v8 |
+| Package                                | Status         | Purpose                                                                     |
+| -------------------------------------- | -------------- | --------------------------------------------------------------------------- |
+| `Polly` (v8+)                          | **Current**    | Core resilience library -- strategies, pipelines, telemetry                 |
+| `Microsoft.Extensions.Resilience`      | **Current**    | DI integration for non-HTTP resilience pipelines                            |
+| `Microsoft.Extensions.Http.Resilience` | **Current**    | DI integration for `IHttpClientFactory` resilience pipelines                |
+| `Microsoft.Extensions.Http.Polly`      | **Superseded** | Legacy HTTP resilience -- migrate to `Microsoft.Extensions.Http.Resilience` |
+| `Polly` (v7 and earlier)               | **Legacy**     | Older API -- migrate to v8                                                  |
 
 Install the modern stack:
 
-```xml
+````xml
 
 <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.*" />
 <!-- Transitively brings in Polly v8 and Microsoft.Extensions.Resilience -->
@@ -506,3 +513,4 @@ builder.Services
 - [Migration from Http.Polly to Http.Resilience](https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/resilience/migration-guide)
 - [Standard resilience pipeline](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience#standard-resilience-handler)
 - [Polly v8 strategy options](https://www.pollydocs.org/strategies/)
+````

@@ -48,7 +48,7 @@ causes subtle bugs (missing CORS headers, unhandled exceptions, auth bypasses).
 
 ### Recommended Order
 
-```csharp
+````csharp
 
 var app = builder.Build();
 
@@ -654,3 +654,4 @@ Middleware patterns in this skill are grounded in publicly available content fro
 ## Attribution
 
 Adapted from [Aaronontheweb/dotnet-skills](https://github.com/Aaronontheweb/dotnet-skills) (MIT license).
+````

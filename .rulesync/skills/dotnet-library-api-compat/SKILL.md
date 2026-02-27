@@ -87,7 +87,7 @@ binary-breaking change causes `TypeLoadException`, `MissingMethodException`, `Mi
 Default interface members (DIM) added in C# 8 allow adding members to interfaces without breaking existing implementors
 -- **but only at the binary level**:
 
-```csharp
+````csharp
 
 public interface IWidget
 {
@@ -413,3 +413,4 @@ For deeper API surface tracking with PublicApiAnalyzers and CI enforcement workf
 - [.NET API compatibility analyzer](https://learn.microsoft.com/dotnet/fundamentals/apicompat/overview)
 - [SemVer 2.0 Specification](https://semver.org/)
 - [Library guidance: Breaking changes](https://learn.microsoft.com/dotnet/standard/library-guidance/breaking-changes)
+````

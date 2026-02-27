@@ -1,12 +1,14 @@
 # Dry Run
 
-Rulesync provides two dry run options for the `generate` command that allow you to see what changes would be made without actually writing files:
+Rulesync provides two dry run options for the `generate` command that allow you to see what changes would be made
+without actually writing files:
 
 ## `--dry-run`
 
-Show what would be written or deleted without actually writing any files. Changes are displayed with a `[DRY RUN]` prefix.
+Show what would be written or deleted without actually writing any files. Changes are displayed with a `[DRY RUN]`
+prefix.
 
-```bash
+````bash
 
 rulesync generate --dry-run --targets claudecode --features rules
 
@@ -26,3 +28,4 @@ echo $?  # 0 if up to date, 1 if changes needed
 
 > [!NOTE]
 > `--dry-run` and `--check` cannot be used together.
+````

@@ -2,23 +2,27 @@
 name: dotnet-profiling
 description: Diagnoses .NET performance issues. dotnet-counters, dotnet-trace, dotnet-dump, flame graphs.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-profiling
 
-Diagnostic tool guidance for investigating .NET performance problems. Covers real-time metric monitoring with dotnet-counters, event tracing and flame graph generation with dotnet-trace, and memory dump capture and analysis with dotnet-dump. Focuses on interpreting profiling data (reading flame graphs, analyzing heap dumps, correlating GC metrics) rather than just invoking tools.
+Diagnostic tool guidance for investigating .NET performance problems. Covers real-time metric monitoring with
+dotnet-counters, event tracing and flame graph generation with dotnet-trace, and memory dump capture and analysis with
+dotnet-dump. Focuses on interpreting profiling data (reading flame graphs, analyzing heap dumps, correlating GC metrics)
+rather than just invoking tools.
 
-**Version assumptions:** .NET SDK 8.0+ baseline. All three diagnostic tools (dotnet-counters, dotnet-trace, dotnet-dump) ship with the .NET SDK -- no separate installation required.
+**Version assumptions:** .NET SDK 8.0+ baseline. All three diagnostic tools (dotnet-counters, dotnet-trace, dotnet-dump)
+ship with the .NET SDK -- no separate installation required.
 
 ## Scope
 
@@ -35,7 +39,9 @@ Diagnostic tool guidance for investigating .NET performance problems. Covers rea
 - Continuous benchmark regression detection in CI -- see [skill:dotnet-ci-benchmarking]
 - Architecture patterns (caching, resilience) -- see [skill:dotnet-architecture-patterns]
 
-Cross-references: [skill:dotnet-observability] for GC/threadpool metrics interpretation and OpenTelemetry correlation, [skill:dotnet-benchmarkdotnet] for structured benchmarking after profiling identifies hot paths, [skill:dotnet-performance-patterns] for optimization patterns to apply based on profiling results.
+Cross-references: [skill:dotnet-observability] for GC/threadpool metrics interpretation and OpenTelemetry correlation,
+[skill:dotnet-benchmarkdotnet] for structured benchmarking after profiling identifies hot paths,
+[skill:dotnet-performance-patterns] for optimization patterns to apply based on profiling results.
 
 ---
 
@@ -43,11 +49,13 @@ Cross-references: [skill:dotnet-observability] for GC/threadpool metrics interpr
 
 ### Overview
 
-`dotnet-counters` provides real-time monitoring of .NET runtime metrics without modifying application code. Use it as a first-pass triage tool to identify whether a performance problem is CPU-bound, memory-bound, or I/O-bound before reaching for heavier instrumentation.
+`dotnet-counters` provides real-time monitoring of .NET runtime metrics without modifying application code. Use it as a
+first-pass triage tool to identify whether a performance problem is CPU-bound, memory-bound, or I/O-bound before
+reaching for heavier instrumentation.
 
 ### Monitoring Running Processes
 
-```bash
+````bash
 
 # List running .NET processes
 dotnet-counters ps
@@ -495,3 +503,4 @@ After profiling identifies the bottleneck, use [skill:dotnet-benchmarkdotnet] to
 5. **Filter dumpheap by `-min 85000` to find LOH objects** -- objects >= 85,000 bytes go to the Large Object Heap, which is only collected in Gen 2 GC. Large LOH counts indicate potential fragmentation.
 6. **Interpret GC counter data with [skill:dotnet-observability]** -- runtime GC/threadpool counters overlap with OpenTelemetry metrics. Use the observability skill for correlating profiling findings with distributed trace context.
 7. **Do not confuse dotnet-trace gc-collect with dotnet-dump** -- gc-collect traces allocation events over time (which methods allocate); dotnet-dump captures a point-in-time heap snapshot (what objects exist). Use gc-collect for allocation rate analysis; use dotnet-dump for retention/leak analysis.
+````

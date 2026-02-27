@@ -46,7 +46,7 @@ producer/consumer, [skill:dotnet-csharp-coding-standards] for naming conventions
 
 Choose the simplest primitive that meets the requirement. Complexity increases downward:
 
-```text
+````text
 
 Is the shared state a single scalar (int, long, reference)?
   YES -> Use Interlocked (lock-free, lowest overhead)
@@ -573,3 +573,4 @@ public Widget Instance => _instance.Value;
 - [ConcurrentDictionary best practices](https://learn.microsoft.com/dotnet/api/system.collections.concurrent.concurrentdictionary-2)
 - [SemaphoreSlim class](https://learn.microsoft.com/dotnet/api/system.threading.semaphoreslim)
 - [ReaderWriterLockSlim class](https://learn.microsoft.com/dotnet/api/system.threading.readerwriterlockslim)
+````

@@ -55,7 +55,7 @@ tools.
 
 A formula downloads pre-built binaries per platform. This is the recommended approach for Native AOT CLI tools.
 
-```ruby
+````ruby
 
 # Formula/mytool.rb
 class Mytool < Formula
@@ -620,3 +620,4 @@ dotnet nuget push ./nupkgs/MyOrg.MyTool.1.2.3.nupkg \
 - [Chocolatey package creation](https://docs.chocolatey.org/en-us/create/create-packages)
 - [.NET tool packaging](https://learn.microsoft.com/en-us/dotnet/core/tools/global-tools-how-to-create)
 - [NuGet publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/publish-a-package)
+````

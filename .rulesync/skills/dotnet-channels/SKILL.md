@@ -41,7 +41,7 @@ Cross-references: [skill:dotnet-background-services] for integrating channels wi
 A `Channel<T>` is a thread-safe data structure with separate `ChannelWriter<T>` and `ChannelReader<T>` endpoints.
 Writers produce items, readers consume them -- the channel handles all synchronization.
 
-```csharp
+````csharp
 
 // Create a channel and separate the endpoints
 Channel<WorkItem> channel = Channel.CreateUnbounded<WorkItem>();
@@ -569,3 +569,4 @@ builder.Services.Configure<HostOptions>(options =>
 - [Channel<T> API reference](https://learn.microsoft.com/en-us/dotnet/api/system.threading.channels.channel-1)
 - [BoundedChannelOptions](https://learn.microsoft.com/en-us/dotnet/api/system.threading.channels.boundedchanneloptions)
 - [ChannelReader.ReadAllAsync](https://learn.microsoft.com/en-us/dotnet/api/system.threading.channels.channelreader-1.readallasync)
+````

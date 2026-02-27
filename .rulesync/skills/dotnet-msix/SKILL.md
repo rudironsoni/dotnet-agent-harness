@@ -2,23 +2,28 @@
 name: dotnet-msix
 description: Packages MSIX apps. Creation, signing, Store submission, App Installer sideload, auto-update.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-msix
 
-MSIX packaging pipeline for .NET desktop applications: package creation from csproj (`WindowsPackageType`) and WAP projects, certificate signing (self-signed for development, trusted CA for production, Microsoft Store signing), distribution channels (Microsoft Store submission, App Installer sideloading, enterprise deployment via SCCM/Intune), auto-update configuration (App Installer XML, version checking, differential updates), MSIX bundle format for multi-architecture (`.msixbundle`), and CI/CD MSIX build steps.
+MSIX packaging pipeline for .NET desktop applications: package creation from csproj (`WindowsPackageType`) and WAP
+projects, certificate signing (self-signed for development, trusted CA for production, Microsoft Store signing),
+distribution channels (Microsoft Store submission, App Installer sideloading, enterprise deployment via SCCM/Intune),
+auto-update configuration (App Installer XML, version checking, differential updates), MSIX bundle format for
+multi-architecture (`.msixbundle`), and CI/CD MSIX build steps.
 
-**Version assumptions:** Windows App SDK 1.6+ (current stable). Windows 10 build 19041+ minimum for MSIX with Windows App SDK. Windows 10 build 1709+ for App Installer auto-update protocol. .NET 8.0+ baseline.
+**Version assumptions:** Windows App SDK 1.6+ (current stable). Windows 10 build 19041+ minimum for MSIX with Windows
+App SDK. Windows 10 build 1709+ for App Installer auto-update protocol. .NET 8.0+ baseline.
 
 ## Scope
 
@@ -37,7 +42,9 @@ MSIX packaging pipeline for .NET desktop applications: package creation from csp
 - General NuGet packaging -- see [skill:dotnet-nuget-authoring]
 - Container-based deployment -- see [skill:dotnet-containers]
 
-Cross-references: [skill:dotnet-winui] for WinUI project setup and packaging mode comparison, [skill:dotnet-native-aot] for AOT + MSIX scenarios, [skill:dotnet-gha-patterns] for CI pipeline structure, [skill:dotnet-ado-patterns] for ADO pipeline structure, [skill:dotnet-nuget-authoring] for NuGet packaging.
+Cross-references: [skill:dotnet-winui] for WinUI project setup and packaging mode comparison, [skill:dotnet-native-aot]
+for AOT + MSIX scenarios, [skill:dotnet-gha-patterns] for CI pipeline structure, [skill:dotnet-ado-patterns] for ADO
+pipeline structure, [skill:dotnet-nuget-authoring] for NuGet packaging.
 
 ---
 
@@ -45,9 +52,10 @@ Cross-references: [skill:dotnet-winui] for WinUI project setup and packaging mod
 
 ### From csproj (Single-Project Packaging)
 
-Modern WinUI 3 and Windows App SDK apps can produce MSIX packages directly from the application `.csproj` without a separate Windows Application Packaging (WAP) project.
+Modern WinUI 3 and Windows App SDK apps can produce MSIX packages directly from the application `.csproj` without a
+separate Windows Application Packaging (WAP) project.
 
-```xml
+````xml
 
 <!-- MyApp.csproj -->
 <Project Sdk="Microsoft.NET.Sdk">
@@ -587,3 +595,4 @@ For AOT MSBuild configuration details (ILLink descriptors, trimming options, pla
 1. **CI builds on `windows-latest` include the Windows SDK** -- no separate SDK installation step is needed for `signtool.exe` and `MakeAppx.exe`.
 
 1. **Do not hardcode TFM paths in CI examples** -- use variable references (e.g., `${{ github.workspace }}`) so examples work across .NET versions.
+````

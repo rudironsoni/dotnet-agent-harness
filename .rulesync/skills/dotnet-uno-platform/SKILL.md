@@ -2,21 +2,23 @@
 name: dotnet-uno-platform
 description: Builds Uno Platform cross-platform apps. Extensions, MVUX, Toolkit controls, Hot Reload.
 license: MIT
-targets: ["*"]
-tags: ["ui", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['ui', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for ui tasks"
+  short-description: '.NET skill guidance for ui tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-uno-platform
 
-Uno Platform core development: Extensions ecosystem (Navigation, DI, Configuration, Serialization, Localization, Logging, HTTP, Authentication), MVUX reactive pattern, Toolkit controls, Theme resources (Material/Cupertino/Fluent), Hot Reload, and single-project structure. Covers Uno Platform 5.x+ on .NET 8.0+ baseline.
+Uno Platform core development: Extensions ecosystem (Navigation, DI, Configuration, Serialization, Localization,
+Logging, HTTP, Authentication), MVUX reactive pattern, Toolkit controls, Theme resources (Material/Cupertino/Fluent),
+Hot Reload, and single-project structure. Covers Uno Platform 5.x+ on .NET 8.0+ baseline.
 
 ## Scope
 
@@ -35,15 +37,19 @@ Uno Platform core development: Extensions ecosystem (Navigation, DI, Configurati
 - AOT/trimming for WASM -- see [skill:dotnet-aot-wasm]
 - UI framework selection decision tree -- see [skill:dotnet-ui-chooser]
 
-Cross-references: [skill:dotnet-uno-targets] for per-target deployment, [skill:dotnet-uno-mcp] for MCP integration, [skill:dotnet-uno-testing] for testing patterns, [skill:dotnet-serialization] for serialization depth, [skill:dotnet-aot-wasm] for WASM AOT, [skill:dotnet-ui-chooser] for framework selection, [skill:dotnet-accessibility] for accessibility patterns (AutomationProperties, ARIA mapping on WASM).
+Cross-references: [skill:dotnet-uno-targets] for per-target deployment, [skill:dotnet-uno-mcp] for MCP integration,
+[skill:dotnet-uno-testing] for testing patterns, [skill:dotnet-serialization] for serialization depth,
+[skill:dotnet-aot-wasm] for WASM AOT, [skill:dotnet-ui-chooser] for framework selection, [skill:dotnet-accessibility]
+for accessibility patterns (AutomationProperties, ARIA mapping on WASM).
 
 ---
 
 ## Single-Project Structure
 
-Uno Platform 5.x uses a single-project structure with conditional TFMs for multi-targeting. One `.csproj` targets all platforms via multi-targeting.
+Uno Platform 5.x uses a single-project structure with conditional TFMs for multi-targeting. One `.csproj` targets all
+platforms via multi-targeting.
 
-```xml
+````xml
 
 <!-- MyApp.csproj -->
 <Project Sdk="Uno.Sdk">
@@ -659,3 +665,4 @@ Hot Reload is automatically configured by Visual Studio and VS Code (with Uno ex
 - [Uno Toolkit](https://platform.uno/docs/articles/external/uno.toolkit.ui/)
 - [Uno Themes](https://platform.uno/docs/articles/external/uno.themes/)
 - [Uno SDK Features](https://platform.uno/docs/articles/features/uno-sdk.html)
+````

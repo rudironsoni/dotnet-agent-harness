@@ -75,7 +75,7 @@ references other projects and backing services, wiring them together with servic
 
 ### AppHost Project Setup
 
-```xml
+````xml
 
 <Project Sdk="Microsoft.NET.Sdk">
 
@@ -571,3 +571,4 @@ your team is already proficient with Compose/Kubernetes.
 - [.NET Aspire dashboard](https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/overview)
 - [.NET Aspire orchestration](https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/app-host-overview)
 - [Aspire samples repository](https://github.com/dotnet/aspire-samples)
+````

@@ -56,7 +56,7 @@ Use Semantic Versioning (SemVer) with git tags as the single source of truth for
 
 **Tag format:** `v{major}.{minor}.{patch}` (e.g., `v1.2.3`)
 
-```bash
+````bash
 
 # Tag a release
 git tag -a v1.2.3 -m "Release v1.2.3"
@@ -645,3 +645,4 @@ Use job-level permissions when different jobs need different scopes. Never grant
 - [Semantic Versioning](https://semver.org/)
 - [.NET versioning](https://learn.microsoft.com/en-us/dotnet/core/versions/)
 - [GitHub Actions artifacts](https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts)
+````

@@ -48,7 +48,7 @@ render modes, [skill:dotnet-blazor-components] for component architecture and st
 
 ## Package Setup
 
-```xml
+````xml
 
 <PackageReference Include="bunit" Version="1.*" />
 <!-- bUnit depends on xunit internally; ensure compatible xUnit version -->
@@ -505,3 +505,4 @@ public void ProductList_ServiceError_ShowsErrorMessage()
 - [bUnit JS Interop](https://bunit.dev/docs/test-doubles/emulating-ijsruntime)
 - [Blazor Component Testing](https://learn.microsoft.com/en-us/aspnet/core/blazor/test)
 - [Testing Blazor Components with bUnit (tutorial)](https://bunit.dev/docs/providing-input/)
+````

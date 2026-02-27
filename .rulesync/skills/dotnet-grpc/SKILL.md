@@ -51,7 +51,7 @@ gRPC uses Protocol Buffers as its interface definition language. The `Grpc.Tools
 
 **Server project:**
 
-```xml
+````xml
 
 <ItemGroup>
   <PackageReference Include="Grpc.AspNetCore" Version="2.*" />
@@ -267,3 +267,4 @@ Adapted from [Aaronontheweb/dotnet-skills](https://github.com/Aaronontheweb/dotn
 - [gRPC interceptors](https://learn.microsoft.com/en-us/aspnet/core/grpc/interceptors?view=aspnetcore-10.0)
 - [gRPC-Web for .NET](https://learn.microsoft.com/en-us/aspnet/core/grpc/grpcweb?view=aspnetcore-10.0)
 - [Protocol Buffers language guide](https://protobuf.dev/programming-guides/proto3/)
+````

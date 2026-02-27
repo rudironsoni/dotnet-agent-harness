@@ -53,7 +53,7 @@ and UI contexts. Another common mistake is fire-and-forget calls that silently s
 
 ### Anti-Pattern
 
-```csharp
+````csharp
 
 // WRONG: blocking on async -- deadlock risk in synchronization contexts
 public Order GetOrder(int id)
@@ -625,3 +625,4 @@ effects, assert on the side effect (database state, published events, log output
 - [.NET Trimming Warnings](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/fixing-warnings)
 - [NuGet Package Reference](https://learn.microsoft.com/en-us/nuget/consume-packages/package-references-in-project-files)
 - [Dependency Injection Lifetime Guidelines](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection-guidelines)
+````

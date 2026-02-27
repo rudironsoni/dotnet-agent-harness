@@ -2,25 +2,28 @@
 name: dotnet-uno-mcp
 description: Queries Uno MCP server. Tool detection, search-then-fetch workflow, init rules, fallback.
 license: MIT
-targets: ["*"]
-tags: ["ui", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['ui', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for ui tasks"
+  short-description: '.NET skill guidance for ui tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-uno-mcp
 
-MCP (Model Context Protocol) server integration for Uno Platform live documentation lookups. Covers tool detection (`mcp__uno__` prefix), search-then-fetch workflow, initialization rules invocation, graceful fallback when MCP is unavailable, citation requirements, and safety guidelines for external data. Includes inline documentation that provides useful guidance without MCP server availability.
+MCP (Model Context Protocol) server integration for Uno Platform live documentation lookups. Covers tool detection
+(`mcp__uno__` prefix), search-then-fetch workflow, initialization rules invocation, graceful fallback when MCP is
+unavailable, citation requirements, and safety guidelines for external data. Includes inline documentation that provides
+useful guidance without MCP server availability.
 
 ## Scope
 
-- MCP tool detection (mcp__uno__ prefix)
+- MCP tool detection (mcp**uno** prefix)
 - Search-then-fetch workflow for Uno Platform documentation
 - Initialization rules invocation
 - Graceful fallback when MCP is unavailable
@@ -33,28 +36,31 @@ MCP (Model Context Protocol) server integration for Uno Platform live documentat
 - Uno Platform testing -- see [skill:dotnet-uno-testing]
 - Uno development patterns without MCP -- see [skill:dotnet-uno-platform] and [skill:dotnet-uno-targets]
 
-Cross-references: [skill:dotnet-uno-platform] for core development patterns, [skill:dotnet-uno-targets] for deployment guidance, [skill:dotnet-uno-testing] for testing.
+Cross-references: [skill:dotnet-uno-platform] for core development patterns, [skill:dotnet-uno-targets] for deployment
+guidance, [skill:dotnet-uno-testing] for testing.
 
 ---
 
 ## MCP Tool Detection
 
-The Uno Platform MCP server provides tools prefixed with `mcp__uno__`. Before using MCP tools, detect their availability.
+The Uno Platform MCP server provides tools prefixed with `mcp__uno__`. Before using MCP tools, detect their
+availability.
 
 ### Available Tools
 
-| Tool | Purpose |
-|------|---------|
-| `mcp__uno__uno_platform_docs_search` | Search Uno Platform documentation by query |
-| `mcp__uno__uno_platform_docs_fetch` | Fetch full content of a specific documentation page |
-| `mcp__uno__uno_platform_agent_rules_init` | Initialize agent session with Uno development rules |
+| Tool                                      | Purpose                                              |
+| ----------------------------------------- | ---------------------------------------------------- |
+| `mcp__uno__uno_platform_docs_search`      | Search Uno Platform documentation by query           |
+| `mcp__uno__uno_platform_docs_fetch`       | Fetch full content of a specific documentation page  |
+| `mcp__uno__uno_platform_agent_rules_init` | Initialize agent session with Uno development rules  |
 | `mcp__uno__uno_platform_usage_rules_init` | Load common usage rules for Uno Platform development |
 
 ### Detection Logic
 
-Check if Uno MCP tools are available by looking for tools with the `mcp__uno__` prefix. If the tools are listed in the available tool set, the MCP server is configured and reachable.
+Check if Uno MCP tools are available by looking for tools with the `mcp__uno__` prefix. If the tools are listed in the
+available tool set, the MCP server is configured and reachable.
 
-```text
+````text
 
 Detection steps:
 1. Check if tools prefixed with mcp__uno__ are available
@@ -369,3 +375,4 @@ When MCP is unavailable, the following `UnoFeatures` values are supported in `.c
 - [Uno Platform Documentation](https://platform.uno/docs/)
 - [MCP Protocol Specification](https://modelcontextprotocol.io/)
 - [Uno Platform GitHub](https://github.com/unoplatform/uno)
+````

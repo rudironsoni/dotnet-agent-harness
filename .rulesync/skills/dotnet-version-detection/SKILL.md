@@ -2,20 +2,20 @@
 name: dotnet-version-detection
 description: Detects TFM/SDK from .csproj, global.json, Directory.Build.props. Runs first.
 license: MIT
-targets: ["*"]
-tags: ["csharp", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['csharp', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
   model: haiku
 codexcli:
-  short-description: ".NET skill guidance for csharp tasks"
+  short-description: '.NET skill guidance for csharp tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
-```! dotnet --version 2>/dev/null
+````! dotnet --version 2>/dev/null
 
 
 ```bash
@@ -349,7 +349,7 @@ This reference data maps .NET versions to their C# language versions, key featur
   List<int> nums = [with(capacity: 32), 0, ..evens, ..odds];
   HashSet<string> names = [with(comparer: StringComparer.OrdinalIgnoreCase), "Alice"];
 
-  ```
+````
 
 - Additional features expected as .NET 11 progresses through preview
 
@@ -357,7 +357,8 @@ This reference data maps .NET versions to their C# language versions, key featur
 
 These features are available when `net11.0` TFM is detected with preview features enabled:
 
-- **Runtime-async**: Async/await at runtime level (requires `<EnablePreviewFeatures>true</EnablePreviewFeatures>` + `<Features>$(Features);runtime-async=on</Features>`)
+- **Runtime-async**: Async/await at runtime level (requires `<EnablePreviewFeatures>true</EnablePreviewFeatures>` +
+  `<Features>$(Features);runtime-async=on</Features>`)
 - **Zstandard compression**: `System.IO.Compression.Zstandard` (2-7x faster than Brotli/Deflate)
 - **BFloat16**: `System.Numerics.BFloat16` for AI/ML workloads
 - **Happy Eyeballs**: `ConnectAlgorithm.Parallel` for dual-stack networking

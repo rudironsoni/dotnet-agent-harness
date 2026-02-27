@@ -63,7 +63,7 @@ Four directive types are supported:
 
 Adds a NuGet package reference. Specify the package name, optionally followed by `@version`.
 
-```csharp
+````csharp
 
 #:package Newtonsoft.Json
 #:package Serilog@3.1.1
@@ -444,3 +444,4 @@ File-based apps differ from project-based apps in several default settings:
 - [Native AOT deployment](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/)
 - [Central Package Management](https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management)
 - [MSBuild property functions](https://learn.microsoft.com/en-us/visualstudio/msbuild/property-functions)
+````

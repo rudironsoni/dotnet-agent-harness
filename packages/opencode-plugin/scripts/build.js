@@ -18,11 +18,11 @@ const BUNDLED_DIR = path.join(__dirname, '..', 'bundled');
 
 // Map from generated opencode dir name -> bundled dir name
 const CONTENT_DIRS = [
-  { src: 'agent',    dest: 'agent' },
-  { src: 'command',  dest: 'command' },
-  { src: 'skill',    dest: 'skill' },
+  { src: 'agent', dest: 'agent' },
+  { src: 'command', dest: 'command' },
+  { src: 'skill', dest: 'skill' },
   { src: 'memories', dest: 'memories' },
-  { src: 'plugins',  dest: 'plugins' },
+  { src: 'plugins', dest: 'plugins' },
 ];
 
 /**
@@ -31,21 +31,21 @@ const CONTENT_DIRS = [
 async function build() {
   console.log('Building OpenCode plugin...');
   console.log(`Project root: ${PROJECT_ROOT}`);
-  
+
   // Clean and create bundled directory
   if (fs.existsSync(BUNDLED_DIR)) {
     fs.rmSync(BUNDLED_DIR, { recursive: true });
   }
   fs.mkdirSync(BUNDLED_DIR, { recursive: true });
-  
+
   // Generate OpenCode output first
   console.log('Generating OpenCode output...');
   const { execSync } = require('child_process');
   execSync('npx rulesync generate --targets opencode --features "*"', {
     cwd: PROJECT_ROOT,
-    stdio: 'inherit'
+    stdio: 'inherit',
   });
-  
+
   // Copy each content directory
   for (const { src, dest } of CONTENT_DIRS) {
     const srcPath = path.join(PROJECT_ROOT, '.opencode', src);
@@ -57,17 +57,17 @@ async function build() {
       console.log(`Copied ${src}: ${count} entries`);
     }
   }
-  
+
   console.log('Build complete!');
 }
 
 function copyDir(src, dest) {
   const entries = fs.readdirSync(src, { withFileTypes: true });
-  
+
   for (const entry of entries) {
     const srcPath = path.join(src, entry.name);
     const destPath = path.join(dest, entry.name);
-    
+
     if (entry.isDirectory()) {
       fs.mkdirSync(destPath, { recursive: true });
       copyDir(srcPath, destPath);

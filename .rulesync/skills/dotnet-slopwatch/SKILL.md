@@ -2,23 +2,24 @@
 name: dotnet-slopwatch
 description: Runs Slopwatch CLI to detect LLM reward hacking -- disabled tests, suppressed warnings.
 license: MIT
-targets: ["*"]
-tags: ["foundation", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['foundation', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for foundation tasks"
+  short-description: '.NET skill guidance for foundation tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-slopwatch
 
 Slopwatch: LLM Anti-Cheat Quality Gate for .NET
 
-Run the `Slopwatch.Cmd` dotnet tool as an automated quality gate after code modifications to detect "slop" -- shortcuts that make builds/tests pass without fixing real problems.
+Run the `Slopwatch.Cmd` dotnet tool as an automated quality gate after code modifications to detect "slop" -- shortcuts
+that make builds/tests pass without fixing real problems.
 
 ## Scope
 
@@ -46,7 +47,7 @@ Cross-references: [skill:dotnet-tool-management] for general dotnet tool install
 
 Add to `.config/dotnet-tools.json`:
 
-```json
+````json
 
 {
   "version": 1,
@@ -329,3 +330,4 @@ slopwatch analyze --update-baseline
 - [skill:dotnet-tool-management] -- dotnet tool installation and manifest conventions
 - [skill:dotnet-agent-gotchas] -- manual slop pattern recognition (visual detection counterpart)
 - [skill:dotnet-test-quality] -- test coverage and quality measurement
+````

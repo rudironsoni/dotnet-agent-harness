@@ -4,9 +4,10 @@ You can configure Rulesync by creating a `rulesync.jsonc` file in the root of yo
 
 ## JSON Schema Support
 
-Rulesync provides a JSON Schema for editor validation and autocompletion. Add the `$schema` property to your `rulesync.jsonc`:
+Rulesync provides a JSON Schema for editor validation and autocompletion. Add the `$schema` property to your
+`rulesync.jsonc`:
 
-```jsonc
+````jsonc
 
 // rulesync.jsonc
 {
@@ -165,3 +166,4 @@ If you want `agentsmd`'s output instead, reverse the order:
 }
 
 ```text
+````

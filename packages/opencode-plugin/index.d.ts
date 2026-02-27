@@ -1,6 +1,6 @@
 /**
  * dotnet-agent-harness OpenCode Plugin
- * 
+ *
  * Type definitions for the OpenCode plugin
  */
 

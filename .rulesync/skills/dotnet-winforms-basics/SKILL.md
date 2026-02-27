@@ -2,23 +2,26 @@
 name: dotnet-winforms-basics
 description: Builds WinForms on .NET 8+. High-DPI, dark mode (experimental), DI patterns, modernization.
 license: MIT
-targets: ["*"]
-tags: ["ui", "dotnet", "skill"]
-version: "0.0.1"
-author: "dotnet-agent-harness"
+targets: ['*']
+tags: ['ui', 'dotnet', 'skill']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
 claudecode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: ".NET skill guidance for ui tasks"
+  short-description: '.NET skill guidance for ui tasks'
 opencode:
-  allowed-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
 # dotnet-winforms-basics
 
-WinForms on .NET 8+: updated project templates with Host builder and DI, high-DPI support with `PerMonitorV2`, dark mode via `Application.SetColorMode` (experimental in .NET 9, targeting finalization in .NET 11), when to use WinForms, modernization tips for migrating from .NET Framework, and common agent pitfalls.
+WinForms on .NET 8+: updated project templates with Host builder and DI, high-DPI support with `PerMonitorV2`, dark mode
+via `Application.SetColorMode` (experimental in .NET 9, targeting finalization in .NET 11), when to use WinForms,
+modernization tips for migrating from .NET Framework, and common agent pitfalls.
 
-**Version assumptions:** .NET 8.0+ baseline (current LTS). TFM `net8.0-windows`. .NET 9 features (dark mode experimental) explicitly marked. .NET 11 finalization targets noted.
+**Version assumptions:** .NET 8.0+ baseline (current LTS). TFM `net8.0-windows`. .NET 9 features (dark mode
+experimental) explicitly marked. .NET 11 finalization targets noted.
 
 ## Scope
 
@@ -36,17 +39,20 @@ WinForms on .NET 8+: updated project templates with Host builder and DI, high-DP
 - General Native AOT patterns -- see [skill:dotnet-native-aot]
 - UI framework selection -- see [skill:dotnet-ui-chooser]
 
-Cross-references: [skill:dotnet-ui-testing-core] for desktop testing, [skill:dotnet-wpf-modern] for WPF patterns, [skill:dotnet-winui] for WinUI 3 patterns, [skill:dotnet-wpf-migration] for migration guidance, [skill:dotnet-native-aot] for general AOT, [skill:dotnet-ui-chooser] for framework selection.
+Cross-references: [skill:dotnet-ui-testing-core] for desktop testing, [skill:dotnet-wpf-modern] for WPF patterns,
+[skill:dotnet-winui] for WinUI 3 patterns, [skill:dotnet-wpf-migration] for migration guidance,
+[skill:dotnet-native-aot] for general AOT, [skill:dotnet-ui-chooser] for framework selection.
 
 ---
 
 ## .NET 8+ Differences
 
-WinForms on .NET 8+ is a significant modernization from .NET Framework WinForms, with an SDK-style project format, DI support, and updated APIs.
+WinForms on .NET 8+ is a significant modernization from .NET Framework WinForms, with an SDK-style project format, DI
+support, and updated APIs.
 
 ### New Project Template
 
-```xml
+````xml
 
 <!-- MyWinFormsApp.csproj (SDK-style) -->
 <Project Sdk="Microsoft.NET.Sdk">
@@ -484,3 +490,4 @@ public class ProductService(HttpClient httpClient) : IProductService
 - [.NET Upgrade Assistant](https://learn.microsoft.com/en-us/dotnet/core/porting/upgrade-assistant-overview)
 - [WinForms Dark Mode (.NET 9)](https://devblogs.microsoft.com/dotnet/winforms-dark-mode/)
 - [Microsoft.Extensions.Hosting](https://learn.microsoft.com/en-us/dotnet/core/extensions/generic-host)
+````

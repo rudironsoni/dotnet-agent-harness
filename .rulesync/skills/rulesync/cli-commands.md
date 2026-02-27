@@ -2,7 +2,7 @@
 
 ## Quick Commands
 
-```bash
+````bash
 
 # Initialize new project (recommended: organized rules structure)
 rulesync init
@@ -131,3 +131,4 @@ rulesync fetch owner/repo --conflict skip
 rulesync fetch owner/repo:packages/my-package
 
 ```text
+````
