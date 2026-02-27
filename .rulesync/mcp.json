@@ -34,6 +34,11 @@
       "command": "uvx",
       "args": ["--from", "git+https://github.com/svnscha/mcp-windbg@v0.12.2", "mcp-windbg"],
       "env": {}
+    },
+    "deepwiki": {
+      "description": "DeepWiki MCP for documentation access",
+      "type": "http",
+      "url": "https://mcp.deepwiki.com/mcp"
     }
   }
 }

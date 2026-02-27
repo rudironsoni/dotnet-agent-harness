@@ -3,7 +3,7 @@
   "targets": ["claudecode", "copilot", "opencode", "geminicli", "codexcli", "antigravity"],
   "features": {
     "claudecode": ["rules", "ignore", "mcp", "commands", "subagents", "skills", "hooks"],
-    "copilot": ["rules", "mcp", "commands", "subagents", "skills"],
+    "copilot": ["rules", "mcp", "commands", "subagents", "skills", "hooks"],
     "opencode": ["rules", "mcp", "commands", "subagents", "skills", "hooks"],
     "geminicli": ["rules", "ignore", "mcp", "commands", "skills"],
     "codexcli": ["rules", "mcp", "subagents", "skills"],
