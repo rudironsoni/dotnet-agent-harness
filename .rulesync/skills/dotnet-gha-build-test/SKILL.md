@@ -52,6 +52,7 @@ artifact upload path adjustments when using centralized build output layout.
 ### Basic Setup
 
 ```yaml
+
 steps:
   - uses: actions/checkout@v4
 
@@ -59,20 +60,23 @@ steps:
     uses: actions/setup-dotnet@v4
     with:
       dotnet-version: '8.0.x'
-```
+
+```text
 
 ### Multi-Version Install
 
 Install multiple SDK versions for multi-TFM builds within a single job:
 
 ```yaml
+
 - name: Setup .NET SDKs
   uses: actions/setup-dotnet@v4
   with:
     dotnet-version: |
       8.0.x
       9.0.x
-```
+
+```text
 
 The first listed version becomes the default `dotnet` on PATH. All installed versions are available via `--framework`
 targeting.
@@ -82,6 +86,7 @@ targeting.
 Configure NuGet source authentication via `actions/setup-dotnet@v4`:
 
 ```yaml
+
 - name: Setup .NET with NuGet auth
   uses: actions/setup-dotnet@v4
   with:
@@ -89,11 +94,13 @@ Configure NuGet source authentication via `actions/setup-dotnet@v4`:
     source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
   env:
     NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
+
+```json
 
 For multiple private feeds, configure additional sources after setup:
 
 ```yaml
+
 - name: Setup .NET
   uses: actions/setup-dotnet@v4
   with:
@@ -107,7 +114,8 @@ For multiple private feeds, configure additional sources after setup:
       --username az \
       --password ${{ secrets.AZURE_ARTIFACTS_PAT }} \
       --store-password-in-clear-text
-```
+
+```text
 
 The `--store-password-in-clear-text` flag is required on Linux runners where DPAPI encryption is unavailable.
 
@@ -116,11 +124,13 @@ The `--store-password-in-clear-text` flag is required on Linux runners where DPA
 When `global.json` exists in the repository root, `actions/setup-dotnet@v4` can read it automatically:
 
 ```yaml
+
 - name: Setup .NET from global.json
   uses: actions/setup-dotnet@v4
   with:
     global-json-file: global.json
-```
+
+```json
 
 This ensures CI uses the same SDK version as local development.
 
@@ -131,6 +141,7 @@ This ensures CI uses the same SDK version as local development.
 ### Standard Cache Configuration
 
 ```yaml
+
 - name: Cache NuGet packages
   uses: actions/cache@v4
   with:
@@ -141,20 +152,23 @@ This ensures CI uses the same SDK version as local development.
 
 - name: Restore dependencies
   run: dotnet restore MySolution.sln
-```
+
+```text
 
 ### Built-in Cache with setup-dotnet
 
 `actions/setup-dotnet@v4` has built-in caching support using `packages.lock.json`:
 
 ```yaml
+
 - name: Setup .NET with caching
   uses: actions/setup-dotnet@v4
   with:
     dotnet-version: '8.0.x'
     cache: true
     cache-dependency-path: '**/packages.lock.json'
-```
+
+```json
 
 Generate lock files locally first: `dotnet restore --use-lock-file`. Commit `packages.lock.json` files for deterministic
 restore.
@@ -177,6 +191,7 @@ restore.
 Publish `dotnet test` results as GitHub Actions check annotations with inline failure details:
 
 ```yaml
+
 - name: Test
   run: |
     set -euo pipefail
@@ -195,7 +210,8 @@ Publish `dotnet test` results as GitHub Actions check annotations with inline fa
     path: 'test-results/**/*.trx'
     reporter: dotnet-trx
     fail-on-error: true
-```
+
+```text
 
 **Key decisions:**
 
@@ -208,13 +224,15 @@ Publish `dotnet test` results as GitHub Actions check annotations with inline fa
 For richer PR comment integration with test counts:
 
 ```yaml
+
 - name: Publish test results
   uses: EnricoMi/publish-unit-test-result-action@v2
   if: always()
   with:
     files: 'test-results/**/*.trx'
     check_name: 'Test Results'
-```
+
+```text
 
 ---
 
@@ -223,6 +241,7 @@ For richer PR comment integration with test counts:
 ### Codecov
 
 ```yaml
+
 - name: Test with coverage
   run: |
     set -euo pipefail
@@ -237,11 +256,13 @@ For richer PR comment integration with test counts:
     directory: ./coverage
     fail_ci_if_error: false
     token: ${{ secrets.CODECOV_TOKEN }}
-```
+
+```text
 
 ### Coveralls
 
 ```yaml
+
 - name: Test with coverage
   run: |
     set -euo pipefail
@@ -256,13 +277,15 @@ For richer PR comment integration with test counts:
     file: coverage/**/coverage.cobertura.xml
     format: cobertura
     github-token: ${{ secrets.GITHUB_TOKEN }}
-```
+
+```xml
 
 ### Coverage Report Generation with ReportGenerator
 
 Generate human-readable HTML coverage reports alongside CI upload:
 
 ```yaml
+
 - name: Generate coverage report
   run: |
     set -euo pipefail
@@ -278,7 +301,8 @@ Generate human-readable HTML coverage reports alongside CI upload:
     name: coverage-report
     path: coverage-report/
     retention-days: 30
-```
+
+```text
 
 ---
 
@@ -287,6 +311,7 @@ Generate human-readable HTML coverage reports alongside CI upload:
 ### Matrix Strategy for TFMs
 
 ```yaml
+
 jobs:
   test:
     strategy:
@@ -329,13 +354,15 @@ jobs:
           name: 'Tests (${{ matrix.os }} / ${{ matrix.tfm }})'
           path: 'test-results/**/*.trx'
           reporter: dotnet-trx
-```
+
+```text
 
 ### Install All Required SDKs
 
 When running multi-TFM tests in a single job instead of a matrix, install all required SDKs upfront:
 
 ```yaml
+
 - name: Setup .NET SDKs
   uses: actions/setup-dotnet@v4
   with:
@@ -345,7 +372,8 @@ When running multi-TFM tests in a single job instead of a matrix, install all re
 
 - name: Test all TFMs
   run: dotnet test MySolution.sln --configuration Release
-```
+
+```text
 
 Without the matching SDK installed, `dotnet test` cannot build for that TFM and fails with `NETSDK1045`.
 
@@ -358,6 +386,7 @@ Without the matching SDK installed, `dotnet test` cannot build for that TFM and 
 For large test suites, split test projects across parallel runners to reduce total CI time:
 
 ```yaml
+
 jobs:
   discover:
     runs-on: ubuntu-latest
@@ -402,13 +431,15 @@ jobs:
           name: 'Tests - ${{ matrix.project }}'
           path: 'test-results/**/*.trx'
           reporter: dotnet-trx
-```
+
+```text
 
 ### Sharding by Test Class Within a Project
 
 For a single large test project, use `dotnet test --filter` to split by namespace:
 
 ```yaml
+
 jobs:
   test:
     strategy:
@@ -432,7 +463,8 @@ jobs:
             --filter "FullyQualifiedName~${{ matrix.shard }}" \
             --logger "trx;LogFileName=${{ matrix.shard }}-results.trx" \
             --results-directory ./test-results
-```
+
+```text
 
 ---
 

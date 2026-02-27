@@ -54,6 +54,7 @@ point -- all modifications to the aggregate pass through it.
 Entities have identity that persists across state changes. Use a base class to standardize identity and equality:
 
 ```csharp
+
 public abstract class Entity<TId> : IEquatable<Entity<TId>>
     where TId : notnull
 {
@@ -81,13 +82,15 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>
     public static bool operator !=(Entity<TId>? left, Entity<TId>? right) =>
         !Equals(left, right);
 }
-```
+
+```text
 
 ### Aggregate Root Base Class
 
 The aggregate root extends `Entity` and collects domain events:
 
 ```csharp
+
 public abstract class AggregateRoot<TId> : Entity<TId>
     where TId : notnull
 {
@@ -104,11 +107,13 @@ public abstract class AggregateRoot<TId> : Entity<TId>
 
     public void ClearDomainEvents() => _domainEvents.Clear();
 }
-```
+
+```text
 
 ### Concrete Aggregate Example
 
 ```csharp
+
 public sealed class Order : AggregateRoot<Guid>
 {
     public CustomerId CustomerId { get; private set; } = default!;
@@ -162,7 +167,8 @@ public sealed class Order : AggregateRoot<Guid>
             Money.Zero(Total.Currency),
             (sum, line) => sum.Add(line.LineTotal));
 }
-```
+
+```text
 
 ### Aggregate Design Rules
 
@@ -187,6 +193,7 @@ are equal. In C#, `record` and `record struct` provide natural value semantics.
 ### Record-Based Value Objects
 
 ```csharp
+
 // Simple value object -- wraps a primitive to enforce constraints
 public sealed record CustomerId
 {
@@ -229,13 +236,15 @@ public sealed record Address
         Country = country;
     }
 }
-```
+
+```text
 
 ### Money Value Object
 
 Money is the canonical example of a multi-field value object with behavior:
 
 ```csharp
+
 public sealed record Money
 {
     public decimal Amount { get; }
@@ -279,13 +288,15 @@ public sealed record Money
 
     public override string ToString() => $"{Amount:F2} {Currency}";
 }
-```
+
+```text
 
 ### Value Object EF Core Mapping
 
 Map value objects using owned types or value conversions (implementation in [skill:dotnet-efcore-architecture]):
 
 ```csharp
+
 // Owned type -- maps to columns in the parent table
 builder.OwnsOne(o => o.Total, money =>
 {
@@ -300,7 +311,8 @@ builder.Property(o => o.CustomerId)
         id => id.Value,
         value => new CustomerId(value))
     .HasMaxLength(50);
-```
+
+```text
 
 ### When to Use Value Objects
 
@@ -320,6 +332,7 @@ and trigger side effects (sending emails, updating read models, publishing integ
 ### Event Contracts
 
 ```csharp
+
 // Marker interface for all domain events
 public interface IDomainEvent
 {
@@ -343,7 +356,8 @@ public sealed record OrderSubmitted(
 
 public sealed record OrderCancelled(
     Guid OrderId, string Reason) : DomainEventBase;
-```
+
+```text
 
 ### Dispatching Domain Events
 
@@ -351,6 +365,7 @@ Dispatch events after `SaveChangesAsync` succeeds to ensure the aggregate state 
 execute:
 
 ```csharp
+
 public sealed class DomainEventDispatcher(
     IServiceProvider serviceProvider)
 {
@@ -384,13 +399,15 @@ public interface IDomainEventHandler<in TEvent>
 {
     Task HandleAsync(TEvent domainEvent, CancellationToken ct);
 }
-```
+
+```text
 
 ### Saving with Event Dispatch
 
 Use an EF Core `SaveChangesInterceptor` or a wrapper to dispatch events after save:
 
 ```csharp
+
 public sealed class EventDispatchingSaveChangesInterceptor(
     DomainEventDispatcher dispatcher)
     : SaveChangesInterceptor
@@ -423,7 +440,8 @@ public sealed class EventDispatchingSaveChangesInterceptor(
         return result;
     }
 }
-```
+
+```text
 
 ### Domain Events vs Integration Events
 
@@ -439,6 +457,7 @@ A domain event handler may publish an integration event to a message broker. See
 integration event infrastructure.
 
 ```csharp
+
 // Domain event handler that publishes an integration event
 public sealed class OrderSubmittedHandler(
     IPublishEndpoint publishEndpoint)
@@ -456,7 +475,8 @@ public sealed class OrderSubmittedHandler(
             ct);
     }
 }
-```
+
+```text
 
 ---
 
@@ -467,6 +487,7 @@ public sealed class OrderSubmittedHandler(
 Business logic lives inside the domain entities. Methods enforce invariants and return meaningful results:
 
 ```csharp
+
 public sealed class ShoppingCart : AggregateRoot<Guid>
 {
     private readonly List<CartItem> _items = [];
@@ -500,13 +521,15 @@ public sealed class ShoppingCart : AggregateRoot<Guid>
             Money.Zero(currency),
             (sum, item) => sum.Add(item.LineTotal));
 }
-```
+
+```text
 
 ### Anemic Domain Model (Anti-Pattern)
 
 Entities are data bags with public setters. Business logic lives in external services:
 
 ```csharp
+
 // ANTI-PATTERN: Entity is just a data container
 public class ShoppingCart
 {
@@ -527,7 +550,8 @@ public class ShoppingCartService
             cart.Items.Add(new CartItem { ... });
     }
 }
-```
+
+```text
 
 ### Decision Guide
 
@@ -550,6 +574,7 @@ Domain services encapsulate business logic that does not naturally belong to a s
 operate on domain types and enforce cross-aggregate rules.
 
 ```csharp
+
 public sealed class PricingService
 {
     public Money CalculateDiscount(
@@ -581,7 +606,8 @@ public sealed class PricingService
         return discount;
     }
 }
-```
+
+```text
 
 ### When to Use Domain Services
 
@@ -600,6 +626,7 @@ Repository interfaces belong in the **domain layer** and express aggregate loadi
 details (EF Core, Dapper) live in the infrastructure layer.
 
 ```csharp
+
 // Domain layer -- defines the contract
 public interface IOrderRepository
 {
@@ -613,7 +640,8 @@ public interface IUnitOfWork
 {
     Task<int> SaveChangesAsync(CancellationToken ct);
 }
-```
+
+```text
 
 For EF Core repository implementations, see [skill:dotnet-efcore-architecture].
 
@@ -634,6 +662,7 @@ For EF Core repository implementations, see [skill:dotnet-efcore-architecture].
 Use domain-specific exceptions to signal invariant violations. This separates domain errors from infrastructure errors:
 
 ```csharp
+
 public class DomainException : Exception
 {
     public DomainException(string message) : base(message) { }
@@ -652,7 +681,8 @@ public sealed class InsufficientStockException(
     public int Requested => requested;
     public int Available => available;
 }
-```
+
+```text
 
 Map domain exceptions to HTTP responses at the API boundary (e.g., `DomainException` to 422 Unprocessable Entity). Do
 not let infrastructure concerns like HTTP status codes leak into the domain layer.

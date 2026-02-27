@@ -50,10 +50,12 @@ Cross-references: [skill:dotnet-cli-architecture] for CLI design patterns, [skil
 ## Package Reference
 
 ```xml
+
 <ItemGroup>
   <PackageReference Include="System.CommandLine" Version="2.0.*" />
 </ItemGroup>
-```
+
+```bash
 
 System.CommandLine 2.0 targets .NET 8+ and .NET Standard 2.0. A single package provides all functionality -- the separate `System.CommandLine.Hosting`, `System.CommandLine.NamingConventionBinder`, and `System.CommandLine.Rendering` packages from the beta era are discontinued.
 
@@ -64,6 +66,7 @@ System.CommandLine 2.0 targets .NET 8+ and .NET Standard 2.0. A single package p
 ### Basic Command Structure
 
 ```csharp
+
 using System.CommandLine;
 
 // Root command -- the entry point
@@ -80,11 +83,13 @@ var downCommand = new Command("down", "Revert last migration");
 migrateCommand.Subcommands.Add(upCommand);
 migrateCommand.Subcommands.Add(downCommand);
 rootCommand.Subcommands.Add(migrateCommand);
-```
+
+```bash
 
 ### Collection Initializer Syntax
 
 ```csharp
+
 // Fluent collection initializer (commands, options, arguments)
 RootCommand rootCommand = new("My CLI tool")
 {
@@ -95,7 +100,8 @@ RootCommand rootCommand = new("My CLI tool")
         new Option<int>("--limit") { Description = "Max items to return" }
     }
 };
-```
+
+```text
 
 ---
 
@@ -104,6 +110,7 @@ RootCommand rootCommand = new("My CLI tool")
 ### Option\<T\> -- Named Parameters
 
 ```csharp
+
 // Option<T> -- named parameter (--output, -o)
 // name is the first parameter; additional params are aliases
 var outputOption = new Option<FileInfo>("--output", "-o")
@@ -118,11 +125,13 @@ var verbosityOption = new Option<int>("--verbosity")
     Description = "Verbosity level (0-3)",
     DefaultValueFactory = _ => 1
 };
-```
+
+```text
 
 ### Argument\<T\> -- Positional Parameters
 
 ```csharp
+
 // Argument<T> -- positional parameter
 // name is mandatory in 2.0 (used for help text)
 var fileArgument = new Argument<FileInfo>("file")
@@ -131,11 +140,13 @@ var fileArgument = new Argument<FileInfo>("file")
 };
 
 rootCommand.Arguments.Add(fileArgument);
-```
+
+```bash
 
 ### Constrained Values
 
 ```csharp
+
 var formatOption = new Option<string>("--format")
 {
     Description = "Output format"
@@ -143,11 +154,13 @@ var formatOption = new Option<string>("--format")
 formatOption.AcceptOnlyFromAmong("json", "csv", "table");
 
 rootCommand.Options.Add(formatOption);
-```
+
+```bash
 
 ### Aliases
 
 ```csharp
+
 // Aliases are separate from the name in 2.0
 // First constructor param is the name; rest are aliases
 var verboseOption = new Option<bool>("--verbose", "-v")
@@ -157,11 +170,13 @@ var verboseOption = new Option<bool>("--verbose", "-v")
 
 // Or add aliases after construction
 verboseOption.Aliases.Add("-V");
-```
+
+```text
 
 ### Global Options
 
 ```csharp
+
 // Global options are inherited by all subcommands
 var debugOption = new Option<bool>("--debug")
 {
@@ -169,7 +184,8 @@ var debugOption = new Option<bool>("--debug")
     Recursive = true  // makes it global (inherited by subcommands)
 };
 rootCommand.Options.Add(debugOption);
-```
+
+```bash
 
 ---
 
@@ -180,6 +196,7 @@ In 2.0.0 GA, `SetHandler` is replaced by `SetAction`. Actions receive a `ParseRe
 ### Synchronous Action
 
 ```csharp
+
 var outputOption = new Option<FileInfo>("--output", "-o")
 {
     Description = "Output file path",
@@ -200,11 +217,13 @@ rootCommand.SetAction(parseResult =>
     Console.WriteLine($"Output: {output.FullName}, Verbosity: {verbosity}");
     return 0; // exit code
 });
-```
+
+```text
 
 ### Asynchronous Action with CancellationToken
 
 ```csharp
+
 // Async actions receive ParseResult AND CancellationToken
 rootCommand.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
 {
@@ -213,11 +232,13 @@ rootCommand.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
     await ProcessAsync(output, verbosity, ct);
     return 0;
 });
-```
+
+```text
 
 ### Getting Values by Name
 
 ```csharp
+
 // Values can also be retrieved by symbol name (requires type parameter)
 rootCommand.SetAction(parseResult =>
 {
@@ -225,11 +246,13 @@ rootCommand.SetAction(parseResult =>
     string? message = parseResult.GetValue<string>("--message");
     Console.WriteLine($"Delay: {delay}, Message: {message}");
 });
-```
+
+```text
 
 ### Parsing and Invoking
 
 ```csharp
+
 // Program.cs entry point -- parse then invoke
 static int Main(string[] args)
 {
@@ -245,11 +268,13 @@ static async Task<int> Main(string[] args)
     ParseResult parseResult = rootCommand.Parse(args);
     return await parseResult.InvokeAsync();
 }
-```
+
+```bash
 
 ### Parse Without Invoking
 
 ```csharp
+
 // Parse-only mode: inspect results without running actions
 ParseResult parseResult = rootCommand.Parse(args);
 if (parseResult.Errors.Count > 0)
@@ -263,7 +288,8 @@ if (parseResult.Errors.Count > 0)
 
 FileInfo? file = parseResult.GetValue(fileOption);
 // Process directly without SetAction
-```
+
+```text
 
 ---
 

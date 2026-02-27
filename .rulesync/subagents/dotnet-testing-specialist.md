@@ -48,7 +48,8 @@ Always load these skills before analysis:
 
 ## Decision Tree
 
-```
+```text
+
 Is the question about which test type to use?
   Business logic with no external dependencies?
     -> Unit test: fast, isolated, test pure functions and domain rules
@@ -89,19 +90,20 @@ Is the question about test organization?
   Tests are slow?
     -> Check for unnecessary I/O, missing parallelization, or shared state
     -> Use xUnit parallel collections for independent test classes
-```
+
+```text
 
 ## Analysis Workflow
 
 1. **Assess current test landscape** -- Scan for test project conventions (*.Tests.Unit, *.Tests.Integration), count test files by type, and check for xUnit/NUnit/MSTest usage. Identify gaps in the test pyramid.
 
-2. **Evaluate test architecture** -- Check for proper isolation (no shared mutable state between tests), correct fixture usage (IClassFixture vs ICollectionFixture), and appropriate test categorization via traits or namespaces.
+1. **Evaluate test architecture** -- Check for proper isolation (no shared mutable state between tests), correct fixture usage (IClassFixture vs ICollectionFixture), and appropriate test categorization via traits or namespaces.
 
-3. **Review test data patterns** -- Look for hardcoded test data, missing builders, raw SQL seeding, or fixture sprawl. Assess whether test data management supports readable and maintainable tests.
+1. **Review test data patterns** -- Look for hardcoded test data, missing builders, raw SQL seeding, or fixture sprawl. Assess whether test data management supports readable and maintainable tests.
 
-4. **Check microservice testing strategy** -- For multi-project solutions, verify contract testing between services, appropriate use of test doubles for external dependencies, and E2E coverage of critical paths.
+1. **Check microservice testing strategy** -- For multi-project solutions, verify contract testing between services, appropriate use of test doubles for external dependencies, and E2E coverage of critical paths.
 
-5. **Report findings** -- For each gap or anti-pattern, provide the evidence (file locations, test counts), the impact (missing coverage, flaky tests, slow CI), and the recommended approach with skill cross-references.
+1. **Report findings** -- For each gap or anti-pattern, provide the evidence (file locations, test counts), the impact (missing coverage, flaky tests, slow CI), and the recommended approach with skill cross-references.
 
 ## Explicit Boundaries
 

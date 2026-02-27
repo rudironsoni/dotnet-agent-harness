@@ -58,6 +58,7 @@ Use SHA-256/384/512 for integrity verification, checksums, and content-addressab
 passwords (see Key Derivation below).
 
 ```csharp
+
 using System.Security.Cryptography;
 
 // Hash a byte array
@@ -70,9 +71,11 @@ byte[] fileHash = await SHA256.HashDataAsync(stream);
 
 // Compare hashes securely (constant-time comparison prevents timing attacks)
 bool isEqual = CryptographicOperations.FixedTimeEquals(hash1, hash2);
-```
+
+```text
 
 ```csharp
+
 // HMAC for authenticated hashing (message authentication codes)
 byte[] key = RandomNumberGenerator.GetBytes(32); // 256-bit key
 byte[] mac = HMACSHA256.HashData(key, data);
@@ -83,7 +86,8 @@ if (!CryptographicOperations.FixedTimeEquals(mac, computedMac))
 {
     throw new CryptographicException("Message authentication failed");
 }
-```
+
+```text
 
 ---
 
@@ -93,6 +97,7 @@ AES-GCM is the recommended symmetric encryption for .NET. It provides both confi
 (authenticated encryption with associated data -- AEAD).
 
 ```csharp
+
 using System.Security.Cryptography;
 
 public static class AesGcmEncryptor
@@ -129,9 +134,11 @@ public static class AesGcmEncryptor
         return plaintext;
     }
 }
-```
+
+```text
 
 ```csharp
+
 // ASP.NET Core Data Protection API -- preferred for web application scenarios
 // Handles key management, rotation, and storage automatically
 using Microsoft.AspNetCore.DataProtection;
@@ -149,7 +156,8 @@ public sealed class TokenProtector(IDataProtectionProvider provider)
 builder.Services.AddDataProtection()
     .SetApplicationName("MyApp")
     .PersistKeysToFileSystem(new DirectoryInfo("/keys"));
-```
+
+```text
 
 ---
 
@@ -161,6 +169,7 @@ Use RSA for encryption of small payloads (key wrapping) and digital signatures. 
 for new systems.
 
 ```csharp
+
 using System.Security.Cryptography;
 
 // Generate an RSA key pair
@@ -178,13 +187,15 @@ bool valid = rsaPublic.VerifyData(data, signature, HashAlgorithmName.SHA256, RSA
 // Encrypt with OAEP padding (never use PKCS#1 v1.5 for new code)
 byte[] encrypted = rsaPublic.Encrypt(smallPayload, RSAEncryptionPadding.OaepSHA256);
 byte[] decrypted = rsa.Decrypt(encrypted, RSAEncryptionPadding.OaepSHA256);
-```
+
+```text
 
 ### ECDSA
 
 Prefer ECDSA over RSA for digital signatures in new projects -- smaller keys with equivalent security.
 
 ```csharp
+
 using System.Security.Cryptography;
 
 // Generate ECDSA key (P-256 = NIST curve, widely supported)
@@ -200,7 +211,8 @@ byte[] publicKey = ecdsa.ExportSubjectPublicKeyInfo();
 using var ecdsaPublic = ECDsa.Create();
 ecdsaPublic.ImportSubjectPublicKeyInfo(publicKey, out _);
 bool valid = ecdsaPublic.VerifyData(data, signature, HashAlgorithmName.SHA256);
-```
+
+```text
 
 ---
 
@@ -212,6 +224,7 @@ PBKDF2 is built into .NET and acceptable for password hashing. Use at least 600,
 recommendation).
 
 ```csharp
+
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 
@@ -267,7 +280,8 @@ public static class PasswordHasher
         return CryptographicOperations.FixedTimeEquals(expectedHash, actualHash);
     }
 }
-```
+
+```text
 
 ### Argon2 (via NuGet)
 
@@ -275,6 +289,7 @@ Argon2id is the recommended algorithm for password hashing when a NuGet dependen
 resisting GPU/ASIC attacks better than PBKDF2.
 
 ```csharp
+
 // Requires: <PackageReference Include="Konscious.Security.Cryptography.Argon2" Version="1.*" />
 using Konscious.Security.Cryptography;
 
@@ -289,7 +304,8 @@ public static byte[] HashWithArgon2(string password, byte[] salt)
     };
     return argon2.GetBytes(32); // 256-bit hash
 }
-```
+
+```text
 
 > Prefer ASP.NET Core Identity's `PasswordHasher<T>` for web applications -- it handles PBKDF2 with correct parameters
 > and format versioning automatically. Use custom hashing only for non-Identity scenarios.
@@ -316,6 +332,7 @@ ML-KEM replaces classical key exchange (ECDH) for establishing shared secrets. I
 (not marked `[Experimental]` at class level).
 
 ```csharp
+
 #if NET10_0_OR_GREATER
 using System.Security.Cryptography;
 
@@ -342,7 +359,8 @@ byte[] sharedSecret2 = privateKey.Decapsulate(ciphertext);
 // Both parties now have the same shared secret for symmetric encryption
 bool match = sharedSecret1.AsSpan().SequenceEqual(sharedSecret2);
 #endif
-```
+
+```text
 
 **Parameter sets:**
 
@@ -359,6 +377,7 @@ Prefer `MLKem768` for general use (balances security and performance).
 ML-DSA replaces RSA/ECDSA for quantum-resistant digital signatures.
 
 ```csharp
+
 #if NET10_0_OR_GREATER
 using System.Security.Cryptography;
 
@@ -384,7 +403,8 @@ using MLDsa publicKey = MLDsa.ImportMLDsaPublicKey(
     MLDsaAlgorithm.MLDsa65, publicKeyBytes);
 bool valid = publicKey.VerifyData(data, signature);
 #endif
-```
+
+```text
 
 **Parameter sets:**
 
@@ -401,6 +421,7 @@ when mathematical structure of lattice-based schemes (ML-DSA) is a concern. The 
 `[Experimental]` (SYSLIB5006) -- Windows has not yet added native support.
 
 ```csharp
+
 #if NET10_0_OR_GREATER
 using System.Security.Cryptography;
 
@@ -416,7 +437,8 @@ if (SlhDsa.IsSupported)
 }
 #pragma warning restore SYSLIB5006
 #endif
-```
+
+```text
 
 ### Fallback Strategy for net8.0/net9.0
 

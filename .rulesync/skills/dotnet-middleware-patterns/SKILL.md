@@ -49,6 +49,7 @@ causes subtle bugs (missing CORS headers, unhandled exceptions, auth bypasses).
 ### Recommended Order
 
 ```csharp
+
 var app = builder.Build();
 
 // 1. Exception handling (outermost -- catches everything below)
@@ -85,7 +86,8 @@ app.UseRequestLogging();
 // 10. Endpoint execution (terminal -- executes the matched endpoint)
 app.MapControllers();
 app.MapRazorPages();
-```
+
+```text
 
 ### Why Order Matters
 
@@ -106,6 +108,7 @@ pattern for reusable middleware.
 ### Basic Pattern
 
 ```csharp
+
 public sealed class RequestTimingMiddleware
 {
     private readonly RequestDelegate _next;
@@ -150,7 +153,8 @@ public static class RequestTimingMiddlewareExtensions
 
 // Usage in Program.cs
 app.UseRequestTiming();
-```
+
+```csharp
 
 ### Factory-Based (IMiddleware)
 
@@ -158,6 +162,7 @@ For middleware that requires scoped services, implement `IMiddleware`. This uses
 per-request instead of once at startup:
 
 ```csharp
+
 public sealed class TenantMiddleware : IMiddleware
 {
     private readonly TenantDbContext _db;
@@ -189,7 +194,8 @@ builder.Services.AddScoped<TenantMiddleware>();
 
 // Then register in pipeline
 app.UseMiddleware<TenantMiddleware>();
-```
+
+```text
 
 **Convention-based vs IMiddleware:**
 
@@ -209,6 +215,7 @@ For simple, one-off middleware logic, use `app.Use()`, `app.Map()`, or `app.Run(
 ### app.Use -- Pass-Through
 
 ```csharp
+
 // Adds a header to every response, then passes to next middleware
 app.Use(async (context, next) =>
 {
@@ -217,21 +224,25 @@ app.Use(async (context, next) =>
 
     await next(context);
 });
-```
+
+```text
 
 ### app.Run -- Terminal
 
 ```csharp
+
 // Terminal middleware -- does NOT call next
 app.Run(async context =>
 {
     await context.Response.WriteAsync("Fallback response");
 });
-```
+
+```text
 
 ### app.Map -- Branch by Path
 
 ```csharp
+
 // Branch the pipeline for requests matching /api/diagnostics
 app.Map("/api/diagnostics", diagnosticApp =>
 {
@@ -245,7 +256,8 @@ app.Map("/api/diagnostics", diagnosticApp =>
         await context.Response.WriteAsJsonAsync(data);
     });
 });
-```
+
+```json
 
 ---
 
@@ -257,6 +269,7 @@ feature flags.
 ### Request Validation
 
 ```csharp
+
 public sealed class ApiKeyMiddleware
 {
     private readonly RequestDelegate _next;
@@ -291,11 +304,13 @@ public sealed class ApiKeyMiddleware
         await _next(context);
     }
 }
-```
+
+```text
 
 ### Feature Flag Gate
 
 ```csharp
+
 app.UseWhen(
     context => context.Request.Path.StartsWithSegments("/beta"),
     betaApp =>
@@ -315,7 +330,8 @@ app.UseWhen(
             await next(context);
         });
     });
-```
+
+```text
 
 ---
 
@@ -326,6 +342,7 @@ app.UseWhen(
 The request body is a forward-only stream by default. Enable buffering to read it multiple times:
 
 ```csharp
+
 public sealed class RequestLoggingMiddleware
 {
     private readonly RequestDelegate _next;
@@ -360,13 +377,15 @@ public sealed class RequestLoggingMiddleware
         await _next(context);
     }
 }
-```
+
+```text
 
 ### Modifying the Response
 
 To capture or modify the response body, replace `context.Response.Body` with a `MemoryStream`:
 
 ```csharp
+
 public async Task InvokeAsync(HttpContext context)
 {
     var originalBodyStream = context.Response.Body;
@@ -385,7 +404,8 @@ public async Task InvokeAsync(HttpContext context)
     // Copy back to original stream
     await responseBody.CopyToAsync(originalBodyStream);
 }
-```
+
+```text
 
 **Caution:** Response body replacement adds memory overhead and should only be used for diagnostics or specific
 transformation requirements, not in high-throughput paths.
@@ -400,6 +420,7 @@ ASP.NET Core provides `UseExceptionHandler` for production-grade exception handl
 middleware:
 
 ```csharp
+
 app.UseExceptionHandler(exceptionApp =>
 {
     exceptionApp.Run(async context =>
@@ -425,7 +446,8 @@ app.UseExceptionHandler(exceptionApp =>
         });
     });
 });
-```
+
+```text
 
 ### IExceptionHandler (.NET 8+)
 
@@ -433,6 +455,7 @@ app.UseExceptionHandler(exceptionApp =>
 registered and are invoked in order until one handles the exception:
 
 ```csharp
+
 public sealed class ValidationExceptionHandler : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(
@@ -483,13 +506,15 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 app.UseExceptionHandler();
-```
+
+```text
 
 ### StatusCodePages for Non-Exception Errors
 
 For HTTP error status codes that are not caused by exceptions (404, 403), use `UseStatusCodePages`:
 
 ```csharp
+
 app.UseStatusCodePagesWithReExecute("/error/{0}");
 
 // Or inline
@@ -502,7 +527,8 @@ app.UseStatusCodePages(async context =>
         TraceId = context.HttpContext.TraceIdentifier
     });
 });
-```
+
+```text
 
 ---
 
@@ -513,6 +539,7 @@ app.UseStatusCodePages(async context =>
 `UseWhen` branches the pipeline based on a predicate. The branch rejoins the main pipeline after execution:
 
 ```csharp
+
 // Only apply rate limiting headers for API routes
 app.UseWhen(
     context => context.Request.Path.StartsWithSegments("/api"),
@@ -521,13 +548,15 @@ app.UseWhen(
         // Requires builder.Services.AddRateLimiter() in service registration
         apiApp.UseRateLimiter();
     });
-```
+
+```text
 
 ### MapWhen -- Conditional Branch (Does Not Rejoin)
 
 `MapWhen` creates a terminal branch that does not rejoin the main pipeline:
 
 ```csharp
+
 // Serve a special handler for WebSocket upgrade requests
 app.MapWhen(
     context => context.WebSockets.IsWebSocketRequest,
@@ -540,11 +569,13 @@ app.MapWhen(
             // Handle WebSocket connection
         });
     });
-```
+
+```text
 
 ### Environment-Specific Middleware
 
 ```csharp
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -556,7 +587,8 @@ else
     app.UseExceptionHandler("/error");
     app.UseHsts();
 }
-```
+
+```text
 
 ---
 

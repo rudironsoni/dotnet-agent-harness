@@ -48,6 +48,7 @@ authentication out of the box. It is the recommended starting point for applicat
 accounts.
 
 ```csharp
+
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options =>
 {
     // Password requirements
@@ -71,7 +72,8 @@ builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options =>
 var app = builder.Build();
 
 app.MapIdentityApi<ApplicationUser>(); // Maps /register, /login, /refresh, /manage endpoints
-```
+
+```text
 
 ### Identity API Endpoints (.NET 8+)
 
@@ -95,6 +97,7 @@ For applications that delegate authentication to an external identity provider (
 configure OIDC middleware.
 
 ```csharp
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -118,7 +121,8 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters.NameClaimType = "name";
     options.TokenValidationParameters.RoleClaimType = "roles";
 });
-```
+
+```text
 
 **Gotcha:** `MapInboundClaims = false` prevents the Microsoft OIDC handler from remapping standard JWT claims (e.g.,
 `sub` to `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier`). Set this to `false` to preserve the
@@ -131,6 +135,7 @@ original claim types from the identity provider.
 For API-only scenarios where the client sends a JWT in the `Authorization` header:
 
 ```csharp
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -157,11 +162,13 @@ app.UseAuthorization();
 app.MapGet("/api/profile", (ClaimsPrincipal user) =>
     TypedResults.Ok(new { Name = user.Identity?.Name }))
     .RequireAuthorization();
-```
+
+```text
 
 ### Policy-Based Authorization
 
 ```csharp
+
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminOnly", policy =>
         policy.RequireRole("Admin"))
@@ -170,7 +177,8 @@ builder.Services.AddAuthorizationBuilder()
     .SetFallbackPolicy(new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build());
-```
+
+```text
 
 ---
 
@@ -180,6 +188,7 @@ builder.Services.AddAuthorizationBuilder()
 cryptography and are phishing-resistant.
 
 ```csharp
+
 // .NET 10: Add passkey support to Identity
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options =>
 {
@@ -193,7 +202,8 @@ var app = builder.Build();
 
 app.MapIdentityApi<ApplicationUser>();
 // Passkey registration and authentication endpoints are added automatically
-```
+
+```text
 
 ### Passkey Registration Flow
 
@@ -220,6 +230,7 @@ Cross-Origin Resource Sharing (CORS) controls which origins can call your API. A
 never use `AllowAnyOrigin()` in production.
 
 ```csharp
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Production", policy =>
@@ -243,7 +254,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 app.UseCors(app.Environment.IsDevelopment() ? "Development" : "Production");
-```
+
+```text
 
 ### Common CORS Pitfalls
 
@@ -263,6 +275,7 @@ Content Security Policy headers prevent XSS, clickjacking, and other injection a
 the browser can load.
 
 ```csharp
+
 app.Use(async (context, next) =>
 {
     // API-focused CSP -- restrict all content sources
@@ -279,11 +292,13 @@ app.Use(async (context, next) =>
 
     await next();
 });
-```
+
+```text
 
 For APIs serving HTML responses (Razor Pages, Blazor Server), use a more permissive CSP with nonces:
 
 ```csharp
+
 app.Use(async (context, next) =>
 {
     var nonce = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
@@ -295,7 +310,8 @@ app.Use(async (context, next) =>
 
     await next();
 });
-```
+
+```text
 
 ---
 
@@ -307,6 +323,7 @@ are available: fixed window, sliding window, token bucket, and concurrency limit
 ### Fixed Window
 
 ```csharp
+
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("fixed", limiterOptions =>
@@ -323,11 +340,13 @@ app.UseRateLimiter();
 
 app.MapGet("/api/products", GetProducts)
     .RequireRateLimiting("fixed");
-```
+
+```text
 
 ### Sliding Window
 
 ```csharp
+
 builder.Services.AddRateLimiter(options =>
 {
     options.AddSlidingWindowLimiter("sliding", limiterOptions =>
@@ -338,11 +357,13 @@ builder.Services.AddRateLimiter(options =>
         limiterOptions.QueueLimit = 0;
     });
 });
-```
+
+```text
 
 ### Token Bucket
 
 ```csharp
+
 builder.Services.AddRateLimiter(options =>
 {
     options.AddTokenBucketLimiter("token", limiterOptions =>
@@ -353,11 +374,13 @@ builder.Services.AddRateLimiter(options =>
         limiterOptions.QueueLimit = 0;
     });
 });
-```
+
+```text
 
 ### Concurrency Limiter
 
 ```csharp
+
 builder.Services.AddRateLimiter(options =>
 {
     options.AddConcurrencyLimiter("concurrent", limiterOptions =>
@@ -367,11 +390,13 @@ builder.Services.AddRateLimiter(options =>
         limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });
 });
-```
+
+```text
 
 ### Per-User Rate Limiting
 
 ```csharp
+
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("per-user", httpContext =>
@@ -388,7 +413,8 @@ builder.Services.AddRateLimiter(options =>
             });
     });
 });
-```
+
+```text
 
 **Gotcha:** `UseRateLimiter()` must be called after `UseRouting()` and before `UseAuthorization()` and endpoint mapping
 to apply correctly.

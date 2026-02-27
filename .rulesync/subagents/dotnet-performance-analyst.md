@@ -39,28 +39,28 @@ Always load these skills before analysis:
 
 1. **Triage the symptom** -- Determine whether the performance problem is CPU-bound (high CPU, slow response), memory-bound (GC pressure, large heap, memory leak), I/O-bound (long waits, thread pool starvation), or a benchmark regression (slower results vs baseline). This classification drives which profiling data to examine first.
 
-2. **Read profiling data** -- Using [skill:dotnet-profiling], interpret the available diagnostic output:
+1. **Read profiling data** -- Using [skill:dotnet-profiling], interpret the available diagnostic output:
    - **Flame graphs (dotnet-trace):** Identify the widest stack frames consuming the most CPU time. Look for unexpected framework code dominating the profile (e.g., JIT compilation, GC suspension, lock contention).
    - **Heap dumps (dotnet-dump):** Run `!dumpheap -stat` to find types with highest count and total size. Use `!gcroot` to trace retention paths for suspected leaks. Check `!finalizequeue` for excessive disposable objects.
    - **Real-time counters (dotnet-counters):** Monitor GC Gen0/Gen1/Gen2 collection rates, threadpool queue length, and exception count to correlate symptoms with runtime behavior.
 
-3. **Interpret benchmark comparisons** -- Using [skill:dotnet-benchmarkdotnet], analyze benchmark results:
+1. **Interpret benchmark comparisons** -- Using [skill:dotnet-benchmarkdotnet], analyze benchmark results:
    - Compare mean execution time, allocated bytes, and GC collection counts across baseline and current runs.
    - Flag results where the confidence interval overlaps (statistically insignificant difference) vs clear regressions.
    - Check for measurement validity issues: insufficient warmup iterations, dead code elimination, inconsistent GC state between runs.
 
-4. **Correlate with observability** -- Using [skill:dotnet-observability], cross-reference profiling findings with production metrics:
+1. **Correlate with observability** -- Using [skill:dotnet-observability], cross-reference profiling findings with production metrics:
    - Match GC pause spikes in counters with heap growth patterns in dumps.
    - Correlate threadpool starvation (queue length > 0 sustained) with sync-over-async patterns in flame graphs.
    - Check if high allocation rate in benchmarks matches Gen0 collection frequency in production counters.
 
-5. **Recommend optimizations** -- Reference [skill:dotnet-performance-patterns] (loaded on demand) for specific optimization patterns:
+1. **Recommend optimizations** -- Reference [skill:dotnet-performance-patterns] (loaded on demand) for specific optimization patterns:
    - Span\<T\>/Memory\<T\> for string/array slicing hot paths.
    - ArrayPool\<T\> for repeated buffer allocations.
    - Sealed classes for devirtualization when flame graph shows virtual dispatch overhead.
    - Struct design (readonly struct, ref struct) for value-type hot paths.
 
-6. **Report findings** -- For each bottleneck identified, report:
+1. **Report findings** -- For each bottleneck identified, report:
    - **Evidence:** Specific data from profiling output (frame percentages, allocation sizes, GC counts)
    - **Root cause:** Why this code path is slow or allocating
    - **Impact:** Estimated severity (critical path vs cold path, production vs micro-benchmark only)

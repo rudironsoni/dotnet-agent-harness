@@ -51,6 +51,7 @@ considerations, [skill:dotnet-serialization] for serialization format performanc
 ## Package Setup
 
 ```xml
+
 <!-- Benchmarks.csproj -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -61,7 +62,8 @@ considerations, [skill:dotnet-serialization] for serialization format performanc
     <PackageReference Include="BenchmarkDotNet" Version="0.14.*" />
   </ItemGroup>
 </Project>
-```
+
+```text
 
 Keep benchmark projects separate from production code. Use a `benchmarks/` directory at the solution root.
 
@@ -72,6 +74,7 @@ Keep benchmark projects separate from production code. Use a `benchmarks/` direc
 ### Basic Benchmark with [Benchmark] Attribute
 
 ```csharp
+
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 
@@ -103,26 +106,32 @@ public class StringConcatBenchmarks
     [Benchmark]
     public string StringJoin() => string.Join(string.Empty, _items);
 }
-```
+
+```text
 
 ### Running Benchmarks
 
 ```csharp
+
 // Program.cs
 using BenchmarkDotNet.Running;
 
 BenchmarkRunner.Run<StringConcatBenchmarks>();
-```
+
+```csharp
 
 Run in Release mode (mandatory for valid results):
 
 ```bash
+
 dotnet run -c Release
-```
+
+```bash
 
 ### Parameterized Benchmarks
 
 ```csharp
+
 [MemoryDiagnoser]
 public class CollectionBenchmarks
 {
@@ -149,7 +158,8 @@ public class CollectionBenchmarks
     [Benchmark]
     public int LinqSum() => _data.Sum();
 }
-```
+
+```text
 
 ---
 
@@ -160,6 +170,7 @@ public class CollectionBenchmarks
 Tracks GC allocations and collection counts per benchmark invocation. Apply at class level to all benchmarks:
 
 ```csharp
+
 [MemoryDiagnoser]
 public class AllocationBenchmarks
 {
@@ -174,7 +185,8 @@ public class AllocationBenchmarks
         return buffer[0];
     }
 }
-```
+
+```text
 
 Output columns:
 
@@ -192,6 +204,7 @@ Zero in `Allocated` column confirms zero-allocation code paths.
 Inspects JIT-compiled assembly to verify optimizations (devirtualization, inlining):
 
 ```csharp
+
 [DisassemblyDiagnoser(maxDepth: 2)]
 [MemoryDiagnoser]
 public class DevirtualizationBenchmarks
@@ -218,7 +231,8 @@ public sealed class SealedService : IService
 {
     public int Calculate(int x) => x * 2;
 }
-```
+
+```text
 
 Use `DisassemblyDiagnoser` to verify that `sealed` classes receive devirtualization from the JIT, confirming the
 performance rationale documented in [skill:dotnet-csharp-coding-standards].
@@ -230,6 +244,7 @@ performance rationale documented in [skill:dotnet-csharp-coding-standards].
 ### Configuring Exporters
 
 ```csharp
+
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Exporters.Json;
@@ -246,7 +261,8 @@ public class CiBenchmarks
         // benchmark code
     }
 }
-```
+
+```text
 
 ### Exporter Output
 
@@ -259,6 +275,7 @@ public class CiBenchmarks
 ### Custom Config for CI
 
 ```csharp
+
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Exporters.Json;
 using BenchmarkDotNet.Jobs;
@@ -269,11 +286,13 @@ var config = ManualConfig.Create(DefaultConfig.Instance)
     .WithArtifactsPath("./benchmark-results");
 
 BenchmarkRunner.Run<CiBenchmarks>(config);
-```
+
+```json
 
 ### GitHub Actions Artifact Upload
 
 ```yaml
+
 - name: Run benchmarks
   run: dotnet run -c Release --project benchmarks/MyBenchmarks.csproj
 
@@ -283,7 +302,8 @@ BenchmarkRunner.Run<CiBenchmarks>(config);
     name: benchmark-results
     path: benchmarks/BenchmarkDotNet.Artifacts/results/
     retention-days: 30
-```
+
+```text
 
 ---
 
@@ -294,6 +314,7 @@ BenchmarkRunner.Run<CiBenchmarks>(config);
 Mark one benchmark as the baseline for ratio comparison:
 
 ```csharp
+
 [MemoryDiagnoser]
 public class SerializationBenchmarks
 {
@@ -325,7 +346,8 @@ public record WeatherForecast
     public int TemperatureC { get; init; }
     public string? Summary { get; init; }
 }
-```
+
+```text
 
 The `Ratio` column in output shows performance relative to the baseline (1.00). Values below 1.00 indicate faster than
 baseline; above 1.00 indicate slower.
@@ -335,6 +357,7 @@ baseline; above 1.00 indicate slower.
 Group benchmarks with `[BenchmarkCategory]` and filter at runtime:
 
 ```csharp
+
 [MemoryDiagnoser]
 [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
 public class CategorizedBenchmarks
@@ -345,13 +368,16 @@ public class CategorizedBenchmarks
     [Benchmark, BenchmarkCategory("Allocation")]
     public byte[] ArrayAlloc() => new byte[1024];
 }
-```
+
+```text
 
 Run a specific category:
 
 ```bash
+
 dotnet run -c Release -- --filter *Serialization*
-```
+
+```bash
 
 ---
 
@@ -360,16 +386,19 @@ dotnet run -c Release -- --filter *Serialization*
 ### Running Specific Benchmarks
 
 ```csharp
+
 // Run a single benchmark class
 BenchmarkRunner.Run<StringConcatBenchmarks>();
 
 // Run all benchmarks in assembly
 BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
-```
+
+```text
 
 ### Command-Line Filtering
 
 ```bash
+
 # Run benchmarks matching a pattern
 dotnet run -c Release -- --filter *StringBuilder*
 
@@ -378,7 +407,8 @@ dotnet run -c Release -- --list flat
 
 # Dry run (validates setup without full benchmark)
 dotnet run -c Release -- --filter *StringBuilder* --job Dry
-```
+
+```text
 
 ### AOT Benchmark Considerations
 
@@ -386,6 +416,7 @@ When benchmarking Native AOT scenarios, the JIT diagnosers are not available (th
 memory comparisons instead. See [skill:dotnet-native-aot] for AOT compilation setup:
 
 ```csharp
+
 [MemoryDiagnoser]
 // Do NOT use DisassemblyDiagnoser with AOT -- no JIT to disassemble
 public class AotBenchmarks
@@ -396,7 +427,8 @@ public class AotBenchmarks
             new { Value = 42 },
             AppJsonContext.Default.Options);
 }
-```
+
+```json
 
 ---
 
@@ -407,6 +439,7 @@ public class AotBenchmarks
 The JIT may eliminate benchmark code whose result is unused. Always **return** or **consume** the result:
 
 ```csharp
+
 // BAD: JIT may eliminate the entire loop
 [Benchmark]
 public void DeadCode()
@@ -426,7 +459,8 @@ public int LiveCode()
         sum += i;
     return sum;
 }
-```
+
+```text
 
 ### Measurement Bias
 
@@ -441,6 +475,7 @@ public int LiveCode()
 ### Setup vs Iteration Lifecycle
 
 ```csharp
+
 [MemoryDiagnoser]
 public class LifecycleBenchmarks
 {
@@ -462,7 +497,8 @@ public class LifecycleBenchmarks
     [GlobalCleanup]    // Runs once after all iterations
     public void GlobalCleanup() { /* dispose resources */ }
 }
-```
+
+```text
 
 Prefer `[GlobalSetup]` over `[IterationSetup]` unless the benchmark mutates shared state. `[IterationSetup]` adds
 overhead that BenchmarkDotNet excludes from timing, but it still affects GC pressure measurement.

@@ -3,6 +3,7 @@
 Rulesync can be used as a library in your Node.js/TypeScript projects. The `generate` and `importFromTool` functions are available as named exports.
 
 ```typescript
+
 import { generate, importFromTool } from "rulesync";
 
 // Generate configurations
@@ -18,7 +19,8 @@ const importResult = await importFromTool({
   features: ["rules", "commands"],
 });
 console.log(`Imported ${importResult.rulesCount} rules`);
-```
+
+```bash
 
 ## `generate(options?)`
 

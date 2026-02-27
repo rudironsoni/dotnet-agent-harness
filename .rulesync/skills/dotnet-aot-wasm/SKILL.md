@@ -86,16 +86,20 @@ because it skips IL interpretation at runtime.
 ### Enabling AOT
 
 ```xml
+
 <!-- Blazor WASM .csproj -->
 <PropertyGroup>
   <RunAOTCompilation>true</RunAOTCompilation>
 </PropertyGroup>
-```
+
+```csharp
 
 ```bash
+
 # Publish with AOT (required -- AOT only applies during publish)
 dotnet publish -c Release
-```
+
+```bash
 
 Note: `RunAOTCompilation` is the Blazor WASM property (not `PublishAot` which is for server-side Native AOT). AOT
 compilation only happens during `dotnet publish`, not during `dotnet run` or `dotnet build`.
@@ -106,6 +110,7 @@ Blazor WASM AOT compiles all non-lazy-loaded assemblies. To control which assemb
 assemblies as lazy-loaded -- they will use IL interpretation instead:
 
 ```xml
+
 <PropertyGroup>
   <RunAOTCompilation>true</RunAOTCompilation>
 </PropertyGroup>
@@ -116,13 +121,15 @@ assemblies as lazy-loaded -- they will use IL interpretation instead:
   <BlazorWebAssemblyLazyLoad Include="MyApp.Admin.wasm" />
   <!-- All other assemblies (MyApp.Core, MyApp.Calculations, etc.) ARE AOT-compiled -->
 </ItemGroup>
-```
+
+```text
 
 ### Trimming + AOT Together
 
 For the best balance, use both trimming and AOT:
 
 ```xml
+
 <PropertyGroup>
   <!-- Trimming reduces unused code (smaller download) -->
   <PublishTrimmed>true</PublishTrimmed>
@@ -133,7 +140,8 @@ For the best balance, use both trimming and AOT:
   <!-- Detailed warnings during development -->
   <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
 </PropertyGroup>
-```
+
+```text
 
 The publish pipeline runs: trim unused IL first, then AOT-compile the remaining assemblies to native WASM. This produces
 an artifact that is larger than trimmed-only but smaller than AOT-without-trimming, with the best runtime performance.
@@ -147,11 +155,13 @@ Uno Platform 5+ with .NET 8+ uses the standard .NET WASM workload, so the AOT co
 ### Enabling AOT (Uno 5+ / .NET 8+)
 
 ```xml
+
 <!-- Uno WASM head .csproj -->
 <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-browserwasm'">
   <RunAOTCompilation>true</RunAOTCompilation>
 </PropertyGroup>
-```
+
+```csharp
 
 Older Uno versions using `Uno.Wasm.Bootstrap` had a separate `WasmShellMonoRuntimeExecutionMode` property with
 `Interpreter`, `InterpreterAndAOT`, and `FullAOT` modes. On .NET 8+, use `RunAOTCompilation` instead.
@@ -159,11 +169,13 @@ Older Uno versions using `Uno.Wasm.Bootstrap` had a separate `WasmShellMonoRunti
 ### Trimming in Uno WASM
 
 ```xml
+
 <PropertyGroup>
   <PublishTrimmed>true</PublishTrimmed>
   <TrimMode>link</TrimMode>
 </PropertyGroup>
-```
+
+```text
 
 See [skill:dotnet-uno-platform] for Uno Platform architecture patterns.
 
@@ -177,15 +189,18 @@ effective when combined with AOT (which increases per-assembly size).
 ### Blazor WASM Lazy Loading
 
 ```xml
+
 <!-- Mark assemblies for lazy loading in .csproj -->
 <ItemGroup>
   <BlazorWebAssemblyLazyLoad Include="MyApp.Reporting.wasm" />
   <BlazorWebAssemblyLazyLoad Include="MyApp.Admin.wasm" />
   <BlazorWebAssemblyLazyLoad Include="ChartLibrary.wasm" />
 </ItemGroup>
-```
+
+```text
 
 ```csharp
+
 // Load assemblies on demand in a component or router
 @inject LazyAssemblyLoader LazyLoader
 
@@ -201,11 +216,13 @@ effective when combined with AOT (which increases per-assembly size).
         _lazyLoadedAssemblies.AddRange(assemblies);
     }
 }
-```
+
+```text
 
 ### Router-Based Lazy Loading
 
 ```csharp
+
 <!-- App.razor -->
 @inject LazyAssemblyLoader LazyLoader
 
@@ -240,7 +257,8 @@ effective when combined with AOT (which increases per-assembly size).
         }
     }
 }
-```
+
+```text
 
 ### Lazy Loading Strategy
 
@@ -263,6 +281,7 @@ During `dotnet publish`, Blazor WASM generates `.br` (Brotli) and `.gz` (gzip) c
 in `_framework/`. The web server serves the pre-compressed file when the browser supports it.
 
 ```bash
+
 # After publish, check compressed sizes
 ls -la bin/Release/net8.0/publish/wwwroot/_framework/
 
@@ -270,7 +289,8 @@ ls -la bin/Release/net8.0/publish/wwwroot/_framework/
 # MyApp.wasm       (original)
 # MyApp.wasm.br    (Brotli compressed, ~60-80% smaller)
 # MyApp.wasm.gz    (gzip compressed, ~50-70% smaller)
-```
+
+```text
 
 ### Server Configuration
 
@@ -279,15 +299,18 @@ The web server must be configured to serve pre-compressed files. Most Blazor hos
 **ASP.NET Core hosting:**
 
 ```csharp
+
 // In the server project hosting Blazor WASM
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 // Blazor framework files are served with compression headers automatically
-```
+
+```text
 
 **Nginx:**
 
 ```nginx
+
 location /_framework/ {
     # Serve Brotli-compressed files when available
     gzip_static on;
@@ -301,7 +324,8 @@ location /_framework/ {
     # Cache aggressively (files are content-hashed)
     add_header Cache-Control "public, max-age=31536000, immutable";
 }
-```
+
+```text
 
 **Azure Static Web Apps / GitHub Pages:**
 
@@ -319,11 +343,13 @@ Pre-compressed `.br` files are served automatically when the `Accept-Encoding: b
 ### Disabling Compression (Rarely Needed)
 
 ```xml
+
 <!-- Disable Brotli pre-compression -->
 <PropertyGroup>
   <BlazorEnableCompression>false</BlazorEnableCompression>
 </PropertyGroup>
-```
+
+```text
 
 ---
 
@@ -334,20 +360,28 @@ Pre-compressed `.br` files are served automatically when the `Accept-Encoding: b
 3. **Enable Brotli pre-compression** -- 60-80% reduction in transfer size (on by default)
 4. **Use selective AOT** -- only AOT-compile performance-critical assemblies
 5. **Enable invariant globalization** if culture-specific formatting is not needed:
+
    ```xml
+
    <PropertyGroup>
      <InvariantGlobalization>true</InvariantGlobalization>
    </PropertyGroup>
+
    ```
-6. **Remove unused framework features:**
+
+1. **Remove unused framework features:**
+
    ```xml
+
    <PropertyGroup>
      <!-- Disable features you don't use -->
      <EventSourceSupport>false</EventSourceSupport>
      <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
    </PropertyGroup>
+
    ```
-7. **Verify compression is served** -- check browser DevTools Network tab for `content-encoding: br`
+
+2. **Verify compression is served** -- check browser DevTools Network tab for `content-encoding: br`
 
 ---
 

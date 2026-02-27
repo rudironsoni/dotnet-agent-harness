@@ -49,9 +49,11 @@ for strategic data patterns, [skill:dotnet-data-access-strategy] for data access
 `DbContext` is a unit of work and should be short-lived. In ASP.NET Core, register it as scoped (one per request):
 
 ```csharp
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-```
+
+```csharp
 
 ### Lifetime Rules
 
@@ -68,6 +70,7 @@ Background services and Blazor Server circuits outlive a single scope. Use `IDbC
 contexts on demand:
 
 ```csharp
+
 public sealed class OrderProcessor(
     IDbContextFactory<AppDbContext> contextFactory)
 {
@@ -88,14 +91,17 @@ public sealed class OrderProcessor(
         await db.SaveChangesAsync(ct);
     }
 }
-```
+
+```text
 
 Register the factory:
 
 ```csharp
+
 builder.Services.AddDbContextFactory<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-```
+
+```csharp
 
 **Important:** `AddDbContextFactory<T>()` also registers `AppDbContext` itself as scoped, so controllers and
 request-scoped services can still inject `AppDbContext` directly.
@@ -106,10 +112,12 @@ request-scoped services can still inject `AppDbContext` directly.
 Use pooling when throughput matters and your context has no injected scoped services:
 
 ```csharp
+
 builder.Services.AddDbContextPool<AppDbContext>(options =>
     options.UseNpgsql(connectionString),
     poolSize: 128);  // default is 1024
-```
+
+```csharp
 
 **Pooling constraints:** Pooled contexts are reset and reused. Do not store per-request state on the `DbContext`
 subclass. Do not inject scoped services into the constructor -- use `IDbContextFactory<T>` with pooling
@@ -123,6 +131,7 @@ By default, EF Core tracks all entities returned by queries, enabling change det
 read-only queries, disable tracking to reduce memory and CPU overhead:
 
 ```csharp
+
 // Per-query opt-out
 var orders = await db.Orders
     .AsNoTracking()
@@ -135,25 +144,30 @@ var ordersWithItems = await db.Orders
     .Include(o => o.Items)
     .Where(o => o.Status == OrderStatus.Active)
     .ToListAsync(ct);
-```
+
+```text
 
 ### Default No-Tracking at the Context Level
 
 For read-heavy services, set no-tracking as the default:
 
 ```csharp
+
 builder.Services.AddDbContext<ReadOnlyDbContext>(options =>
     options.UseNpgsql(connectionString)
            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
-```
+
+```csharp
 
 Then opt-in to tracking only when needed:
 
 ```csharp
+
 var order = await readOnlyDb.Orders
     .AsTracking()
     .FirstAsync(o => o.Id == orderId, ct);
-```
+
+```csharp
 
 ---
 
@@ -165,24 +179,28 @@ Cartesian explosion when multiple collections are included.
 ### The Problem: Cartesian Explosion
 
 ```csharp
+
 // Single query: produces Cartesian product of OrderItems x Payments
 var orders = await db.Orders
     .Include(o => o.Items)      // N items
     .Include(o => o.Payments)   // M payments
     .ToListAsync(ct);
 // Result set: N x M rows per order
-```
+
+```text
 
 ### The Solution: Split Queries
 
 ```csharp
+
 var orders = await db.Orders
     .Include(o => o.Items)
     .Include(o => o.Payments)
     .AsSplitQuery()
     .ToListAsync(ct);
 // Executes 3 separate queries: Orders, Items, Payments
-```
+
+```text
 
 ### Tradeoffs
 
@@ -199,19 +217,23 @@ for single-collection includes or when atomicity matters.
 Set split queries as the default at the provider level:
 
 ```csharp
+
 options.UseNpgsql(connectionString, npgsql =>
     npgsql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
-```
+
+```csharp
 
 Then opt-in to single queries where atomicity is needed:
 
 ```csharp
+
 var result = await db.Orders
     .Include(o => o.Items)
     .Include(o => o.Payments)
     .AsSingleQuery()
     .ToListAsync(ct);
-```
+
+```text
 
 ---
 
@@ -220,6 +242,7 @@ var result = await db.Orders
 ### Migration Workflow
 
 ```bash
+
 # Create a migration after model changes
 dotnet ef migrations add AddOrderStatus \
     --project src/MyApp.Infrastructure \
@@ -236,7 +259,8 @@ dotnet ef migrations script \
 dotnet ef database update \
     --project src/MyApp.Infrastructure \
     --startup-project src/MyApp.Api
-```
+
+```text
 
 ### Migration Bundles for Production
 
@@ -244,6 +268,7 @@ Migration bundles produce a self-contained executable for CI/CD pipelines -- no 
 deployment server:
 
 ```bash
+
 # Build the bundle
 dotnet ef migrations bundle \
     --project src/MyApp.Infrastructure \
@@ -258,7 +283,8 @@ dotnet ef migrations bundle \
 # by setting the connection string key in your DbContext's OnConfiguring or
 # appsettings.json, then pass the env var at runtime:
 # ConnectionStrings__DefaultConnection="Host=..." ./efbundle
-```
+
+```json
 
 ### Migration Best Practices
 
@@ -277,6 +303,7 @@ dotnet ef migrations bundle \
 Use `HasData()` for reference data that should be part of migrations:
 
 ```csharp
+
 protected override void OnModelCreating(ModelBuilder modelBuilder)
 {
     modelBuilder.Entity<OrderStatus>().HasData(
@@ -285,7 +312,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         new OrderStatus { Id = 3, Name = "Completed" },
         new OrderStatus { Id = 4, Name = "Cancelled" });
 }
-```
+
+```text
 
 **Important:** `HasData()` uses primary key values for identity. Changing a seed value's PK in a later migration deletes
 the old row and inserts a new one -- it does not update in place.
@@ -300,6 +328,7 @@ logic. Interceptors run for every operation of their type.
 ### SaveChanges Interceptor: Automatic Audit Timestamps
 
 ```csharp
+
 public sealed class AuditTimestampInterceptor : SaveChangesInterceptor
 {
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
@@ -335,11 +364,13 @@ public interface IAuditable
     DateTimeOffset CreatedAt { get; set; }
     DateTimeOffset UpdatedAt { get; set; }
 }
-```
+
+```text
 
 ### Soft Delete Interceptor
 
 ```csharp
+
 public sealed class SoftDeleteInterceptor : SaveChangesInterceptor
 {
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
@@ -363,11 +394,13 @@ public sealed class SoftDeleteInterceptor : SaveChangesInterceptor
         return ValueTask.FromResult(result);
     }
 }
-```
+
+```text
 
 Combine with a global query filter so soft-deleted entities are excluded by default:
 
 ```csharp
+
 protected override void OnModelCreating(ModelBuilder modelBuilder)
 {
     modelBuilder.Entity<Product>()
@@ -378,11 +411,13 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 var allProducts = await db.Products
     .IgnoreQueryFilters()
     .ToListAsync(ct);
-```
+
+```text
 
 ### Connection Interceptor: Dynamic Connection Strings
 
 ```csharp
+
 public sealed class TenantConnectionInterceptor(
     ITenantProvider tenantProvider) : DbConnectionInterceptor
 {
@@ -397,11 +432,13 @@ public sealed class TenantConnectionInterceptor(
         return ValueTask.FromResult(result);
     }
 }
-```
+
+```text
 
 ### Registering Interceptors
 
 ```csharp
+
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
     options.UseNpgsql(connectionString)
            .AddInterceptors(
@@ -411,7 +448,8 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 // Register interceptors in DI
 builder.Services.AddSingleton<AuditTimestampInterceptor>();
 builder.Services.AddSingleton<SoftDeleteInterceptor>();
-```
+
+```text
 
 ---
 
@@ -421,6 +459,7 @@ For queries executed very frequently with the same shape, compiled queries elimi
 translation on every call:
 
 ```csharp
+
 public static class CompiledQueries
 {
     // Single-result compiled query -- delegate does NOT accept CancellationToken
@@ -451,7 +490,8 @@ await foreach (var o in CompiledQueries.GetOrdersByCustomer(db, customerId)
 {
     // Process each order
 }
-```
+
+```text
 
 **When to use:** Compiled queries provide measurable benefit for queries that execute thousands of times per second. For
 typical CRUD endpoints, standard LINQ is sufficient -- do not prematurely optimize.
@@ -469,6 +509,7 @@ Transient database failures (network blips, failovers) should be handled with au
 built-in execution strategy:
 
 ```csharp
+
 // PostgreSQL
 options.UseNpgsql(connectionString, npgsql =>
     npgsql.EnableRetryOnFailure(
@@ -482,13 +523,15 @@ options.UseSqlServer(connectionString, sqlServer =>
         maxRetryCount: 3,
         maxRetryDelay: TimeSpan.FromSeconds(30),
         errorNumbersToAdd: null));
-```
+
+```text
 
 ### Manual Execution Strategies
 
 When you need to wrap multiple `SaveChangesAsync` calls in a single logical transaction with retries:
 
 ```csharp
+
 var strategy = db.Database.CreateExecutionStrategy();
 
 await strategy.ExecuteAsync(async () =>
@@ -505,7 +548,8 @@ await strategy.ExecuteAsync(async () =>
 
     await transaction.CommitAsync(ct);
 });
-```
+
+```text
 
 **Important:** The entire delegate is re-executed on retry, including the transaction. Ensure the logic is idempotent or
 uses database-level uniqueness constraints to prevent duplicates.

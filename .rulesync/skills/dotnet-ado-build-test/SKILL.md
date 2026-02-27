@@ -50,6 +50,7 @@ architecture guidance, [skill:dotnet-ci-benchmarking] for benchmark CI integrati
 ### Build
 
 ```yaml
+
 steps:
   - task: UseDotNet@2
     displayName: 'Install .NET SDK'
@@ -69,11 +70,13 @@ steps:
       command: 'build'
       projects: 'MyApp.sln'
       arguments: '-c Release --no-restore'
-```
+
+```bash
 
 ### Test
 
 ```yaml
+
 - task: DotNetCoreCLI@2
   displayName: 'Run tests'
   inputs:
@@ -82,11 +85,13 @@ steps:
     arguments: >-
       -c Release --logger "trx;LogFileName=test-results.trx" --results-directory
       $(Build.ArtifactStagingDirectory)/test-results
-```
+
+```csharp
 
 ### Pack
 
 ```yaml
+
 - task: DotNetCoreCLI@2
   displayName: 'Pack NuGet packages'
   inputs:
@@ -95,26 +100,30 @@ steps:
     configuration: 'Release'
     outputDir: '$(Build.ArtifactStagingDirectory)/nupkgs'
     nobuild: true
-```
+
+```csharp
 
 ### Custom Command
 
 For commands not directly supported by the task (e.g., `dotnet tool install`):
 
 ```yaml
+
 - task: DotNetCoreCLI@2
   displayName: 'Install dotnet tools'
   inputs:
     command: 'custom'
     custom: 'tool'
     arguments: 'restore'
-```
+
+```bash
 
 ### Multi-Version SDK Install
 
 Install multiple SDK versions for multi-TFM builds:
 
 ```yaml
+
 - task: UseDotNet@2
   displayName: 'Install .NET 8'
   inputs:
@@ -126,7 +135,8 @@ Install multiple SDK versions for multi-TFM builds:
   inputs:
     packageType: 'sdk'
     version: '9.0.x'
-```
+
+```text
 
 Each `UseDotNet@2` invocation adds the SDK version to PATH. The last installed version becomes the default, but all
 versions are available via `--framework` targeting.
@@ -138,6 +148,7 @@ versions are available via `--framework` targeting.
 ### `NuGetAuthenticate@1` for Feed Authentication
 
 ```yaml
+
 steps:
   - task: NuGetAuthenticate@1
     displayName: 'Authenticate NuGet feeds'
@@ -149,7 +160,8 @@ steps:
       projects: 'MyApp.sln'
       feedsToUse: 'config'
       nugetConfigPath: 'nuget.config'
-```
+
+```bash
 
 The `NuGetAuthenticate@1` task configures credentials for all Azure Artifacts feeds referenced in `nuget.config`. No
 explicit PAT or API key is needed -- the task uses the pipeline's identity.
@@ -159,6 +171,7 @@ explicit PAT or API key is needed -- the task uses the pipeline's identity.
 For simple setups without a `nuget.config`, select feeds directly in the restore task:
 
 ```yaml
+
 - task: DotNetCoreCLI@2
   displayName: 'Restore with Azure Artifacts'
   inputs:
@@ -167,7 +180,8 @@ For simple setups without a `nuget.config`, select feeds directly in the restore
     feedsToUse: 'select'
     vstsFeed: 'MyProject/MyFeed'
     includeNuGetOrg: true
-```
+
+```text
 
 ### Upstream Sources
 
@@ -175,6 +189,7 @@ Azure Artifacts feeds can proxy nuget.org as an upstream source. When configured
 access to both private packages and public NuGet packages:
 
 ```xml
+
 <!-- nuget.config with Azure Artifacts upstream -->
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
@@ -183,7 +198,8 @@ access to both private packages and public NuGet packages:
     <add key="MyFeed" value="https://pkgs.dev.azure.com/myorg/_packaging/myfeed/nuget/v3/index.json" />
   </packageSources>
 </configuration>
-```
+
+```json
 
 With upstream sources enabled on the feed, nuget.org packages are cached in the Azure Artifacts feed, providing a single
 authenticated source for all packages.
@@ -193,6 +209,7 @@ authenticated source for all packages.
 For feeds in different Azure DevOps organizations, use a service connection:
 
 ```yaml
+
 - task: NuGetAuthenticate@1
   displayName: 'Authenticate external feed'
   inputs:
@@ -205,7 +222,8 @@ For feeds in different Azure DevOps organizations, use a service connection:
     projects: 'MyApp.sln'
     feedsToUse: 'config'
     nugetConfigPath: 'nuget.config'
-```
+
+```bash
 
 ---
 
@@ -214,6 +232,7 @@ For feeds in different Azure DevOps organizations, use a service connection:
 ### `PublishTestResults@2` with TRX Format
 
 ```yaml
+
 - task: DotNetCoreCLI@2
   displayName: 'Run tests'
   inputs:
@@ -231,7 +250,8 @@ For feeds in different Azure DevOps organizations, use a service connection:
     testResultsFiles: '$(Common.TestResultsDirectory)/**/*.trx'
     mergeTestResults: true
     testRunTitle: '.NET Unit Tests'
-```
+
+```text
 
 **Key decisions:**
 
@@ -245,6 +265,7 @@ For feeds in different Azure DevOps organizations, use a service connection:
 Some third-party test frameworks output JUnit XML. Use the `JUnit` format:
 
 ```yaml
+
 - task: PublishTestResults@2
   displayName: 'Publish JUnit results'
   condition: always()
@@ -252,13 +273,15 @@ Some third-party test frameworks output JUnit XML. Use the `JUnit` format:
     testResultsFormat: 'JUnit'
     testResultsFiles: '**/junit-results.xml'
     mergeTestResults: true
-```
+
+```xml
 
 ### Test Results with Attachments
 
 Attach screenshots or logs to test results for debugging failed tests:
 
 ```yaml
+
 - task: DotNetCoreCLI@2
   displayName: 'Run tests with attachments'
   inputs:
@@ -278,7 +301,8 @@ Attach screenshots or logs to test results for debugging failed tests:
     mergeTestResults: true
     testRunTitle: '.NET Tests'
     publishRunAttachments: true
-```
+
+```text
 
 ---
 
@@ -287,6 +311,7 @@ Attach screenshots or logs to test results for debugging failed tests:
 ### `PublishCodeCoverageResults@2` with Cobertura
 
 ```yaml
+
 - task: DotNetCoreCLI@2
   displayName: 'Test with coverage'
   inputs:
@@ -299,7 +324,8 @@ Attach screenshots or logs to test results for debugging failed tests:
   displayName: 'Publish code coverage'
   inputs:
     summaryFileLocation: '$(Agent.TempDirectory)/coverage/**/coverage.cobertura.xml'
-```
+
+```xml
 
 The `PublishCodeCoverageResults@2` task (v2) auto-generates HTML coverage reports in the Azure DevOps Build Summary tab
 without requiring `reportgenerator`.
@@ -309,6 +335,7 @@ without requiring `reportgenerator`.
 For custom coverage reports beyond the built-in rendering:
 
 ```yaml
+
 - task: DotNetCoreCLI@2
   displayName: 'Test with coverage'
   inputs:
@@ -336,13 +363,15 @@ For custom coverage reports beyond the built-in rendering:
   inputs:
     targetPath: '$(Build.ArtifactStagingDirectory)/coverage-report'
     artifactName: 'coverage-report'
-```
+
+```text
 
 ### Coverage Thresholds
 
 Enforce minimum coverage by parsing the Cobertura XML in a script step:
 
 ```yaml
+
 - script: |
     set -euo pipefail
     COVERAGE_FILE=$(find $(Agent.TempDirectory)/coverage -name 'coverage.cobertura.xml' | head -1)
@@ -357,7 +386,8 @@ Enforce minimum coverage by parsing the Cobertura XML in a script step:
       exit 1
     fi
   displayName: 'Enforce coverage threshold'
-```
+
+```text
 
 ---
 
@@ -366,6 +396,7 @@ Enforce minimum coverage by parsing the Cobertura XML in a script step:
 ### Matrix Build Across TFMs and Operating Systems
 
 ```yaml
+
 jobs:
   - job: Test
     strategy:
@@ -412,13 +443,15 @@ jobs:
           testResultsFormat: 'VSTest'
           testResultsFiles: '$(Common.TestResultsDirectory)/**/*.trx'
           testRunTitle: '$(tfm) on $(vmImage)'
-```
+
+```text
 
 ### Installing Multiple SDKs for Multi-TFM in a Single Job
 
 When running all TFMs in one job (instead of matrix), install all required SDKs:
 
 ```yaml
+
 steps:
   - task: UseDotNet@2
     displayName: 'Install .NET 8'
@@ -438,13 +471,15 @@ steps:
       command: 'test'
       projects: '**/*Tests.csproj'
       arguments: '-c Release'
-```
+
+```bash
 
 Without the matching SDK installed, `dotnet test` cannot build for that TFM and fails with `NETSDK1045`.
 
 ### Template-Based Matrix for Reusability
 
 ```yaml
+
 # templates/jobs/matrix-test.yml
 parameters:
   - name: configurations
@@ -473,7 +508,8 @@ jobs:
               command: 'test'
               projects: '**/*Tests.csproj'
               arguments: '-c Release --framework ${{ config.tfm }}'
-```
+
+```bash
 
 ---
 

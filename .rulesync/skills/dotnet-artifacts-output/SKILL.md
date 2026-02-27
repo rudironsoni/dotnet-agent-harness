@@ -67,28 +67,34 @@ Tradeoffs:
 Add `UseArtifactsOutput` to your `Directory.Build.props` at the repo root:
 
 ```xml
+
 <Project>
   <PropertyGroup>
     <UseArtifactsOutput>true</UseArtifactsOutput>
   </PropertyGroup>
 </Project>
-```
+
+```text
 
 Alternatively, generate a new `Directory.Build.props` with artifacts output pre-configured:
 
 ```bash
+
 dotnet new buildprops --use-artifacts
-```
+
+```bash
 
 This creates:
 
 ```xml
+
 <Project>
   <PropertyGroup>
     <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
   </PropertyGroup>
 </Project>
-```
+
+```text
 
 Setting `ArtifactsPath` directly is equivalent to `UseArtifactsOutput=true` and additionally lets you customize the root
 directory location.
@@ -100,7 +106,8 @@ directory location.
 All build outputs are organized under `artifacts/` with three levels: output type, project name, and pivot
 (configuration/TFM/RID).
 
-```
+```text
+
 artifacts/
   bin/
     MyApp/
@@ -118,7 +125,8 @@ artifacts/
       release_linux-x64/              # RID-specific publish
   package/
     release/                          # NuGet .nupkg files (no project subfolder)
-```
+
+```text
 
 ### Output Type Directories
 
@@ -152,10 +160,12 @@ Note: `artifacts/package/` omits the project name subfolder. The pivot includes 
 Set `ArtifactsPath` to change the root location:
 
 ```xml
+
 <PropertyGroup>
   <ArtifactsPath>$(MSBuildThisFileDirectory).output</ArtifactsPath>
 </PropertyGroup>
-```
+
+```xml
 
 This places all build outputs under `.output/` instead of `artifacts/`.
 
@@ -164,10 +174,12 @@ This places all build outputs under `.output/` instead of `artifacts/`.
 Customize the pivot subfolder naming with `ArtifactsPivots`:
 
 ```xml
+
 <PropertyGroup>
   <ArtifactsPivots>$(ArtifactsPivots)_MyCustomPivot</ArtifactsPivots>
 </PropertyGroup>
-```
+
+```xml
 
 ---
 
@@ -176,17 +188,21 @@ Customize the pivot subfolder naming with `ArtifactsPivots`:
 With artifacts output enabled, simplify `.gitignore`:
 
 ```gitignore
+
 # Artifacts output layout (replaces per-project bin/ and obj/ entries)
 artifacts/
-```
+
+```text
 
 This single entry replaces the traditional pattern:
 
 ```gitignore
+
 # Traditional layout (no longer needed with artifacts output)
 [Bb]in/
 [Oo]bj/
-```
+
+```text
 
 If using a custom `ArtifactsPath`, update the `.gitignore` entry to match.
 
@@ -200,14 +216,18 @@ full Dockerfile patterns.
 **Traditional paths:**
 
 ```dockerfile
+
 COPY --from=build /app/src/MyApp/bin/Release/net10.0/publish/ .
-```
+
+```dockerfile
 
 **Artifacts output paths:**
 
 ```dockerfile
+
 COPY --from=build /app/artifacts/publish/MyApp/release/ .
-```
+
+```dockerfile
 
 Key differences in Dockerfile paths:
 
@@ -226,6 +246,7 @@ for full CI workflow patterns.
 **GitHub Actions -- upload build output:**
 
 ```yaml
+
 - name: Publish
   run: dotnet publish src/MyApp/MyApp.csproj -c Release
 
@@ -234,11 +255,13 @@ for full CI workflow patterns.
   with:
     name: app
     path: artifacts/publish/MyApp/release/
-```
+
+```text
 
 **GitHub Actions -- upload NuGet packages:**
 
 ```yaml
+
 - name: Pack
   run: dotnet pack -c Release
 
@@ -247,11 +270,13 @@ for full CI workflow patterns.
   with:
     name: packages
     path: artifacts/package/release/*.nupkg
-```
+
+```text
 
 **Azure DevOps -- publish artifacts:**
 
 ```yaml
+
 - script: dotnet publish src/MyApp/MyApp.csproj -c Release
   displayName: 'Publish'
 
@@ -259,7 +284,8 @@ for full CI workflow patterns.
   inputs:
     targetPath: 'artifacts/publish/MyApp/release/'
     artifact: 'app'
-```
+
+```text
 
 ---
 

@@ -71,6 +71,7 @@ strategic EF Core patterns, [skill:dotnet-csharp-dependency-injection] for servi
 - Query performance is acceptable with projections and `AsNoTracking()`
 
 ```csharp
+
 // EF Core: expressive, type-safe, with change tracking
 var order = await db.Orders
     .Include(o => o.Items)
@@ -78,7 +79,8 @@ var order = await db.Orders
 
 order!.Status = OrderStatus.Shipped;
 await db.SaveChangesAsync(ct); // Automatic dirty detection
-```
+
+```text
 
 ### Choose Dapper When
 
@@ -89,6 +91,7 @@ await db.SaveChangesAsync(ct); // Automatic dirty detection
 - You need AOT compatibility today (with Dapper.AOT source generator)
 
 ```csharp
+
 // Dapper: direct SQL, minimal overhead
 await using var connection = new NpgsqlConnection(connectionString);
 
@@ -105,7 +108,8 @@ var orders = await connection.QueryAsync<OrderDto>(
     LIMIT @PageSize
     """,
     new { CustomerId = customerId, PageSize = pageSize });
-```
+
+```text
 
 ### Choose Raw ADO.NET When
 
@@ -116,6 +120,7 @@ var orders = await connection.QueryAsync<OrderDto>(
 - You are working with stored procedures or database-specific features
 
 ```csharp
+
 // Raw ADO.NET: full control, zero abstraction overhead
 await using var connection = new NpgsqlConnection(connectionString);
 await connection.OpenAsync(ct);
@@ -136,7 +141,8 @@ while (await reader.ReadAsync(ct))
         Price = reader.GetDecimal(2)
     });
 }
-```
+
+```text
 
 ---
 
@@ -180,16 +186,20 @@ improving but not complete:
 trim-friendliness:
 
 ```bash
+
 dotnet ef dbcontext optimize \
     --project src/MyApp.Infrastructure \
     --startup-project src/MyApp.Api \
     --output-dir CompiledModels
-```
+
+```text
 
 ```csharp
+
 options.UseNpgsql(connectionString)
        .UseModel(AppDbContextModel.Instance);  // Pre-compiled model
-```
+
+```csharp
 
 **Bottom line:** EF Core Native AOT support is partial and version-dependent. As of .NET 9, compiled models improve
 startup and trim-friendliness, but query translation and change tracking still rely on runtime code generation. Check
@@ -209,11 +219,14 @@ trim- and AOT-compatible alternative:
 | `Dapper.AOT`        | AOT-safe (source-generated mappers) |
 
 ```xml
+
 <PackageReference Include="Dapper" Version="2.*" />
 <PackageReference Include="Dapper.AOT" Version="1.*" />
-```
+
+```xml
 
 ```csharp
+
 // Dapper.AOT generates the mapping code at compile time
 // Usage is the same as standard Dapper -- the source generator intercepts calls
 
@@ -228,7 +241,8 @@ public sealed class OrderRepository(NpgsqlDataSource dataSource)
             new { Id = id });
     }
 }
-```
+
+```text
 
 ### Raw ADO.NET
 
@@ -253,6 +267,7 @@ same project, sharing the same database connection.
 ### EF Core for Commands, Dapper for Queries
 
 ```csharp
+
 // Command: use EF Core for change tracking and validation
 public sealed class CreateOrderHandler(WriteDbContext db)
 {
@@ -290,7 +305,8 @@ public sealed class OrderReportHandler(NpgsqlDataSource dataSource)
         return rows.AsList();
     }
 }
-```
+
+```text
 
 ### Sharing the Database Connection
 
@@ -298,6 +314,7 @@ Use `DbContext.Database.GetDbConnection()` to get the underlying `DbConnection` 
 transaction:
 
 ```csharp
+
 public async Task ProcessWithBothAsync(int orderId, CancellationToken ct)
 {
     var connection = db.Database.GetDbConnection();
@@ -322,7 +339,8 @@ public async Task ProcessWithBothAsync(int orderId, CancellationToken ct)
 
     await transaction.CommitAsync(ct);
 }
-```
+
+```text
 
 ### NpgsqlDataSource Registration
 
@@ -330,17 +348,21 @@ When using Dapper with PostgreSQL, register `NpgsqlDataSource` as a singleton in
 internally):
 
 ```csharp
+
 builder.Services.AddNpgsqlDataSource(
     builder.Configuration.GetConnectionString("DefaultConnection")!);
-```
+
+```csharp
 
 The `Npgsql.DependencyInjection` package provides `AddNpgsqlDataSource()`. This also integrates with EF Core --
 `UseNpgsql()` can accept the registered data source:
 
 ```csharp
+
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
     options.UseNpgsql(sp.GetRequiredService<NpgsqlDataSource>()));
-```
+
+```csharp
 
 ---
 

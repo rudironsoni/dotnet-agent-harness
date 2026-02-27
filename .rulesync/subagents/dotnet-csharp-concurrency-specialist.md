@@ -47,7 +47,8 @@ Always load these skills before analysis:
 
 ## Decision Tree
 
-```
+```csharp
+
 Is the bug a race condition?
   → Check shared mutable state
   → Look for missing locks, incorrect ConcurrentDictionary usage
@@ -67,23 +68,25 @@ Is it a data corruption issue?
   → Check collection access from multiple threads without synchronization
   → Look for non-atomic compound operations on shared state
   → Verify ConcurrentDictionary GetOrAdd/AddOrUpdate delegate side effects
-```
+
+```text
 
 ## Analysis Workflow
 
 1. **Identify shared state** -- Grep for `static` fields, shared service instances, and fields accessed from multiple threads or async continuations.
 
-2. **Check synchronization** -- Verify that shared mutable state is protected by appropriate primitives (`lock`, `SemaphoreSlim`, `Interlocked`, `Channel<T>`, concurrent collections).
+1. **Check synchronization** -- Verify that shared mutable state is protected by appropriate primitives (`lock`, `SemaphoreSlim`, `Interlocked`, `Channel<T>`, concurrent collections).
 
-3. **Detect anti-patterns** -- Look for the common concurrency mistakes listed below.
+1. **Detect anti-patterns** -- Look for the common concurrency mistakes listed below.
 
-4. **Recommend fixes** -- Suggest the simplest correct fix. Prefer immutability and message passing over locks when possible.
+1. **Recommend fixes** -- Suggest the simplest correct fix. Prefer immutability and message passing over locks when possible.
 
 ## Common Concurrency Mistakes Agents Make
 
 ### 1. Shared Mutable State Without Synchronization
 
 ```csharp
+
 // WRONG -- race condition on _count from multiple threads
 private int _count;
 public void Increment() => _count++;
@@ -91,11 +94,13 @@ public void Increment() => _count++;
 // CORRECT -- atomic increment
 private int _count;
 public void Increment() => Interlocked.Increment(ref _count);
-```
+
+```text
 
 ### 2. Incorrect ConcurrentDictionary Usage
 
 ```csharp
+
 // WRONG -- check-then-act race condition
 if (!_cache.ContainsKey(key))
 {
@@ -108,11 +113,13 @@ var value = _cache.GetOrAdd(key, k => ComputeValue(k));
 // CAUTION -- delegate may execute multiple times under contention
 // If ComputeValue has side effects, use Lazy<T>:
 var value = _cache.GetOrAdd(key, k => new Lazy<T>(() => ComputeValue(k))).Value;
-```
+
+```text
 
 ### 3. `async void` Event Handlers Hiding Exceptions
 
 ```csharp
+
 // WRONG -- unhandled exception crashes the process
 async void OnButtonClick(object sender, EventArgs e)
 {
@@ -131,11 +138,13 @@ async void OnButtonClick(object sender, EventArgs e)
         _logger.LogError(ex, "Button click handler failed");
     }
 }
-```
+
+```text
 
 ### 4. Deadlocking on `.Result` / `.Wait()`
 
 ```csharp
+
 // WRONG -- deadlock in contexts with a SynchronizationContext
 public string GetData()
 {
@@ -147,11 +156,13 @@ public async Task<string> GetDataAsync()
 {
     return await FetchFromApiAsync();
 }
-```
+
+```text
 
 ### 5. Lock on Wrong Object
 
 ```csharp
+
 // WRONG -- locking on 'this' or a public object
 lock (this) { /* other code can also lock on this instance */ }
 lock (typeof(MyClass)) { /* global lock, severe contention */ }
@@ -174,11 +185,13 @@ public async Task DoWorkAsync(CancellationToken ct = default)
         _semaphore.Release();
     }
 }
-```
+
+```text
 
 ### 6. Non-Atomic Read-Modify-Write
 
 ```csharp
+
 // WRONG -- read-modify-write is not atomic even with volatile
 private volatile int _counter;
 public void Increment() => _counter++; // still a race!
@@ -187,7 +200,8 @@ public void Increment() => _counter++; // still a race!
 private int _counter;
 public void Increment() => Interlocked.Increment(ref _counter);
 public int Current => Volatile.Read(ref _counter);
-```
+
+```text
 
 ## Synchronization Primitives Quick Reference
 

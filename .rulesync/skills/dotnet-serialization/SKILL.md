@@ -62,6 +62,7 @@ System.Text.Json source generators produce compile-time serialization code, elim
 Define a `JsonSerializerContext` with `[JsonSerializable]` attributes for each type you serialize:
 
 ```csharp
+
 using System.Text.Json.Serialization;
 
 [JsonSerializable(typeof(Order))]
@@ -70,11 +71,13 @@ using System.Text.Json.Serialization;
 public partial class AppJsonContext : JsonSerializerContext
 {
 }
-```
+
+```json
 
 ### Using the Generated Context
 
 ```csharp
+
 // Serialize
 string json = JsonSerializer.Serialize(order, AppJsonContext.Default.Order);
 
@@ -89,13 +92,15 @@ var options = new JsonSerializerOptions
 };
 
 string json = JsonSerializer.Serialize(order, options);
-```
+
+```json
 
 ### ASP.NET Core Integration
 
 Register the source-generated context so Minimal APIs use it automatically. Note that `ConfigureHttpJsonOptions` applies to Minimal APIs only -- MVC controllers require separate configuration via `AddJsonOptions`:
 
 ```csharp
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Minimal APIs: ConfigureHttpJsonOptions
@@ -125,13 +130,15 @@ app.MapPost("/orders", async (Order order, OrderService service) =>
     await service.CreateAsync(order);
     return Results.Created($"/orders/{order.Id}", order);
 });
-```
+
+```text
 
 ### Combining Multiple Contexts
 
 When your application has multiple serialization contexts (e.g., different bounded contexts or libraries):
 
 ```csharp
+
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.TypeInfoResolver = JsonTypeInfoResolver.Combine(
@@ -140,11 +147,13 @@ builder.Services.ConfigureHttpJsonOptions(options =>
         InventoryJsonContext.Default
     );
 });
-```
+
+```json
 
 ### Common Configuration
 
 ```csharp
+
 [JsonSourceGenerationOptions(
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -154,11 +163,13 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 public partial class AppJsonContext : JsonSerializerContext
 {
 }
-```
+
+```json
 
 ### Handling Polymorphism
 
 ```csharp
+
 [JsonDerivedType(typeof(CreditCardPayment), "credit_card")]
 [JsonDerivedType(typeof(BankTransferPayment), "bank_transfer")]
 [JsonDerivedType(typeof(WalletPayment), "wallet")]
@@ -178,7 +189,8 @@ public class CreditCardPayment : Payment
 public partial class AppJsonContext : JsonSerializerContext
 {
 }
-```
+
+```json
 
 ---
 
@@ -189,13 +201,16 @@ Protocol Buffers provide schema-first binary serialization. Protobuf is the defa
 ### Package
 
 ```xml
+
 <PackageReference Include="Google.Protobuf" Version="3.*" />
 <PackageReference Include="Grpc.Tools" Version="2.*" PrivateAssets="All" />
-```
+
+```xml
 
 ### Proto File
 
 ```protobuf
+
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
@@ -214,13 +229,15 @@ message OrderItemMessage {
   int32 quantity = 2;
   double unit_price = 3;
 }
-```
+
+```text
 
 ### Standalone Protobuf (Without gRPC)
 
 Use Protobuf for binary serialization without gRPC when you need compact payloads for caching, messaging, or file storage:
 
 ```csharp
+
 using Google.Protobuf;
 
 // Serialize to bytes
@@ -232,15 +249,18 @@ var restored = OrderMessage.Parser.ParseFrom(bytes);
 // Serialize to stream
 using var stream = File.OpenWrite("order.bin");
 order.WriteTo(stream);
-```
+
+```text
 
 ### Proto File Registration in .csproj
 
 ```xml
+
 <ItemGroup>
   <Protobuf Include="Protos\*.proto" GrpcServices="Both" />
 </ItemGroup>
-```
+
+```xml
 
 ---
 
@@ -251,14 +271,17 @@ MessagePack-CSharp provides high-performance binary serialization with smaller p
 ### Package
 
 ```xml
+
 <PackageReference Include="MessagePack" Version="3.*" />
 <!-- For AOT support -->
 <PackageReference Include="MessagePack.SourceGenerator" Version="3.*" />
-```
+
+```xml
 
 ### Basic Usage with Source Generator (AOT-Safe)
 
 ```csharp
+
 using MessagePack;
 
 [MessagePackObject]
@@ -276,11 +299,13 @@ public partial class Order
     [Key(3)]
     public DateTimeOffset CreatedAt { get; init; }
 }
-```
+
+```text
 
 ### Serialization
 
 ```csharp
+
 // Serialize
 byte[] bytes = MessagePackSerializer.Serialize(order);
 
@@ -291,19 +316,22 @@ var restored = MessagePackSerializer.Deserialize<Order>(bytes);
 var lz4Options = MessagePackSerializerOptions.Standard.WithCompression(
     MessagePackCompression.Lz4BlockArray);
 byte[] compressed = MessagePackSerializer.Serialize(order, lz4Options);
-```
+
+```text
 
 ### AOT Resolver Setup
 
 For Native AOT compatibility, use the MessagePack source generator to produce a resolver:
 
 ```csharp
+
 // In your project, the source generator automatically produces a resolver
 // from types annotated with [MessagePackObject].
 // Register the generated resolver at startup:
 MessagePackSerializer.DefaultOptions = MessagePackSerializerOptions.Standard
     .WithResolver(GeneratedResolver.Instance);
-```
+
+```text
 
 ---
 
@@ -316,6 +344,7 @@ MessagePackSerializer.DefaultOptions = MessagePackSerializerOptions.Standard
 Newtonsoft.Json (`JsonConvert.SerializeObject` / `JsonConvert.DeserializeObject`) relies heavily on runtime reflection. It is **incompatible** with Native AOT and trimming:
 
 ```csharp
+
 // BAD: Reflection-based -- fails under AOT/trimming
 var json = JsonConvert.SerializeObject(order);
 var order = JsonConvert.DeserializeObject<Order>(json);
@@ -323,19 +352,22 @@ var order = JsonConvert.DeserializeObject<Order>(json);
 // GOOD: Source-generated -- AOT-safe
 var json = JsonSerializer.Serialize(order, AppJsonContext.Default.Order);
 var order = JsonSerializer.Deserialize(json, AppJsonContext.Default.Order);
-```
+
+```json
 
 ### System.Text.Json Without Source Generators
 
 Even System.Text.Json falls back to reflection without a source-generated context:
 
 ```csharp
+
 // BAD: No context -- uses runtime reflection
 var json = JsonSerializer.Serialize(order);
 
 // GOOD: Explicit context -- uses source-generated code
 var json = JsonSerializer.Serialize(order, AppJsonContext.Default.Order);
-```
+
+```json
 
 ### Migration Path from Newtonsoft.Json
 

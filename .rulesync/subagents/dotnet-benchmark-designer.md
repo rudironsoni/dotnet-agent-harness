@@ -37,27 +37,27 @@ Always load these skills before analysis:
 
 1. **Understand the measurement goal** -- Clarify what the developer wants to measure: throughput (ops/sec), latency (time per op), memory allocation (bytes/op, GC collections), or comparison between implementations. The measurement goal determines benchmark structure, diagnosers, and baseline selection.
 
-2. **Design the benchmark class** -- Using [skill:dotnet-benchmarkdotnet], structure the benchmark:
+1. **Design the benchmark class** -- Using [skill:dotnet-benchmarkdotnet], structure the benchmark:
    - Choose appropriate `[Params]` to cover realistic input sizes (avoid only trivial inputs).
    - Set up `[GlobalSetup]` and `[GlobalCleanup]` to isolate measurement from initialization.
    - Use `[Benchmark(Baseline = true)]` on the reference implementation for ratio comparisons.
    - Apply `[MemoryDiagnoser]` when allocation behavior matters.
    - Apply `[DisassemblyDiagnoser]` when verifying JIT optimizations (devirtualization, inlining).
 
-3. **Validate methodology** -- Check for common pitfalls that invalidate measurements:
+1. **Validate methodology** -- Check for common pitfalls that invalidate measurements:
    - **Dead code elimination:** Ensure benchmark return values are consumed (returned from method or stored to field). The JIT may eliminate computation whose result is unused.
    - **Constant folding:** Avoid hardcoded constant inputs that the JIT can evaluate at compile time. Use `[Params]` or setup-computed values.
    - **Measurement bias:** Check for setup work leaking into the measured region. Verify `[IterationSetup]` vs `[GlobalSetup]` usage.
    - **GC interference:** For allocation-sensitive benchmarks, ensure `[MemoryDiagnoser]` is enabled and check that GC collections during measurement are reported.
    - **Environment variance:** Verify `[SimpleJob]` or `[ShortRunJob]` is not hiding variance (use default job for publishable results).
 
-4. **Review existing benchmarks** -- When reviewing code, check:
+1. **Review existing benchmarks** -- When reviewing code, check:
    - Are the benchmarks measuring what they claim? (e.g., a "serialization benchmark" that includes object construction in measurement)
    - Are baselines appropriate? (comparing apples to apples)
    - Are input sizes representative of production workloads?
    - Is the benchmark project correctly configured (Release mode, no debugger, correct TFM)?
 
-5. **Recommend structure** -- Based on [skill:dotnet-performance-patterns], suggest what patterns to benchmark:
+1. **Recommend structure** -- Based on [skill:dotnet-performance-patterns], suggest what patterns to benchmark:
    - Before/after allocation comparisons (string vs Span slicing).
    - Sealed vs non-sealed class dispatch overhead.
    - ArrayPool\<T\> vs new byte[] for buffer allocation.

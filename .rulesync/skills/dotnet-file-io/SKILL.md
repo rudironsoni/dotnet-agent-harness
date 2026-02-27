@@ -51,6 +51,7 @@ FileStream async methods (`ReadAsync`, `WriteAsync`) silently block the calling 
 the async flag. This is the most common file I/O mistake in .NET code.
 
 ```csharp
+
 // CORRECT: async-capable FileStream
 await using var fs = new FileStream(
     path,
@@ -62,9 +63,11 @@ await using var fs = new FileStream(
 
 byte[] buffer = new byte[4096];
 int bytesRead = await fs.ReadAsync(buffer, cancellationToken);
-```
+
+```text
 
 ```csharp
+
 // ALSO CORRECT: FileOptions overload
 await using var fs = new FileStream(
     path,
@@ -73,7 +76,8 @@ await using var fs = new FileStream(
     FileShare.None,
     bufferSize: 4096,
     FileOptions.Asynchronous | FileOptions.SequentialScan);
-```
+
+```text
 
 Without `useAsync: true` or `FileOptions.Asynchronous`, the runtime emulates async by dispatching synchronous I/O to the
 thread pool -- wasting a thread and adding overhead.
@@ -81,6 +85,7 @@ thread pool -- wasting a thread and adding overhead.
 ### FileStreamOptions (.NET 6+)
 
 ```csharp
+
 await using var fs = new FileStream(path, new FileStreamOptions
 {
     Mode = FileMode.Open,
@@ -90,7 +95,8 @@ await using var fs = new FileStream(path, new FileStreamOptions
     BufferSize = 4096,
     PreallocationSize = 1_048_576  // Hint for write: reduces fragmentation
 });
-```
+
+```text
 
 `PreallocationSize` reserves disk space upfront when creating or overwriting files, reducing filesystem fragmentation on
 writes.
@@ -103,6 +109,7 @@ writes.
 state, so multiple threads can read/write different offsets concurrently without synchronization.
 
 ```csharp
+
 using var handle = File.OpenHandle(
     path,
     FileMode.Open,
@@ -119,11 +126,13 @@ int bytesRead = await RandomAccess.ReadAsync(
 byte[] buffer2 = new byte[4096];
 int bytesRead2 = await RandomAccess.ReadAsync(
     handle, buffer2, fileOffset: 8192, cancellationToken);
-```
+
+```text
 
 ### Scatter/Gather I/O
 
 ```csharp
+
 // Read into multiple buffers in a single syscall
 IReadOnlyList<Memory<byte>> buffers = new[]
 {
@@ -132,7 +141,8 @@ IReadOnlyList<Memory<byte>> buffers = new[]
 };
 long totalRead = await RandomAccess.ReadAsync(
     handle, buffers, fileOffset: 0, cancellationToken);
-```
+
+```text
 
 ### When to Use RandomAccess vs FileStream
 
@@ -150,6 +160,7 @@ long totalRead = await RandomAccess.ReadAsync(
 For small files where streaming is unnecessary, the `File` static methods are simpler and correct.
 
 ```csharp
+
 // Read entire file as string (small files only)
 string content = await File.ReadAllTextAsync(path, cancellationToken);
 
@@ -167,7 +178,8 @@ await File.WriteAllTextAsync(path, content, cancellationToken);
 
 // Read all bytes
 byte[] data = await File.ReadAllBytesAsync(path, cancellationToken);
-```
+
+```text
 
 ### When Convenience Methods Are Appropriate
 
@@ -184,6 +196,7 @@ byte[] data = await File.ReadAllBytesAsync(path, cancellationToken);
 ### Basic Setup
 
 ```csharp
+
 using var watcher = new FileSystemWatcher(directoryPath)
 {
     Filter = "*.json",
@@ -199,7 +212,8 @@ watcher.Created += OnCreated;
 watcher.Deleted += OnDeleted;
 watcher.Renamed += OnRenamed;
 watcher.Error += OnError;
-```
+
+```text
 
 ### Debouncing Duplicate Events
 
@@ -207,6 +221,7 @@ FileSystemWatcher fires duplicate events for a single logical change (editors wr
 Debounce with a timer.
 
 ```csharp
+
 public sealed class DebouncedFileWatcher : IDisposable
 {
     private readonly FileSystemWatcher _watcher;
@@ -258,7 +273,8 @@ public sealed class DebouncedFileWatcher : IDisposable
         _cts.Dispose();
     }
 }
-```
+
+```text
 
 ### Buffer Overflow
 
@@ -266,6 +282,7 @@ The internal buffer defaults to 8 KB. When many changes occur rapidly, the buffe
 Increase with `InternalBufferSize` (max 64 KB on Windows) and handle the `Error` event.
 
 ```csharp
+
 watcher.InternalBufferSize = 65_536;  // 64 KB
 watcher.Error += (_, e) =>
 {
@@ -275,7 +292,8 @@ watcher.Error += (_, e) =>
         // Trigger full directory rescan
     }
 };
-```
+
+```text
 
 ### Platform Differences
 
@@ -295,6 +313,7 @@ Map a file into virtual memory for random access without explicit read/write cal
 not fit in memory -- the OS pages data in and out as needed.
 
 ```csharp
+
 using var mmf = MemoryMappedFile.CreateFromFile(
     path,
     FileMode.Open,
@@ -315,11 +334,13 @@ using var stream = mmf.CreateViewStream(
     offset: 0,
     size: 4096,
     MemoryMappedFileAccess.Read);
-```
+
+```text
 
 ### Non-Persisted (IPC Shared Memory)
 
 ```csharp
+
 // Process A: create shared memory region
 using var mmf = MemoryMappedFile.CreateNew(
     "SharedRegion",
@@ -337,7 +358,8 @@ using var mmf2 = MemoryMappedFile.OpenExisting(
 using var accessor2 = mmf2.CreateViewAccessor(
     0, 0, MemoryMappedFileAccess.Read);
 int value = accessor2.ReadInt32(0);  // 42
-```
+
+```text
 
 For GC implications of memory-mapped backing arrays and POH usage, see [skill:dotnet-gc-memory].
 
@@ -351,6 +373,7 @@ For GC implications of memory-mapped backing arrays and POH usage, see [skill:do
 traversal attacks when user input is passed as the second argument.
 
 ```csharp
+
 // DANGEROUS: Path.Combine drops basePath when userInput is rooted
 string basePath = "/app/uploads";
 string userInput = "/etc/passwd";
@@ -360,11 +383,13 @@ string result = Path.Combine(basePath, userInput);
 // SAFER: Path.Join does not discard on rooted paths (.NET Core 2.1+)
 string result2 = Path.Join(basePath, userInput);
 // result2 = "/app/uploads//etc/passwd"  -- preserves basePath
-```
+
+```text
 
 ### Path Traversal Prevention
 
 ```csharp
+
 public static string SafeResolvePath(string basePath, string userPath)
 {
     // Resolve to absolute, resolving ../ and symlinks
@@ -384,7 +409,8 @@ public static string SafeResolvePath(string basePath, string userPath)
 
     return fullPath;
 }
-```
+
+```text
 
 ### Cross-Platform Path Separators
 
@@ -399,6 +425,7 @@ Use `Path.DirectorySeparatorChar` (platform-specific) and `Path.AltDirectorySepa
 contains 65,535 `.tmp` files. Use `Path.GetRandomFileName()` instead.
 
 ```csharp
+
 // INSECURE: predictable name, may throw IOException
 // string tempFile = Path.GetTempFileName();
 
@@ -417,7 +444,8 @@ await using var fs = new FileStream(
     FileOptions.Asynchronous | FileOptions.DeleteOnClose);
 
 await fs.WriteAsync(data, cancellationToken);
-```
+
+```text
 
 `FileOptions.DeleteOnClose` ensures the temp file is removed when the stream is closed. On Windows, the OS guarantees
 deletion when the last handle closes. On Linux/macOS, deletion happens during `Dispose` and may not occur if the process
@@ -441,6 +469,7 @@ sensitivity behavior -- check at runtime if needed.
 ### UnixFileMode (.NET 7+)
 
 ```csharp
+
 // Set POSIX permissions on file creation (Linux/macOS only)
 await using var fs = new FileStream(path, new FileStreamOptions
 {
@@ -449,7 +478,8 @@ await using var fs = new FileStream(path, new FileStreamOptions
     UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite
     // 0600 -- owner read/write only
 });
-```
+
+```text
 
 On Windows, `UnixCreateMode` is silently ignored. Do not use it as a security control on Windows -- use ACLs or Windows
 security APIs instead.
@@ -471,7 +501,8 @@ that non-cooperating processes can bypass it.
 
 ### IOException Hierarchy
 
-```
+```text
+
 IOException
   +-- FileNotFoundException
   +-- DirectoryNotFoundException
@@ -479,11 +510,13 @@ IOException
   +-- DriveNotFoundException
   +-- EndOfStreamException
   +-- FileLoadException
-```
+
+```text
 
 ### HResult Codes for Specific Conditions
 
 ```csharp
+
 try
 {
     await using var fs = new FileStream(path,
@@ -505,7 +538,8 @@ catch (UnauthorizedAccessException ex)
     // Permission denied (not an IOException subclass)
     logger.LogError("Access denied: {Path}", path);
 }
-```
+
+```text
 
 ### Disk-Full Flush Behavior
 
@@ -513,6 +547,7 @@ Write operations may succeed but buffer data in memory. A disk-full condition ca
 rather than at the `Write` call. Always check for exceptions on flush.
 
 ```csharp
+
 await using var fs = new FileStream(path,
     FileMode.Create, FileAccess.Write,
     FileShare.None, 4096, FileOptions.Asynchronous);
@@ -521,7 +556,8 @@ await fs.WriteAsync(data, cancellationToken);
 
 // IOException (disk full) may throw here, not at WriteAsync
 await fs.FlushAsync(cancellationToken);
-```
+
+```text
 
 ---
 

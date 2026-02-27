@@ -61,6 +61,7 @@ The WASM head renders Uno apps in a browser, making Playwright the natural choic
 ### Test Infrastructure
 
 ```csharp
+
 // NuGet: Microsoft.Playwright
 public class UnoWasmFixture : IAsyncLifetime
 {
@@ -145,11 +146,13 @@ public class UnoWasmFixture : IAsyncLifetime
         return process;
     }
 }
-```
+
+```text
 
 ### WASM UI Tests
 
 ```csharp
+
 public class UnoNavigationTests : IClassFixture<UnoWasmFixture>
 {
     private readonly IPage _page;
@@ -180,11 +183,13 @@ public class UnoNavigationTests : IClassFixture<UnoWasmFixture>
         await Expect(settingsHeader).ToHaveTextAsync("Settings");
     }
 }
-```
+
+```text
 
 ### Form Interaction Tests
 
 ```csharp
+
 [Fact]
 public async Task LoginForm_SubmitValid_NavigatesToDashboard()
 {
@@ -208,7 +213,8 @@ public async Task TodoList_AddItem_AppearsInList()
     await Expect(items).ToHaveCountAsync(1);
     await Expect(items.First).ToContainTextAsync("Buy groceries");
 }
-```
+
+```text
 
 ---
 
@@ -219,6 +225,7 @@ public async Task TodoList_AddItem_AppearsInList()
 Uno maps `AutomationProperties.AutomationId` to each platform's native identifier:
 
 ```xml
+
 <!-- Uno XAML -- works across all heads -->
 <Page x:Class="MyApp.Views.LoginPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -238,7 +245,8 @@ Uno maps `AutomationProperties.AutomationId` to each platform's native identifie
                    Foreground="Red" />
     </StackPanel>
 </Page>
-```
+
+```text
 
 Platform mapping:
 - **WASM:** Rendered as `data-testid` attribute (Playwright selector)
@@ -251,6 +259,7 @@ Platform mapping:
 For code that varies by platform, use conditional compilation and separate test classes:
 
 ```csharp
+
 // Shared test -- runs on all platforms
 [Fact]
 public async Task Settings_ChangeTheme_UpdatesUI()
@@ -275,7 +284,8 @@ public async Task FileUpload_BrowserDialog_AcceptsFiles()
     var fileName = _page.Locator("[data-testid='file-name']");
     await Expect(fileName).ToHaveTextAsync("sample.pdf");
 }
-```
+
+```text
 
 ---
 
@@ -286,6 +296,7 @@ Validate that the same UI logic works correctly across different Uno runtime hea
 ### Shared Test Logic Pattern
 
 ```csharp
+
 /// <summary>
 /// Abstract base that defines UI tests once. Concrete subclasses provide
 /// the driver for each platform (Playwright for WASM, Appium for mobile).
@@ -341,7 +352,8 @@ public class LoginTestsWasm : LoginTestsBase, IClassFixture<UnoWasmFixture>
             $"[data-testid='{automationId}']",
             new() { Timeout = timeoutMs });
 }
-```
+
+```text
 
 ---
 

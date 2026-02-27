@@ -40,14 +40,14 @@ Always load these skills before analysis:
 
 1. **Detect context** -- Run [skill:dotnet-version-detection] to determine TFM and SDK version. Read project files via [skill:dotnet-project-analysis] to identify the Uno single-project structure, `UnoFeatures` property, and target frameworks in use.
 
-2. **Identify target platforms** -- Using [skill:dotnet-uno-targets], determine which platforms are configured (WASM, iOS, Android, macOS, Windows, Linux, Embedded). Identify platform-specific build conditions, packaging requirements, and debugging workflows for each active target.
+1. **Identify target platforms** -- Using [skill:dotnet-uno-targets], determine which platforms are configured (WASM, iOS, Android, macOS, Windows, Linux, Embedded). Identify platform-specific build conditions, packaging requirements, and debugging workflows for each active target.
 
-3. **Recommend patterns** -- Based on detected context:
+1. **Recommend patterns** -- Based on detected context:
    - From [skill:dotnet-uno-platform]: recommend Extensions ecosystem configuration (Navigation, DI, Config, HTTP, Auth), MVUX reactive patterns (feeds, states, commands), Toolkit controls, and Theme resources (Material/Cupertino/Fluent).
    - From [skill:dotnet-uno-targets]: provide per-target deployment guidance, platform-specific gotchas, and AOT/trimming implications. Highlight behavior differences across targets (e.g., WASM vs native navigation, auth flow differences, debugging tool availability).
    - From [skill:dotnet-uno-mcp]: when Uno MCP server tools are available (prefixed `mcp__uno__`), use the search-then-fetch workflow for live documentation. When unavailable, reference static skill content and official docs URLs.
 
-4. **Delegate** -- For concerns outside Uno Platform core, delegate to specialist skills:
+1. **Delegate** -- For concerns outside Uno Platform core, delegate to specialist skills:
    - [skill:dotnet-uno-testing] for Playwright WASM testing and platform-specific test patterns
    - [skill:dotnet-aot-wasm] for general AOT/trimming patterns (soft dependency -- skill may not exist yet)
    - [skill:dotnet-ui-chooser] for framework selection decision tree when user is evaluating alternatives (soft dependency -- skill may not exist yet)

@@ -80,12 +80,14 @@ Spell out words in public APIs even if internal code uses abbreviations. Public 
 not share the team's domain shorthand:
 
 ```csharp
+
 // WRONG -- abbreviations in public surface
 public IReadOnlyList<TxnResult> GetRecentTxns(int cnt);
 
 // CORRECT -- spelled out for clarity
 public IReadOnlyList<TransactionResult> GetRecentTransactions(int count);
-```
+
+```text
 
 ---
 
@@ -101,6 +103,7 @@ Consistent parameter ordering reduces cognitive load and enables fluent usage pa
 4. **Cancellation token** -- always last (convention enforced by CA1068)
 
 ```csharp
+
 // Consistent ordering across the API surface
 public Task<Widget> GetWidgetAsync(
     int widgetId,                              // 1. Target
@@ -113,13 +116,15 @@ public Task<Widget> UpdateWidgetAsync(
     WidgetUpdateRequest request,               // 2. Required
     bool validateFirst = true,                 // 3. Optional
     CancellationToken cancellationToken = default); // 4. Always last
-```
+
+```text
 
 ### Overload Progression
 
 Design overloads as a progression from simple to detailed. Each overload should delegate to the next more specific one:
 
 ```csharp
+
 // Simple -- sensible defaults
 public Task<Widget> GetWidgetAsync(int widgetId,
     CancellationToken cancellationToken = default)
@@ -129,7 +134,8 @@ public Task<Widget> GetWidgetAsync(int widgetId,
 public Task<Widget> GetWidgetAsync(int widgetId,
     WidgetOptions options,
     CancellationToken cancellationToken = default);
-```
+
+```text
 
 ---
 
@@ -150,6 +156,7 @@ public Task<Widget> GetWidgetAsync(int widgetId,
 ### Prefer IReadOnlyList Over IEnumerable for Materialized Collections
 
 ```csharp
+
 // WRONG -- caller does not know if result is materialized or lazy
 public IEnumerable<Widget> GetWidgets();
 
@@ -159,20 +166,23 @@ public IReadOnlyList<Widget> GetWidgets();
 // CORRECT -- signals streaming/lazy evaluation explicitly
 public IAsyncEnumerable<Widget> GetWidgetsStreamAsync(
     CancellationToken cancellationToken = default);
-```
+
+```text
 
 ### The Try Pattern
 
 Use the Try pattern for operations that have a common, non-exceptional failure mode:
 
 ```csharp
+
 // Parsing, lookup, validation -- failure is expected, not exceptional
 public bool TryGetWidget(int widgetId, [NotNullWhen(true)] out Widget? widget);
 
 // Async Try pattern -- return nullable instead of out parameter
 public Task<Widget?> TryGetWidgetAsync(int widgetId,
     CancellationToken cancellationToken = default);
-```
+
+```text
 
 ---
 
@@ -183,6 +193,7 @@ public Task<Widget?> TryGetWidgetAsync(int widgetId,
 Design exception types that enable callers to catch at the right granularity:
 
 ```csharp
+
 // Base exception for the library -- callers can catch all library errors
 public class WidgetServiceException : Exception
 {
@@ -204,7 +215,8 @@ public class WidgetValidationException : WidgetServiceException
     public WidgetValidationException(IReadOnlyList<string> errors)
         : base("Widget validation failed.") => Errors = errors;
 }
-```
+
+```text
 
 ### When to Use Exceptions vs Return Values
 
@@ -220,6 +232,7 @@ public class WidgetValidationException : WidgetServiceException
 Validate public API entry points immediately and throw the standard .NET exceptions:
 
 ```csharp
+
 public Widget CreateWidget(string name, decimal price)
 {
     ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -228,7 +241,8 @@ public Widget CreateWidget(string name, decimal price)
     // Proceed with creation
     return new Widget(name, price);
 }
-```
+
+```text
 
 Use `ArgumentException.ThrowIfNullOrWhiteSpace` (.NET 8+) and `ArgumentOutOfRangeException.ThrowIfNegativeOrZero` (.NET
 8+) instead of manual null checks with `throw new ArgumentNullException(...)`. These throw helpers are optimized by the
@@ -243,6 +257,7 @@ JIT (no delegate allocation, better inlining).
 Prefer composition and interfaces over class inheritance for extension points:
 
 ```csharp
+
 // GOOD -- interface-based extension point
 public interface IWidgetValidator
 {
@@ -275,7 +290,8 @@ public sealed class WidgetServiceBuilder
 
     public WidgetService Build() => new(_validators);
 }
-```
+
+```text
 
 ### Extension Method Guidelines
 
@@ -313,6 +329,7 @@ breaks existing clients or stored data.
 ### Defensive Serialization Design
 
 ```csharp
+
 // Version-tolerant DTO with explicit wire names
 public sealed class WidgetDto
 {
@@ -331,11 +348,13 @@ public sealed class WidgetDto
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int Priority { get; init; }
 }
-```
+
+```json
 
 ### Enum Serialization Strategy
 
 ```csharp
+
 // GOOD -- string serialization is rename-safe and human-readable
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum WidgetStatus
@@ -354,7 +373,8 @@ public enum WidgetPriority
     High = 2
     // New members MUST go at the end with explicit values
 }
-```
+
+```text
 
 ---
 

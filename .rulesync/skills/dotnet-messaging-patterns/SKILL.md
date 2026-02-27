@@ -72,6 +72,7 @@ distributed transactions (which most brokers do not support) or consumer-side de
 ### Azure Service Bus Topics
 
 ```csharp
+
 // Publisher -- send event to a topic
 await using var client = new ServiceBusClient(connectionString);
 await using var sender = client.CreateSender("order-events");
@@ -85,9 +86,11 @@ var message = new ServiceBusMessage(
 };
 
 await sender.SendMessageAsync(message, cancellationToken);
-```
+
+```text
 
 ```csharp
+
 // Subscriber -- process events from a subscription
 await using var processor = client.CreateProcessor(
     topicName: "order-events",
@@ -112,17 +115,21 @@ processor.ProcessErrorAsync += args =>
 };
 
 await processor.StartProcessingAsync(cancellationToken);
-```
+
+```text
 
 **Key packages:**
 
 ```xml
+
 <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.*" />
-```
+
+```xml
 
 ### RabbitMQ Fanout Exchange
 
 ```csharp
+
 // Publisher -- declare exchange and publish
 var factory = new ConnectionFactory { HostName = "localhost" };
 await using var connection = await factory.CreateConnectionAsync();
@@ -140,13 +147,16 @@ await channel.BasicPublishAsync(
     exchange: "order-events",
     routingKey: string.Empty,
     body: body);
-```
+
+```text
 
 **Key packages:**
 
 ```xml
+
 <PackageReference Include="RabbitMQ.Client" Version="7.*" />
-```
+
+```xml
 
 ### MassTransit Publish
 
@@ -154,6 +164,7 @@ MassTransit abstracts the broker, providing a unified API for Azure Service Bus,
 transport.
 
 ```csharp
+
 // Registration
 builder.Services.AddMassTransit(x =>
 {
@@ -197,17 +208,20 @@ public sealed class OrderPlacedConsumer(
 
 // Message contract (use records in a shared contracts assembly)
 public record OrderPlaced(Guid OrderId, decimal Total);
-```
+
+```text
 
 **Key packages:**
 
 ```xml
+
 <PackageReference Include="MassTransit" Version="8.*" />
 <!-- Pick ONE transport: -->
 <PackageReference Include="MassTransit.RabbitMQ" Version="8.*" />
 <!-- OR -->
 <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="8.*" />
-```
+
+```text
 
 ---
 
@@ -218,16 +232,19 @@ exactly one consumer, distributing load across instances.
 
 ### Pattern
 
-```
+```text
+
 Queue: order-processing
   ├── Consumer Instance A  (picks message 1)
   ├── Consumer Instance B  (picks message 2)
   └── Consumer Instance C  (picks message 3)
-```
+
+```text
 
 ### Azure Service Bus -- Scaling Consumers
 
 ```csharp
+
 // Multiple instances reading from the same queue automatically compete.
 // MaxConcurrentCalls controls per-instance parallelism.
 var processor = client.CreateProcessor("order-processing",
@@ -237,16 +254,19 @@ var processor = client.CreateProcessor("order-processing",
         PrefetchCount = 50,
         AutoCompleteMessages = false
     });
-```
+
+```text
 
 ### MassTransit -- Concurrency Limits
 
 ```csharp
+
 x.AddConsumer<OrderProcessor>(cfg =>
 {
     cfg.UseConcurrentMessageLimit(10);
 });
-```
+
+```text
 
 ### Ordering Considerations
 
@@ -276,6 +296,7 @@ messages from blocking the main queue.
 ### Azure Service Bus DLQ
 
 ```csharp
+
 // Dead-letter a message with reason
 await args.DeadLetterMessageAsync(
     args.Message,
@@ -304,7 +325,8 @@ while (true)
     // Inspect, fix, and re-submit or discard
     await dlqReceiver.CompleteMessageAsync(message);
 }
-```
+
+```text
 
 ### MassTransit Error/Fault Queues
 
@@ -312,6 +334,7 @@ MassTransit automatically creates `_error` and `_skipped` queues. Failed message
 error queue with fault metadata.
 
 ```csharp
+
 // Configure retry before dead-lettering
 x.AddConsumer<OrderProcessor>(cfg =>
 {
@@ -320,7 +343,8 @@ x.AddConsumer<OrderProcessor>(cfg =>
         TimeSpan.FromSeconds(5),
         TimeSpan.FromSeconds(15)));
 });
-```
+
+```text
 
 ### DLQ Monitoring
 
@@ -343,6 +367,7 @@ with compensation logic for failures.
 ### MassTransit State Machine Saga
 
 ```csharp
+
 // Saga state
 public class OrderState : SagaStateMachineInstance
 {
@@ -415,7 +440,8 @@ builder.Services.AddMassTransit(x =>
         cfg.ConfigureEndpoints(context);
     });
 });
-```
+
+```text
 
 ### Saga Persistence
 
@@ -430,7 +456,8 @@ builder.Services.AddMassTransit(x =>
 
 When a saga step fails, publish compensating commands to undo prior steps:
 
-```
+```bash
+
 OrderSubmitted -> RequestPayment -> PaymentReceived -> ReserveInventory
                                                           |
                                                      InventoryFailed
@@ -438,7 +465,8 @@ OrderSubmitted -> RequestPayment -> PaymentReceived -> ReserveInventory
                                                     RefundPayment (compensation)
                                                           |
                                                     CancelOrder (compensation)
-```
+
+```text
 
 ---
 
@@ -450,6 +478,7 @@ processing produces the same result.
 ### Database-Based Deduplication
 
 ```csharp
+
 public sealed class IdempotentOrderConsumer(
     AppDbContext db,
     ILogger<IdempotentOrderConsumer> logger)
@@ -485,7 +514,8 @@ public sealed class IdempotentOrderConsumer(
         await db.SaveChangesAsync();
     }
 }
-```
+
+```text
 
 ### Natural Idempotency
 
@@ -502,6 +532,7 @@ Prefer operations that are naturally idempotent:
 Wrap message payloads in a standard envelope with metadata for tracing, versioning, and routing.
 
 ```csharp
+
 public sealed record MessageEnvelope<T>(
     string MessageId,
     string MessageType,
@@ -510,7 +541,8 @@ public sealed record MessageEnvelope<T>(
     string Source,
     int Version, // Schema version for backward-compatible deserialization
     T Payload);
-```
+
+```text
 
 MassTransit provides this automatically via `ConsumeContext` (MessageId, CorrelationId, Headers). When using raw broker
 clients, implement envelopes explicitly.

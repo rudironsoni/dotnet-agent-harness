@@ -67,6 +67,7 @@ Server-side Blazor uses cookie authentication. The user authenticates via a stan
 cookie is sent with the initial HTTP request that establishes the SignalR circuit.
 
 ```csharp
+
 // Program.cs
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -77,7 +78,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthorization();
-```
+
+```text
 
 **Gotcha:** `HttpContext` is available during the initial HTTP request but is `null` inside interactive components after
 the SignalR circuit is established. Do not access `HttpContext` in interactive component lifecycle methods. Use
@@ -89,6 +91,7 @@ WASM runs in the browser. Cookie auth works for same-origin APIs (and Backend-fo
 token-based auth (OIDC/JWT) is the standard approach for cross-origin APIs and delegated access scenarios:
 
 ```csharp
+
 // Client Program.cs (WASM)
 builder.Services.AddOidcAuthentication(options =>
 {
@@ -97,9 +100,11 @@ builder.Services.AddOidcAuthentication(options =>
     options.ProviderOptions.ResponseType = "code";
     options.ProviderOptions.DefaultScopes.Add("api");
 });
-```
+
+```text
 
 ```csharp
+
 // Attach tokens to API calls using BaseAddressAuthorizationMessageHandler
 // (auto-attaches tokens for requests to the app's base address)
 builder.Services.AddHttpClient("API", client =>
@@ -112,24 +117,28 @@ builder.Services.AddHttpClient("API", client =>
 
 builder.Services.AddScoped(sp =>
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("API"));
-```
+
+```text
 
 ### InteractiveAuto Auth
 
 Auto mode starts as InteractiveServer (cookie auth), then transitions to WASM (token auth). Handle both:
 
 ```csharp
+
 // Server Program.cs
 builder.Services.AddAuthentication()
     .AddCookie()
     .AddJwtBearer(); // For WASM API calls after transition
 
 builder.Services.AddCascadingAuthenticationState();
-```
+
+```text
 
 ### Hybrid (MAUI) Auth
 
 ```csharp
+
 // Register platform-specific auth
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, MauiAuthStateProvider>();
@@ -150,7 +159,8 @@ public class MauiAuthStateProvider : AuthenticationStateProvider
         return new AuthenticationState(new ClaimsPrincipal(identity));
     }
 }
-```
+
+```text
 
 ---
 
@@ -161,6 +171,7 @@ public class MauiAuthStateProvider : AuthenticationStateProvider
 ### Basic Usage
 
 ```razor
+
 <AuthorizeView>
     <Authorized>
         <p>Welcome, @context.User.Identity?.Name!</p>
@@ -173,11 +184,13 @@ public class MauiAuthStateProvider : AuthenticationStateProvider
         <p>Checking authentication...</p>
     </Authorizing>
 </AuthorizeView>
-```
+
+```text
 
 ### Role-Based
 
 ```razor
+
 <AuthorizeView Roles="Admin,Manager">
     <Authorized>
         <AdminDashboard />
@@ -186,24 +199,29 @@ public class MauiAuthStateProvider : AuthenticationStateProvider
         <p>You do not have access to the admin dashboard.</p>
     </NotAuthorized>
 </AuthorizeView>
-```
+
+```text
 
 ### Policy-Based
 
 ```razor
+
 <AuthorizeView Policy="CanEditProducts">
     <Authorized>
         <button @onclick="EditProduct">Edit</button>
     </Authorized>
 </AuthorizeView>
-```
+
+```text
 
 ```csharp
+
 // Register policy in Program.cs
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("CanEditProducts", policy =>
         policy.RequireClaim("permission", "products.edit"));
-```
+
+```csharp
 
 ---
 
@@ -215,9 +233,11 @@ components.
 ### Setup
 
 ```csharp
+
 // Program.cs -- register cascading auth state
 builder.Services.AddCascadingAuthenticationState();
-```
+
+```csharp
 
 This replaces wrapping the entire app in `<CascadingAuthenticationState>` (the older pattern). The service-based
 registration (.NET 8+) is preferred.
@@ -225,6 +245,7 @@ registration (.NET 8+) is preferred.
 ### Consuming Auth State in Components
 
 ```razor
+
 @code {
     [CascadingParameter]
     private Task<AuthenticationState>? AuthState { get; set; }
@@ -240,11 +261,13 @@ registration (.NET 8+) is preferred.
         }
     }
 }
-```
+
+```text
 
 ### Accessing Claims
 
 ```csharp
+
 var state = await AuthState;
 var user = state.User;
 
@@ -255,7 +278,8 @@ if (user.Identity?.IsAuthenticated == true)
     var roles = user.FindAll(ClaimTypes.Role).Select(c => c.Value);
     var isAdmin = user.IsInRole("Admin");
 }
-```
+
+```text
 
 ---
 
@@ -267,12 +291,15 @@ reset, and two-factor authentication.
 ### Adding Identity to a Blazor Web App
 
 ```bash
+
 # Add Identity scaffolding
 dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
 dotnet add package Microsoft.AspNetCore.Identity.UI
-```
+
+```bash
 
 ```csharp
+
 // Program.cs
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
@@ -286,20 +313,24 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
-```
+
+```text
 
 ### Scaffolding Identity Pages
 
 ```bash
+
 # Scaffold individual Identity pages for customization
 dotnet aspnet-codegenerator identity -dc ApplicationDbContext --files "Account.Login;Account.Register;Account.Logout"
-```
+
+```bash
 
 ### Custom Identity UI with Blazor Components
 
 For a fully Blazor-native auth experience, create Blazor components that call Identity APIs:
 
 ```razor
+
 @page "/Account/Login"
 @inject SignInManager<ApplicationUser> SignInManager
 @inject NavigationManager Navigation
@@ -356,7 +387,8 @@ For a fully Blazor-native auth experience, create Blazor components that call Id
         }
     }
 }
-```
+
+```text
 
 **Gotcha:** `SignInManager` uses `HttpContext` to set cookies. In Interactive render modes, `HttpContext` is not
 available after the circuit is established. Login/logout pages must use Static SSR (no `@rendermode`) so they have
@@ -369,22 +401,27 @@ access to `HttpContext` for cookie operations.
 ### Page-Level Authorization
 
 ```razor
+
 @page "/admin"
 @attribute [Authorize(Roles = "Admin")]
 
 <h1>Admin Panel</h1>
-```
+
+```text
 
 ```razor
+
 @page "/products/manage"
 @attribute [Authorize(Policy = "ProductManager")]
 
 <h1>Manage Products</h1>
-```
+
+```text
 
 ### Defining Policies
 
 ```csharp
+
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("ProductManager", policy =>
         policy.RequireRole("Admin", "ProductManager"))
@@ -393,11 +430,13 @@ builder.Services.AddAuthorizationBuilder()
               .RequireAuthenticatedUser())
     .AddPolicy("MinimumAge", policy =>
         policy.AddRequirements(new MinimumAgeRequirement(18)));
-```
+
+```text
 
 ### Custom Authorization Handler
 
 ```csharp
+
 public sealed class MinimumAgeRequirement(int minimumAge) : IAuthorizationRequirement
 {
     public int MinimumAge { get; } = minimumAge;
@@ -425,11 +464,13 @@ public sealed class MinimumAgeHandler : AuthorizationHandler<MinimumAgeRequireme
 
 // Register
 builder.Services.AddSingleton<IAuthorizationHandler, MinimumAgeHandler>();
-```
+
+```text
 
 ### Procedural Authorization in Components
 
 ```razor
+
 @inject IAuthorizationService AuthorizationService
 
 @code {
@@ -449,7 +490,8 @@ builder.Services.AddSingleton<IAuthorizationHandler, MinimumAgeHandler>();
         }
     }
 }
-```
+
+```text
 
 ---
 
@@ -458,6 +500,7 @@ builder.Services.AddSingleton<IAuthorizationHandler, MinimumAgeHandler>();
 ### Adding External Providers
 
 ```csharp
+
 builder.Services.AddAuthentication()
     .AddMicrosoftAccount(options =>
     {
@@ -469,7 +512,8 @@ builder.Services.AddAuthentication()
         options.ClientId = builder.Configuration["Auth:Google:ClientId"]!;
         options.ClientSecret = builder.Configuration["Auth:Google:ClientSecret"]!;
     });
-```
+
+```text
 
 ### External Login Flow per Hosting Model
 
@@ -482,6 +526,7 @@ builder.Services.AddAuthentication()
 For WASM, configure the OIDC provider in the client project:
 
 ```csharp
+
 // Client Program.cs
 builder.Services.AddOidcAuthentication(options =>
 {
@@ -489,16 +534,19 @@ builder.Services.AddOidcAuthentication(options =>
     options.ProviderOptions.ClientId = "{client-id}";
     options.ProviderOptions.ResponseType = "code";
 });
-```
+
+```text
 
 For MAUI Hybrid:
 
 ```csharp
+
 var result = await WebAuthenticator.Default.AuthenticateAsync(
     new Uri("https://login.example.com/authorize"),
     new Uri("myapp://callback"));
 var token = result.AccessToken;
-```
+
+```text
 
 ---
 

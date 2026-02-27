@@ -48,7 +48,8 @@ Always load these skills before analysis:
 
 ## Decision Tree
 
-```
+```text
+
 Is the question about ValueTask vs Task?
   CRITICAL: Never await a ValueTask more than once. Never use .Result on incomplete ValueTask.
   Is this a hot-path method completing synchronously most of the time?
@@ -99,17 +100,18 @@ Is the question about Channel selection?
   -> Use UnboundedChannel only when consumer is always faster
   -> Set SingleReader/SingleWriter for lock-free fast paths
   -> See [skill:dotnet-channels] for detailed patterns
-```
+
+```text
 
 ## Analysis Workflow
 
 1. **Detect .NET version and scan patterns** -- Determine the target framework (async APIs differ between .NET Framework, .NET 6, .NET 8+). Grep for async method signatures, ConfigureAwait usage, ValueTask usage, and sync-over-async patterns (.Result, .Wait()).
 
-2. **Identify hot paths and overhead** -- Find async methods in request pipelines, tight loops, and high-frequency handlers. Check for ValueTask applicability, unnecessary state machines, trivial async wrappers, and excessive chaining.
+1. **Identify hot paths and overhead** -- Find async methods in request pipelines, tight loops, and high-frequency handlers. Check for ValueTask applicability, unnecessary state machines, trivial async wrappers, and excessive chaining.
 
-3. **Evaluate ConfigureAwait and throughput** -- Apply the ConfigureAwait decision tree. Assess whether IO.Pipelines or Channel<T> would improve throughput for I/O-heavy or producer-consumer scenarios.
+1. **Evaluate ConfigureAwait and throughput** -- Apply the ConfigureAwait decision tree. Assess whether IO.Pipelines or Channel<T> would improve throughput for I/O-heavy or producer-consumer scenarios.
 
-4. **Report findings** -- For each issue, report evidence (code location, pattern), impact (hot path vs cold path), and remediation with skill cross-references.
+1. **Report findings** -- For each issue, report evidence (code location, pattern), impact (hot path vs cold path), and remediation with skill cross-references.
 
 ## Explicit Boundaries
 

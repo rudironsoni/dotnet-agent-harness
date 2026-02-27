@@ -54,6 +54,7 @@ and UI contexts. Another common mistake is fire-and-forget calls that silently s
 ### Anti-Pattern
 
 ```csharp
+
 // WRONG: blocking on async -- deadlock risk in synchronization contexts
 public Order GetOrder(int id)
 {
@@ -66,11 +67,13 @@ public void ProcessOrder(Order order)
 {
     _ = _emailService.SendConfirmationAsync(order); // exception silently lost
 }
-```
+
+```text
 
 ### Corrected
 
 ```csharp
+
 // CORRECT: async all the way
 public async Task<Order> GetOrderAsync(int id, CancellationToken ct = default)
 {
@@ -83,7 +86,8 @@ public async Task ProcessOrderAsync(Order order, CancellationToken ct = default)
 {
     await _emailService.SendConfirmationAsync(order, ct);
 }
-```
+
+```text
 
 See [skill:dotnet-csharp-async-patterns] for full async/await guidance including `ValueTask`, `ConfigureAwait`, and
 cancellation propagation.
@@ -98,6 +102,7 @@ that have been deprecated/replaced. ASP.NET Core shared-framework packages must 
 ### Anti-Pattern
 
 ```xml
+
 <!-- WRONG: package name does not exist (correct: Microsoft.EntityFrameworkCore) -->
 <PackageReference Include="EntityFrameworkCore" Version="9.0.0" />
 
@@ -108,11 +113,13 @@ that have been deprecated/replaced. ASP.NET Core shared-framework packages must 
 <!-- WRONG: agents add Swashbuckle by default; .NET 9+ templates use built-in OpenAPI -->
 <PackageReference Include="Swashbuckle.AspNetCore" Version="7.0.0" />
 <!-- Swashbuckle is still valid when Swagger UI is needed, but not the default choice -->
-```
+
+```text
 
 ### Corrected
 
 ```xml
+
 <!-- CORRECT: exact package ID -->
 <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
 
@@ -123,7 +130,8 @@ that have been deprecated/replaced. ASP.NET Core shared-framework packages must 
 <!-- CORRECT: .NET 9+ templates prefer built-in OpenAPI support -->
 <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
 <!-- Swashbuckle remains a valid choice when Swagger UI features are needed -->
-```
+
+```text
 
 See [skill:dotnet-csproj-reading] for project file conventions and central package management guidance.
 
@@ -138,6 +146,7 @@ See [skill:dotnet-csproj-reading] for project file conventions and central packa
 ### Anti-Pattern
 
 ```csharp
+
 // WRONG: BinaryFormatter is banned in .NET 8+ (SYSLIB0011)
 var formatter = new BinaryFormatter();
 formatter.Serialize(stream, data);
@@ -149,11 +158,13 @@ var html = client.DownloadString("https://example.com");
 // WRONG: obsolete crypto API (SYSLIB0023)
 using var rng = new RNGCryptoServiceProvider();
 rng.GetBytes(buffer);
-```
+
+```text
 
 ### Corrected
 
 ```csharp
+
 // CORRECT: use System.Text.Json for serialization
 var json = JsonSerializer.Serialize(data);
 await File.WriteAllTextAsync("data.json", json);
@@ -167,7 +178,8 @@ public class MyService(HttpClient httpClient)
 
 // CORRECT: modern RandomNumberGenerator (static API)
 RandomNumberGenerator.Fill(buffer);
-```
+
+```text
 
 See [skill:dotnet-security-owasp] for the full deprecated security pattern catalog and OWASP mitigations.
 
@@ -181,6 +193,7 @@ broken `ProjectReference` paths.
 ### Anti-Pattern
 
 ```xml
+
 <!-- WRONG: using Microsoft.NET.Sdk for a web project -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -197,11 +210,13 @@ broken `ProjectReference` paths.
 <!-- WRONG: relative path that doesn't match actual project location -->
 <ProjectReference Include="..\..\Core\MyApp.Core.csproj" />
 <!-- Actual location is ../MyApp.Core/MyApp.Core.csproj -->
-```
+
+```csharp
 
 ### Corrected
 
 ```xml
+
 <!-- CORRECT: use the Web SDK for ASP.NET Core projects -->
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
@@ -214,7 +229,8 @@ broken `ProjectReference` paths.
 
 <!-- CORRECT: verify the actual project path before adding a reference -->
 <ProjectReference Include="..\MyApp.Core\MyApp.Core.csproj" />
-```
+
+```csharp
 
 See [skill:dotnet-project-structure] for SDK types, project organization, and project reference conventions.
 
@@ -228,6 +244,7 @@ forget to enable the nullable context.
 ### Anti-Pattern
 
 ```csharp
+
 // WRONG: null-forgiving operator hides a real null risk
 public string GetUserName(int id)
 {
@@ -238,11 +255,13 @@ public string GetUserName(int id)
 // WRONG: nullable not enabled, so annotations are meaningless
 // Missing <Nullable>enable</Nullable> in .csproj
 public string? GetOptionalValue() => null; // no compiler warnings without nullable context
-```
+
+```csharp
 
 ### Corrected
 
 ```csharp
+
 // CORRECT: handle null explicitly
 public string GetUserName(int id)
 {
@@ -254,14 +273,17 @@ public string GetUserName(int id)
 
     return user.Name;
 }
-```
+
+```text
 
 ```xml
+
 <!-- CORRECT: enable nullable context in .csproj -->
 <PropertyGroup>
   <Nullable>enable</Nullable>
 </PropertyGroup>
-```
+
+```csharp
 
 See [skill:dotnet-csharp-nullable-reference-types] for full NRT usage patterns and annotation strategies.
 
@@ -275,6 +297,7 @@ output types that prevent generator output from compiling.
 ### Anti-Pattern
 
 ```csharp
+
 // WRONG: missing partial keyword -- source generator cannot augment this class
 [JsonSerializable(typeof(WeatherForecast))]
 internal class WeatherJsonContext : JsonSerializerContext
@@ -286,11 +309,13 @@ internal class WeatherJsonContext : JsonSerializerContext
 public static partial struct LogMessages // struct is invalid for LoggerMessage
 {
 }
-```
+
+```text
 
 ### Corrected
 
 ```csharp
+
 // CORRECT: partial class allows source generator to emit companion code
 [JsonSerializable(typeof(WeatherForecast))]
 internal partial class WeatherJsonContext : JsonSerializerContext
@@ -303,7 +328,8 @@ public static partial class Log
     [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Processing {Item}")]
     public static partial void ProcessingItem(ILogger logger, string item);
 }
-```
+
+```text
 
 See [skill:dotnet-csharp-source-generators] for source generator configuration, diagnostics, and debugging.
 
@@ -317,6 +343,7 @@ fixing the underlying reflection/dynamic usage. Suppression hides runtime failur
 ### Anti-Pattern
 
 ```csharp
+
 // WRONG: suppressing trim warning instead of fixing it
 #pragma warning disable IL2026
 var type = Type.GetType(typeName); // reflection not trim-safe
@@ -325,11 +352,13 @@ var instance = Activator.CreateInstance(type!);
 
 // WRONG: app-level suppression in .csproj hides all trim warnings
 // <NoWarn>IL2026;IL2046;IL3050</NoWarn>
-```
+
+```csharp
 
 ### Corrected
 
 ```csharp
+
 // CORRECT: use compile-time type resolution or [DynamicallyAccessedMembers]
 public T CreateInstance<T>() where T : new()
 {
@@ -343,9 +372,11 @@ public object CreateInstance(
     return Activator.CreateInstance(type)
         ?? throw new InvalidOperationException($"Cannot create {type.Name}");
 }
-```
+
+```text
 
 ```xml
+
 <!-- CORRECT: enable trim/AOT analyzers to catch issues early -->
 <!-- For apps: -->
 <PublishTrimmed>true</PublishTrimmed>
@@ -353,7 +384,8 @@ public object CreateInstance(
 <!-- For libraries: -->
 <IsTrimmable>true</IsTrimmable>
 <!-- IsTrimmable auto-enables trim analyzer for libraries -->
-```
+
+```text
 
 See [skill:dotnet-csproj-reading] for MSBuild property guidance on trimming and AOT configuration.
 
@@ -367,6 +399,7 @@ attributes incorrectly.
 ### Anti-Pattern
 
 ```csharp
+
 // WRONG: test class in the production project (not in a separate test project)
 // File: src/MyApp.Api/OrderServiceTests.cs
 namespace MyApp.Api;
@@ -376,9 +409,11 @@ public class OrderServiceTests
     [Fact] // xUnit attribute in production code -- ships test dependencies to users
     public void CalculateTotal_ReturnsCorrectSum() { }
 }
-```
+
+```text
 
 ```xml
+
 <!-- WRONG: test project missing Microsoft.NET.Test.Sdk and runner -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -389,11 +424,13 @@ public class OrderServiceTests
     <!-- Missing Microsoft.NET.Test.Sdk and runner -- dotnet test will find zero tests -->
   </ItemGroup>
 </Project>
-```
+
+```text
 
 ### Corrected
 
 ```xml
+
 <!-- CORRECT: test project in tests/ directory with proper configuration -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -409,7 +446,8 @@ public class OrderServiceTests
     <ProjectReference Include="..\..\src\MyApp.Api\MyApp.Api.csproj" />
   </ItemGroup>
 </Project>
-```
+
+```csharp
 
 See [skill:dotnet-testing-strategy] for test organization, naming conventions, and test type decision guidance.
 
@@ -423,6 +461,7 @@ dependencies that cause memory leaks and concurrency bugs.
 ### Anti-Pattern
 
 ```csharp
+
 // WRONG: scoped service injected into singleton -- captive dependency
 builder.Services.AddSingleton<OrderProcessor>(); // singleton
 builder.Services.AddScoped<IOrderRepository, OrderRepository>(); // scoped
@@ -438,11 +477,13 @@ public class OrderProcessor(IOrderRepository repo) // repo is captured as single
 // WRONG: missing registration causes runtime exception
 // builder.Services.AddScoped<IOrderRepository, OrderRepository>(); // forgot this line
 // InvalidOperationException: Unable to resolve service for type 'IOrderRepository'
-```
+
+```text
 
 ### Corrected
 
 ```csharp
+
 // CORRECT: lifetimes must not capture shorter-lived dependencies
 builder.Services.AddScoped<OrderProcessor>(); // scoped, matches repository lifetime
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
@@ -459,7 +500,8 @@ public class OrderProcessor(IServiceScopeFactory scopeFactory)
         var order = await repo.GetByIdAsync(orderId, ct);
     }
 }
-```
+
+```text
 
 See [skill:dotnet-csharp-dependency-injection] for lifetime rules, registration patterns, and service scope management.
 
@@ -473,6 +515,7 @@ these. See [skill:dotnet-slopwatch] for the automated quality gate that detects 
 ### 1. Disabled or Skipped Tests
 
 ```csharp
+
 // RED FLAG: skipping tests to make the build pass
 [Fact(Skip = "Flaky, will fix later")] // test never gets fixed
 public void CriticalBusinessLogic_WorksCorrectly() { }
@@ -486,7 +529,8 @@ public void CriticalBusinessLogic_WorksCorrectly() { }
 [Fact]
 public void ImportantEdgeCase() { }
 #endif
-```
+
+```text
 
 **Fix:** Investigate and fix the underlying issue. If a test is genuinely flaky due to timing, use `[Retry]` (xUnit v3)
 or fix the non-determinism. Never disable tests to achieve a green build.
@@ -494,6 +538,7 @@ or fix the non-determinism. Never disable tests to achieve a green build.
 ### 2. Warning Suppressions
 
 ```csharp
+
 // RED FLAG: blanket warning suppression
 #pragma warning disable CS8600, CS8602, CS8604 // suppress all nullability warnings
 var result = GetData();
@@ -502,7 +547,8 @@ result.Process();
 
 // RED FLAG: project-level suppression hiding real issues
 // <NoWarn>CS8618;CS8625;IL2026</NoWarn>
-```
+
+```text
 
 **Fix:** Address the underlying nullability or trim issues. Add proper null checks, use nullable annotations correctly,
 or apply `[DynamicallyAccessedMembers]` for trim warnings.
@@ -510,6 +556,7 @@ or apply `[DynamicallyAccessedMembers]` for trim warnings.
 ### 3. Empty Catch Blocks
 
 ```csharp
+
 // RED FLAG: swallowing exceptions silently
 try
 {
@@ -522,20 +569,23 @@ catch (Exception ex)
 {
     // TODO: add logging
 }
-```
+
+```text
 
 **Fix:** At minimum, log the exception. Prefer catching specific exception types and handling them appropriately.
 
 ### 4. Silenced Analyzers Without Justification
 
 ```csharp
+
 // RED FLAG: suppressing analyzer with no explanation
 [SuppressMessage("Design", "CA1062")]
 public void Process(string input) { }
 
 // RED FLAG: disabling analyzer rules in .editorconfig globally
 // dotnet_diagnostic.CA1062.severity = none
-```
+
+```text
 
 **Fix:** Fix the code to satisfy the analyzer rule, or provide a documented justification in the suppression attribute:
 `[SuppressMessage("Design", "CA1062", Justification = "Input validated by middleware")]`.
@@ -543,6 +593,7 @@ public void Process(string input) { }
 ### 5. Removed Assertions from Tests
 
 ```csharp
+
 // RED FLAG: test with no assertions -- always passes
 [Fact]
 public async Task CreateOrder_Succeeds()
@@ -551,7 +602,8 @@ public async Task CreateOrder_Succeeds()
     await service.CreateOrderAsync(new Order());
     // no Assert -- this test proves nothing
 }
-```
+
+```text
 
 **Fix:** Every test must have at least one assertion that validates the expected behavior. If the test is for side
 effects, assert on the side effect (database state, published events, log output).

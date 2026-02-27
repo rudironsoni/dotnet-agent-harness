@@ -57,14 +57,17 @@ Use Semantic Versioning (SemVer) with git tags as the single source of truth for
 **Tag format:** `v{major}.{minor}.{patch}` (e.g., `v1.2.3`)
 
 ```bash
+
 # Tag a release
 git tag -a v1.2.3 -m "Release v1.2.3"
 git push origin v1.2.3
-```
+
+```bash
 
 ### Version Flow
 
-```
+```text
+
 git tag v1.2.3
     │
     ▼
@@ -81,26 +84,31 @@ Embed in binary (--version output)
     │
     ▼
 Stamp in package manifests (Homebrew, winget, Scoop, NuGet)
-```
+
+```text
 
 ### Extracting Version from Tag
 
 ```yaml
+
 - name: Extract version from tag
   id: version
   run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
   # v1.2.3 → 1.2.3
-```
+
+```text
 
 ### Pre-release Versions
 
 ```bash
+
 # Pre-release tag
 git tag -a v1.3.0-rc.1 -m "Release candidate 1"
 
 # CI detects pre-release and skips package manager submissions
 # but still creates GitHub Release as pre-release
-```
+
+```text
 
 ---
 
@@ -109,6 +117,7 @@ git tag -a v1.3.0-rc.1 -m "Release candidate 1"
 ### Complete Workflow
 
 ```yaml
+
 name: Release
 
 on:
@@ -246,7 +255,8 @@ jobs:
         run: >-
           dotnet nuget push ./nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{
           secrets.NUGET_API_KEY }}
-```
+
+```json
 
 ---
 
@@ -257,6 +267,7 @@ jobs:
 The build matrix produces one artifact per RID. Each RID runs on the appropriate runner OS.
 
 ```yaml
+
 strategy:
   matrix:
     include:
@@ -268,7 +279,8 @@ strategy:
         os: macos-latest # Native ARM64 runner
       - rid: win-x64
         os: windows-latest
-```
+
+```text
 
 ### Cross-Compilation Notes
 
@@ -283,6 +295,7 @@ strategy:
 ### Extended Matrix (Optional)
 
 ```yaml
+
 strategy:
   matrix:
     include:
@@ -300,7 +313,8 @@ strategy:
         os: macos-13 # Intel macOS runner
       - rid: linux-musl-x64
         os: ubuntu-latest # Alpine musl cross-compile
-```
+
+```text
 
 ---
 
@@ -311,6 +325,7 @@ strategy:
 Each matrix job uploads its artifact with a RID-specific name:
 
 ```yaml
+
 - name: Upload artifact
   uses: actions/upload-artifact@v4
   with:
@@ -319,29 +334,34 @@ Each matrix job uploads its artifact with a RID-specific name:
       *.tar.gz
       *.zip
     retention-days: 1 # Short retention -- artifacts are published to GitHub Releases
-```
+
+```text
 
 ### Download in Release Job
 
 The release job downloads all artifacts from the build matrix:
 
 ```yaml
+
 - name: Download all artifacts
   uses: actions/download-artifact@v4
   with:
     path: artifacts
     merge-multiple: true # Merge all release-* artifacts into one directory
-```
+
+```text
 
 After download, `artifacts/` contains:
 
-```
+```text
+
 artifacts/
   mytool-1.2.3-linux-x64.tar.gz
   mytool-1.2.3-linux-arm64.tar.gz
   mytool-1.2.3-osx-arm64.tar.gz
   mytool-1.2.3-win-x64.zip
-```
+
+```text
 
 ---
 
@@ -350,26 +370,31 @@ artifacts/
 ### Checksum Generation
 
 ```yaml
+
 - name: Generate checksums
   working-directory: artifacts
   run: |
     set -euo pipefail
     shasum -a 256 *.tar.gz *.zip > checksums-sha256.txt
     cat checksums-sha256.txt
-```
+
+```text
 
 **Output format (checksums-sha256.txt):**
 
-```
+```text
+
 abc123...  mytool-1.2.3-linux-x64.tar.gz
 def456...  mytool-1.2.3-linux-arm64.tar.gz
 ghi789...  mytool-1.2.3-osx-arm64.tar.gz
 jkl012...  mytool-1.2.3-win-x64.zip
-```
+
+```text
 
 ### Creating the Release
 
 ```yaml
+
 - name: Create GitHub Release
   uses: softprops/action-gh-release@v2
   with:
@@ -380,7 +405,8 @@ jkl012...  mytool-1.2.3-win-x64.zip
       artifacts/*.tar.gz
       artifacts/*.zip
       artifacts/checksums-sha256.txt
-```
+
+```text
 
 `generate_release_notes: true` auto-generates release notes from merged PRs and commit messages since the last tag.
 
@@ -393,6 +419,7 @@ jkl012...  mytool-1.2.3-win-x64.zip
 After the GitHub Release is published, update the Homebrew tap automatically:
 
 ```yaml
+
 update-homebrew:
   needs: release
   if: ${{ !contains(github.ref_name, '-') }}
@@ -438,11 +465,13 @@ update-homebrew:
         body: |
           Automated update for mytool v${{ steps.version.outputs.version }}
           Release: https://github.com/myorg/mytool/releases/tag/v${{ steps.version.outputs.version }}
-```
+
+```text
 
 ### winget Manifest Update
 
 ```yaml
+
 update-winget:
   needs: release
   if: ${{ !contains(github.ref_name, '-') }}
@@ -460,11 +489,13 @@ update-winget:
         version: ${{ steps.version.outputs.version }}
         installers-regex: '\.zip$'
         token: ${{ secrets.WINGET_GITHUB_TOKEN }}
-```
+
+```text
 
 ### Scoop Manifest Update
 
 ```yaml
+
 update-scoop:
   needs: release
   if: ${{ !contains(github.ref_name, '-') }}
@@ -503,7 +534,8 @@ update-scoop:
         title: 'mytool ${{ steps.version.outputs.version }}'
         commit-message: 'Update mytool to ${{ steps.version.outputs.version }}'
         branch: 'update-mytool-${{ steps.version.outputs.version }}'
-```
+
+```text
 
 ---
 
@@ -523,22 +555,27 @@ update-scoop:
 The version flows from the git tag through `dotnet publish` into the binary:
 
 ```xml
+
 <!-- .csproj -- Version is set at publish time via /p:Version -->
 <PropertyGroup>
   <!-- Fallback version for local development -->
   <Version>0.0.0-dev</Version>
 </PropertyGroup>
-```
+
+```text
 
 ```bash
+
 # --version output matches the git tag
 $ mytool --version
 1.2.3
-```
+
+```bash
 
 ### Tagging Workflow
 
 ```bash
+
 # 1. Update CHANGELOG.md (if applicable)
 # 2. Commit the changelog
 git commit -am "docs: update changelog for v1.2.3"
@@ -548,7 +585,8 @@ git tag -a v1.2.3 -m "Release v1.2.3"
 
 # 4. Push tag -- triggers the release workflow
 git push origin v1.2.3
-```
+
+```text
 
 ---
 
@@ -557,20 +595,24 @@ git push origin v1.2.3
 ### Secret Management
 
 ```yaml
+
 # Required repository secrets:
 # NUGET_API_KEY         - NuGet.org API key for package publishing
 # TAP_GITHUB_TOKEN      - PAT with repo scope for homebrew-tap
 # WINGET_GITHUB_TOKEN   - PAT with public_repo scope for winget-pkgs PRs
 # SCOOP_GITHUB_TOKEN    - PAT with repo scope for scoop bucket
 # CHOCO_API_KEY         - Chocolatey API key for package push
-```
+
+```text
 
 ### Permissions
 
 ```yaml
+
 permissions:
   contents: write # Minimum: create GitHub Releases and upload assets
-```
+
+```yaml
 
 Use job-level permissions when different jobs need different scopes. Never grant `write-all`.
 

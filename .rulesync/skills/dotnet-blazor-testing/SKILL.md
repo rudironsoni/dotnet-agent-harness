@@ -49,13 +49,16 @@ render modes, [skill:dotnet-blazor-components] for component architecture and st
 ## Package Setup
 
 ```xml
+
 <PackageReference Include="bunit" Version="1.*" />
 <!-- bUnit depends on xunit internally; ensure compatible xUnit version -->
-```
+
+```xml
 
 bUnit test classes inherit from `TestContext` (or use it via composition):
 
 ```csharp
+
 using Bunit;
 using Xunit;
 
@@ -85,7 +88,8 @@ public class CounterCompositionTests : IDisposable
 
     public void Dispose() => _ctx.Dispose();
 }
-```
+
+```text
 
 ---
 
@@ -94,6 +98,7 @@ public class CounterCompositionTests : IDisposable
 ### Basic Rendering and Markup Assertions
 
 ```csharp
+
 public class AlertTests : TestContext
 {
     [Fact]
@@ -121,11 +126,13 @@ public class AlertTests : TestContext
         Assert.Empty(cut.Markup.Trim());
     }
 }
-```
+
+```text
 
 ### Rendering with Child Content
 
 ```csharp
+
 [Fact]
 public void Card_WithChildContent_RendersChildren()
 {
@@ -149,13 +156,15 @@ public void Card_WithRenderFragment_RendersTemplate()
 
     cut.Find("h2").MarkupMatches("<h2>Card Title</h2>");
 }
-```
+
+```text
 
 ### Rendering with Dependency Injection
 
 Register services before rendering components that depend on them:
 
 ```csharp
+
 public class OrderListTests : TestContext
 {
     [Fact]
@@ -181,7 +190,8 @@ public class OrderListTests : TestContext
         Assert.Contains("Alice", rows[0].TextContent);
     }
 }
-```
+
+```text
 
 ---
 
@@ -190,6 +200,7 @@ public class OrderListTests : TestContext
 ### Click Events
 
 ```csharp
+
 [Fact]
 public void Counter_ClickIncrement_IncreasesCount()
 {
@@ -212,11 +223,13 @@ public void Counter_MultipleClicks_AccumulatesCount()
 
     Assert.Equal("3", cut.Find("[data-testid='count']").TextContent);
 }
-```
+
+```text
 
 ### Form Input Events
 
 ```csharp
+
 [Fact]
 public void SearchBox_TypeText_UpdatesResults()
 {
@@ -248,11 +261,13 @@ public async Task LoginForm_SubmitValid_CallsAuthService()
 
     await authService.Received(1).LoginAsync("user@example.com", "P@ssw0rd!");
 }
-```
+
+```text
 
 ### EventCallback Parameters
 
 ```csharp
+
 [Fact]
 public void DeleteButton_Click_InvokesOnDeleteCallback()
 {
@@ -266,7 +281,8 @@ public void DeleteButton_Click_InvokesOnDeleteCallback()
 
     Assert.Equal(42, deletedId);
 }
-```
+
+```text
 
 ---
 
@@ -275,6 +291,7 @@ public void DeleteButton_Click_InvokesOnDeleteCallback()
 ### CascadingValue Setup
 
 ```csharp
+
 [Fact]
 public void ThemedButton_WithDarkTheme_AppliesDarkClass()
 {
@@ -303,11 +320,13 @@ public void UserDisplay_WithCascadedAuthState_ShowsUserName()
 
     Assert.Contains("Alice", cut.Find("[data-testid='user-name']").TextContent);
 }
-```
+
+```text
 
 ### Named Cascading Values
 
 ```csharp
+
 [Fact]
 public void LayoutComponent_ReceivesNamedCascadingValues()
 {
@@ -317,7 +336,8 @@ public void LayoutComponent_ReceivesNamedCascadingValues()
 
     Assert.Contains("Dashboard", cut.Find("[data-testid='widget-title']").TextContent);
 }
-```
+
+```text
 
 ---
 
@@ -329,6 +349,7 @@ interop mock.
 ### Basic JSInterop Setup
 
 ```csharp
+
 public class ClipboardButtonTests : TestContext
 {
     [Fact]
@@ -346,11 +367,13 @@ public class ClipboardButtonTests : TestContext
         JSInterop.VerifyInvoke("navigator.clipboard.writeText", calledTimes: 1);
     }
 }
-```
+
+```text
 
 ### JSInterop with Return Values
 
 ```csharp
+
 [Fact]
 public void GeoLocation_OnLoad_DisplaysCoordinates()
 {
@@ -363,13 +386,15 @@ public void GeoLocation_OnLoad_DisplaysCoordinates()
     cut.WaitForState(() => cut.Find("[data-testid='coordinates']").TextContent.Contains("47.6"));
     Assert.Contains("47.6062", cut.Find("[data-testid='coordinates']").TextContent);
 }
-```
+
+```text
 
 ### Catch-All JSInterop Mode
 
 For components with many JS calls, use loose mode to avoid setting up every call:
 
 ```csharp
+
 [Fact]
 public void RichEditor_Render_DoesNotThrowJSErrors()
 {
@@ -382,7 +407,8 @@ public void RichEditor_Render_DoesNotThrowJSErrors()
     // Component renders without JS exceptions
     Assert.NotEmpty(cut.Markup);
 }
-```
+
+```text
 
 ---
 
@@ -391,6 +417,7 @@ public void RichEditor_Render_DoesNotThrowJSErrors()
 ### Testing OnInitializedAsync
 
 ```csharp
+
 [Fact]
 public void ProductList_WhileLoading_ShowsSpinner()
 {
@@ -413,11 +440,13 @@ public void ProductList_WhileLoading_ShowsSpinner()
         () => cut.Find("[data-testid='loading-spinner']"));
     Assert.Single(cut.FindAll("[data-testid='product-item']"));
 }
-```
+
+```text
 
 ### Testing Error States
 
 ```csharp
+
 [Fact]
 public void ProductList_ServiceError_ShowsErrorMessage()
 {
@@ -434,7 +463,8 @@ public void ProductList_ServiceError_ShowsErrorMessage()
     Assert.Contains("Service unavailable",
         cut.Find("[data-testid='error-message']").TextContent);
 }
-```
+
+```text
 
 ---
 

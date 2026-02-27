@@ -38,11 +38,11 @@ Always load these foundation skills before analysis:
 
 1. **Detect context** -- Run [skill:dotnet-version-detection] to determine what .NET version the project targets. Read solution/project files via [skill:dotnet-project-analysis] to understand the dependency graph.
 
-2. **Assess constraints** -- Identify key constraints: target platforms, deployment model (cloud, desktop, mobile), performance requirements (AOT, trimming), existing framework choices.
+1. **Assess constraints** -- Identify key constraints: target platforms, deployment model (cloud, desktop, mobile), performance requirements (AOT, trimming), existing framework choices.
 
-3. **Recommend approach** -- Based on detected context and constraints, recommend specific architecture patterns, framework selections, and design decisions. Reference the [skill:dotnet-advisor] catalog for specialist skills that should be loaded for implementation.
+1. **Recommend approach** -- Based on detected context and constraints, recommend specific architecture patterns, framework selections, and design decisions. Reference the [skill:dotnet-advisor] catalog for specialist skills that should be loaded for implementation.
 
-4. **Explain trade-offs** -- For each recommendation, explain why it fits the project context and what alternatives were considered. Include version-specific considerations (e.g., features available in net10.0 but not net8.0).
+1. **Explain trade-offs** -- For each recommendation, explain why it fits the project context and what alternatives were considered. Include version-specific considerations (e.g., features available in net10.0 but not net8.0).
 
 ## Knowledge Sources
 

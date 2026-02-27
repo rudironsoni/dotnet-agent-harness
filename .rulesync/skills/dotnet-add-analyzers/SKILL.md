@@ -46,12 +46,14 @@ code style preferences, naming rules, and global AnalyzerConfig files.
 .NET SDK ships built-in analyzers controlled by `AnalysisLevel`. Configure in `Directory.Build.props`:
 
 ```xml
+
 <PropertyGroup>
   <AnalysisLevel>latest-all</AnalysisLevel>
   <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 </PropertyGroup>
-```
+
+```text
 
 ### AnalysisLevel Values
 
@@ -86,6 +88,7 @@ and tighten over time.
 Fine-tune analyzer severity per-rule in `.editorconfig`:
 
 ```ini
+
 [*.cs]
 # Suppress specific rules
 dotnet_diagnostic.CA1062.severity = none          # Nullable handles this
@@ -99,29 +102,36 @@ dotnet_diagnostic.CA1848.severity = warning       # Use LoggerMessage delegates
 dotnet_diagnostic.IDE0005.severity = warning      # Remove unnecessary usings
 dotnet_diagnostic.IDE0063.severity = warning      # Use simple using statement
 dotnet_diagnostic.IDE0090.severity = warning      # Simplify new expression
-```
+
+```text
 
 ### Common Suppressions by Project Type
 
 **ASP.NET Core apps** — suppress ConfigureAwait warnings:
 
 ```ini
+
 dotnet_diagnostic.CA2007.severity = none
-```
+
+```text
 
 **Libraries** — keep CA2007 as warning (callers may not have a SynchronizationContext):
 
 ```ini
+
 dotnet_diagnostic.CA2007.severity = warning
-```
+
+```text
 
 **Test projects** — relax certain rules:
 
 ```ini
+
 dotnet_diagnostic.CA1707.severity = none          # Allow underscores in test names
 dotnet_diagnostic.CA1062.severity = none          # Parameters validated by test framework
 dotnet_diagnostic.CA2007.severity = none          # ConfigureAwait not relevant
-```
+
+```text
 
 ---
 
@@ -130,25 +140,31 @@ dotnet_diagnostic.CA2007.severity = none          # ConfigureAwait not relevant
 Enable globally in `Directory.Build.props`:
 
 ```xml
+
 <PropertyGroup>
   <Nullable>enable</Nullable>
 </PropertyGroup>
-```
+
+```xml
 
 Nullable analysis produces warnings (CS86xx) not CA rules. Related settings:
 
 ```xml
+
 <PropertyGroup>
   <!-- Treat nullable warnings as errors -->
   <WarningsAsErrors>$(WarningsAsErrors);nullable</WarningsAsErrors>
 </PropertyGroup>
-```
+
+```text
 
 For gradual adoption in existing codebases, enable per-file:
 
 ```csharp
+
 #nullable enable
-```
+
+```csharp
 
 See [skill:dotnet-csharp-nullable-reference-types] for annotation strategies and patterns.
 
@@ -161,6 +177,7 @@ See [skill:dotnet-csharp-nullable-reference-types] for annotation strategies and
 For apps published with trimming or Native AOT, enable the analyzers alongside the publish properties:
 
 ```xml
+
 <PropertyGroup>
   <!-- Enable trimmed publishing + analysis -->
   <PublishTrimmed>true</PublishTrimmed>
@@ -173,7 +190,8 @@ For apps published with trimming or Native AOT, enable the analyzers alongside t
   <!-- Single-file analysis (subset of trim analysis) -->
   <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
 </PropertyGroup>
-```
+
+```text
 
 Enable the analyzers early (even before publishing trimmed) to catch issues during development. `EnableTrimAnalyzer` and
 `EnableAotAnalyzer` can be set independently of `PublishTrimmed`/`PublishAot`.
@@ -184,11 +202,13 @@ Libraries use `IsTrimmable` and `IsAotCompatible` to declare compatibility to co
 don't trim yet:
 
 ```xml
+
 <PropertyGroup>
   <IsTrimmable>true</IsTrimmable>
   <IsAotCompatible>true</IsAotCompatible>
 </PropertyGroup>
-```
+
+```text
 
 Setting `IsTrimmable`/`IsAotCompatible` automatically enables the corresponding analyzers. This ensures the library
 works correctly when consumers eventually enable trimming/AOT.
@@ -209,6 +229,7 @@ These analyzers flag:
 Add via `Directory.Build.targets` so they apply to all projects:
 
 ```xml
+
 <!-- Directory.Build.targets -->
 <Project>
   <ItemGroup>
@@ -216,14 +237,17 @@ Add via `Directory.Build.targets` so they apply to all projects:
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" PrivateAssets="all" />
   </ItemGroup>
 </Project>
-```
+
+```text
 
 With CPM, add version entries in `Directory.Packages.props`:
 
 ```xml
+
 <PackageVersion Include="Meziantou.Analyzer" Version="2.0.187" />
 <PackageVersion Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.11.0-beta1.25058.1" />
-```
+
+```xml
 
 ### Recommended Analyzer Packages
 
@@ -239,20 +263,24 @@ With CPM, add version entries in `Directory.Packages.props`:
 When using `BannedApiAnalyzers`, create `BannedSymbols.txt` at the repo root and include it:
 
 ```xml
+
 <!-- Directory.Build.targets -->
 <ItemGroup>
   <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt"
                    Condition="Exists('$(MSBuildThisFileDirectory)BannedSymbols.txt')" />
 </ItemGroup>
-```
+
+```text
 
 Example `BannedSymbols.txt`:
 
-```
+```text
+
 T:System.DateTime;Use DateTimeOffset instead
 M:System.DateTime.Now;Use DateTimeOffset.UtcNow instead
 T:System.GC;Do not call GC methods directly
-```
+
+```text
 
 ---
 
@@ -270,19 +298,23 @@ T:System.GC;Do not call GC methods directly
 For large codebases, avoid fixing all warnings at once:
 
 ```xml
+
 <!-- Directory.Build.props — temporary during migration -->
 <PropertyGroup>
   <AnalysisLevel>latest-recommended</AnalysisLevel>
   <!-- Fix these categories first, then remove NoWarn entries -->
   <NoWarn>$(NoWarn);CA1822;CA1848</NoWarn>
 </PropertyGroup>
-```
+
+```text
 
 Remove `NoWarn` entries as each category is addressed. Track progress with:
 
 ```bash
+
 dotnet build 2>&1 | grep -oE 'CA[0-9]+' | sort | uniq -c | sort -rn
-```
+
+```bash
 
 ---
 

@@ -43,6 +43,7 @@ Cross-references: [skill:dotnet-csharp-source-generators] for shared Roslyn pack
 Analyzer projects **must** target `netstandard2.0`. The compiler loads analyzers into various host processes (Visual Studio on .NET Framework/Mono, MSBuild on .NET Core, `dotnet build` CLI) -- targeting `net8.0+` breaks compatibility with hosts that do not run on that runtime.
 
 ```xml
+
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -56,7 +57,8 @@ Analyzer projects **must** target `netstandard2.0`. The compiler loads analyzers
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
   </ItemGroup>
 </Project>
-```
+
+```csharp
 
 - `EnforceExtendedAnalyzerRules` enables RS-series meta-diagnostics that catch common analyzer authoring mistakes.
 - `IsRoslynComponent` enables IDE tooling support for the project.
@@ -70,6 +72,7 @@ Analyzer projects **must** target `netstandard2.0`. The compiler loads analyzers
 Every analyzer inherits from `DiagnosticAnalyzer` and must be decorated with `[DiagnosticAnalyzer(LanguageNames.CSharp)]`.
 
 ```csharp
+
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class NoPublicFieldsAnalyzer : DiagnosticAnalyzer
 {
@@ -104,7 +107,8 @@ public sealed class NoPublicFieldsAnalyzer : DiagnosticAnalyzer
         }
     }
 }
-```
+
+```text
 
 ### Analysis Context Registration
 
@@ -190,6 +194,7 @@ Use conditional compilation constants (`ROSLYN_X_Y_OR_GREATER`) and version-spec
 Use `Microsoft.CodeAnalysis.Testing` for ergonomic analyzer testing:
 
 ```csharp
+
 using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
     NoPublicFieldsAnalyzer,
     Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
@@ -208,7 +213,8 @@ public class NoPublicFieldsAnalyzerTests
         await Verify.VerifyAnalyzerAsync(test);
     }
 }
-```
+
+```text
 
 ### Diagnostic Markup Syntax
 
@@ -224,6 +230,7 @@ public class NoPublicFieldsAnalyzerTests
 Analyzers ship as NuGet packages with assemblies in `analyzers/dotnet/cs/`, not `lib/`.
 
 ```xml
+
 <PropertyGroup>
   <IncludeBuildOutput>false</IncludeBuildOutput>
   <DevelopmentDependency>true</DevelopmentDependency>
@@ -235,7 +242,8 @@ Analyzers ship as NuGet packages with assemblies in `analyzers/dotnet/cs/`, not 
         Pack="true"
         PackagePath="analyzers/dotnet/cs" />
 </ItemGroup>
-```
+
+```text
 
 ---
 

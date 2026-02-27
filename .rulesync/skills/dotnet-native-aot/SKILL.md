@@ -50,20 +50,24 @@ Cross-references: [skill:dotnet-aot-architecture] for AOT-first design patterns,
 ### Enabling Native AOT
 
 ```xml
+
 <!-- App .csproj -->
 <PropertyGroup>
   <PublishAot>true</PublishAot>
 </PropertyGroup>
-```
+
+```csharp
 
 ```bash
+
 # Publish as Native AOT
 dotnet publish -c Release -r linux-x64
 
 # Publish for specific targets
 dotnet publish -c Release -r win-x64
 dotnet publish -c Release -r osx-arm64
-```
+
+```text
 
 ### MSBuild Properties: Apps vs Libraries
 
@@ -72,6 +76,7 @@ Apps and libraries use different MSBuild properties. Do not mix them.
 **For applications** (console apps, ASP.NET Core Minimal APIs):
 
 ```xml
+
 <PropertyGroup>
   <!-- Enable Native AOT compilation on publish -->
   <PublishAot>true</PublishAot>
@@ -80,18 +85,21 @@ Apps and libraries use different MSBuild properties. Do not mix them.
   <EnableAotAnalyzer>true</EnableAotAnalyzer>
   <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
 </PropertyGroup>
-```
+
+```text
 
 **For libraries** (NuGet packages, shared class libraries):
 
 ```xml
+
 <PropertyGroup>
   <!-- Declare the library is AOT-compatible (auto-enables analyzers) -->
   <IsAotCompatible>true</IsAotCompatible>
   <!-- Declare the library is trim-safe (auto-enables trim analyzer) -->
   <IsTrimmable>true</IsTrimmable>
 </PropertyGroup>
-```
+
+```text
 
 `IsAotCompatible` and `IsTrimmable` automatically enable the AOT and trim analyzers respectively. Do not also set `PublishAot` in library projects -- libraries are not published as standalone executables.
 
@@ -102,23 +110,27 @@ Apps and libraries use different MSBuild properties. Do not mix them.
 Enable AOT and trim analyzers during development to catch issues before publishing:
 
 ```xml
+
 <PropertyGroup>
   <EnableAotAnalyzer>true</EnableAotAnalyzer>
   <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
 </PropertyGroup>
-```
+
+```text
 
 ### Analysis Without Publishing
 
 Run analysis during `dotnet build` without a full publish:
 
 ```bash
+
 # Analyze AOT compatibility without publishing
 dotnet build /p:EnableAotAnalyzer=true /p:EnableTrimAnalyzer=true
 
 # See per-occurrence warnings (not grouped by assembly)
 dotnet build /p:EnableAotAnalyzer=true /p:EnableTrimAnalyzer=true /p:TrimmerSingleWarn=false
-```
+
+```text
 
 This reports IL2xxx (trim) and IL3xxx (AOT) warnings without producing a native binary, enabling fast feedback during development.
 
@@ -141,6 +153,7 @@ When code uses reflection that the trimmer cannot statically analyze, use ILLink
 ### ILLink Descriptor XML
 
 ```xml
+
 <!-- ILLink.Descriptors.xml -->
 <linker>
   <!-- Preserve all public members of a type -->
@@ -154,20 +167,24 @@ When code uses reflection that the trimmer cannot statically analyze, use ILLink
   <!-- Preserve an entire external assembly -->
   <assembly fullname="IncompatibleLibrary" preserve="all" />
 </linker>
-```
+
+```text
 
 ```xml
+
 <!-- Register in .csproj -->
 <ItemGroup>
   <TrimmerRootDescriptor Include="ILLink.Descriptors.xml" />
 </ItemGroup>
-```
+
+```csharp
 
 ### `[DynamicDependency]` Attribute
 
 For targeted preservation in code (preferred over ILLink XML for small, localized cases):
 
 ```csharp
+
 using System.Diagnostics.CodeAnalysis;
 
 // Preserve a specific method
@@ -177,7 +194,8 @@ public void ConfigureApp() { /* ... */ }
 // Preserve all public members
 [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(PluginBase))]
 public void LoadPlugins() { /* ... */ }
-```
+
+```text
 
 ### When to Use Which
 
@@ -213,12 +231,14 @@ P/Invoke (platform invoke) calls to native libraries generally work with Native 
 ### Direct P/Invoke (Preferred)
 
 ```csharp
+
 // Direct P/Invoke -- AOT-compatible, no runtime marshalling overhead
 [LibraryImport("libsqlite3", EntryPoint = "sqlite3_open")]
 internal static partial int Sqlite3Open(
     [MarshalAs(UnmanagedType.LPStr)] string filename,
     out nint db);
-```
+
+```text
 
 Use `[LibraryImport]` (.NET 7+) instead of `[DllImport]` -- it generates marshalling code at compile time via source generators, making it fully AOT-compatible.
 
@@ -230,6 +250,7 @@ Use `[LibraryImport]` (.NET 7+) instead of `[DllImport]` -- it generates marshal
 | `[LibraryImport]` | Full -- compile-time source gen | Compile-time marshalling |
 
 ```csharp
+
 // Migrate from DllImport to LibraryImport
 // Before:
 [DllImport("kernel32.dll", SetLastError = true)]
@@ -239,18 +260,21 @@ static extern bool CloseHandle(IntPtr hObject);
 [LibraryImport("kernel32.dll", SetLastError = true)]
 [return: MarshalAs(UnmanagedType.Bool)]
 internal static partial bool CloseHandle(IntPtr hObject);
-```
+
+```text
 
 ### Native Library Deployment
 
 When publishing as Native AOT, native libraries (`.so`, `.dylib`, `.dll`) must be alongside the binary:
 
 ```xml
+
 <ItemGroup>
   <!-- Include native library in publish output -->
   <NativeLibrary Include="libs/libcustom.so" />
 </ItemGroup>
-```
+
+```text
 
 ---
 
@@ -259,6 +283,7 @@ When publishing as Native AOT, native libraries (`.so`, `.dylib`, `.dll`) must b
 ### Binary Size Reduction Options
 
 ```xml
+
 <PropertyGroup>
   <PublishAot>true</PublishAot>
 
@@ -277,7 +302,8 @@ When publishing as Native AOT, native libraries (`.so`, `.dylib`, `.dll`) must b
   <!-- Remove EventSource/EventPipe (if not using diagnostics) -->
   <EventSourceSupport>false</EventSourceSupport>
 </PropertyGroup>
-```
+
+```text
 
 ### Typical Binary Sizes
 
@@ -291,12 +317,14 @@ When publishing as Native AOT, native libraries (`.so`, `.dylib`, `.dll`) must b
 ### Size Analysis
 
 ```bash
+
 # Analyze what contributes to binary size
 dotnet publish -c Release -r linux-x64 /p:PublishAot=true
 
 # Use sizoscope (community tool) for detailed size analysis
 # https://github.com/AdrianEddy/sizoscope
-```
+
+```text
 
 ---
 
@@ -305,6 +333,7 @@ dotnet publish -c Release -r linux-x64 /p:PublishAot=true
 Native AOT produces self-contained binaries that include the .NET runtime. Use the `runtime-deps` base image for minimal container size since the runtime is already embedded in the binary.
 
 ```dockerfile
+
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
@@ -316,7 +345,8 @@ FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-noble-chiseled AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 ENTRYPOINT ["./MyApp"]
-```
+
+```text
 
 The `runtime-deps` image contains only OS-level dependencies (libc, OpenSSL, etc.) -- no .NET runtime. This is the smallest possible base image for AOT-published apps (~30 MB). See [skill:dotnet-containers] for full container patterns.
 
@@ -329,6 +359,7 @@ The `runtime-deps` image contains only OS-level dependencies (libc, OpenSSL, etc
 ASP.NET Core Minimal APIs support Native AOT. MVC controllers are **not** AOT-compatible (they rely on reflection for model binding, filters, and routing).
 
 ```csharp
+
 var builder = WebApplication.CreateSlimBuilder(args);
 
 // Use source-generated JSON context
@@ -348,7 +379,8 @@ app.Run();
 internal partial class AppJsonContext : JsonSerializerContext { }
 
 record Product(int Id, string Name);
-```
+
+```json
 
 ### CreateSlimBuilder vs CreateBuilder
 
@@ -364,11 +396,13 @@ Use `CreateSlimBuilder` for Native AOT applications. It excludes features that r
 .NET 10 brings improvements across the ASP.NET Core and runtime Native AOT stack. Target `net10.0` to benefit automatically.
 
 ```xml
+
 <PropertyGroup>
   <TargetFramework>net10.0</TargetFramework>
   <PublishAot>true</PublishAot>
 </PropertyGroup>
-```
+
+```text
 
 **Request Delegate Generator improvements:** The source generator that creates request delegates for Minimal API endpoints handles more parameter binding scenarios in .NET 10, including additional `TypedResults` return types and complex binding patterns. This reduces the need for manual workarounds that were required in .NET 8/9 when the generator could not produce AOT-safe code for certain endpoint signatures.
 

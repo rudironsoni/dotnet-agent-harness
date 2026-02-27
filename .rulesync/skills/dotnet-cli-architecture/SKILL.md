@@ -69,6 +69,7 @@ tools. These translate directly to .NET patterns.
 ### Stdout vs Stderr in .NET
 
 ```csharp
+
 // Data output -- goes to stdout (can be piped)
 Console.Out.WriteLine(JsonSerializer.Serialize(result, jsonContext.Options));
 
@@ -78,7 +79,8 @@ Console.Error.WriteLine("Processing 42 files...");
 // With ILogger (when using hosting)
 // ILogger writes to stderr via console provider by default
 logger.LogInformation("Connected to {Endpoint}", endpoint);
-```
+
+```text
 
 ---
 
@@ -86,7 +88,8 @@ logger.LogInformation("Connected to {Endpoint}", endpoint);
 
 Separate CLI concerns into three layers:
 
-```
+```bash
+
 ┌─────────────────────────────────────┐
 │  Commands (System.CommandLine)      │  Parse args, wire options
 │  ─ RootCommand, Command, Option<T>  │
@@ -97,7 +100,8 @@ Separate CLI concerns into three layers:
 │  Services (business logic)          │  Pure logic, no CLI concerns
 │  ─ Interfaces + implementations     │
 └─────────────────────────────────────┘
-```
+
+```text
 
 ### Why Three Layers
 
@@ -107,7 +111,8 @@ Separate CLI concerns into three layers:
 
 ### Example Structure
 
-```
+```text
+
 src/
   MyCli/
     MyCli.csproj
@@ -121,11 +126,13 @@ src/
       SyncService.cs              # Implementation (no CLI awareness)
     Output/
       ConsoleFormatter.cs         # Table/JSON output formatting
-```
+
+```csharp
 
 ### Command Definition Layer
 
 ```csharp
+
 // Commands/SyncCommandDefinition.cs
 public static class SyncCommandDefinition
 {
@@ -143,11 +150,13 @@ public static class SyncCommandDefinition
         return command;
     }
 }
-```
+
+```bash
 
 ### Handler Layer
 
 ```csharp
+
 // Handlers/SyncHandler.cs
 public class SyncHandler : ICommandHandler
 {
@@ -185,11 +194,13 @@ public class SyncHandler : ICommandHandler
         return ExitCodes.Success;
     }
 }
-```
+
+```text
 
 ### Service Layer
 
 ```csharp
+
 // Services/ISyncService.cs -- no CLI dependency
 public interface ISyncService
 {
@@ -215,7 +226,8 @@ public class SyncService : ISyncService
         return new SyncResult(ItemCount: data.Items.Length);
     }
 }
-```
+
+```text
 
 ---
 
@@ -232,6 +244,7 @@ CLI tools use a specific configuration precedence (lowest to highest priority):
 ### Implementation with Generic Host
 
 ```csharp
+
 var builder = new CommandLineBuilder(rootCommand)
     .UseHost(_ => Host.CreateDefaultBuilder(args), host =>
     {
@@ -255,7 +268,8 @@ var builder = new CommandLineBuilder(rootCommand)
     })
     .UseDefaults()
     .Build();
-```
+
+```bash
 
 ### User-Level Configuration
 
@@ -277,6 +291,7 @@ conventions:
 CLI tools need different logging than web apps: logs go to stderr, and verbosity is controlled by flags.
 
 ```csharp
+
 host.ConfigureLogging((ctx, logging) =>
 {
     logging.ClearProviders();
@@ -286,13 +301,15 @@ host.ConfigureLogging((ctx, logging) =>
         options.LogToStandardErrorThreshold = LogLevel.Trace;
     });
 });
-```
+
+```text
 
 ### Verbosity Mapping
 
 Map `--verbose`/`--quiet` flags to log levels:
 
 ```csharp
+
 public static class VerbosityMapping
 {
     public static LogLevel ToLogLevel(bool verbose, bool quiet) => (verbose, quiet) switch
@@ -309,7 +326,8 @@ host.ConfigureLogging((ctx, logging) =>
     var level = VerbosityMapping.ToLogLevel(verbose, quiet);
     logging.SetMinimumLevel(level);
 });
-```
+
+```text
 
 ---
 
@@ -318,6 +336,7 @@ host.ConfigureLogging((ctx, logging) =>
 ### Standard Exit Codes
 
 ```csharp
+
 public static class ExitCodes
 {
     public const int Success = 0;
@@ -331,7 +350,8 @@ public static class ExitCodes
     public const int SyncFailed = 10;
     public const int ValidationFailed = 11;
 }
-```
+
+```text
 
 ### Guidelines
 
@@ -345,6 +365,7 @@ public static class ExitCodes
 ### Propagating Exit Codes
 
 ```csharp
+
 public async Task<int> InvokeAsync(InvocationContext context)
 {
     try
@@ -364,7 +385,8 @@ public async Task<int> InvokeAsync(InvocationContext context)
         return ExitCodes.IoError;
     }
 }
-```
+
+```text
 
 ---
 
@@ -375,6 +397,7 @@ public async Task<int> InvokeAsync(InvocationContext context)
 Support piped input as an alternative to file arguments:
 
 ```csharp
+
 public async Task<int> InvokeAsync(InvocationContext context)
 {
     string input;
@@ -398,11 +421,13 @@ public async Task<int> InvokeAsync(InvocationContext context)
     context.Console.Out.Write(JsonSerializer.Serialize(result));
     return ExitCodes.Success;
 }
-```
+
+```json
 
 ### Machine-Readable Output
 
 ```csharp
+
 // Global --json option for machine-readable output
 var jsonOption = new Option<bool>("--json", "Output as JSON");
 rootCommand.AddGlobalOption(jsonOption);
@@ -417,11 +442,13 @@ else
     // Human-friendly table format
     ConsoleFormatter.WriteTable(result, context.Console);
 }
-```
+
+```text
 
 ### Progress to Stderr
 
 ```csharp
+
 // Progress reporting goes to stderr (does not pollute piped stdout)
 await foreach (var item in _service.StreamAsync(ct))
 {
@@ -429,7 +456,8 @@ await foreach (var item in _service.StreamAsync(ct))
     Console.Out.WriteLine(item.ToJson());
 }
 Console.Error.WriteLine();  // Clear progress line
-```
+
+```json
 
 ---
 
@@ -440,6 +468,7 @@ Console.Error.WriteLine();  // Clear progress line
 Test the full CLI pipeline without spawning a child process:
 
 ```csharp
+
 public class CliTestHarness
 {
     private readonly RootCommand _rootCommand;
@@ -472,11 +501,13 @@ public class CliTestHarness
         return (exitCode, console.Out.ToString()!, console.Error.ToString()!);
     }
 }
-```
+
+```text
 
 ### Testing with Service Mocks
 
 ```csharp
+
 [Fact]
 public async Task Sync_WithValidSource_ReturnsZero()
 {
@@ -505,11 +536,13 @@ public async Task Sync_WithMissingSource_ReturnsNonZero()
     Assert.NotEqual(0, exitCode);
     Assert.Contains("--source", stderr);  // Parse error mentions missing option
 }
-```
+
+```text
 
 ### Exit Code Assertion
 
 ```csharp
+
 [Theory]
 [InlineData("sync --source https://valid.example.com", 0)]
 [InlineData("sync", 2)]  // Missing required option
@@ -520,11 +553,13 @@ public async Task ExitCode_MatchesExpected(string args, int expectedExitCode)
     var (exitCode, _, _) = await harness.InvokeAsync(args);
     Assert.Equal(expectedExitCode, exitCode);
 }
-```
+
+```text
 
 ### Testing Output Format
 
 ```csharp
+
 [Fact]
 public async Task List_WithJsonFlag_OutputsValidJson()
 {
@@ -556,7 +591,8 @@ public async Task List_StderrContainsLogs_StdoutContainsDataOnly()
     // Stderr contains diagnostic output
     Assert.Contains("Connected to", stderr);
 }
-```
+
+```text
 
 ---
 

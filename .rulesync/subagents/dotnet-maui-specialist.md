@@ -39,13 +39,13 @@ Always load these skills before analysis:
 
 1. **Detect context** -- Run [skill:dotnet-version-detection] to determine TFM and SDK version. Read project files via [skill:dotnet-project-analysis] to identify the MAUI single-project structure, platform target frameworks, and NuGet dependencies.
 
-2. **Identify platform targets** -- Using [skill:dotnet-maui-development], determine which platforms are configured (iOS, Android, Mac Catalyst, Windows, Tizen). Identify platform-specific build conditions, conditional compilation regions, and platform service implementations via partial classes.
+1. **Identify platform targets** -- Using [skill:dotnet-maui-development], determine which platforms are configured (iOS, Android, Mac Catalyst, Windows, Tizen). Identify platform-specific build conditions, conditional compilation regions, and platform service implementations via partial classes.
 
-3. **Recommend patterns** -- Based on detected context:
+1. **Recommend patterns** -- Based on detected context:
    - From [skill:dotnet-maui-development]: recommend XAML/MVVM patterns (CommunityToolkit.Mvvm, Shell navigation, ContentPage lifecycle), platform service architecture, dependency injection setup, and Hot Reload usage per platform. Provide version-specific guidance based on detected TFM, including .NET 11 improvements (XAML source gen, CoreCLR for Android, `dotnet run` device selection).
    - From [skill:dotnet-maui-aot]: for iOS and Mac Catalyst targets, assess Native AOT readiness, recommend publish profiles, identify library compatibility issues, and document opt-out mechanisms. Highlight size and startup improvements achievable with AOT.
 
-4. **Delegate** -- For concerns outside MAUI core, delegate to specialist skills:
+1. **Delegate** -- For concerns outside MAUI core, delegate to specialist skills:
    - [skill:dotnet-maui-testing] for Appium UI automation and XHarness device testing
    - [skill:dotnet-native-aot] for general Native AOT patterns beyond MAUI-specific pipeline (soft dependency -- skill may not exist yet)
    - [skill:dotnet-ui-chooser] for framework selection decision tree when user is evaluating alternatives (soft dependency -- skill may not exist yet)

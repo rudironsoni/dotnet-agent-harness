@@ -57,6 +57,7 @@ Reusable workflows allow callers to invoke an entire workflow as a single step. 
 a clean contract:
 
 ```yaml
+
 # .github/workflows/build-reusable.yml
 name: Build (Reusable)
 
@@ -112,11 +113,13 @@ jobs:
           path: |
             **/bin/${{ inputs.configuration }}/**
           retention-days: 7
-```
+
+```text
 
 ### Calling a Reusable Workflow
 
 ```yaml
+
 # .github/workflows/ci.yml
 name: CI
 
@@ -141,20 +144,23 @@ jobs:
     with:
       dotnet-version: '8.0.x'
       project-path: MyApp.sln
-```
+
+```yaml
 
 ### Cross-Repository Reusable Workflows
 
 Reference workflows from other repositories using the full path:
 
 ```yaml
+
 jobs:
   build:
     uses: my-org/.github-workflows/.github/workflows/dotnet-build.yml@v1
     with:
       dotnet-version: '9.0.x'
     secrets: inherit # pass all secrets from caller
-```
+
+```yaml
 
 Use `secrets: inherit` when the reusable workflow needs access to the same secrets as the calling workflow without
 explicit enumeration.
@@ -169,6 +175,7 @@ Composite actions bundle multiple steps into a single reusable action. Use them 
 across multiple workflows:
 
 ```yaml
+
 # .github/actions/dotnet-setup/action.yml
 name: 'Setup .NET Environment'
 description: 'Install .NET SDK and restore NuGet packages with caching'
@@ -201,11 +208,13 @@ runs:
     - name: Restore dependencies
       shell: bash
       run: dotnet restore ${{ inputs.project-path }}
-```
+
+```bash
 
 ### Using a Composite Action
 
 ```yaml
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -220,7 +229,8 @@ jobs:
 
       - name: Build
         run: dotnet build MyApp.sln -c Release --no-restore
-```
+
+```text
 
 ### Reusable Workflow vs Composite Action
 
@@ -239,6 +249,7 @@ jobs:
 ### Multi-TFM and Multi-OS Matrix
 
 ```yaml
+
 jobs:
   test:
     strategy:
@@ -265,7 +276,8 @@ jobs:
         run:
           dotnet test --framework net${{ matrix.dotnet-version == '8.0.x' && '8.0' || matrix.dotnet-version == '9.0.x'
           && '9.0' || '10.0' }}
-```
+
+```text
 
 **Key decisions:**
 
@@ -279,6 +291,7 @@ jobs:
 Generate matrix values dynamically for complex scenarios:
 
 ```yaml
+
 jobs:
   compute-matrix:
     runs-on: ubuntu-latest
@@ -304,7 +317,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: dotnet test --framework ${{ matrix.tfm }}
-```
+
+```text
 
 ---
 
@@ -315,6 +329,7 @@ jobs:
 Trigger workflows only when relevant files change. Reduces CI cost and feedback time:
 
 ```yaml
+
 on:
   push:
     branches: [main]
@@ -333,13 +348,15 @@ on:
       - '*.sln'
       - 'Directory.Build.props'
       - 'Directory.Packages.props'
-```
+
+```xml
 
 ### Ignoring Non-Code Changes
 
 Use `paths-ignore` to skip builds for documentation-only changes:
 
 ```yaml
+
 on:
   push:
     branches: [main]
@@ -348,7 +365,8 @@ on:
       - '*.md'
       - 'LICENSE'
       - '.editorconfig'
-```
+
+```markdown
 
 **Choose `paths` or `paths-ignore`, not both.** When both are specified on the same event, `paths-ignore` is ignored.
 Use `paths` (allowlist) for focused workflows; use `paths-ignore` (denylist) for broad workflows.
@@ -362,20 +380,24 @@ Use `paths` (allowlist) for focused workflows; use `paths-ignore` (denylist) for
 Prevent wasted CI time by cancelling in-progress runs when new commits are pushed to the same branch or PR:
 
 ```yaml
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
-```
+
+```yaml
 
 ### Environment-Scoped Concurrency
 
 Prevent parallel deployments to the same environment:
 
 ```yaml
+
 concurrency:
   group: deploy-production
   cancel-in-progress: false # queue, do not cancel deployments
-```
+
+```yaml
 
 Use `cancel-in-progress: true` for build/test (newer commit supersedes older), but `cancel-in-progress: false` for
 deployments (do not cancel an in-progress deploy).
@@ -387,6 +409,7 @@ deployments (do not cancel an in-progress deploy).
 ### Configuring Environments
 
 ```yaml
+
 jobs:
   deploy-staging:
     runs-on: ubuntu-latest
@@ -406,7 +429,8 @@ jobs:
     steps:
       - name: Deploy to production
         run: echo "Deploying..."
-```
+
+```text
 
 Configure protection rules in GitHub Settings > Environments:
 
@@ -423,6 +447,7 @@ Environments can have their own secrets that override repository-level secrets. 
 deployment credentials:
 
 ```yaml
+
 jobs:
   deploy:
     environment: production
@@ -434,7 +459,8 @@ jobs:
           CONNECTION_STRING: ${{ secrets.CONNECTION_STRING }}
           API_KEY: ${{ secrets.API_KEY }}
         run: ./deploy.sh
-```
+
+```text
 
 ---
 
@@ -443,6 +469,7 @@ jobs:
 ### NuGet Package Cache
 
 ```yaml
+
 - name: Cache NuGet packages
   uses: actions/cache@v4
   with:
@@ -450,7 +477,8 @@ jobs:
     key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/Directory.Packages.props') }}
     restore-keys: |
       nuget-${{ runner.os }}-
-```
+
+```csharp
 
 The `restore-keys` prefix match ensures a partial cache hit when csproj files change (most packages remain cached).
 
@@ -459,13 +487,15 @@ The `restore-keys` prefix match ensures a partial cache hit when csproj files ch
 For self-hosted runners or scenarios where SDK installation is slow:
 
 ```yaml
+
 - name: Setup .NET with cache
   uses: actions/setup-dotnet@v4
   with:
     dotnet-version: '8.0.x'
     cache: true
     cache-dependency-path: '**/packages.lock.json'
-```
+
+```json
 
 The `cache: true` option in `actions/setup-dotnet@v4` enables built-in NuGet caching using `packages.lock.json` as the
 cache key.
@@ -475,6 +505,7 @@ cache key.
 .NET 9 introduced MSBuild build-check caching. For incremental CI builds:
 
 ```yaml
+
 - name: Cache build output
   uses: actions/cache@v4
   with:
@@ -484,7 +515,8 @@ cache key.
     key: build-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/*.cs') }}
     restore-keys: |
       build-${{ runner.os }}-
-```
+
+```csharp
 
 Use build output caching cautiously -- stale caches can mask build errors. Prefer NuGet caching as the primary CI speed
 optimization.
@@ -496,6 +528,7 @@ optimization.
 ### Manual Trigger with Parameters
 
 ```yaml
+
 on:
   workflow_dispatch:
     inputs:
@@ -536,7 +569,8 @@ jobs:
           else
             ./deploy.sh --version ${{ inputs.version }}
           fi
-```
+
+```text
 
 Input types: `string`, `boolean`, `choice`, `environment` (selects from configured environments).
 

@@ -44,6 +44,7 @@ antigravity:
 ### Platform-specific blocks
 
 ```yaml
+
 claudecode:
   model: optional # sonnet | opus | haiku | inherit
   allowed-tools: optional # canonical names: Read, Grep, Glob, Bash, Edit, Write
@@ -61,7 +62,8 @@ copilot:
 codexcli:
   sandbox_mode: optional # "read-only" for read-only agents; omit to inherit parent sandbox
   short-description: optional
-```
+
+```text
 
 ### Tool configuration by platform
 

@@ -48,7 +48,8 @@ Always load these skills before analysis:
 
 ## Decision Tree
 
-```
+```text
+
 Is the question about .NET Aspire?
   Setting up a new Aspire project?
     -> Use AppHost to orchestrate services, databases, and caches
@@ -94,19 +95,20 @@ Is the question about infrastructure-as-code?
   Environment-specific configuration?
     -> Use Azure App Configuration or Kubernetes ConfigMaps
     -> Aspire: use parameters and connection string abstractions
-```
+
+```text
 
 ## Analysis Workflow
 
 1. **Identify deployment targets** -- Check for Aspire AppHost projects, Dockerfiles, Kubernetes manifests, Bicep/Terraform files, and CI/CD pipeline definitions. Determine current deployment strategy.
 
-2. **Evaluate Aspire configuration** -- If Aspire is present, review AppHost for correct service wiring, resource definitions, and environment configuration. Check ServiceDefaults for OpenTelemetry setup.
+1. **Evaluate Aspire configuration** -- If Aspire is present, review AppHost for correct service wiring, resource definitions, and environment configuration. Check ServiceDefaults for OpenTelemetry setup.
 
-3. **Audit CI/CD pipelines** -- Review pipeline definitions for proper staging (build, test, publish, deploy), secret management, environment protection rules, and artifact caching.
+1. **Audit CI/CD pipelines** -- Review pipeline definitions for proper staging (build, test, publish, deploy), secret management, environment protection rules, and artifact caching.
 
-4. **Assess observability** -- Check for distributed tracing configuration, health check endpoints, structured logging, and metric collection. Verify traces propagate across service boundaries.
+1. **Assess observability** -- Check for distributed tracing configuration, health check endpoints, structured logging, and metric collection. Verify traces propagate across service boundaries.
 
-5. **Report findings** -- For each gap or improvement, provide evidence (file locations, configuration values), impact (deployment reliability, observability gaps), and recommended changes with skill cross-references.
+1. **Report findings** -- For each gap or improvement, provide evidence (file locations, configuration values), impact (deployment reliability, observability gaps), and recommended changes with skill cross-references.
 
 ## Explicit Boundaries
 

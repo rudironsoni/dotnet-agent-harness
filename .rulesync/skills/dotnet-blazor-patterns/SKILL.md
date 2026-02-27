@@ -76,24 +76,30 @@ templates. Render modes can be set globally, per-page, or per-component.
 **Global (App.razor):**
 
 ```razor
+
 <!-- Sets default render mode for all pages -->
 <Routes @rendermode="InteractiveServer" />
-```
+
+```text
 
 **Per-page:**
 
 ```razor
+
 @page "/dashboard"
 @rendermode InteractiveServer
 
 <h1>Dashboard</h1>
-```
+
+```text
 
 **Per-component:**
 
 ```razor
+
 <Counter @rendermode="InteractiveWebAssembly" />
-```
+
+```text
 
 **Gotcha:** Without an explicit render mode boundary, a child component cannot request a more interactive render mode
 than its parent. However, interactive islands are supported: you can place an `@rendermode` attribute on a component
@@ -107,6 +113,7 @@ content.
 ### Blazor Web App (Default Template)
 
 ```bash
+
 # Creates a Blazor Web App with InteractiveServer render mode
 dotnet new blazor -n MyApp
 
@@ -115,11 +122,13 @@ dotnet new blazor -n MyApp --interactivity Auto    # InteractiveAuto
 dotnet new blazor -n MyApp --interactivity WebAssembly  # InteractiveWebAssembly
 dotnet new blazor -n MyApp --interactivity Server  # InteractiveServer (default)
 dotnet new blazor -n MyApp --interactivity None    # Static SSR only
-```
+
+```text
 
 ### Blazor Web App Project Structure
 
-```
+```text
+
 MyApp/
   MyApp/                     # Server project
     Program.cs               # Host builder, services, middleware
@@ -135,7 +144,8 @@ MyApp/
     Pages/
       Counter.razor           # Components that run in browser
     Program.cs                # WASM entry point
-```
+
+```csharp
 
 When using InteractiveAuto or InteractiveWebAssembly, components that must run in the browser go in the `.Client`
 project. Components in the server project run on the server only.
@@ -143,6 +153,7 @@ project. Components in the server project run on the server only.
 ### Blazor Hybrid Setup (MAUI)
 
 ```xml
+
 <!-- .csproj for MAUI Blazor Hybrid -->
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
@@ -151,9 +162,11 @@ project. Components in the server project run on the server only.
     <UseMaui>true</UseMaui>
   </PropertyGroup>
 </Project>
-```
+
+```text
 
 ```csharp
+
 // MainPage.xaml.cs hosts BlazorWebView
 public partial class MainPage : ContentPage
 {
@@ -162,9 +175,11 @@ public partial class MainPage : ContentPage
         InitializeComponent();
     }
 }
-```
+
+```text
 
 ```xml
+
 <!-- MainPage.xaml -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:b="clr-namespace:Microsoft.AspNetCore.Components.WebView.Maui;assembly=Microsoft.AspNetCore.Components.WebView.Maui">
@@ -174,7 +189,8 @@ public partial class MainPage : ContentPage
         </b:BlazorWebView.RootComponents>
     </b:BlazorWebView>
 </ContentPage>
-```
+
+```text
 
 ---
 
@@ -183,6 +199,7 @@ public partial class MainPage : ContentPage
 ### Basic Routing
 
 ```razor
+
 @page "/products"
 @page "/products/{Category}"
 
@@ -196,11 +213,13 @@ public partial class MainPage : ContentPage
     [Parameter]
     public string? Category { get; set; }
 }
-```
+
+```text
 
 ### Route Constraints
 
 ```razor
+
 @page "/products/{Id:int}"
 @page "/orders/{Date:datetime}"
 @page "/search/{Query:minlength(3)}"
@@ -210,11 +229,13 @@ public partial class MainPage : ContentPage
     [Parameter] public DateTime Date { get; set; }
     [Parameter] public string Query { get; set; } = "";
 }
-```
+
+```text
 
 ### Query String Parameters
 
 ```razor
+
 @page "/search"
 
 @code {
@@ -224,11 +245,13 @@ public partial class MainPage : ContentPage
     [SupplyParameterFromQuery(Name = "page")]
     public int CurrentPage { get; set; } = 1;
 }
-```
+
+```text
 
 ### NavigationManager
 
 ```csharp
+
 @inject NavigationManager Navigation
 
 // Programmatic navigation
@@ -239,7 +262,8 @@ Navigation.NavigateTo("/search?term=keyboard&page=2");
 
 // Force full page reload (bypasses enhanced navigation)
 Navigation.NavigateTo("/external-page", forceLoad: true);
-```
+
+```text
 
 ---
 
@@ -259,6 +283,7 @@ state and avoiding full page reloads. This applies to Static SSR and prerendered
 ### Opting Out
 
 ```razor
+
 <!-- Disable enhanced navigation for a specific link -->
 <a href="/legacy-page" data-enhance-nav="false">Legacy Page</a>
 
@@ -266,7 +291,8 @@ state and avoiding full page reloads. This applies to Static SSR and prerendered
 <form method="post" data-enhance="false">
     ...
 </form>
-```
+
+```text
 
 **Gotcha:** Enhanced navigation may interfere with third-party JavaScript libraries that expect full page loads. Use
 `data-enhance-nav="false"` on links that navigate to pages with JS that initializes on `DOMContentLoaded`.
@@ -279,6 +305,7 @@ Streaming rendering sends initial HTML immediately (with placeholder content), t
 complete. Useful for pages with slow data sources.
 
 ```razor
+
 @page "/dashboard"
 @attribute [StreamRendering]
 
@@ -308,7 +335,8 @@ else
         orders = await OrderService.GetRecentOrdersAsync();
     }
 }
-```
+
+```text
 
 **Behavior per render mode:**
 
@@ -327,6 +355,7 @@ on runtime reflection.
 ### Source-Generator-First Serialization
 
 ```csharp
+
 // CORRECT: Source-generated JSON serialization (AOT-compatible)
 [JsonSerializable(typeof(ProductDto))]
 [JsonSerializable(typeof(List<ProductDto>))]
@@ -343,16 +372,20 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 var products = await Http.GetFromJsonAsync<List<ProductDto>>(
     "/api/products",
     AppJsonContext.Default.ListProductDto);
-```
+
+```json
 
 ```csharp
+
 // WRONG: Reflection-based serialization (fails under AOT/trimming)
 var products = await Http.GetFromJsonAsync<List<ProductDto>>("/api/products");
-```
+
+```csharp
 
 ### Trim-Safe JS Interop
 
 ```csharp
+
 // CORRECT: Use IJSRuntime with explicit method names (no dynamic dispatch)
 await JSRuntime.InvokeVoidAsync("localStorage.setItem", "key", "value");
 var value = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "key");
@@ -362,26 +395,32 @@ var module = await JSRuntime.InvokeAsync<IJSObjectReference>(
     "import", "./js/chart.js");
 await module.InvokeVoidAsync("initChart", elementRef, data);
 await module.DisposeAsync();
-```
+
+```javascript
 
 ```csharp
+
 // WRONG: Dynamic dispatch via reflection (trimmed away)
 // var method = typeof(JSRuntime).GetMethod("InvokeAsync");
 // method.MakeGenericMethod(returnType).Invoke(...)
-```
+
+```csharp
 
 ### Linker Configuration
 
 ```xml
+
 <!-- Preserve types used dynamically in components -->
 <ItemGroup>
   <TrimmerRootAssembly Include="MyApp.Client" />
 </ItemGroup>
-```
+
+```text
 
 For types that must be preserved from trimming:
 
 ```csharp
+
 // Mark types that are accessed via reflection
 [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
 public class DynamicFormModel
@@ -390,7 +429,8 @@ public class DynamicFormModel
     public string Name { get; set; } = "";
     public int Age { get; set; }
 }
-```
+
+```text
 
 ### Anti-Patterns to Avoid
 
@@ -413,15 +453,19 @@ SEO.
 ### Prerender with Interactive Modes
 
 ```razor
+
 <!-- Component prerenders on server, then becomes interactive -->
 <Counter @rendermode="InteractiveServer" />
-```
+
+```text
 
 By default, interactive components prerender. To disable:
 
 ```razor
+
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
-```
+
+```text
 
 ### Persisting State Across Prerender
 
@@ -429,6 +473,7 @@ State computed during prerendering is lost when the component reinitializes inte
 `PersistentComponentState` to preserve it:
 
 ```razor
+
 @inject PersistentComponentState ApplicationState
 @implements IDisposable
 
@@ -459,7 +504,8 @@ State computed during prerendering is lost when the component reinitializes inte
 
     public void Dispose() => _subscription.Dispose();
 }
-```
+
+```text
 
 ---
 
@@ -474,9 +520,11 @@ user first loads a page, the WASM runtime and app assemblies download in the bac
 interactivity. Subsequent navigations switch to WASM faster because assemblies are already cached.
 
 ```razor
+
 <!-- No code changes needed -- preloading is automatic in .NET 10 -->
 <!-- Verify in browser DevTools Network tab: assemblies download during Server phase -->
-```
+
+```text
 
 ### Enhanced Form Validation
 
@@ -485,6 +533,7 @@ Static SSR forms. Validation messages render correctly with enhanced form handli
 requiring a full page reload.
 
 ```csharp
+
 // IValidatableObject works in Static SSR enhanced forms in .NET 10
 public sealed class OrderModel : IValidatableObject
 {
@@ -504,19 +553,22 @@ public sealed class OrderModel : IValidatableObject
         }
     }
 }
-```
+
+```text
 
 ### Blazor Diagnostics Middleware
 
 .NET 10 adds `MapBlazorDiagnostics` middleware for inspecting Blazor circuit and component state in development:
 
 ```csharp
+
 // Program.cs -- available in .NET 10
 if (app.Environment.IsDevelopment())
 {
     app.MapBlazorDiagnostics(); // Exposes /_blazor/diagnostics endpoint
 }
-```
+
+```text
 
 The diagnostics endpoint shows active circuits, component tree, render mode assignments, and timing data. Use it to
 debug render mode boundaries and component lifecycle issues during development.

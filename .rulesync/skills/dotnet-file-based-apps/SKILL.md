@@ -64,10 +64,12 @@ Four directive types are supported:
 Adds a NuGet package reference. Specify the package name, optionally followed by `@version`.
 
 ```csharp
+
 #:package Newtonsoft.Json
 #:package Serilog@3.1.1
 #:package Spectre.Console@*
-```
+
+```csharp
 
 Version behavior:
 
@@ -83,12 +85,16 @@ Version behavior:
 Specifies which SDK to use. Defaults to `Microsoft.NET.Sdk` if omitted.
 
 ```csharp
+
 #:sdk Microsoft.NET.Sdk.Web
-```
 
 ```csharp
+
+```csharp
+
 #:sdk Aspire.AppHost.Sdk@9.2.0
-```
+
+```csharp
 
 Use this directive to access SDK-specific features. For example, `Microsoft.NET.Sdk.Web` enables ASP.NET Core features
 and automatically includes `*.json` configuration files in the build.
@@ -100,9 +106,11 @@ and automatically includes `*.json` configuration files in the build.
 Sets an MSBuild property value. Use this to customize build behavior.
 
 ```csharp
+
 #:property TargetFramework=net10.0
 #:property PublishAot=false
-```
+
+```csharp
 
 ### Conditional Property Values
 
@@ -111,14 +119,18 @@ Property directives support MSBuild property functions and expressions for condi
 **Environment variables with defaults:**
 
 ```csharp
+
 #:property LogLevel=$([MSBuild]::ValueOrDefault('$(LOG_LEVEL)', 'Information'))
-```
+
+```csharp
 
 **Conditional expressions:**
 
 ```csharp
+
 #:property EnableLogging=$([System.Convert]::ToBoolean($([MSBuild]::ValueOrDefault('$(ENABLE_LOGGING)', 'true'))))
-```
+
+```csharp
 
 ---
 
@@ -128,8 +140,10 @@ References another project file or directory containing a project file. Use this
 and a traditional project.
 
 ```csharp
+
 #:project ../SharedLibrary/SharedLibrary.csproj
-```
+
+```csharp
 
 The referenced project is built and linked as a project reference, just like `<ProjectReference>` in a `.csproj`.
 
@@ -142,6 +156,7 @@ The .NET CLI supports file-based apps through familiar commands.
 ### Run
 
 ```bash
+
 # Preferred: pass file directly
 dotnet run app.cs
 
@@ -153,7 +168,8 @@ dotnet app.cs
 
 # Pass arguments after --
 dotnet run app.cs -- arg1 arg2
-```
+
+```csharp
 
 When a `.csproj` exists in the current directory, `dotnet run app.cs` (without `--file`) runs the project and passes
 `app.cs` as an argument to preserve backward compatibility. Use `dotnet run --file app.cs` to force file-based
@@ -162,16 +178,20 @@ execution.
 ### Pipe from stdin
 
 ```bash
+
 echo 'Console.WriteLine("hello");' | dotnet run -
-```
+
+```bash
 
 The `-` argument reads C# code from standard input. Useful for quick testing and shell script integration.
 
 ### Build
 
 ```bash
+
 dotnet build app.cs
-```
+
+```bash
 
 Build output goes to a cached location under the system temp directory by default. Override with `--output` or
 `#:property OutputPath=./output`.
@@ -179,6 +199,7 @@ Build output goes to a cached location under the system temp directory by defaul
 ### Clean
 
 ```bash
+
 # Clean build artifacts for a specific file
 dotnet clean app.cs
 
@@ -187,13 +208,16 @@ dotnet clean file-based-apps
 
 # Clean caches unused for N days (default: 30)
 dotnet clean file-based-apps --days 7
-```
+
+```text
 
 ### Publish
 
 ```bash
+
 dotnet publish app.cs
-```
+
+```bash
 
 File-based apps enable **native AOT by default**. The output goes to an `artifacts` directory next to the `.cs` file.
 Disable AOT with `#:property PublishAot=false`.
@@ -201,16 +225,20 @@ Disable AOT with `#:property PublishAot=false`.
 ### Pack as .NET Tool
 
 ```bash
+
 dotnet pack app.cs
-```
+
+```bash
 
 File-based apps set `PackAsTool=true` by default. Disable with `#:property PackAsTool=false`.
 
 ### Restore
 
 ```bash
+
 dotnet restore app.cs
-```
+
+```bash
 
 Restore runs implicitly on build/run. Pass `--no-restore` to `dotnet build` or `dotnet run` to skip it.
 
@@ -221,18 +249,22 @@ Restore runs implicitly on build/run. Pass `--no-restore` to `dotnet build` or `
 Enable direct execution on Unix-like systems with a shebang line.
 
 ```csharp
+
 #!/usr/bin/env dotnet
 #:package Spectre.Console
 
 using Spectre.Console;
 
 AnsiConsole.MarkupLine("[green]Hello, World![/]");
-```
+
+```text
 
 ```bash
+
 chmod +x app.cs
 ./app.cs
-```
+
+```bash
 
 The file must use `LF` line endings (not `CRLF`) and must not include a BOM.
 
@@ -244,6 +276,7 @@ File-based apps support launch profiles via a flat `[AppName].run.json` file in 
 For `app.cs`, create `app.run.json`:
 
 ```json
+
 {
   "profiles": {
     "https": {
@@ -256,13 +289,16 @@ For `app.cs`, create `app.run.json`:
     }
   }
 }
-```
+
+```text
 
 Select a profile with `--launch-profile`:
 
 ```bash
+
 dotnet run app.cs --launch-profile https
-```
+
+```bash
 
 If both `app.run.json` and `Properties/launchSettings.json` exist, the traditional location takes priority.
 
@@ -273,9 +309,11 @@ If both `app.run.json` and `Properties/launchSettings.json` exist, the tradition
 File-based apps generate a stable user secrets ID from the file's full path.
 
 ```bash
+
 dotnet user-secrets set "ApiKey" "your-secret-value" --file app.cs
 dotnet user-secrets list --file app.cs
-```
+
+```bash
 
 ---
 
@@ -315,7 +353,8 @@ Clear the cache with `dotnet clean app.cs` or `dotnet clean file-based-apps`.
 Do not place file-based apps inside a `.csproj` project's directory tree. The project's implicit build configuration
 will interfere.
 
-```
+```csharp
+
 # Recommended layout
 repo/
   src/
@@ -325,7 +364,8 @@ repo/
   scripts/           # Separate directory for file-based apps
     utility.cs
     tool.cs
-```
+
+```csharp
 
 ---
 
@@ -336,8 +376,10 @@ When a file-based app outgrows a single file, convert to a traditional project.
 ### Automatic Conversion
 
 ```bash
+
 dotnet project convert app.cs
-```
+
+```bash
 
 This creates a new directory named after the app, containing:
 

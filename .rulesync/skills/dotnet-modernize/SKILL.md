@@ -58,12 +58,14 @@ Check `<TargetFramework>` in `.csproj` files (or `Directory.Build.props`):
 To scan all projects:
 
 ```bash
+
 # Find all TFMs in the solution
 find . -name "*.csproj" -exec grep -h "TargetFramework" {} \; | sort -u
 
 # Check Directory.Build.props
 grep "TargetFramework" Directory.Build.props 2>/dev/null
-```
+
+```csharp
 
 ---
 
@@ -92,9 +94,11 @@ Scan `Directory.Packages.props` (or individual `.csproj` files) for packages tha
 To scan for deprecated packages:
 
 ```bash
+
 # List all package references
 grep -r "PackageReference" *.csproj Directory.Packages.props 2>/dev/null | grep -o 'Include="[^"]*"' | sort -u
-```
+
+```bash
 
 ---
 
@@ -166,6 +170,7 @@ Identify common patterns that have modern replacements:
 Provide findings in a structured format:
 
 ```markdown
+
 ## Modernization Report
 
 ### Target Framework
@@ -190,7 +195,8 @@ Provide findings in a structured format:
 2. **High:** Replace deprecated packages before next release
 3. **Medium:** Refactor superseded patterns incrementally
 4. **Low:** Consider optional modernizations for consistency
-```
+
+```text
 
 ---
 

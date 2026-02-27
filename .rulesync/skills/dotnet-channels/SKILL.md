@@ -42,11 +42,13 @@ A `Channel<T>` is a thread-safe data structure with separate `ChannelWriter<T>` 
 Writers produce items, readers consume them -- the channel handles all synchronization.
 
 ```csharp
+
 // Create a channel and separate the endpoints
 Channel<WorkItem> channel = Channel.CreateUnbounded<WorkItem>();
 ChannelWriter<WorkItem> writer = channel.Writer;
 ChannelReader<WorkItem> reader = channel.Reader;
-```
+
+```text
 
 ### Bounded vs Unbounded
 
@@ -58,6 +60,7 @@ ChannelReader<WorkItem> reader = channel.Reader;
 | Use when      | Production workloads, untrusted producer rates | Guaranteed-low-volume, prototyping |
 
 ```csharp
+
 // Bounded -- preferred for production
 var bounded = Channel.CreateBounded<WorkItem>(new BoundedChannelOptions(capacity: 1000)
 {
@@ -66,7 +69,8 @@ var bounded = Channel.CreateBounded<WorkItem>(new BoundedChannelOptions(capacity
 
 // Unbounded -- use only when you control the producer rate
 var unbounded = Channel.CreateUnbounded<WorkItem>();
-```
+
+```text
 
 ---
 
@@ -82,6 +86,7 @@ Controls what happens when a bounded channel is full and a producer attempts to 
 | `DropWrite`  | Drops the item being written and returns `false` from `TryWrite` | Non-blocking fire-and-forget with overflow detection |
 
 ```csharp
+
 // DropOldest -- telemetry pipeline where stale readings are expendable
 var telemetryChannel = Channel.CreateBounded<SensorReading>(new BoundedChannelOptions(500)
 {
@@ -99,7 +104,8 @@ if (!logChannel.Writer.TryWrite(entry))
     // Channel full -- item was dropped; track overflow metric
     overflowCounter.Add(1);
 }
-```
+
+```text
 
 ### itemDropped Callback (.NET 7+)
 
@@ -107,6 +113,7 @@ Starting in .NET 7, bounded channels with drop modes accept an `itemDropped` cal
 discarded. Use this for metrics, logging, or resource cleanup on dropped items.
 
 ```csharp
+
 var channel = Channel.CreateBounded(new BoundedChannelOptions(100)
 {
     FullMode = BoundedChannelFullMode.DropOldest
@@ -118,7 +125,8 @@ itemDropped: (item, writer) =>
     // Clean up disposable items if needed
     (item as IDisposable)?.Dispose();
 });
-```
+
+```text
 
 The callback receives the dropped item and the `ChannelWriter<T>` (useful if you need to re-route items to a fallback
 channel).
@@ -130,6 +138,7 @@ channel).
 ### Single Producer
 
 ```csharp
+
 // Write with back-pressure (bounded channels)
 await writer.WriteAsync(item, cancellationToken);
 
@@ -138,7 +147,8 @@ if (!writer.TryWrite(item))
 {
     // Handle overflow -- log, retry, or discard
 }
-```
+
+```text
 
 ### Multiple Producers
 
@@ -146,6 +156,7 @@ Multiple producers can call `WriteAsync` or `TryWrite` concurrently without exte
 thread-safe.
 
 ```csharp
+
 // Multiple API endpoints enqueueing work into a shared channel
 app.MapPost("/api/orders/{id}/process", async (
     string id,
@@ -164,7 +175,8 @@ app.MapPost("/api/orders/{id}/cancel", async (
     await writer.WriteAsync(new OrderCommand(id, "cancel"), ct);
     return Results.Accepted();
 });
-```
+
+```bash
 
 ### Signaling Completion
 
@@ -172,6 +184,7 @@ Call `Complete()` or `TryComplete()` when no more items will be produced. This l
 stream.
 
 ```csharp
+
 // Signal completion -- no more items will be written
 writer.Complete();
 
@@ -180,7 +193,8 @@ writer.TryComplete();
 
 // Signal completion with an error
 writer.TryComplete(new InvalidOperationException("Source failed"));
-```
+
+```text
 
 ---
 
@@ -191,6 +205,7 @@ writer.TryComplete(new InvalidOperationException("Source failed"));
 The classic pattern: wait for an item, process it, repeat.
 
 ```csharp
+
 while (await reader.WaitToReadAsync(cancellationToken))
 {
     while (reader.TryRead(out var item))
@@ -198,7 +213,8 @@ while (await reader.WaitToReadAsync(cancellationToken))
         await ProcessAsync(item, cancellationToken);
     }
 }
-```
+
+```text
 
 This two-loop pattern is preferred over `ReadAsync` alone because it drains all available items before awaiting again,
 reducing async state machine overhead.
@@ -208,6 +224,7 @@ reducing async state machine overhead.
 For simpler cases where per-item overhead is acceptable:
 
 ```csharp
+
 try
 {
     while (true)
@@ -220,13 +237,15 @@ catch (ChannelClosedException)
 {
     // Writer called Complete() -- no more items
 }
-```
+
+```text
 
 ### Multiple Consumers (Fan-Out)
 
 Scale processing by running multiple consumer tasks. The channel ensures each item is read by exactly one consumer.
 
 ```csharp
+
 public sealed class ScaledChannelProcessor(
     ChannelReader<WorkItem> reader,
     IServiceScopeFactory scopeFactory,
@@ -269,7 +288,8 @@ public sealed class ScaledChannelProcessor(
         logger.LogDebug("Consumer {WorkerId} stopped", workerId);
     }
 }
-```
+
+```text
 
 ---
 
@@ -281,12 +301,14 @@ with LINQ async operators.
 ### Basic await foreach
 
 ```csharp
+
 await foreach (var item in reader.ReadAllAsync(cancellationToken))
 {
     await ProcessAsync(item, cancellationToken);
 }
 // Loop exits when writer calls Complete() and all items are consumed
-```
+
+```text
 
 `ReadAllAsync` is the simplest consumption pattern. It handles `WaitToReadAsync`/`TryRead` internally and completes when
 the channel is closed.
@@ -297,16 +319,19 @@ Channels combine naturally with ASP.NET Core streaming responses. Return the `IA
 APIs will stream items as JSON array elements:
 
 ```csharp
+
 app.MapGet("/api/events/stream", (
     ChannelReader<ServerEvent> reader,
     CancellationToken ct) => reader.ReadAllAsync(ct));
-```
+
+```csharp
 
 ### LINQ Async Operators
 
 With the `System.Linq.Async` NuGet package, channel streams compose with familiar LINQ operators:
 
 ```csharp
+
 // NuGet: System.Linq.Async
 await foreach (var batch in reader.ReadAllAsync(ct)
     .Where(item => item.Priority >= Priority.High)
@@ -315,11 +340,13 @@ await foreach (var batch in reader.ReadAllAsync(ct)
 {
     await BulkProcessAsync(batch, ct);
 }
-```
+
+```text
 
 ### Producing an IAsyncEnumerable from a Channel
 
 ```csharp
+
 async IAsyncEnumerable<PriceUpdate> StreamPricesAsync(
     string symbol,
     [EnumeratorCancellation] CancellationToken ct = default)
@@ -349,7 +376,8 @@ async IAsyncEnumerable<PriceUpdate> StreamPricesAsync(
         yield return update;
     }
 }
-```
+
+```text
 
 ---
 
@@ -361,6 +389,7 @@ Setting `SingleReader = true` or `SingleWriter = true` on channel options enable
 trusts these hints -- violating them (multiple concurrent readers when `SingleReader = true`) causes data corruption.
 
 ```csharp
+
 // Optimal for single-producer, single-consumer pipeline
 var channel = Channel.CreateBounded<T>(new BoundedChannelOptions(1000)
 {
@@ -368,7 +397,8 @@ var channel = Channel.CreateBounded<T>(new BoundedChannelOptions(1000)
     SingleWriter = true,   // One producer task
     FullMode = BoundedChannelFullMode.Wait
 });
-```
+
+```text
 
 ### WaitToReadAsync + TryRead Pattern
 
@@ -376,6 +406,7 @@ The most efficient consumer pattern. `WaitToReadAsync` suspends until data is av
 buffered items synchronously -- avoiding per-item async state machine overhead.
 
 ```csharp
+
 while (await reader.WaitToReadAsync(ct))
 {
     // Drain all currently buffered items synchronously
@@ -384,7 +415,8 @@ while (await reader.WaitToReadAsync(ct))
         Process(item);
     }
 }
-```
+
+```text
 
 ### TryWrite Fast Path
 
@@ -392,13 +424,15 @@ while (await reader.WaitToReadAsync(ct))
 you can handle the `false` return.
 
 ```csharp
+
 // Hot path -- avoid async overhead when channel has space
 if (!writer.TryWrite(item))
 {
     // Slow path -- wait for space (or handle overflow)
     await writer.WriteAsync(item, ct);
 }
-```
+
+```text
 
 ### Bounded Channel Memory Behavior
 
@@ -419,6 +453,7 @@ Pass a `CancellationToken` to all async channel operations. When cancelled, oper
 `OperationCanceledException`.
 
 ```csharp
+
 try
 {
     await foreach (var item in reader.ReadAllAsync(stoppingToken))
@@ -430,7 +465,8 @@ catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
 {
     // Expected during shutdown
 }
-```
+
+```text
 
 ### Drain Pattern
 
@@ -438,6 +474,7 @@ Complete the writer to signal no more items will arrive, then drain remaining it
 loss during shutdown.
 
 ```csharp
+
 public sealed class DrainableProcessor(
     Channel<WorkItem> channel,
     IServiceScopeFactory scopeFactory,
@@ -490,18 +527,21 @@ public sealed class DrainableProcessor(
         logger.LogInformation("Drain complete");
     }
 }
-```
+
+```text
 
 ### Host Shutdown Timeout
 
 The default host shutdown timeout is 30 seconds. If your drain needs more time, configure it:
 
 ```csharp
+
 builder.Services.Configure<HostOptions>(options =>
 {
     options.ShutdownTimeout = TimeSpan.FromSeconds(60);
 });
-```
+
+```text
 
 ---
 

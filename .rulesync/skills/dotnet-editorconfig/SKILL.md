@@ -45,8 +45,8 @@ enforced by EditorConfig rules.
 `.editorconfig` is the standard configuration file for controlling code style and analysis rule behavior in .NET
 projects. The .NET compiler (Roslyn) reads `.editorconfig` to determine:
 
-- **Code style preferences** -- naming, formatting, expression-level patterns (IDE\* rules)
-- **Code quality rule severity** -- suppress, demote, or escalate CA* and IDE* diagnostics
+- **Code style preferences** -- naming, formatting, expression-level patterns (IDE rules)
+- **Code quality rule severity** -- suppress, demote, or escalate CA rules and IDE diagnostics
 - **Formatting rules** -- indentation, spacing, newlines
 
 ### Directory Hierarchy and Precedence
@@ -55,7 +55,8 @@ EditorConfig files apply hierarchically. The compiler searches upward from the s
 merging settings from each `.editorconfig` found. **Closest file wins** -- a setting in `src/MyApp/.editorconfig`
 overrides the same setting in the repo root `.editorconfig`.
 
-```
+```text
+
 repo-root/
   .editorconfig              # Shared baseline (root = true)
   src/
@@ -64,19 +65,22 @@ repo-root/
       .editorconfig          # API-specific overrides (if needed)
   tests/
     .editorconfig            # Relaxed rules for test projects
-```
+
+```text
 
 Set `root = true` in the topmost file to stop upward traversal. Without this, the editor traverses above the repo root
 into user or system-level EditorConfig files, producing non-reproducible behavior.
 
 ```ini
+
 # repo-root/.editorconfig
 root = true
 
 [*.cs]
 indent_style = space
 indent_size = 4
-```
+
+```csharp
 
 ### File Glob Patterns
 
@@ -111,6 +115,7 @@ IDE rules control code style preferences enforced by the Roslyn compiler and IDE
 ### Configuring Code Style Preferences
 
 ```ini
+
 [*.cs]
 # Expression-level preferences
 csharp_style_expression_bodied_methods = when_on_single_line:suggestion
@@ -138,13 +143,15 @@ csharp_style_namespace_declarations = file_scoped:warning
 # Using directives
 csharp_using_directive_placement = outside_namespace:warning
 dotnet_sort_system_directives_first = true
-```
+
+```csharp
 
 ### IDE Rule Severity via dotnet_diagnostic
 
 Each IDE rule can have its severity set independently:
 
 ```ini
+
 [*.cs]
 # Enforce removal of unnecessary usings as a build warning
 dotnet_diagnostic.IDE0005.severity = warning
@@ -157,7 +164,8 @@ dotnet_diagnostic.IDE0090.severity = suggestion
 
 # Disable this. qualification rule entirely
 dotnet_diagnostic.IDE0003.severity = none
-```
+
+```text
 
 ---
 
@@ -174,6 +182,7 @@ The main CA categories are: Design (CA1000s), Globalization (CA1300s), Interoper
 ### CA Rule Severity Configuration
 
 ```ini
+
 [*.cs]
 # Suppress rules not applicable to your project type
 dotnet_diagnostic.CA1062.severity = none          # Nullable handles parameter validation
@@ -187,7 +196,8 @@ dotnet_diagnostic.CA2016.severity = warning       # Forward CancellationToken
 # Error-level for security rules
 dotnet_diagnostic.CA2100.severity = error         # SQL injection review
 dotnet_diagnostic.CA5350.severity = error         # Weak cryptographic algorithms
-```
+
+```text
 
 ---
 
@@ -208,6 +218,7 @@ The five severity levels control how a diagnostic is reported:
 Set default severity for entire categories:
 
 ```ini
+
 [*.cs]
 # Set all design rules to warning
 dotnet_analyzer_diagnostic.category-Design.severity = warning
@@ -217,7 +228,8 @@ dotnet_analyzer_diagnostic.category-Performance.severity = error
 
 # Set all naming rules to suggestion
 dotnet_analyzer_diagnostic.category-Naming.severity = suggestion
-```
+
+```text
 
 Valid category names for `dotnet_analyzer_diagnostic.category-{Category}.severity` include: `Design`, `Documentation`,
 `Globalization`, `Interoperability`, `Maintainability`, `Naming`, `Performance`, `SingleFile`, `Reliability`,
@@ -246,21 +258,25 @@ rules. For the full AnalysisLevel values table and setup guidance, see [skill:do
 By default, IDE\* rules only run in the IDE, not during `dotnet build`. Enable build enforcement:
 
 ```xml
+
 <PropertyGroup>
   <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 </PropertyGroup>
-```
+
+```xml
 
 This is critical for CI enforcement -- without it, code style violations slip through even if configured as warnings or
 errors in `.editorconfig`. Combine with `TreatWarningsAsErrors` for strict enforcement:
 
 ```xml
+
 <PropertyGroup>
   <AnalysisLevel>latest-all</AnalysisLevel>
   <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 </PropertyGroup>
-```
+
+```text
 
 ---
 
@@ -281,6 +297,7 @@ apply globally to all files in the compilation without requiring directory-relat
 ### .globalconfig Syntax
 
 ```ini
+
 # Filename: .globalconfig (or any name with is_global = true)
 is_global = true
 
@@ -291,18 +308,21 @@ global_level = 100
 dotnet_diagnostic.CA1822.severity = warning
 dotnet_diagnostic.CA2007.severity = none
 dotnet_diagnostic.IDE0005.severity = warning
-```
+
+```csharp
 
 ### Including .globalconfig in a Project
 
 Reference via MSBuild `GlobalAnalyzerConfigFiles` item:
 
 ```xml
+
 <!-- Directory.Build.props -->
 <ItemGroup>
   <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory).globalconfig" />
 </ItemGroup>
-```
+
+```xml
 
 NuGet analyzer packages can ship `.globalconfig` files in `buildTransitive/` to apply default severities to consumers.
 
@@ -328,6 +348,7 @@ EditorConfig supports custom naming rules that enforce naming conventions at bui
 is enabled):
 
 ```ini
+
 [*.cs]
 # Define symbol groups
 dotnet_naming_symbols.public_members.applicable_kinds = property, method, field, event
@@ -359,7 +380,8 @@ dotnet_naming_rule.public_members_pascal_case.severity = warning
 dotnet_naming_rule.private_fields_underscore.symbols = private_fields
 dotnet_naming_rule.private_fields_underscore.style = underscore_prefix
 dotnet_naming_rule.private_fields_underscore.severity = warning
-```
+
+```text
 
 ---
 
@@ -368,6 +390,7 @@ dotnet_naming_rule.private_fields_underscore.severity = warning
 ### Recommended Baseline (.editorconfig)
 
 ```ini
+
 root = true
 
 [*]
@@ -392,7 +415,8 @@ dotnet_diagnostic.IDE0090.severity = suggestion
 # CA rule adjustments
 dotnet_diagnostic.CA1848.severity = warning
 dotnet_diagnostic.CA2016.severity = warning
-```
+
+```text
 
 ### Test Project Overrides (tests/.editorconfig)
 
@@ -401,12 +425,14 @@ common per-project-type suppression patterns (ASP.NET Core apps, libraries, test
 [skill:dotnet-add-analyzers].
 
 ```ini
+
 [*.cs]
 # Relax rules for test readability
 dotnet_diagnostic.CA1707.severity = none          # Allow underscores in test names
 dotnet_diagnostic.CA1822.severity = none          # Test methods often not static
 dotnet_diagnostic.IDE0058.severity = none         # Expression value is never used
-```
+
+```text
 
 ---
 
@@ -416,13 +442,15 @@ Source generators and scaffolding tools produce code that often triggers IDE/CA 
 `generated_code = true` setting or file glob patterns to suppress analysis on generated files:
 
 ```ini
+
 # Suppress warnings in generated code files
 [*.g.cs]
 generated_code = true
 
 [*.generated.cs]
 generated_code = true
-```
+
+```csharp
 
 When `generated_code = true` is set, Roslyn treats the file as generated code and applies the
 `GeneratedCodeAnalysisFlags` configured in each analyzer (most analyzers skip generated code by default). This is

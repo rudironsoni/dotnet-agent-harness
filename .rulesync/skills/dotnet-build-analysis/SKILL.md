@@ -55,10 +55,12 @@ Produced by the Roslyn C# compiler. These are language-level issues in source co
 
 **Example output:**
 
-```
+```csharp
+
 src/MyApp.Api/Services/OrderService.cs(42,17): error CS0246: The type or namespace name 'OrderDto' could not be found (are you missing a using directive or an assembly reference?)
 src/MyApp.Api/Models/User.cs(15,9): warning CS8618: Non-nullable property 'Name' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
-```
+
+```csharp
 
 **Diagnosis:**
 
@@ -82,10 +84,12 @@ misconfiguration.
 
 **Example output:**
 
-```
+```text
+
 error MSB4019: The imported project "C:\Program Files\dotnet\sdk\9.0.100\Microsoft\VisualStudio\v17.0\WebApplications\Microsoft.WebApplication.targets" was not found. Confirm that the expression in the Import declaration "..." is correct.
 error MSB3644: The reference assemblies for .NETFramework,Version=v4.8 were not found. You might need to install the developer pack for this framework version.
-```
+
+```text
 
 **Diagnosis:**
 
@@ -106,11 +110,13 @@ Produced by the NuGet package manager during restore or pack operations.
 
 **Example output:**
 
-```
+```text
+
 error NU1101: Unable to find package Newtonsoft.Json.Extensions. No packages exist with this id in source(s): nuget.org
 warning NU1603: Microsoft.EntityFrameworkCore 9.0.0 depends on Microsoft.Extensions.Caching.Memory (>= 9.0.0) but version Microsoft.Extensions.Caching.Memory 8.0.1 was resolved. Approve the package to suppress this warning.
 error NU1605: Detected package downgrade: Microsoft.Extensions.Logging from 9.0.0 to 8.0.1. Reference the package directly from the project to select a different version.
-```
+
+```json
 
 **Diagnosis:**
 
@@ -132,11 +138,13 @@ Produced by Roslyn IDE analyzers for code style enforcement. These are usually w
 
 **Example output:**
 
-```
+```text
+
 src/MyApp.Api/Program.cs(1,1): warning IDE0005: Using directive is unnecessary.
 src/MyApp.Api/Models/Order.cs(8,12): warning IDE0044: Make field readonly
 src/MyApp.Api/Services/Report.cs(22,5): warning IDE0058: Expression value is never used
-```
+
+```csharp
 
 **Diagnosis:**
 
@@ -155,11 +163,13 @@ Produced by the .NET code analysis SDK analyzers for API design, performance, re
 
 **Example output:**
 
-```
+```text
+
 src/MyApp.Api/Services/CacheService.cs(34,9): warning CA1848: Use the LoggerMessage delegates instead of calling 'LoggerExtensions.LogInformation(ILogger, string?, params object?[])'. Using LoggerMessage delegates provides better performance.
 src/MyApp.Api/Controllers/UserController.cs(12,5): warning CA2007: Consider calling ConfigureAwait on the awaited task
 src/MyApp.Api/Crypto/HashService.cs(8,9): warning CA5351: Do Not Use Broken Cryptographic Algorithms (MD5)
-```
+
+```csharp
 
 **Diagnosis:**
 
@@ -187,12 +197,14 @@ patterns.
 
 **Example output:**
 
-```
+```text
+
   Determining projects to restore...
   Writing assets file to disk. Path: /src/MyApp.Api/obj/project.assets.json
 /src/MyApp.Api/MyApp.Api.csproj : error NU1101: Unable to find package MyCompany.Shared.Models. No packages exist with this id in source(s): nuget.org
   Failed to restore /src/MyApp.Api/MyApp.Api.csproj (in 2.14 sec).
-```
+
+```csharp
 
 **Diagnosis:**
 
@@ -205,14 +217,17 @@ patterns.
 **Fix pattern:**
 
 ```bash
+
 # Check configured sources
 dotnet nuget list source
 
 # Check if nuget.config exists (searches upward from project dir)
 ls nuget.config ../nuget.config ../../nuget.config 2>/dev/null
-```
+
+```text
 
 ```xml
+
 <!-- Add private feed to nuget.config -->
 <configuration>
   <packageSources>
@@ -228,17 +243,20 @@ ls nuget.config ../nuget.config ../../nuget.config 2>/dev/null
     </packageSource>
   </packageSourceMapping>
 </configuration>
-```
+
+```text
 
 ### Pattern: Version Conflict
 
 **Example output:**
 
-```
+```text
+
 error NU1107: Version conflict detected for Microsoft.Extensions.DependencyInjection.Abstractions.
   MyApp.Api -> Microsoft.EntityFrameworkCore 9.0.0 -> Microsoft.Extensions.DependencyInjection.Abstractions (>= 9.0.0)
   MyApp.Api -> Microsoft.Extensions.Hosting 8.0.1 -> Microsoft.Extensions.DependencyInjection.Abstractions (>= 8.0.1)
-```
+
+```text
 
 **Diagnosis:**
 
@@ -249,21 +267,25 @@ error NU1107: Version conflict detected for Microsoft.Extensions.DependencyInjec
 **Fix pattern:**
 
 ```xml
+
 <!-- Upgrade the older top-level package to match -->
 <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
 <!-- Or add a direct reference to force a specific version -->
 <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
-```
+
+```text
 
 ### Pattern: Authentication Failure on Private Feed
 
 **Example output:**
 
-```
+```text
+
   Retrying 'FindPackagesByIdAsyncCore' for source 'https://pkgs.dev.azure.com/myorg/_packaging/myfeed/nuget/v3/index.json'.
   Response status code does not indicate success: 401 (Unauthorized).
 error NU1301: Unable to load the service index for source https://pkgs.dev.azure.com/myorg/_packaging/myfeed/nuget/v3/index.json.
-```
+
+```json
 
 **Diagnosis:**
 
@@ -274,6 +296,7 @@ error NU1301: Unable to load the service index for source https://pkgs.dev.azure
 **Fix pattern:**
 
 ```bash
+
 # Install Azure Artifacts Credential Provider (see official docs for platform-specific steps):
 # https://github.com/microsoft/artifacts-credprovider#setup
 # Windows:  iex "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) }"
@@ -281,7 +304,8 @@ error NU1301: Unable to load the service index for source https://pkgs.dev.azure
 
 # Or add credentials explicitly to a specific source
 dotnet nuget update source MyCompany --username az --password $PAT --store-password-in-clear-text
-```
+
+```text
 
 ---
 
@@ -292,11 +316,13 @@ vs. when to configure severity is critical.
 
 ### Example Output
 
-```
+```text
+
 src/MyApp.Api/Controllers/OrdersController.cs(27,5): warning CA2007: Consider calling ConfigureAwait on the awaited task [/src/MyApp.Api/MyApp.Api.csproj]
 src/MyApp.Api/Services/OrderService.cs(15,16): warning CA1062: In externally visible method 'OrderService.Process(string)', validate parameter 'input' is non-null before using it [/src/MyApp.Api/MyApp.Api.csproj]
 src/MyApp.Api/Models/UserDto.cs(8,12): warning IDE0032: Use auto-implemented property [/src/MyApp.Api/MyApp.Api.csproj]
-```
+
+```csharp
 
 **Diagnosis:**
 
@@ -327,6 +353,7 @@ src/MyApp.Api/Models/UserDto.cs(8,12): warning IDE0032: Use auto-implemented pro
 Use `.editorconfig` to control analyzer behavior across the project:
 
 ```ini
+
 # .editorconfig (place at solution root)
 [*.cs]
 
@@ -341,7 +368,8 @@ dotnet_diagnostic.CA2007.severity = none
 # Promote security warnings to errors
 dotnet_diagnostic.CA5350.severity = error
 dotnet_diagnostic.CA5351.severity = error
-```
+
+```text
 
 ### When Suppression Is Acceptable
 
@@ -352,6 +380,7 @@ Suppression is acceptable ONLY when:
 3. A documented justification is provided.
 
 ```csharp
+
 // ACCEPTABLE: documented justification
 [SuppressMessage("Reliability", "CA2007:ConfigureAwait",
     Justification = "ASP.NET Core has no SynchronizationContext")]
@@ -364,7 +393,8 @@ public async Task<Order> GetOrderAsync(int id, CancellationToken ct)
 #pragma warning disable CA1062
 public void Process(string input) { }  // input could be null
 #pragma warning restore CA1062
-```
+
+```text
 
 ---
 
@@ -374,14 +404,16 @@ When a project targets multiple frameworks, MSBuild builds each TFM separately. 
 
 ### Example Output
 
-```
+```text
+
   MyApp.Shared -> /src/MyApp.Shared/bin/Debug/net8.0/MyApp.Shared.dll
 src/MyApp.Shared/Services/FeatureService.cs(18,30): error CS1061: 'FrozenDictionary<string, int>' does not contain a definition for 'GetAlternateLookup' [/src/MyApp.Shared/MyApp.Shared.csproj -> net8.0]
   MyApp.Shared -> /src/MyApp.Shared/bin/Debug/net9.0/MyApp.Shared.dll
 Build succeeded for net9.0.
 
 Build FAILED for net8.0.
-```
+
+```text
 
 **Diagnosis:**
 
@@ -392,6 +424,7 @@ Build FAILED for net8.0.
 **Fix pattern:**
 
 ```csharp
+
 // Use preprocessor directives for TFM-specific code
 #if NET9_0_OR_GREATER
     var lookup = frozenDict.GetAlternateLookup<ReadOnlySpan<char>>();
@@ -399,9 +432,11 @@ Build FAILED for net8.0.
 #else
     return frozenDict.TryGetValue(key.ToString(), out var value) ? value : default;
 #endif
-```
+
+```text
 
 ```xml
+
 <!-- Or constrain the feature to specific TFMs in the project file -->
 <PropertyGroup>
   <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
@@ -411,7 +446,8 @@ Build FAILED for net8.0.
 <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
   <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
 </ItemGroup>
-```
+
+```text
 
 ### Reading Multi-Target Output
 
@@ -433,13 +469,15 @@ environmental differences.
 
 **Example scenario:**
 
-```
+```text
+
 Local:  dotnet --version -> 9.0.200
 CI:     dotnet --version -> 9.0.100
 
 Build error in CI:
 error CS8652: The feature 'field keyword' is currently in Preview and *unsupported*.
-```
+
+```text
 
 **Diagnosis:**
 
@@ -449,6 +487,7 @@ error CS8652: The feature 'field keyword' is currently in Preview and *unsupport
 **Fix pattern:**
 
 ```json
+
 // global.json -- pin SDK version for consistent builds
 {
   "sdk": {
@@ -456,16 +495,19 @@ error CS8652: The feature 'field keyword' is currently in Preview and *unsupport
     "rollForward": "latestPatch"
   }
 }
-```
+
+```text
 
 ### Pattern: Missing Workload in CI
 
 **Example scenario:**
 
-```
+```text
+
 CI error:
 error NETSDK1147: To build this project, the following workloads must be installed: maui-android
-```
+
+```text
 
 **Diagnosis:**
 
@@ -475,20 +517,24 @@ error NETSDK1147: To build this project, the following workloads must be install
 **Fix pattern:**
 
 ```yaml
+
 # GitHub Actions example
 - name: Install .NET workloads
   run: dotnet workload install maui-android maui-ios
-```
+
+```yaml
 
 ### Pattern: Implicit NuGet Sources
 
 **Example scenario:**
 
-```
+```text
+
 Local restore succeeds (using cached packages).
 CI error:
 error NU1101: Unable to find package MyCompany.Internal.Lib.
-```
+
+```text
 
 **Diagnosis:**
 
@@ -506,11 +552,13 @@ error NU1101: Unable to find package MyCompany.Internal.Lib.
 
 **Example scenario:**
 
-```
+```text
+
 Local (Windows):  Build succeeds
 CI (Linux):       error MSB4018: The "ResolveAssemblyReference" task failed.
                   Could not find file '/src/MyApp/../Shared/MyLib.dll'
-```
+
+```text
 
 **Diagnosis:**
 
@@ -528,11 +576,13 @@ CI (Linux):       error MSB4018: The "ResolveAssemblyReference" task failed.
 
 **Example scenario:**
 
-```
+```text
+
 Local: Build succeeds with 3 warnings
 CI:    error CS8602: Dereference of a possibly null reference.
        (because CI sets TreatWarningsAsErrors=true)
-```
+
+```text
 
 **Diagnosis:**
 
@@ -556,13 +606,16 @@ These patterns indicate an agent is hiding build problems rather than fixing the
 ### Warning Suppressions
 
 ```xml
+
 <!-- RED FLAG: blanket NoWarn in .csproj -->
 <PropertyGroup>
   <NoWarn>CS8600;CS8602;CS8603;CS8604;IL2026;IL2046</NoWarn>
 </PropertyGroup>
-```
 
 ```csharp
+
+```csharp
+
 // RED FLAG: pragma disable without justification
 #pragma warning disable CS8618
 public class UserModel
@@ -571,7 +624,8 @@ public class UserModel
     public string Email { get; set; }
 }
 #pragma warning restore CS8618
-```
+
+```text
 
 **Fix:** Remove `<NoWarn>` entries and fix the underlying issues. If suppression is truly needed, use `.editorconfig`
 with per-rule severity and a comment explaining why.
@@ -579,6 +633,7 @@ with per-rule severity and a comment explaining why.
 ### Silenced Analyzers Without Justification
 
 ```csharp
+
 // RED FLAG: suppressing security analyzer with no explanation
 [SuppressMessage("Security", "CA5351")]
 public byte[] HashData(byte[] input)
@@ -586,15 +641,18 @@ public byte[] HashData(byte[] input)
     using var md5 = MD5.Create(); // insecure algorithm
     return md5.ComputeHash(input);
 }
-```
+
+```text
 
 ```ini
+
 # RED FLAG: disabling entire analyzer categories in .editorconfig
 [*.cs]
 dotnet_diagnostic.CA5350.severity = none
 dotnet_diagnostic.CA5351.severity = none
 dotnet_diagnostic.CA5358.severity = none
-```
+
+```csharp
 
 **Fix:** Replace insecure algorithms (MD5 -> SHA-256). If suppression is unavoidable (e.g., interop with a system
 requiring MD5), add a `Justification` string explaining the constraint.

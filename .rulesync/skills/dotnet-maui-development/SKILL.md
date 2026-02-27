@@ -53,6 +53,7 @@ MAUI uses a single-project architecture. One `.csproj` targets all platforms via
 code in platform folders.
 
 ```xml
+
 <!-- MyApp.csproj -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -71,11 +72,13 @@ code in platform folders.
     <PackageReference Include="CommunityToolkit.Maui" Version="9.*" />
   </ItemGroup>
 </Project>
-```
+
+```text
 
 ### Project Layout
 
-```
+```text
+
 MyApp/
   MyApp/
     App.xaml / App.xaml.cs            # Application entry, resource dictionaries
@@ -100,13 +103,15 @@ MyApp/
     Properties/
       launchSettings.json
   MyApp.Tests/                       # Unit tests
-```
+
+```json
 
 ### Resource Management
 
 MAUI handles resource files declaratively. Images are auto-resized per platform from a single source:
 
 ```xml
+
 <!-- Resources are configured in .csproj ItemGroups -->
 <ItemGroup>
   <!-- SVG/PNG images: MAUI resizes for each platform density -->
@@ -124,7 +129,8 @@ MAUI handles resource files declaratively. Images are auto-resized per platform 
             ForegroundFile="Resources\AppIcon\appiconfg.svg"
             Color="#512BD4" />
 </ItemGroup>
-```
+
+```text
 
 ---
 

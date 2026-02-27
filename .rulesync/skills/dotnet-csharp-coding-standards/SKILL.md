@@ -69,6 +69,7 @@ interface level.
 Suffix async methods with `Async`:
 
 ```csharp
+
 // Correct
 public Task<Order> GetOrderAsync(int id);
 public ValueTask SaveChangesAsync(CancellationToken ct);
@@ -76,7 +77,8 @@ public ValueTask SaveChangesAsync(CancellationToken ct);
 // Wrong
 public Task<Order> GetOrder(int id);      // missing Async suffix
 public Task<Order> GetOrderTask(int id);  // wrong suffix
-```
+
+```text
 
 Exception: Event handlers and interface implementations where the framework does not use the `Async` suffix (e.g.,
 ASP.NET Core middleware `InvokeAsync` is already named by the framework).
@@ -86,19 +88,23 @@ ASP.NET Core middleware `InvokeAsync` is already named by the framework).
 Prefix booleans with `is`, `has`, `can`, `should`, or similar:
 
 ```csharp
+
 public bool IsActive { get; set; }
 public bool HasOrders { get; }
 public bool CanDelete(Order order);
-```
+
+```csharp
 
 ### Collection Naming
 
 Use plural nouns for collections:
 
 ```csharp
+
 public IReadOnlyList<Order> Orders { get; }    // not OrderList
 public Dictionary<string, int> CountsByName { get; } // descriptive
-```
+
+```csharp
 
 ---
 
@@ -109,18 +115,21 @@ public Dictionary<string, int> CountsByName { get; } // descriptive
 Each top-level type (class, record, struct, interface, enum) should be in its own file, named exactly as the type.
 Nested types stay in the containing type's file.
 
-```
+```text
+
 OrderService.cs        -> public class OrderService
 IOrderRepository.cs    -> public interface IOrderRepository
 OrderStatus.cs         -> public enum OrderStatus
 OrderSummary.cs        -> public record OrderSummary
-```
+
+```csharp
 
 ### File-Scoped Namespaces
 
 Always use file-scoped namespaces (C# 10+):
 
 ```csharp
+
 // Correct
 namespace MyApp.Services;
 
@@ -131,7 +140,8 @@ namespace MyApp.Services
 {
     public class OrderService { }
 }
-```
+
+```text
 
 ### Using Directives
 
@@ -149,7 +159,8 @@ Order of `using` directives:
 
 Organize by feature or layer, matching namespace hierarchy:
 
-```
+```text
+
 src/MyApp/
   Features/
     Orders/
@@ -161,7 +172,8 @@ src/MyApp/
   Infrastructure/
     Persistence/
       OrderRepository.cs
-```
+
+```csharp
 
 ---
 
@@ -172,6 +184,7 @@ src/MyApp/
 Always use braces for control flow, even for single-line bodies:
 
 ```csharp
+
 // Correct
 if (order.IsValid)
 {
@@ -181,13 +194,15 @@ if (order.IsValid)
 // Avoid
 if (order.IsValid)
     Process(order);
-```
+
+```text
 
 ### Expression-Bodied Members
 
 Use expression bodies for single-expression members:
 
 ```csharp
+
 // Properties
 public string FullName => $"{FirstName} {LastName}";
 
@@ -195,13 +210,15 @@ public string FullName => $"{FirstName} {LastName}";
 public override string ToString() => $"Order #{Id}";
 
 // Avoid for multi-statement methods -- use block body instead
-```
+
+```text
 
 ### `var` Usage
 
 Use `var` when the type is obvious from the right-hand side:
 
 ```csharp
+
 // Type is obvious: use var
 var orders = new List<Order>();
 var customer = GetCustomerById(id);
@@ -210,13 +227,15 @@ var name = "Alice";
 // Type is not obvious: use explicit type
 IOrderRepository repo = serviceProvider.GetRequiredService<IOrderRepository>();
 decimal total = CalculateTotal(items);
-```
+
+```text
 
 ### Null Handling
 
 Prefer pattern matching over null checks:
 
 ```csharp
+
 // Preferred
 if (order is not null) { }
 if (order is { Status: OrderStatus.Active }) { }
@@ -227,21 +246,25 @@ if (order != null) { }
 // Avoid
 if (order is object) { }
 if (!(order is null)) { }
-```
+
+```text
 
 Use null-conditional and null-coalescing operators:
 
 ```csharp
+
 var name = customer?.Name ?? "Unknown";
 var orders = customer?.Orders ?? [];
 items ??= [];
-```
+
+```csharp
 
 ### String Handling
 
 Prefer string interpolation over concatenation or `string.Format`:
 
 ```csharp
+
 // Preferred
 var message = $"Order {orderId} totals {total:C2}";
 
@@ -256,7 +279,8 @@ var json = $$"""
 // Avoid
 var message = string.Format("Order {0} totals {1:C2}", orderId, total);
 var message = "Order " + orderId + " totals " + total.ToString("C2");
-```
+
+```text
 
 ---
 
@@ -265,6 +289,7 @@ var message = "Order " + orderId + " totals " + total.ToString("C2");
 Always specify access modifiers explicitly. Do not rely on defaults:
 
 ```csharp
+
 // Correct
 public class OrderService
 {
@@ -277,22 +302,27 @@ class OrderService
 {
     readonly IOrderRepository _repo;
 }
-```
+
+```text
 
 ### Modifier Order
 
 Follow the standard order:
 
-```
+```text
+
 access (public/private/protected/internal) -> static -> extern -> new ->
 virtual/abstract/override/sealed -> readonly -> volatile -> async -> partial
-```
+
+```text
 
 ```csharp
+
 public static readonly int MaxSize = 100;
 protected virtual async Task<Order> LoadAsync() => await repo.GetDefaultAsync();
 public sealed override string ToString() => Name;
-```
+
+```csharp
 
 ---
 
@@ -307,17 +337,20 @@ Seal classes that are not designed for inheritance. This improves performance (d
 intent:
 
 ```csharp
+
 public sealed class OrderService(IOrderRepository repo)
 {
     // Not designed for inheritance
 }
-```
+
+```text
 
 Only leave classes unsealed when you explicitly design them as base classes.
 
 ### Prefer Composition Over Inheritance
 
 ```csharp
+
 // Preferred: composition
 public sealed class OrderProcessor(IValidator validator, INotifier notifier)
 {
@@ -332,13 +365,15 @@ public sealed class OrderProcessor(IValidator validator, INotifier notifier)
 public class BaseProcessor { }
 public class ValidatingProcessor : BaseProcessor { }
 public class NotifyingValidatingProcessor : ValidatingProcessor { }
-```
+
+```text
 
 ### Interface Segregation
 
 Keep interfaces focused. Prefer multiple small interfaces over one large one:
 
 ```csharp
+
 // Preferred
 public interface IOrderReader
 {
@@ -354,7 +389,8 @@ public interface IOrderWriter
 
 // Avoid: one large interface with unrelated responsibilities
 public interface IOrderRepository : IOrderReader, IOrderWriter { }
-```
+
+```text
 
 ---
 
@@ -364,11 +400,13 @@ Accept `CancellationToken` as the last parameter in async methods. Use `default`
 tokens:
 
 ```csharp
+
 public async Task<Order> GetOrderAsync(int id, CancellationToken ct = default)
 {
     return await _repo.GetByIdAsync(id, ct);
 }
-```
+
+```text
 
 Always forward the token to downstream async calls. Never ignore a received `CancellationToken`.
 
@@ -379,6 +417,7 @@ Always forward the token to downstream async calls. Never ignore a received `Can
 Add XML docs to public API surfaces. Keep them concise:
 
 ```csharp
+
 /// <summary>
 /// Retrieves an order by its unique identifier.
 /// </summary>
@@ -386,7 +425,8 @@ Add XML docs to public API surfaces. Keep them concise:
 /// <param name="ct">Cancellation token.</param>
 /// <returns>The order, or <see langword="null"/> if not found.</returns>
 public Task<Order?> GetByIdAsync(int id, CancellationToken ct = default);
-```
+
+```text
 
 Do not add XML docs to:
 
@@ -401,16 +441,19 @@ Do not add XML docs to:
 Configure these analyzers in `Directory.Build.props` or `.editorconfig` to enforce standards automatically:
 
 ```xml
+
 <PropertyGroup>
   <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   <AnalysisLevel>latest-all</AnalysisLevel>
   <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 </PropertyGroup>
-```
+
+```text
 
 Key `.editorconfig` rules for C# style:
 
 ```ini
+
 [*.cs]
 csharp_style_namespace_declarations = file_scoped:warning
 csharp_prefer_braces = true:warning
@@ -418,7 +461,8 @@ csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 dotnet_style_require_accessibility_modifiers = always:warning
 csharp_style_prefer_pattern_matching = true:suggestion
-```
+
+```csharp
 
 See [skill:dotnet-add-analyzers] for full analyzer configuration.
 

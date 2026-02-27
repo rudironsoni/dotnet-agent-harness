@@ -47,6 +47,7 @@ WinForms on .NET 8+ is a significant modernization from .NET Framework WinForms,
 ### New Project Template
 
 ```xml
+
 <!-- MyWinFormsApp.csproj (SDK-style) -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -61,7 +62,8 @@ WinForms on .NET 8+ is a significant modernization from .NET Framework WinForms,
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.*" />
   </ItemGroup>
 </Project>
-```
+
+```text
 
 **Key differences from .NET Framework WinForms:**
 - SDK-style `.csproj` (no `packages.config`, no `AssemblyInfo.cs`)
@@ -77,6 +79,7 @@ WinForms on .NET 8+ is a significant modernization from .NET Framework WinForms,
 Modern WinForms apps use the generic host for dependency injection:
 
 ```csharp
+
 // Program.cs
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -104,9 +107,11 @@ var host = Host.CreateDefaultBuilder()
 
 var mainForm = host.Services.GetRequiredService<MainForm>();
 Application.Run(mainForm);
-```
+
+```text
 
 ```csharp
+
 // MainForm.cs -- constructor injection
 public partial class MainForm : Form
 {
@@ -132,18 +137,21 @@ public partial class MainForm : Form
         detailForm.ShowDialog();
     }
 }
-```
+
+```text
 
 ### ApplicationConfiguration.Initialize
 
 .NET 8+ WinForms uses `ApplicationConfiguration.Initialize()` as the entry point, which consolidates multiple legacy configuration calls:
 
 ```csharp
+
 // ApplicationConfiguration.Initialize() is equivalent to:
 Application.EnableVisualStyles();
 Application.SetCompatibleTextRenderingDefault(false);
 Application.SetHighDpiMode(HighDpiMode.SystemAware);  // default; override below for PerMonitorV2
-```
+
+```text
 
 ---
 
@@ -154,16 +162,19 @@ WinForms on .NET 8+ has significantly improved high-DPI support. The recommended
 ### Enabling PerMonitorV2
 
 ```csharp
+
 // Program.cs -- set before ApplicationConfiguration.Initialize()
 Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
 ApplicationConfiguration.Initialize();
 // Note: SetHighDpiMode() called before Initialize() takes precedence
 // over the default SystemAware mode set by Initialize().
-```
+
+```text
 
 Or configure via `runtimeconfig.json`:
 
 ```json
+
 {
   "runtimeOptions": {
     "configProperties": {
@@ -171,7 +182,8 @@ Or configure via `runtimeconfig.json`:
     }
   }
 }
-```
+
+```text
 
 **High-DPI modes:**
 
@@ -188,11 +200,13 @@ Or configure via `runtimeconfig.json`:
 .NET 9 introduces a DPI-unaware designer mode that prevents layout scaling issues in the Visual Studio WinForms designer. The designer renders at 96 DPI regardless of system DPI, preventing corrupted `.Designer.cs` files.
 
 ```xml
+
 <!-- .csproj: opt in to DPI-unaware designer (.NET 9+) -->
 <PropertyGroup>
   <ForceDesignerDPIUnaware>true</ForceDesignerDPIUnaware>
 </PropertyGroup>
-```
+
+```csharp
 
 ### Scaling Gotchas
 
@@ -202,6 +216,7 @@ Or configure via `runtimeconfig.json`:
 - **Image resources need multiple resolutions.** Provide 1x, 1.5x, and 2x versions of icons and images, or use SVG-based rendering.
 
 ```csharp
+
 // DPI-aware custom drawing
 protected override void OnPaint(PaintEventArgs e)
 {
@@ -211,7 +226,8 @@ protected override void OnPaint(PaintEventArgs e)
     using var font = new Font("Segoe UI", fontSize);
     e.Graphics.DrawString("Scaled text", font, Brushes.Black, 10 * scale, 10 * scale);
 }
-```
+
+```text
 
 ---
 
@@ -222,17 +238,21 @@ WinForms dark mode is **experimental in .NET 9** and is **targeting finalization
 ### Enabling Dark Mode (.NET 9+ Experimental)
 
 ```csharp
+
 // Program.cs -- set before ApplicationConfiguration.Initialize()
 Application.SetColorMode(SystemColorMode.Dark);
 ApplicationConfiguration.Initialize();
-```
+
+```csharp
 
 Or follow system theme:
 
 ```csharp
+
 // Follow system light/dark preference
 Application.SetColorMode(SystemColorMode.System);
-```
+
+```csharp
 
 **SystemColorMode values:**
 
@@ -251,6 +271,7 @@ Application.SetColorMode(SystemColorMode.System);
 - **.NET 11 target:** Microsoft has indicated that WinForms visual styles (including dark mode) are targeting finalization in .NET 11. Plan for API stability after that release.
 
 ```csharp
+
 // Owner-drawn controls must use SystemColors for dark mode compatibility
 protected override void OnPaint(PaintEventArgs e)
 {
@@ -261,7 +282,8 @@ protected override void OnPaint(PaintEventArgs e)
     e.Graphics.FillRectangle(bgBrush, ClientRectangle);
     e.Graphics.DrawString("Text", Font, textBrush, 10, 10);
 }
-```
+
+```text
 
 ---
 
@@ -309,7 +331,9 @@ Tips for modernizing existing .NET Framework WinForms applications to .NET 8+.
 Replace static references and singletons with constructor injection via Host builder (see .NET 8+ Differences section above).
 
 **Before (legacy pattern):**
+
 ```csharp
+
 // Anti-pattern: static service references
 public partial class MainForm : Form
 {
@@ -319,10 +343,13 @@ public partial class MainForm : Form
         dataGridProducts.DataSource = products;
     }
 }
-```
+
+```text
 
 **After (modern pattern):**
+
 ```csharp
+
 // Modern: constructor injection
 public partial class MainForm : Form
 {
@@ -340,13 +367,15 @@ public partial class MainForm : Form
         dataGridProducts.DataSource = products.ToList();
     }
 }
-```
+
+```text
 
 ### Use Async Patterns
 
 Replace synchronous blocking calls with async/await to keep the UI responsive:
 
 ```csharp
+
 // Before: blocks UI thread
 private void btnSave_Click(object sender, EventArgs e)
 {
@@ -374,13 +403,15 @@ private async void btnSave_Click(object sender, EventArgs e)
         btnSave.Enabled = true;
     }
 }
-```
+
+```text
 
 ### Convert to .NET 8+
 
 Use the .NET Upgrade Assistant for automated migration:
 
 ```bash
+
 # Install upgrade assistant
 dotnet tool install -g upgrade-assistant
 
@@ -389,7 +420,8 @@ upgrade-assistant analyze MyWinFormsApp.csproj
 
 # Upgrade the project
 upgrade-assistant upgrade MyWinFormsApp.csproj
-```
+
+```csharp
 
 **Common migration issues:**
 - `App.config` settings need manual migration to `appsettings.json` or Host builder configuration
@@ -401,6 +433,7 @@ upgrade-assistant upgrade MyWinFormsApp.csproj
 ### Adopt Modern C# Features
 
 ```csharp
+
 // File-scoped namespaces
 namespace MyApp.Forms;
 
@@ -416,7 +449,8 @@ public class ProductService(HttpClient httpClient) : IProductService
     public async Task<List<Product>> GetProductsAsync()
         => await httpClient.GetFromJsonAsync<List<Product>>("/products") ?? [];
 }
-```
+
+```json
 
 ---
 

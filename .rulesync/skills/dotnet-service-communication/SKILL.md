@@ -54,7 +54,8 @@ Use this matrix to choose the right protocol based on your requirements:
 
 ## Decision Flowchart
 
-```
+```text
+
 Is this service-to-service (no browser)?
 ├── Yes → Do you need streaming?
 │   ├── Yes → gRPC streaming [skill:dotnet-grpc]
@@ -70,7 +71,8 @@ Is this service-to-service (no browser)?
 Special cases:
 - LSP / tooling protocol → JSON-RPC 2.0 [skill:dotnet-realtime-communication]
 - Mixed (browser + service-to-service) → REST for browser, gRPC for internal
-```
+
+```json
 
 ---
 
@@ -151,20 +153,24 @@ See [skill:dotnet-http-client] for HTTP client patterns, resilience, and `IHttpC
 
 ### API Gateway with Mixed Protocols
 
-```
+```text
+
 Browser ─── REST/SignalR ──→ API Gateway ──→ gRPC ──→ Internal Services
                                           ──→ gRPC ──→ Order Service
                                           ──→ gRPC ──→ Inventory Service
-```
+
+```text
 
 Use REST for public-facing APIs and SignalR for real-time browser features. Internal service-to-service communication uses gRPC for performance. The API gateway translates between protocols.
 
 ### Event-Driven with SSE
 
-```
+```text
+
 Internal Services ──→ Message Broker ──→ SSE Endpoint ──→ Browser Dashboard
                                      ──→ gRPC Stream  ──→ Monitoring Service
-```
+
+```text
 
 Internal events flow through a message broker. Browser dashboards consume via SSE. Other services consume via gRPC streaming for higher throughput.
 
@@ -173,6 +179,7 @@ Internal events flow through a message broker. Browser dashboards consume via SS
 A single ASP.NET Core host can serve both gRPC and REST:
 
 ```csharp
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddGrpc();
@@ -189,7 +196,8 @@ app.MapControllers();
 // SSE for real-time browser updates
 app.MapGet("/events/orders", (OrderEventService svc, CancellationToken ct) =>
     TypedResults.ServerSentEvents(svc.GetEventsAsync(ct)));
-```
+
+```text
 
 ---
 

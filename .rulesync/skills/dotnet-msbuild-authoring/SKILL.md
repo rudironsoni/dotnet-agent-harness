@@ -47,12 +47,14 @@ Targets are the unit of execution in MSBuild. Each target runs a sequence of tas
 ### Defining a Custom Target
 
 ```xml
+
 <Target Name="PrintBuildInfo"
         BeforeTargets="Build">
   <Message Importance="high"
            Text="Building $(MSBuildProjectName) v$(Version) for $(TargetFramework)" />
 </Target>
-```
+
+```text
 
 ### Ordering: BeforeTargets, AfterTargets, DependsOnTargets
 
@@ -65,6 +67,7 @@ Three mechanisms control target execution order:
 | `DependsOnTargets="A;B"` | Ensures `A` and `B` run before this target | Declaring prerequisite targets within your own target graph |
 
 ```xml
+
 <!-- Run license check before compile -->
 <Target Name="CheckLicenseHeaders"
         BeforeTargets="CoreCompile">
@@ -83,7 +86,8 @@ Three mechanisms control target execution order:
         DependsOnTargets="CheckLicenseHeaders;RunApiCompat">
   <Message Importance="high" Text="All validations passed." />
 </Target>
-```
+
+```text
 
 **Prefer `BeforeTargets`/`AfterTargets` over `DependsOnTargets`** for injecting into the standard build pipeline. `DependsOnTargets` is best for orchestrating your own custom target graph.
 
@@ -92,6 +96,7 @@ Three mechanisms control target execution order:
 SDK targets expose `*DependsOn` properties for extension. Append your target name rather than replacing the list:
 
 ```xml
+
 <PropertyGroup>
   <BuildDependsOn>$(BuildDependsOn);GenerateVersionInfo</BuildDependsOn>
 </PropertyGroup>
@@ -104,7 +109,8 @@ SDK targets expose `*DependsOn` properties for extension. Append your target nam
     <Compile Include="$(IntermediateOutputPath)Version.g.cs" />
   </ItemGroup>
 </Target>
-```
+
+```csharp
 
 ---
 
@@ -113,6 +119,7 @@ SDK targets expose `*DependsOn` properties for extension. Append your target nam
 Targets with `Inputs` and `Outputs` only run when outputs are missing or older than inputs. This is critical for build performance.
 
 ```xml
+
 <Target Name="GenerateEmbeddedResources"
         BeforeTargets="CoreCompile"
         Inputs="@(EmbeddedTemplate)"
@@ -122,7 +129,8 @@ Targets with `Inputs` and `Outputs` only run when outputs are missing or older t
     <Compile Include="$(IntermediateOutputPath)%(EmbeddedTemplate.Filename).g.cs" />
   </ItemGroup>
 </Target>
-```
+
+```csharp
 
 **How incrementality works:**
 
@@ -145,7 +153,8 @@ MSBuild evaluates project files in a specific order. Understanding this is essen
 
 ### Evaluation Order
 
-```
+```text
+
 1. Directory.Build.props          (imported by SDK early)
 2. <Project Sdk="...">            (SDK props imported)
 3. Explicit <Import> in project   (your .props imports)
@@ -154,7 +163,8 @@ MSBuild evaluates project files in a specific order. Understanding this is essen
 5. SDK targets imported            (SDK targets)
 6. Directory.Build.targets         (imported by SDK late)
 7. Explicit .targets imports       (your .targets imports)
-```
+
+```text
 
 ### Rules
 
@@ -162,6 +172,7 @@ MSBuild evaluates project files in a specific order. Understanding this is essen
 - **`.targets` files** define targets and finalize item lists. They run **after** the project body, so they see all project-level settings.
 
 ```xml
+
 <!-- MyDefaults.props -- sets defaults, project can override -->
 <Project>
   <PropertyGroup>
@@ -169,9 +180,11 @@ MSBuild evaluates project files in a specific order. Understanding this is essen
     <Nullable Condition="'$(Nullable)' == ''">enable</Nullable>
   </PropertyGroup>
 </Project>
-```
+
+```text
 
 ```xml
+
 <!-- MyTargets.targets -- runs after project evaluation -->
 <Project>
   <Target Name="ValidatePackageMetadata"
@@ -181,7 +194,8 @@ MSBuild evaluates project files in a specific order. Understanding this is essen
            Text="Description is required for packable projects." />
   </Target>
 </Project>
-```
+
+```text
 
 **Key rule:** Properties in `.props` files should use `Condition="'$(Prop)' == ''"` to allow project-level overrides. Properties in `.targets` files are evaluated last and cannot be overridden by the project.
 
@@ -194,6 +208,7 @@ Items are named collections of files or values. Each item can carry metadata (ke
 ### Item Operations
 
 ```xml
+
 <ItemGroup>
   <!-- Include: add items matching a glob -->
   <Content Include="assets/**/*.png" />
@@ -211,16 +226,19 @@ Items are named collections of files or values. Each item can carry metadata (ke
   <!-- Remove: remove items matching a pattern from the item list -->
   <Compile Remove="legacy/**/*.cs" />
 </ItemGroup>
-```
+
+```csharp
 
 **SDK-style projects auto-include `*.cs` files.** Do not add a `<Compile Include="**/*.cs" />` -- it causes `NETSDK1022` duplicate items. Use `Remove` first, then `Include` for conditional compilation scenarios:
 
 ```xml
+
 <!-- TFM-conditional compilation -->
 <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
   <Compile Remove="Polyfills/**/*.cs" />
 </ItemGroup>
-```
+
+```csharp
 
 ### Well-Known Metadata
 
@@ -241,6 +259,7 @@ Every item has built-in metadata accessible via `%(ItemName.MetadataName)`:
 Custom metadata enables per-item behavior through MSBuild batching:
 
 ```xml
+
 <ItemGroup>
   <DbMigration Include="migrations/*.sql">
     <TargetDb>main</TargetDb>
@@ -255,7 +274,8 @@ Custom metadata enables per-item behavior through MSBuild batching:
   <Exec Command="sqlcmd -d %(DbMigration.TargetDb) -i %(DbMigration.Identity)"
         Condition="'@(DbMigration)' != ''" />
 </Target>
-```
+
+```bash
 
 `%(Metadata)` in a task attribute triggers batching. MSBuild groups items by the metadata value and invokes the task once per group.
 
@@ -268,6 +288,7 @@ Conditions control whether properties, items, targets, and tasks are evaluated.
 ### Property Conditions
 
 ```xml
+
 <PropertyGroup>
   <!-- Default: set only if not already defined -->
   <LangVersion Condition="'$(LangVersion)' == ''">latest</LangVersion>
@@ -281,11 +302,13 @@ Conditions control whether properties, items, targets, and tasks are evaluated.
   <!-- OS condition -->
   <RuntimeIdentifier Condition="$([MSBuild]::IsOSPlatform('Windows'))">win-x64</RuntimeIdentifier>
 </PropertyGroup>
-```
+
+```text
 
 ### Item and Target Conditions
 
 ```xml
+
 <!-- Conditional item inclusion -->
 <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
   <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
@@ -297,7 +320,8 @@ Conditions control whether properties, items, targets, and tasks are evaluated.
         Condition="'$(Configuration)' == 'Release' AND '$(SignAssembly)' == 'true'">
   <Exec Command="signtool sign /fd SHA256 $(TargetPath)" />
 </Target>
-```
+
+```bash
 
 ### Condition Operators
 
@@ -320,6 +344,7 @@ MSBuild properties can call .NET static methods and MSBuild intrinsic functions 
 ### .NET Static Method Calls
 
 ```xml
+
 <PropertyGroup>
   <!-- String manipulation -->
   <NormalizedName>$([System.String]::Copy('$(PackageId)').ToLowerInvariant())</NormalizedName>
@@ -336,11 +361,13 @@ MSBuild properties can call .NET static methods and MSBuild intrinsic functions 
   <!-- Environment variable -->
   <CiServer>$([System.Environment]::GetEnvironmentVariable('CI'))</CiServer>
 </PropertyGroup>
-```
+
+```text
 
 ### MSBuild Intrinsic Functions
 
 ```xml
+
 <PropertyGroup>
   <!-- OS detection -->
   <IsWindows>$([MSBuild]::IsOSPlatform('Windows'))</IsWindows>
@@ -362,7 +389,8 @@ MSBuild properties can call .NET static methods and MSBuild intrinsic functions 
   <!-- Normalize path separators -->
   <SafePath>$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '..', 'shared'))</SafePath>
 </PropertyGroup>
-```
+
+```text
 
 ### Useful MSBuild Properties
 
@@ -390,7 +418,8 @@ Basic Directory.Build layout is covered in [skill:dotnet-project-structure]. Thi
 
 In monorepos with nested directories, each level can define its own `Directory.Build.props` that chains to the parent:
 
-```
+```xml
+
 repo/
   Directory.Build.props            (repo-wide defaults)
   src/
@@ -401,9 +430,11 @@ repo/
     Directory.Build.props          (test-specific overrides)
     MyApp.Tests/
       MyApp.Tests.csproj
-```
+
+```csharp
 
 ```xml
+
 <!-- src/Directory.Build.props -->
 <Project>
   <!-- Chain to parent Directory.Build.props (with existence guard) -->
@@ -417,9 +448,11 @@ repo/
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 </Project>
-```
+
+```text
 
 ```xml
+
 <!-- tests/Directory.Build.props -->
 <Project>
   <!-- Chain to parent Directory.Build.props (with existence guard) -->
@@ -439,13 +472,15 @@ repo/
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
 </Project>
-```
+
+```text
 
 ### Condition Guards
 
 Prevent property values from being overridden by child imports:
 
 ```xml
+
 <!-- repo/Directory.Build.props -->
 <Project>
   <PropertyGroup>
@@ -455,7 +490,8 @@ Prevent property values from being overridden by child imports:
     <ImplicitUsings Condition="'$(ImplicitUsings)' == ''">enable</ImplicitUsings>
   </PropertyGroup>
 </Project>
-```
+
+```text
 
 **Rule:** Properties in `.props` files should use the `Condition="'$(Prop)' == ''"` guard so that inner `.props` files and project-level properties can override them. Properties you want to enforce unconditionally belong in `Directory.Build.targets` (which evaluates last).
 
@@ -464,6 +500,7 @@ Prevent property values from being overridden by child imports:
 When multiple `Directory.Build.props` files chain upward, a shared import could be evaluated twice. Use a sentinel property to guard against this:
 
 ```xml
+
 <!-- shared/Common.props -->
 <Project>
   <!-- Guard: only evaluate once -->
@@ -474,23 +511,27 @@ When multiple `Directory.Build.props` files chain upward, a shared import could 
     <Copyright>Copyright (c) My Company. All rights reserved.</Copyright>
   </PropertyGroup>
 </Project>
-```
+
+```text
 
 The sentinel and content properties must be in the **same** `PropertyGroup` with the `!= 'true'` condition. Putting content in a separate block with `== 'true'` does not prevent re-evaluation -- it runs on every import because the sentinel is already set.
 
 A cleaner approach uses `Condition` on the `<Import>` element:
 
 ```xml
+
 <!-- Only import if not already imported -->
 <Import Project="$(SharedPropsPath)"
         Condition="'$(_CommonPropsImported)' != 'true' AND Exists('$(SharedPropsPath)')" />
-```
+
+```xml
 
 ### Enforcing Settings in Directory.Build.targets
 
 Properties set in `.targets` files cannot be overridden by project-level `PropertyGroup` elements because they evaluate after the project body:
 
 ```xml
+
 <!-- Directory.Build.targets -->
 <Project>
   <!-- Enforced: projects cannot override these -->
@@ -504,7 +545,8 @@ Properties set in `.targets` files cannot be overridden by project-level `Proper
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 </Project>
-```
+
+```text
 
 ---
 
@@ -512,19 +554,19 @@ Properties set in `.targets` files cannot be overridden by project-level `Proper
 
 1. **Unquoted condition comparisons.** Always quote both sides: `'$(Prop)' == 'value'`. Unquoted `$(Prop) == value` fails silently when the property is empty or contains spaces.
 
-2. **Using `$(MSBuildProjectDirectory)` in shared `.props`/`.targets` files.** This resolves to the importing project's directory, not the file's own directory. Use `$(MSBuildThisFileDirectory)` to reference paths relative to the `.props`/`.targets` file itself.
+1. **Using `$(MSBuildProjectDirectory)` in shared `.props`/`.targets` files.** This resolves to the importing project's directory, not the file's own directory. Use `$(MSBuildThisFileDirectory)` to reference paths relative to the `.props`/`.targets` file itself.
 
-3. **Setting properties in `.targets` and expecting project overrides.** Properties in `.targets` evaluate after the project body and override project-level values. If a property should be overridable, set it in `.props` with a `Condition="'$(Prop)' == ''"` guard.
+1. **Setting properties in `.targets` and expecting project overrides.** Properties in `.targets` evaluate after the project body and override project-level values. If a property should be overridable, set it in `.props` with a `Condition="'$(Prop)' == ''"` guard.
 
-4. **Adding `<Compile Include="**/*.cs" />` in SDK-style projects.** SDK-style projects auto-include all `*.cs` files. Explicit inclusion causes `NETSDK1022` duplicate items. Use `Remove` then `Include` for conditional scenarios.
+1. **Adding `<Compile Include="**/*.cs" />` in SDK-style projects.** SDK-style projects auto-include all `*.cs` files. Explicit inclusion causes `NETSDK1022` duplicate items. Use `Remove` then `Include` for conditional scenarios.
 
-5. **Missing `Outputs` on targets with `Inputs`.** A target with `Inputs` but no `Outputs` runs every build. Always pair them for incremental behavior.
+1. **Missing `Outputs` on targets with `Inputs`.** A target with `Inputs` but no `Outputs` runs every build. Always pair them for incremental behavior.
 
-6. **Using `$(SolutionDir)` in `.props`/`.targets` files.** This property is only set when building through a solution file. Command-line `dotnet build MyProject.csproj` leaves it empty. Use `$([MSBuild]::GetPathOfFileAbove('*.sln', '$(MSBuildProjectDirectory)'))` or pass paths relative to `$(MSBuildThisFileDirectory)`.
+1. **Using `$(SolutionDir)` in `.props`/`.targets` files.** This property is only set when building through a solution file. Command-line `dotnet build MyProject.csproj` leaves it empty. Use `$([MSBuild]::GetPathOfFileAbove('*.sln', '$(MSBuildProjectDirectory)'))` or pass paths relative to `$(MSBuildThisFileDirectory)`.
 
-7. **Putting items in `PropertyGroup` or properties in `ItemGroup`.** Items (using `Include=`) must be in `<ItemGroup>`. Properties (using element value) must be in `<PropertyGroup>`. Mixing them produces silent evaluation failures.
+1. **Putting items in `PropertyGroup` or properties in `ItemGroup`.** Items (using `Include=`) must be in `<ItemGroup>`. Properties (using element value) must be in `<PropertyGroup>`. Mixing them produces silent evaluation failures.
 
-8. **Forgetting `Condition` guard on parent import chain.** `GetPathOfFileAbove` returns empty string when no file is found. The `<Import>` must have `Condition="Exists('$(ResolvedPath)')"` or the build fails with a file-not-found error.
+1. **Forgetting `Condition` guard on parent import chain.** `GetPathOfFileAbove` returns empty string when no file is found. The `<Import>` must have `Condition="Exists('$(ResolvedPath)')"` or the build fails with a file-not-found error.
 
 ---
 

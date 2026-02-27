@@ -57,13 +57,16 @@ requests without network overhead, exercising the full middleware pipeline, rout
 ### Package
 
 ```xml
+
 <!-- Version must match target framework: 8.x for net8.0, 9.x for net9.0, etc. -->
 <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
-```
+
+```xml
 
 ### Basic Usage
 
 ```csharp
+
 public class OrdersApiTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
@@ -99,29 +102,35 @@ public class OrdersApiTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.NotNull(response.Headers.Location);
     }
 }
-```
+
+```text
 
 **Important:** The `Program` class must be accessible to the test project. Either make it public or add an
 `InternalsVisibleTo` attribute:
 
 ```csharp
+
 // In the API project (e.g., Program.cs or a separate file)
 [assembly: InternalsVisibleTo("MyApp.Api.IntegrationTests")]
-```
+
+```csharp
 
 Or in the csproj:
 
 ```xml
+
 <ItemGroup>
   <InternalsVisibleTo Include="MyApp.Api.IntegrationTests" />
 </ItemGroup>
-```
+
+```xml
 
 ### Customizing the Test Server
 
 Override services, configuration, or middleware using `WebApplicationFactory<T>.WithWebHostBuilder`:
 
 ```csharp
+
 public class CustomWebAppFactory : WebApplicationFactory<Program>
 {
     // Provide connection string from test fixture (e.g., Testcontainers)
@@ -153,13 +162,15 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
         });
     }
 }
-```
+
+```text
 
 ### Authenticated Requests
 
 Test authenticated endpoints by configuring an authentication handler:
 
 ```csharp
+
 public class AuthenticatedWebAppFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -196,7 +207,8 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
         return Task.FromResult(AuthenticateResult.Success(ticket));
     }
 }
-```
+
+```text
 
 ---
 
@@ -208,16 +220,19 @@ test run gets a fresh, disposable environment.
 ### Packages
 
 ```xml
+
 <PackageReference Include="Testcontainers" Version="4.*" />
 <!-- Database-specific modules -->
 <PackageReference Include="Testcontainers.PostgreSql" Version="4.*" />
 <PackageReference Include="Testcontainers.MsSql" Version="4.*" />
 <PackageReference Include="Testcontainers.Redis" Version="4.*" />
-```
+
+```text
 
 ### PostgreSQL Example
 
 ```csharp
+
 public class PostgresFixture : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
@@ -276,11 +291,13 @@ public class OrderRepositoryTests
         return new AppDbContext(options);
     }
 }
-```
+
+```text
 
 ### SQL Server Example
 
 ```csharp
+
 public class SqlServerFixture : IAsyncLifetime
 {
     private readonly MsSqlContainer _container = new MsSqlBuilder()
@@ -299,13 +316,15 @@ public class SqlServerFixture : IAsyncLifetime
         await _container.DisposeAsync();
     }
 }
-```
+
+```text
 
 ### Combining WebApplicationFactory with Testcontainers
 
 The most common pattern: use Testcontainers for the database and WebApplicationFactory for the API:
 
 ```csharp
+
 public class ApiTestFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
@@ -367,7 +386,8 @@ public class OrdersApiIntegrationTests : IClassFixture<ApiTestFactory>
         Assert.Equal("cust-1", order!.CustomerId);
     }
 }
-```
+
+```text
 
 ---
 
@@ -379,12 +399,15 @@ Aspire. This tests the actual distributed topology including service discovery, 
 ### Package
 
 ```xml
+
 <PackageReference Include="Aspire.Hosting.Testing" Version="9.*" />
-```
+
+```xml
 
 ### Basic Aspire Test
 
 ```csharp
+
 public class AspireIntegrationTests
 {
     [Fact]
@@ -425,13 +448,15 @@ public class AspireIntegrationTests
         response.EnsureSuccessStatusCode();
     }
 }
-```
+
+```text
 
 ### Aspire with Service Overrides
 
 Replace services in the Aspire app model for testing:
 
 ```csharp
+
 [Fact]
 public async Task ApiService_WithMockedExternalDependency()
 {
@@ -452,7 +477,8 @@ public async Task ApiService_WithMockedExternalDependency()
 
     response.EnsureSuccessStatusCode();
 }
-```
+
+```text
 
 ---
 
@@ -463,6 +489,7 @@ public async Task ApiService_WithMockedExternalDependency()
 Roll back each test's changes using a transaction scope:
 
 ```csharp
+
 public class TransactionalTestBase : IClassFixture<PostgresFixture>, IAsyncLifetime
 {
     private readonly PostgresFixture _postgres;
@@ -509,7 +536,8 @@ public class OrderTests : TransactionalTestBase
         // Transaction rolls back after test -- database stays clean
     }
 }
-```
+
+```text
 
 ### Per-Test Isolation with Respawn
 
@@ -517,6 +545,7 @@ Use Respawn to reset database state between tests by deleting data instead of ro
 when transaction rollback is not feasible (e.g., testing code that commits its own transactions):
 
 ```csharp
+
 // NuGet: Respawn
 // Combined fixture: owns the container AND the respawner
 public class RespawnablePostgresFixture : IAsyncLifetime
@@ -557,7 +586,8 @@ public class RespawnablePostgresFixture : IAsyncLifetime
         await _container.DisposeAsync();
     }
 }
-```
+
+```text
 
 ---
 
@@ -574,12 +604,14 @@ public class RespawnablePostgresFixture : IAsyncLifetime
 
 ### Container Lifecycle Recommendations
 
-```
+```text
+
 Per-test:       Too slow. Never spin up a container per test.
 Per-class:      Good isolation, acceptable speed with ICollectionFixture.
 Per-collection: Best balance -- share one container across related test classes.
 Per-assembly:   Fastest but requires careful cleanup between tests.
-```
+
+```text
 
 Use `ICollectionFixture<T>` (see [skill:dotnet-xunit]) to share a single container across multiple test classes while
 running those classes sequentially to avoid data conflicts.
@@ -589,6 +621,7 @@ running those classes sequentially to avoid data conflicts.
 ## Testing with Redis
 
 ```csharp
+
 public class RedisFixture : IAsyncLifetime
 {
     private readonly RedisContainer _container = new RedisBuilder()
@@ -625,7 +658,8 @@ public class CacheServiceTests
         Assert.Equal(99m, result.Total);
     }
 }
-```
+
+```text
 
 ---
 

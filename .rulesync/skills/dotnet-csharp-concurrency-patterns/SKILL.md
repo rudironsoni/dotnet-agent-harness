@@ -46,7 +46,8 @@ producer/consumer, [skill:dotnet-csharp-coding-standards] for naming conventions
 
 Choose the simplest primitive that meets the requirement. Complexity increases downward:
 
-```
+```text
+
 Is the shared state a single scalar (int, long, reference)?
   YES -> Use Interlocked (lock-free, lowest overhead)
 
@@ -61,7 +62,8 @@ Does the critical section contain `await`?
 
 Is the critical section extremely short (< 100 ns) with high contention?
   YES -> Consider SpinLock (advanced, measure first)
-```
+
+```text
 
 ### Quick Reference Table
 
@@ -84,6 +86,7 @@ Is the critical section extremely short (< 100 ns) with high contention?
 ### Correct Usage
 
 ```csharp
+
 public sealed class Counter
 {
     private readonly object _lock = new();
@@ -105,7 +108,8 @@ public sealed class Counter
         }
     }
 }
-```
+
+```text
 
 ### Lock Object Rules
 
@@ -122,6 +126,7 @@ public sealed class Counter
 For signaling between threads (producer/consumer without `Channel<T>`):
 
 ```csharp
+
 public sealed class BoundedBuffer<T>
 {
     private readonly Queue<T> _queue = new();
@@ -155,7 +160,8 @@ public sealed class BoundedBuffer<T>
         }
     }
 }
-```
+
+```text
 
 For modern code, prefer `Channel<T>` (see [skill:dotnet-channels]) over Monitor.Wait/Pulse.
 
@@ -169,6 +175,7 @@ async operations.
 ### Mutual Exclusion (1,1)
 
 ```csharp
+
 public sealed class AsyncCache
 {
     private readonly SemaphoreSlim _semaphore = new(1, 1);
@@ -194,11 +201,13 @@ public sealed class AsyncCache
         }
     }
 }
-```
+
+```text
 
 ### Throttling (N concurrent operations)
 
 ```csharp
+
 public sealed class ThrottledProcessor
 {
     private readonly SemaphoreSlim _throttle;
@@ -228,20 +237,23 @@ public sealed class ThrottledProcessor
     private Task ProcessItemAsync(WorkItem item, CancellationToken ct) =>
         Task.CompletedTask; // implementation
 }
-```
+
+```text
 
 ### SemaphoreSlim Disposal
 
 `SemaphoreSlim` implements `IDisposable`. Dispose it when the owning object is disposed:
 
 ```csharp
+
 public sealed class ManagedResource : IDisposable
 {
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
     public void Dispose() => _semaphore.Dispose();
 }
-```
+
+```text
 
 ---
 
@@ -252,6 +264,7 @@ Lock-free atomic operations for scalar values. The lowest-overhead synchronizati
 ### Common Operations
 
 ```csharp
+
 private int _counter;
 private long _totalBytes;
 private object? _current;
@@ -270,13 +283,15 @@ var previous = Interlocked.Exchange(ref _current, newValue);
 var original = Interlocked.CompareExchange(ref _counter,
     newValue: 10,
     comparand: 0); // Sets to 10 only if current value is 0
-```
+
+```text
 
 ### Volatile Read/Write
 
 For visibility guarantees without atomicity (reading the latest value written by another thread):
 
 ```csharp
+
 private int _flag;
 
 // Write with release semantics (all prior writes visible to readers)
@@ -284,7 +299,8 @@ Volatile.Write(ref _flag, 1);
 
 // Read with acquire semantics (sees all writes prior to the last Volatile.Write)
 var value = Volatile.Read(ref _flag);
-```
+
+```text
 
 ### Interlocked vs volatile vs lock
 
@@ -303,6 +319,7 @@ Thread-safe key-value store. The most commonly used concurrent collection.
 ### Safe Patterns
 
 ```csharp
+
 private readonly ConcurrentDictionary<int, Widget> _cache = new();
 
 // Atomic get-or-add
@@ -318,7 +335,8 @@ if (_cache.TryRemove(id, out var removed))
 {
     // Process removed item
 }
-```
+
+```text
 
 ### Delegate Execution Caveats
 
@@ -326,6 +344,7 @@ if (_cache.TryRemove(id, out var removed))
 but the factory runs for each competing thread:
 
 ```csharp
+
 // WRONG -- factory has side effects (database write) that may run multiple times
 var widget = _cache.GetOrAdd(id, key =>
 {
@@ -339,11 +358,13 @@ private readonly ConcurrentDictionary<int, Lazy<Widget>> _cache = new();
 
 var widget = _cache.GetOrAdd(id,
     key => new Lazy<Widget>(() => LoadAndSaveWidget(key))).Value;
-```
+
+```text
 
 ### Composite Operations Are Not Atomic
 
 ```csharp
+
 // WRONG -- check-then-act race condition
 if (!_cache.ContainsKey(key))
 {
@@ -352,7 +373,8 @@ if (!_cache.ContainsKey(key))
 
 // CORRECT -- single atomic operation
 var value = _cache.GetOrAdd(key, k => ComputeValue(k));
-```
+
+```text
 
 ---
 
@@ -362,6 +384,7 @@ Allows concurrent reads while serializing writes. Only beneficial when reads sig
 profiling shows `lock` contention on the read path.
 
 ```csharp
+
 public sealed class ReadHeavyCache<TKey, TValue> : IDisposable
     where TKey : notnull
 {
@@ -396,7 +419,8 @@ public sealed class ReadHeavyCache<TKey, TValue> : IDisposable
 
     public void Dispose() => _rwLock.Dispose();
 }
-```
+
+```text
 
 **When NOT to use ReaderWriterLockSlim:**
 
@@ -412,6 +436,7 @@ A low-level primitive for ultra-short critical sections where thread switching o
 before using.**
 
 ```csharp
+
 private SpinLock _spinLock = new(enableThreadOwnerTracking: false);
 
 public void UpdateCounter()
@@ -428,7 +453,8 @@ public void UpdateCounter()
             _spinLock.Exit(useMemoryBarrier: false);
     }
 }
-```
+
+```text
 
 **Rules:**
 
@@ -446,6 +472,7 @@ public void UpdateCounter()
 Prefer immutable data for sharing across threads without synchronization:
 
 ```csharp
+
 // Thread-safe via immutability -- no locks needed for reads
 private ImmutableList<Widget> _widgets = ImmutableList<Widget>.Empty;
 
@@ -462,13 +489,15 @@ public void AddWidget(Widget widget)
 }
 
 public ImmutableList<Widget> GetWidgets() => _widgets; // No lock needed
-```
+
+```text
 
 ### Double-Checked Locking
 
 For lazy initialization when `Lazy<T>` is not appropriate:
 
 ```csharp
+
 private volatile Widget? _instance;
 private readonly object _lock = new();
 
@@ -489,14 +518,17 @@ public Widget GetInstance()
         return instance;
     }
 }
-```
+
+```text
 
 For most cases, prefer `Lazy<T>` which handles this correctly:
 
 ```csharp
+
 private readonly Lazy<Widget> _instance = new(() => CreateWidget());
 public Widget Instance => _instance.Value;
-```
+
+```csharp
 
 ---
 

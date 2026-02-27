@@ -45,6 +45,7 @@ health check endpoint patterns used by Kubernetes probes.
 A production-ready Kubernetes Deployment for a .NET API:
 
 ```yaml
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -117,13 +118,15 @@ spec:
         runAsUser: 1654
         fsGroup: 1654
       terminationGracePeriodSeconds: 30
-```
+
+```text
 
 ### Service Manifest
 
 Expose the Deployment within the cluster:
 
 ```yaml
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -139,11 +142,13 @@ spec:
       targetPort: 8080
       protocol: TCP
       name: http
-```
+
+```text
 
 ### ConfigMap for Non-Sensitive Configuration
 
 ```yaml
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -152,19 +157,23 @@ data:
   ASPNETCORE_ENVIRONMENT: 'Production'
   Logging__LogLevel__Default: 'Information'
   Logging__LogLevel__Microsoft.AspNetCore: 'Warning'
-```
+
+```text
 
 Reference in the Deployment:
 
 ```yaml
+
 envFrom:
   - configMapRef:
       name: order-api-config
-```
+
+```yaml
 
 ### Secrets for Sensitive Configuration
 
 ```yaml
+
 apiVersion: v1
 kind: Secret
 metadata:
@@ -172,7 +181,8 @@ metadata:
 type: Opaque
 stringData:
   connection-string: 'Host=postgres;Database=orders;Username=app;Password=secret'
-```
+
+```text
 
 In production, use an external secrets operator (e.g., External Secrets Operator, Sealed Secrets) rather than plain
 Kubernetes Secrets stored in source control.
@@ -195,6 +205,7 @@ application (see [skill:dotnet-observability]).
 ### Probe Configuration Guidelines
 
 ```yaml
+
 # Startup probe: give the app time to initialize
 # Total startup budget: failureThreshold * periodSeconds = 30 * 5 = 150s
 startupProbe:
@@ -223,7 +234,8 @@ readinessProbe:
   periodSeconds: 10
   timeoutSeconds: 3
   failureThreshold: 3
-```
+
+```text
 
 ### Graceful Shutdown
 
@@ -231,28 +243,34 @@ readinessProbe:
 requests to complete:
 
 ```yaml
+
 spec:
   terminationGracePeriodSeconds: 30
-```
+
+```yaml
 
 In your application, use `IHostApplicationLifetime` to handle shutdown:
 
 ```csharp
+
 app.Lifetime.ApplicationStopping.Register(() =>
 {
     // Perform cleanup: flush telemetry, close connections
     Log.CloseAndFlush();
 });
-```
+
+```text
 
 Ensure the `Host.ShutdownTimeout` allows in-flight requests to complete:
 
 ```csharp
+
 builder.Host.ConfigureHostOptions(options =>
 {
     options.ShutdownTimeout = TimeSpan.FromSeconds(25);
 });
-```
+
+```text
 
 Set `ShutdownTimeout` to a value less than `terminationGracePeriodSeconds` to ensure the app shuts down before
 Kubernetes sends `SIGKILL`.
@@ -266,6 +284,7 @@ Docker Compose provides a local development environment that mirrors production 
 ### Basic Compose File
 
 ```yaml
+
 # docker-compose.yml
 services:
   order-api:
@@ -322,13 +341,15 @@ services:
 
 volumes:
   postgres-data:
-```
+
+```text
 
 ### Development Override
 
 Use a separate override file for development-specific settings:
 
 ```yaml
+
 # docker-compose.override.yml (auto-loaded by docker compose up)
 services:
   order-api:
@@ -340,13 +361,15 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - DOTNET_USE_POLLING_FILE_WATCHER=true
     command: ['dotnet', 'watch', 'run', '--project', 'src/OrderApi/OrderApi.csproj']
-```
+
+```bash
 
 ### Observability Stack
 
 Add an OpenTelemetry collector and Grafana for local observability:
 
 ```yaml
+
 # docker-compose.observability.yml
 services:
   otel-collector:
@@ -367,13 +390,16 @@ services:
 
 volumes:
   grafana-data:
-```
+
+```text
 
 Run with the observability stack:
 
 ```bash
+
 docker compose -f docker-compose.yml -f docker-compose.observability.yml up
-```
+
+```bash
 
 ---
 
@@ -386,6 +412,7 @@ promotion, deploy pipelines) -- see [skill:dotnet-gha-publish], [skill:dotnet-gh
 ### GitHub Actions: Build and Push
 
 ```yaml
+
 # .github/workflows/docker-publish.yml
 name: Build and Push Container
 
@@ -435,7 +462,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-```
+
+```text
 
 ### Image Tagging Strategy
 
@@ -452,6 +480,7 @@ jobs:
 For projects using `dotnet publish /t:PublishContainer` instead of Dockerfiles:
 
 ```yaml
+
 steps:
   - uses: actions/checkout@v4
 
@@ -467,7 +496,8 @@ steps:
         -p:ContainerRegistry=${{ env.REGISTRY }} \
         -p:ContainerRepository=${{ env.IMAGE_NAME }} \
         -p:ContainerImageTag=${{ github.sha }}
-```
+
+```text
 
 ---
 

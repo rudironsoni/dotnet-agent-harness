@@ -101,6 +101,7 @@ build accessible Blazor apps.
 ### Semantic HTML and ARIA
 
 ```razor
+
 @* Use semantic HTML elements for structure *@
 <nav aria-label="Main navigation">
     <ul>
@@ -126,11 +127,13 @@ build accessible Blazor apps.
         <span class="icon-heart" aria-hidden="true"></span>
     </button>
 </main>
-```
+
+```text
 
 ### Keyboard Event Handling
 
 ```razor
+
 <div role="listbox"
      tabindex="0"
      aria-label="Product list"
@@ -168,13 +171,15 @@ build accessible Blazor apps.
         }
     }
 }
-```
+
+```text
 
 ### Live Regions
 
 Announce dynamic content changes to screen readers without moving focus:
 
 ```razor
+
 @* Polite: announced after current speech finishes *@
 <div aria-live="polite" aria-atomic="true">
     @if (_statusMessage is not null)
@@ -190,11 +195,13 @@ Announce dynamic content changes to screen readers without moving focus:
         <p>@_errorMessage</p>
     }
 </div>
-```
+
+```text
 
 ### Form Accessibility
 
 ```razor
+
 <EditForm Model="@_model" OnValidSubmit="HandleSubmit">
     <DataAnnotationsValidator />
 
@@ -218,7 +225,8 @@ Announce dynamic content changes to screen readers without moving focus:
 
     <button type="submit">Submit Order</button>
 </EditForm>
-```
+
+```text
 
 For Blazor hosting models and render mode configuration, see [skill:dotnet-blazor-patterns]. For component lifecycle and
 EditForm patterns, see [skill:dotnet-blazor-components].
@@ -233,6 +241,7 @@ platform accessibility APIs (VoiceOver on iOS/macOS, TalkBack on Android, Narrat
 ### SemanticProperties
 
 ```xml
+
 <!-- Description: primary screen reader announcement -->
 <Image Source="product.png"
        SemanticProperties.Description="Product photo showing a blue widget" />
@@ -246,7 +255,8 @@ platform accessibility APIs (VoiceOver on iOS/macOS, TalkBack on Android, Narrat
        SemanticProperties.HeadingLevel="Level1" />
 <Label Text="Items"
        SemanticProperties.HeadingLevel="Level2" />
-```
+
+```text
 
 **Key APIs:**
 
@@ -278,18 +288,21 @@ accessibility tree inclusion.
 ### Programmatic Focus and Announcements
 
 ```csharp
+
 // Move screen reader focus to a specific element
 myLabel.SetSemanticFocus();
 
 // Announce text to the screen reader without moving focus
 SemanticScreenReader.Default.Announce("Item added to cart successfully.");
-```
+
+```text
 
 ### Accessible Custom Controls
 
 When building custom controls, ensure accessibility metadata is set:
 
 ```csharp
+
 public class RatingControl : ContentView
 {
     private int _rating;
@@ -307,7 +320,8 @@ public class RatingControl : ContentView
         }
     }
 }
-```
+
+```text
 
 For MAUI project structure, MVVM patterns, and platform services, see [skill:dotnet-maui-development].
 
@@ -321,6 +335,7 @@ by default. Custom controls need automation peers.
 ### AutomationProperties
 
 ```xml
+
 <!-- Name: primary accessible name for screen readers -->
 <Image Source="ms-appx:///Assets/product.png"
        AutomationProperties.Name="Product photo showing a blue widget" />
@@ -337,13 +352,15 @@ by default. Custom controls need automation peers.
 <!-- Hide decorative elements from accessibility tree -->
 <Image Source="ms-appx:///Assets/divider.png"
        AutomationProperties.AccessibilityView="Raw" />
-```
+
+```text
 
 ### Custom Automation Peers
 
 For custom controls, implement an `AutomationPeer` to expose the control to UI Automation clients:
 
 ```csharp
+
 // Custom control
 public sealed class StarRating : Control
 {
@@ -403,13 +420,15 @@ public sealed class StarRatingAutomationPeer
             (double)oldValue, (double)newValue);
     }
 }
-```
+
+```text
 
 ### Keyboard Accessibility in WinUI
 
 WinUI XAML controls provide built-in keyboard support. Ensure custom controls follow the same patterns:
 
 ```xml
+
 <!-- TabIndex controls navigation order -->
 <TextBox Header="First name" TabIndex="1" />
 <TextBox Header="Last name" TabIndex="2" />
@@ -418,7 +437,8 @@ WinUI XAML controls provide built-in keyboard support. Ensure custom controls fo
 <!-- AccessKey provides keyboard shortcuts (Alt + key) -->
 <Button Content="Save" AccessKey="S" />
 <Button Content="Delete" AccessKey="D" />
-```
+
+```text
 
 For WinUI project setup, XAML patterns, and Windows integration, see [skill:dotnet-winui].
 
@@ -435,6 +455,7 @@ WPF on .NET 8+ uses the same UI Automation framework as WinUI. The APIs are near
 - Use `AutomationProperties.LiveSetting` for live region announcements
 
 ```xml
+
 <!-- WPF accessibility follows the same pattern as WinUI -->
 <Image Source="product.png"
        AutomationProperties.Name="Product photo" />
@@ -442,7 +463,8 @@ WPF on .NET 8+ uses the same UI Automation framework as WinUI. The APIs are near
 <TextBlock x:Name="StatusLabel"
            AutomationProperties.LiveSetting="Polite"
            Text="{Binding StatusText}" />
-```
+
+```text
 
 For WPF development patterns on .NET 8+, see [skill:dotnet-wpf-modern].
 
@@ -503,6 +525,7 @@ For Terminal.Gui patterns, see [skill:dotnet-terminal-gui]. For Spectre.Console 
 ### Automated Testing Integration
 
 ```csharp
+
 // Blazor: integrate axe-core with Playwright for automated accessibility testing
 // Requires: Deque.AxeCore.Playwright NuGet package
 // Install: dotnet add package Deque.AxeCore.Playwright
@@ -514,7 +537,8 @@ Assert.Empty(axeResults.Violations);
 
 // WinUI/WPF: use Accessibility Insights for Windows CLI in CI pipelines
 // Requires: AccessibilityInsights.CLI (available via Microsoft Store or direct download)
-```
+
+```text
 
 ### Manual Testing Checklist
 

@@ -57,6 +57,7 @@ Environments are first-class Azure DevOps resources that provide deployment targ
 history:
 
 ```yaml
+
 stages:
   - stage: DeployStaging
     jobs:
@@ -86,7 +87,8 @@ stages:
                 - download: current
                   artifact: app
                 - script: echo "Deploying to production"
-```
+
+```text
 
 Environments are created automatically on first reference. Configure approvals and gates in Azure DevOps > Pipelines >
 Environments > (select environment) > Approvals and checks.
@@ -109,6 +111,7 @@ Approval checks are configured in the Azure DevOps UI, not in YAML. The YAML pip
 the checks are applied:
 
 ```yaml
+
 # Pipeline YAML -- environment reference triggers checks
 - deployment: DeployToProduction
   environment: 'production' # checks configured in UI
@@ -117,7 +120,8 @@ the checks are applied:
       deploy:
         steps:
           - script: echo "This runs only after all checks pass"
-```
+
+```text
 
 **Approval configuration (UI):**
 
@@ -138,6 +142,7 @@ Restrict deployments to specific time windows to reduce risk:
 ### Pre-Deployment Validation with Azure Functions
 
 ```yaml
+
 # The environment's "Invoke Azure Function" check calls:
 # https://myvalidation.azurewebsites.net/api/pre-deploy
 # with the pipeline context as payload.
@@ -159,7 +164,8 @@ Restrict deployments to specific time windows to reduce risk:
       postRouteTraffic:
         steps:
           - script: echo "Post-route validation"
-```
+
+```text
 
 The `preDeploy`, `routeTraffic`, and `postRouteTraffic` lifecycle hooks execute within the pipeline. Environment checks
 (approvals, Azure Function gates) execute before the deployment job starts.
@@ -184,14 +190,17 @@ The `preDeploy`, `routeTraffic`, and `postRouteTraffic` lifecycle hooks execute 
 Deployment groups install an agent on each target machine. Use only for existing on-premises deployments:
 
 ```yaml
+
 # Classic release pipeline (not YAML) -- for reference only
 # Deployment groups are configured in Project Settings > Deployment Groups
 # Each target server runs the ADO agent registered to the group
-```
+
+```yaml
 
 ### Environment with Kubernetes Resource
 
 ```yaml
+
 - deployment: DeployToK8s
   environment: 'production.my-k8s-namespace'
   strategy:
@@ -203,7 +212,8 @@ Deployment groups install an agent on each target machine. Use only for existing
               action: 'deploy'
               manifests: 'k8s/*.yml'
               containers: '$(ACR_LOGIN_SERVER)/myapp:$(Build.BuildId)'
-```
+
+```yaml
 
 Environments can target Kubernetes clusters and namespaces. Register the cluster as a resource under the environment in
 the Azure DevOps UI.
@@ -225,6 +235,7 @@ Service connections provide authenticated access to external services. ARM conne
 deployments:
 
 ```yaml
+
 - task: AzureWebApp@1
   displayName: 'Deploy to Azure App Service'
   inputs:
@@ -232,7 +243,8 @@ deployments:
     appType: 'webAppLinux'
     appName: 'myapp-staging'
     package: '$(Pipeline.Workspace)/app'
-```
+
+```text
 
 **Creating an ARM service connection:**
 
@@ -253,6 +265,7 @@ Use workload identity federation for passwordless Azure authentication (no clien
 ### Docker Registry Service Connection
 
 ```yaml
+
 - task: Docker@2
   displayName: 'Login to ACR'
   inputs:
@@ -266,7 +279,8 @@ Use workload identity federation for passwordless Azure authentication (no clien
     containerRegistry: 'MyACRServiceConnection'
     repository: 'myapp'
     dockerfile: 'src/MyApp/Dockerfile'
-```
+
+```bash
 
 **Creating a Docker registry connection:**
 
@@ -279,6 +293,7 @@ Use workload identity federation for passwordless Azure authentication (no clien
 For pushing to external NuGet feeds (e.g., nuget.org):
 
 ```yaml
+
 - task: NuGetCommand@2
   displayName: 'Push to nuget.org'
   inputs:
@@ -286,7 +301,8 @@ For pushing to external NuGet feeds (e.g., nuget.org):
     packagesToPush: '$(Pipeline.Workspace)/nupkgs/*.nupkg'
     nuGetFeedType: 'external'
     publishFeedCredentials: 'NuGetOrgServiceConnection'
-```
+
+```bash
 
 **Creating a NuGet connection:**
 
@@ -312,16 +328,19 @@ pipelines for:
 
 **Classic release structure:**
 
-```
+```text
+
 Build Pipeline -> Release Pipeline
                     Stage 1: Dev (auto-deploy)
                     Stage 2: Staging (manual approval)
                     Stage 3: Production (scheduled + approval)
-```
+
+```text
 
 **Equivalent YAML multi-stage pipeline:**
 
 ```yaml
+
 trigger:
   branches:
     include:
@@ -383,7 +402,8 @@ stages:
                 - download: current
                   artifact: app
                 - script: echo "Deploy to production"
-```
+
+```text
 
 ### Migration Checklist
 
@@ -403,6 +423,7 @@ stages:
 Variable groups can pull secrets directly from Azure Key Vault at pipeline runtime:
 
 ```yaml
+
 variables:
   - group: 'kv-production-secrets'
   - group: 'build-settings'
@@ -416,7 +437,8 @@ steps:
     env:
       SQL_CONNECTION: $(sql-connection-string) # from Key Vault
       API_KEY: $(api-key) # from Key Vault
-```
+
+```text
 
 **Setting up Key Vault-linked variable groups:**
 
@@ -431,6 +453,7 @@ steps:
 Use conditional variable group references based on pipeline stage:
 
 ```yaml
+
 stages:
   - stage: DeployStaging
     variables:
@@ -461,13 +484,15 @@ stages:
                 - script: echo "Deploying with production config"
                   env:
                     CONNECTION_STRING: $(sql-connection-string)
-```
+
+```text
 
 ### Secure Files in Library
 
 Store certificates, SSH keys, and other binary secrets in the Pipelines Library:
 
 ```yaml
+
 - task: DownloadSecureFile@1
   displayName: 'Download signing certificate'
   name: signingCert
@@ -480,7 +505,8 @@ Store certificates, SSH keys, and other binary secrets in the Pipelines Library:
       --certificate-password $(CERT_PASSWORD) \
       --timestamper http://timestamp.digicert.com
   displayName: 'Sign NuGet packages'
-```
+
+```text
 
 ---
 
@@ -503,6 +529,7 @@ files. They enforce organizational policies:
 Decorators are packaged as Azure DevOps extensions:
 
 ```yaml
+
 # vss-extension.json (extension manifest)
 {
   'contributions':
@@ -515,15 +542,18 @@ Decorators are packaged as Azure DevOps extensions:
       },
     ],
 }
-```
 
 ```yaml
+
+```yaml
+
 # decorator.yml
 steps:
   - task: CredentialScanner@1
     displayName: '[Policy] Credential scan'
     condition: always()
-```
+
+```text
 
 ### Deployment Limitations
 
@@ -542,6 +572,7 @@ NuGet/npm/Maven formats:
 ### Publish a Universal Package
 
 ```yaml
+
 - task: UniversalPackages@0
   displayName: 'Publish universal package'
   inputs:
@@ -553,11 +584,13 @@ NuGet/npm/Maven formats:
     versionOption: 'custom'
     versionPublish: '$(Build.BuildNumber)'
     packagePublishDescription: '.NET CLI tool binaries'
-```
+
+```text
 
 ### Download a Universal Package
 
 ```yaml
+
 - task: UniversalPackages@0
   displayName: 'Download universal package'
   inputs:
@@ -567,7 +600,8 @@ NuGet/npm/Maven formats:
     vstsFeedPackage: 'my-dotnet-tool'
     vstsPackageVersion: '*'
     downloadDirectory: '$(Pipeline.Workspace)/tools'
-```
+
+```text
 
 ### Use Cases for .NET Projects
 

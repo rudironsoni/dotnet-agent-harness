@@ -66,6 +66,7 @@ The lowest-risk migration path. Keeps your existing XAML and code-behind intact 
 The .NET Upgrade Assistant automates the bulk of the migration:
 
 ```bash
+
 # Install the upgrade assistant
 dotnet tool install -g upgrade-assistant
 
@@ -74,7 +75,8 @@ upgrade-assistant analyze MyWpfApp.sln
 
 # Upgrade the project
 upgrade-assistant upgrade MyWpfApp.sln
-```
+
+```text
 
 **What the upgrade assistant handles:**
 - `.csproj` conversion from legacy format to SDK-style
@@ -109,13 +111,15 @@ Most WPF APIs are identical between .NET Framework and .NET 8+. Key differences:
 After migration, update NuGet packages to .NET 8-compatible versions:
 
 ```bash
+
 # List outdated packages
 dotnet list package --outdated
 
 # Update packages (one at a time for safer migration)
 dotnet add package Newtonsoft.Json --version 13.*
 dotnet add package MaterialDesignThemes --version 5.*
-```
+
+```json
 
 **Common package replacements:**
 - `Unity` container -> `Microsoft.Extensions.DependencyInjection` (built-in)
@@ -231,12 +235,14 @@ Similar to WPF migration but typically simpler due to WinForms' less complex pro
 ### Using dotnet-upgrade-assistant
 
 ```bash
+
 # Analyze first
 upgrade-assistant analyze MyWinFormsApp.sln
 
 # Upgrade
 upgrade-assistant upgrade MyWinFormsApp.sln
-```
+
+```text
 
 **What the upgrade assistant handles:**
 - `.csproj` conversion to SDK-style with `<UseWindowsForms>true</UseWindowsForms>`

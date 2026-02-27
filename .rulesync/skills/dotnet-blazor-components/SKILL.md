@@ -50,6 +50,7 @@ SignalR, [skill:dotnet-playwright] for E2E testing, [skill:dotnet-ui-chooser] fo
 ### Lifecycle Methods
 
 ```csharp
+
 @code {
     // 1. Called when parameters are set/updated
     public override async Task SetParametersAsync(ParameterView parameters)
@@ -111,7 +112,8 @@ SignalR, [skill:dotnet-playwright] for E2E testing, [skill:dotnet-ui-chooser] fo
         }
     }
 }
-```
+
+```text
 
 ### Lifecycle Behavior per Render Mode
 
@@ -133,6 +135,7 @@ critical logic in `OnAfterRender` for Static SSR pages.
 Cascading values flow data down the component tree without explicit parameter passing.
 
 ```razor
+
 <!-- Parent: provide a cascading value -->
 <CascadingValue Value="@theme" Name="AppTheme">
     <Router AppAssembly="typeof(App).Assembly">
@@ -143,28 +146,34 @@ Cascading values flow data down the component tree without explicit parameter pa
 @code {
     private ThemeSettings theme = new() { IsDarkMode = false, AccentColor = "#0078d4" };
 }
-```
+
+```text
 
 ```razor
+
 <!-- Child: consume the cascading value -->
 @code {
     [CascadingParameter(Name = "AppTheme")]
     public ThemeSettings? Theme { get; set; }
 }
-```
+
+```text
 
 **Fixed cascading values (.NET 8+):** For values that never change after initial render, use `IsFixed="true"` to avoid
 re-render overhead:
 
 ```razor
+
 <CascadingValue Value="@config" IsFixed="true">
     <ChildComponent />
 </CascadingValue>
-```
+
+```text
 
 ### Dependency Injection
 
 ```csharp
+
 // Register services in Program.cs
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddSingleton<AppState>();
@@ -172,7 +181,8 @@ builder.Services.AddSingleton<AppState>();
 // Inject in components
 @inject IProductService ProductService
 @inject AppState State
-```
+
+```text
 
 **DI lifetime behavior per render mode:**
 
@@ -189,6 +199,7 @@ circuit persists until the user navigates away or the connection drops. Long-liv
 ### Browser Storage
 
 ```csharp
+
 // ProtectedBrowserStorage -- encrypted, per-user storage
 // Available in InteractiveServer only (not WASM -- server encrypts/decrypts)
 @inject ProtectedSessionStorage SessionStorage
@@ -207,11 +218,13 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
         await LocalStorage.SetAsync("preferences", userPrefs);
     }
 }
-```
+
+```text
 
 For InteractiveWebAssembly, use JS interop to access browser storage directly:
 
 ```csharp
+
 // WASM: Direct browser storage via JS interop
 await JSRuntime.InvokeVoidAsync("localStorage.setItem", "key",
     JsonSerializer.Serialize(value, AppJsonContext.Default.UserPrefs));
@@ -221,7 +234,8 @@ if (json is not null)
 {
     value = JsonSerializer.Deserialize(json, AppJsonContext.Default.UserPrefs);
 }
-```
+
+```json
 
 **Gotcha:** `ProtectedBrowserStorage` is not available during prerendering. Always access it in
 `OnAfterRenderAsync(firstRender: true)`, never in `OnInitializedAsync`.
@@ -233,6 +247,7 @@ if (json is not null)
 ### Calling JavaScript from .NET
 
 ```csharp
+
 @inject IJSRuntime JSRuntime
 
 // Invoke a global JS function
@@ -246,11 +261,13 @@ var result = await JSRuntime.InvokeAsync<string>(
     "expensiveOperation",
     TimeSpan.FromSeconds(10),
     inputData);
-```
+
+```text
 
 ### JavaScript Module Imports (AOT-Safe)
 
 ```csharp
+
 // Import a JS module -- trim-safe, no reflection
 private IJSObjectReference? module;
 
@@ -272,9 +289,11 @@ public async ValueTask DisposeAsync()
         await module.DisposeAsync();
     }
 }
-```
+
+```text
 
 ```javascript
+
 // wwwroot/js/interop.js
 export function initialize(element) {
   // Set up the element
@@ -283,11 +302,13 @@ export function initialize(element) {
 export function getValue(element) {
   return element.value;
 }
-```
+
+```text
 
 ### Calling .NET from JavaScript
 
 ```csharp
+
 // Instance method callback
 private DotNetObjectReference<MyComponent>? dotNetRef;
 
@@ -307,16 +328,19 @@ public void Dispose()
 {
     dotNetRef?.Dispose();
 }
-```
+
+```text
 
 ```javascript
+
 // Call .NET from JS
 export function registerCallback(dotNetRef) {
   document.addEventListener('custom-event', e => {
     dotNetRef.invokeMethodAsync('OnJsEvent', e.detail);
   });
 }
-```
+
+```text
 
 ### JS Interop per Render Mode
 
@@ -337,6 +361,7 @@ by batching operations into a single JS function call.
 ### Basic EditForm with Data Annotations
 
 ```razor
+
 <EditForm Model="product" OnValidSubmit="HandleSubmit" FormName="product-form">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -375,11 +400,13 @@ by batching operations into a single JS function call.
         Navigation.NavigateTo("/products");
     }
 }
-```
+
+```text
 
 ### Model with Validation Attributes
 
 ```csharp
+
 public sealed class ProductModel
 {
     [Required(ErrorMessage = "Product name is required")]
@@ -392,13 +419,15 @@ public sealed class ProductModel
     [Required(ErrorMessage = "Category is required")]
     public string Category { get; set; } = "";
 }
-```
+
+```text
 
 ### EditForm with Enhanced Form Handling (.NET 8+)
 
 Static SSR forms require `FormName` and use `[SupplyParameterFromForm]`:
 
 ```razor
+
 @page "/products/create"
 
 <EditForm Model="product" OnValidSubmit="HandleSubmit" FormName="create-product" Enhance>
@@ -417,7 +446,8 @@ Static SSR forms require `FormName` and use `[SupplyParameterFromForm]`:
         Navigation.NavigateTo("/products");
     }
 }
-```
+
+```text
 
 The `Enhance` attribute enables enhanced form handling -- the form submits via fetch and patches the DOM without a full
 page reload.
@@ -435,6 +465,7 @@ and virtualization.
 ### Basic QuickGrid
 
 ```razor
+
 @using Microsoft.AspNetCore.Components.QuickGrid
 
 <QuickGrid Items="products">
@@ -457,11 +488,13 @@ and virtualization.
 
     private void Edit(Product product) => Navigation.NavigateTo($"/products/{product.Id}/edit");
 }
-```
+
+```text
 
 ### QuickGrid with Pagination
 
 ```razor
+
 <QuickGrid Items="products" Pagination="pagination">
     <PropertyColumn Property="p => p.Name" Sortable="true" />
     <PropertyColumn Property="p => p.Price" Format="C2" />
@@ -473,18 +506,21 @@ and virtualization.
     private PaginationState pagination = new() { ItemsPerPage = 20 };
     private IQueryable<Product> products = default!;
 }
-```
+
+```text
 
 ### QuickGrid with Virtualization
 
 For large datasets, virtualization renders only visible rows:
 
 ```razor
+
 <QuickGrid Items="products" Virtualize="true" ItemSize="50">
     <PropertyColumn Property="p => p.Name" />
     <PropertyColumn Property="p => p.Price" Format="C2" />
 </QuickGrid>
-```
+
+```text
 
 <!-- net11-preview -->
 
@@ -493,6 +529,7 @@ For large datasets, virtualization renders only visible rows:
 .NET 11 adds `OnRowClick` to QuickGrid for row-level click handling without template columns:
 
 ```razor
+
 <QuickGrid Items="products" OnRowClick="HandleRowClick">
     <PropertyColumn Property="p => p.Name" />
     <PropertyColumn Property="p => p.Price" Format="C2" />
@@ -504,7 +541,8 @@ For large datasets, virtualization renders only visible rows:
         Navigation.NavigateTo($"/products/{args.Item.Id}");
     }
 }
-```
+
+```text
 
 **Fallback (net10.0):** Use a `TemplateColumn` with a click handler or wrap each row in a clickable element.
 
@@ -522,6 +560,7 @@ Source:
 `EnvironmentBoundary` conditionally renders content based on the hosting environment (Development, Staging, Production):
 
 ```razor
+
 <EnvironmentBoundary Include="Development">
     <p>Debug panel -- only visible in Development</p>
     <DebugToolbar />
@@ -530,7 +569,8 @@ Source:
 <EnvironmentBoundary Exclude="Production">
     <p>Testing controls -- hidden in Production</p>
 </EnvironmentBoundary>
-```
+
+```text
 
 **Fallback (net10.0):** Inject `IWebHostEnvironment` and use conditional rendering in `@code`.
 
@@ -542,6 +582,7 @@ Source:
 .NET 11 adds `[DisplayName]` support for input components, automatically generating `<label>` elements:
 
 ```razor
+
 <EditForm Model="model" FormName="contact">
     <!-- Automatically renders <label> from [DisplayName] -->
     <InputText @bind-Value="model.FullName" />
@@ -563,7 +604,8 @@ public sealed class ContactModel
     [EmailAddress]
     public string EmailAddress { get; set; } = "";
 }
-```
+
+```text
 
 **Fallback (net10.0):** Add explicit `<label for="...">` elements manually.
 
@@ -575,6 +617,7 @@ Source:
 .NET 11 allows `IHostedService` implementations to run in Blazor WebAssembly, enabling background tasks in the browser:
 
 ```csharp
+
 // Register in WASM Program.cs
 builder.Services.AddHostedService<DataSyncService>();
 
@@ -589,7 +632,8 @@ public sealed class DataSyncService : BackgroundService
         }
     }
 }
-```
+
+```text
 
 **Fallback (net10.0):** Use a `Timer` in a component or inject a singleton service that starts background work on first
 use.
@@ -605,6 +649,7 @@ Source:
 (e.g., adding custom headers, configuring reconnection):
 
 ```csharp
+
 // Program.cs
 app.MapBlazorHub(options =>
 {
@@ -613,7 +658,8 @@ app.MapBlazorHub(options =>
         connection.Metadata["tenant"] = "default";
     };
 });
-```
+
+```text
 
 **Fallback (net10.0):** Use `IHubFilter` or middleware to inspect/modify connections at the hub level.
 

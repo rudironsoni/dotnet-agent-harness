@@ -52,6 +52,7 @@ gRPC uses Protocol Buffers as its interface definition language. The `Grpc.Tools
 **Server project:**
 
 ```xml
+
 <ItemGroup>
   <PackageReference Include="Grpc.AspNetCore" Version="2.*" />
 </ItemGroup>
@@ -59,11 +60,13 @@ gRPC uses Protocol Buffers as its interface definition language. The `Grpc.Tools
 <ItemGroup>
   <Protobuf Include="Protos\*.proto" GrpcServices="Server" />
 </ItemGroup>
-```
+
+```text
 
 **Client project:**
 
 ```xml
+
 <ItemGroup>
   <PackageReference Include="Google.Protobuf" Version="3.*" />
   <PackageReference Include="Grpc.Net.Client" Version="2.*" />
@@ -73,11 +76,13 @@ gRPC uses Protocol Buffers as its interface definition language. The `Grpc.Tools
 <ItemGroup>
   <Protobuf Include="Protos\*.proto" GrpcServices="Client" />
 </ItemGroup>
-```
+
+```text
 
 **Shared contracts project (recommended for larger services):**
 
 ```xml
+
 <ItemGroup>
   <PackageReference Include="Google.Protobuf" Version="3.*" />
   <PackageReference Include="Grpc.Tools" Version="2.*" PrivateAssets="All" />
@@ -86,11 +91,13 @@ gRPC uses Protocol Buffers as its interface definition language. The `Grpc.Tools
 <ItemGroup>
   <Protobuf Include="Protos\*.proto" GrpcServices="Both" />
 </ItemGroup>
-```
+
+```text
 
 ### Proto File Definition
 
 ```protobuf
+
 syntax = "proto3";
 
 option csharp_namespace = "MyApp.Grpc";
@@ -139,7 +146,8 @@ message OrderItemMessage {
 message UploadOrdersResponse {
   int32 orders_created = 1;
 }
-```
+
+```text
 
 ### Code-Gen Workflow
 

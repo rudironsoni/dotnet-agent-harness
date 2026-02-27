@@ -57,13 +57,16 @@ MemoryMappedFile usage and POH buffer patterns in file I/O.
 | **Default for**   | Console apps, desktop | ASP.NET Core web apps        |
 
 ```xml
+
 <!-- In the .csproj file -->
 <PropertyGroup>
   <ServerGarbageCollection>true</ServerGarbageCollection>
 </PropertyGroup>
-```
+
+```csharp
 
 ```json
+
 // Or in runtimeconfig.json
 {
   "runtimeOptions": {
@@ -72,7 +75,8 @@ MemoryMappedFile usage and POH buffer patterns in file I/O.
     }
   }
 }
-```
+
+```text
 
 ### Concurrent vs Non-Concurrent GC
 
@@ -82,6 +86,7 @@ MemoryMappedFile usage and POH buffer patterns in file I/O.
 | **Non-concurrent**       | Application threads pause during Gen2 collection   | Maximum throughput, batch processing |
 
 ```json
+
 {
   "runtimeOptions": {
     "configProperties": {
@@ -89,7 +94,8 @@ MemoryMappedFile usage and POH buffer patterns in file I/O.
     }
   }
 }
-```
+
+```text
 
 ### DATAS (Dynamic Adaptation to Application Sizes) -- .NET 8+
 
@@ -98,6 +104,7 @@ Server GC mode. DATAS reduces memory footprint for applications with variable lo
 low-activity periods.
 
 ```json
+
 {
   "runtimeOptions": {
     "configProperties": {
@@ -105,7 +112,8 @@ low-activity periods.
     }
   }
 }
-```
+
+```text
 
 Set to `0` to disable DATAS if you observe excessive GC frequency in steady-state workloads.
 
@@ -121,6 +129,7 @@ can allocate and free independently. Regions are enabled by default in .NET 7+ a
 No configuration is needed -- regions are the default. To revert to segments (rarely needed):
 
 ```json
+
 {
   "runtimeOptions": {
     "configProperties": {
@@ -128,7 +137,8 @@ No configuration is needed -- regions are the default. To revert to segments (ra
     }
   }
 }
-```
+
+```text
 
 ---
 
@@ -157,12 +167,15 @@ when Gen0 fills, a Gen0 collection triggers.
 ### Monitoring Generations
 
 ```bash
+
 # Real-time GC metrics
 dotnet-counters monitor --process-id <PID> \
   --counters System.Runtime[gen-0-gc-count,gen-1-gc-count,gen-2-gc-count,gc-heap-size]
-```
+
+```bash
 
 ```csharp
+
 // Programmatic GC observation
 var gen0 = GC.CollectionCount(0);
 var gen1 = GC.CollectionCount(1);
@@ -173,7 +186,8 @@ var memoryInfo = GC.GetGCMemoryInfo();
 logger.LogInformation(
     "GC: Gen0={Gen0} Gen1={Gen1} Gen2={Gen2} Heap={HeapMB:F1}MB",
     gen0, gen1, gen2, totalMemory / (1024.0 * 1024));
-```
+
+```text
 
 ---
 
@@ -185,11 +199,13 @@ Objects >= 85,000 bytes are allocated on the LOH. LOH collections only happen du
 the LOH is not compacted (causing fragmentation).
 
 ```csharp
+
 // Force LOH compaction (use sparingly -- expensive)
 GCSettings.LargeObjectHeapCompactionMode =
     GCLargeObjectHeapCompactionMode.CompactOnce;
 GC.Collect();
-```
+
+```text
 
 ### LOH Fragmentation Prevention
 
@@ -207,12 +223,14 @@ objects on the regular heap prevented compaction. The POH isolates pinned object
 Gen0/1/2 heaps.
 
 ```csharp
+
 // Allocate on POH -- useful for I/O buffers passed to native code
 byte[] buffer = GC.AllocateArray<byte>(4096, pinned: true);
 
 // The buffer's address will not change, safe for native interop
 // and overlapped I/O without explicit GCHandle pinning
-```
+
+```text
 
 Use POH for:
 
@@ -230,6 +248,7 @@ ownership semantics and lifetime management for shared buffers.
 ### IMemoryOwner<T> for Pooled Buffers
 
 ```csharp
+
 // Rent from MemoryPool and manage lifetime with IDisposable
 using IMemoryOwner<byte> owner = MemoryPool<byte>.Shared.Rent(4096);
 Memory<byte> buffer = owner.Memory[..4096]; // Slice to exact size needed
@@ -241,13 +260,15 @@ Memory<byte> data = buffer[..bytesRead];
 // Process the data
 await ProcessDataAsync(data, cancellationToken);
 // owner.Dispose() returns the buffer to the pool
-```
+
+```text
 
 ### Ownership Transfer Pattern
 
 When transferring buffer ownership between components, use `IMemoryOwner<T>` to make lifetime responsibility explicit:
 
 ```csharp
+
 public sealed class MessageParser
 {
     // Caller transfers ownership -- this method is responsible for disposal
@@ -264,11 +285,13 @@ public sealed class MessageParser
         // Buffer returned to pool on dispose
     }
 }
-```
+
+```text
 
 ### Span<T> Stack Discipline
 
 ```csharp
+
 // Span<T> enforces stack-only usage (ref struct)
 // These are compile-time errors:
 // Span<byte> field;              // Cannot store in class/struct field
@@ -285,7 +308,8 @@ public async Task ProcessAsync(Memory<byte> buffer, CancellationToken ct)
     Span<byte> span = buffer.Span;
     ParseHeader(span[..bytesRead]);
 }
-```
+
+```text
 
 ---
 
@@ -297,6 +321,7 @@ public async Task ProcessAsync(Memory<byte> buffer, CancellationToken ct)
 returned array is exactly the requested size.
 
 ```csharp
+
 // Rent and return pattern
 byte[] buffer = ArrayPool<byte>.Shared.Rent(minimumLength: 4096);
 try
@@ -311,11 +336,13 @@ finally
     // clearArray: true when buffer contained sensitive data
     ArrayPool<byte>.Shared.Return(buffer, clearArray: false);
 }
-```
+
+```text
 
 ### Custom Pool Sizing
 
 ```csharp
+
 // Create a custom pool for specific allocation patterns
 var pool = ArrayPool<byte>.Create(
     maxArrayLength: 1_048_576,  // 1 MB max array
@@ -331,13 +358,15 @@ finally
 {
     pool.Return(buffer);
 }
-```
+
+```text
 
 ### MemoryPool<T>
 
 `MemoryPool<T>` wraps `ArrayPool<T>` and returns `IMemoryOwner<T>` for RAII-style lifetime management:
 
 ```csharp
+
 // MemoryPool returns IMemoryOwner<T> -- dispose to return
 using IMemoryOwner<byte> owner = MemoryPool<byte>.Shared.Rent(8192);
 Memory<byte> buffer = owner.Memory;
@@ -346,7 +375,8 @@ Memory<byte> buffer = owner.Memory;
 int bytesRead = await stream.ReadAsync(buffer[..8192], ct);
 await ProcessAsync(buffer[..bytesRead], ct);
 // Dispose returns the underlying array to the pool
-```
+
+```text
 
 ### Pool Usage Guidelines
 
@@ -368,6 +398,7 @@ Weak references allow the GC to collect the target object when no strong referen
 reclamation under memory pressure is acceptable.
 
 ```csharp
+
 public sealed class ImageCache
 {
     private readonly ConcurrentDictionary<string, WeakReference<byte[]>> _cache = new();
@@ -400,7 +431,8 @@ public sealed class ImageCache
         }
     }
 }
-```
+
+```text
 
 ### When to Use Weak References
 
@@ -420,6 +452,7 @@ resort when you need GC-driven eviction.
 Implement `IDisposable` to release unmanaged resources deterministically:
 
 ```csharp
+
 public sealed class NativeBufferWrapper : IDisposable
 {
     private IntPtr _handle;
@@ -440,7 +473,8 @@ public sealed class NativeBufferWrapper : IDisposable
         // No GC.SuppressFinalize needed -- no finalizer
     }
 }
-```
+
+```text
 
 ### Finalizer (Safety Net Only)
 
@@ -448,6 +482,7 @@ Finalizers run on the GC finalizer thread when an object is collected. They are 
 that were not disposed explicitly.
 
 ```csharp
+
 public class UnmanagedResourceHolder : IDisposable
 {
     private IntPtr _handle;
@@ -487,7 +522,8 @@ public class UnmanagedResourceHolder : IDisposable
         }
     }
 }
-```
+
+```text
 
 ### Finalizer Costs
 
@@ -510,6 +546,7 @@ as a safety net for unmanaged resources.
 Inform the GC about unmanaged memory allocations so it accounts for them in collection decisions:
 
 ```csharp
+
 public sealed class NativeImageBuffer : IDisposable
 {
     private readonly IntPtr _buffer;
@@ -532,11 +569,13 @@ public sealed class NativeImageBuffer : IDisposable
         GC.RemoveMemoryPressure(_size);
     }
 }
-```
+
+```text
 
 ### GC.GetGCMemoryInfo for Adaptive Behavior
 
 ```csharp
+
 // React to memory pressure in application logic
 var memoryInfo = GC.GetGCMemoryInfo();
 double loadPercent = (double)memoryInfo.MemoryLoadBytes
@@ -547,7 +586,8 @@ if (loadPercent > 85)
     logger.LogWarning("High memory pressure: {Load:F1}%", loadPercent);
     // Shed load: reduce cache sizes, reject non-critical requests
 }
-```
+
+```text
 
 ---
 
@@ -578,12 +618,14 @@ PerfView is a free Microsoft tool for detailed GC and allocation analysis. It us
 events for low-overhead profiling.
 
 ```bash
+
 # Collect GC and allocation events for 30 seconds
 PerfView.exe /GCCollectOnly /MaxCollectSec:30 collect
 
 # Collect allocation stacks (higher overhead)
 PerfView.exe /ClrEvents:GC+Stack /MaxCollectSec:30 collect
-```
+
+```text
 
 **Key PerfView views:**
 

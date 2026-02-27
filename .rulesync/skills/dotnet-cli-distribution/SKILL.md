@@ -123,6 +123,7 @@ Target the four primary RIDs for broad coverage:
 ### RID Configuration in .csproj
 
 ```xml
+
 <!-- Set per publish, not in csproj (avoids accidental RID lock-in) -->
 <!-- Use dotnet publish -r <rid> instead -->
 
@@ -130,17 +131,20 @@ Target the four primary RIDs for broad coverage:
 <PropertyGroup Condition="'$(RuntimeIdentifier)' == ''">
   <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
 </PropertyGroup>
-```
+
+```text
 
 Publish per RID from the command line:
 
 ```bash
+
 # Publish for each target RID
 dotnet publish -c Release -r linux-x64
 dotnet publish -c Release -r linux-arm64
 dotnet publish -c Release -r osx-arm64
 dotnet publish -c Release -r win-x64
-```
+
+```text
 
 ---
 
@@ -151,6 +155,7 @@ Single-file publish bundles the application and its dependencies into one execut
 ### Configuration
 
 ```xml
+
 <PropertyGroup>
   <PublishSingleFile>true</PublishSingleFile>
   <!-- Required for single-file -->
@@ -160,19 +165,22 @@ Single-file publish bundles the application and its dependencies into one execut
   <!-- Include native libraries in the single file -->
   <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 </PropertyGroup>
-```
+
+```text
 
 ### Single-File with Native AOT
 
 When combined with Native AOT, single-file is implicit -- AOT always produces a single native binary:
 
 ```xml
+
 <PropertyGroup>
   <PublishAot>true</PublishAot>
   <!-- PublishSingleFile is not needed -- AOT output is inherently single-file -->
   <!-- SelfContained is implied by PublishAot -->
 </PropertyGroup>
-```
+
+```text
 
 See [skill:dotnet-native-aot] for the full AOT publish configuration including ILLink, type preservation, and analyzer
 setup.
@@ -180,6 +188,7 @@ setup.
 ### Publish Command
 
 ```bash
+
 # Framework-dependent single-file (requires .NET runtime on target)
 dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true --self-contained false
 
@@ -189,7 +198,8 @@ dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true --self-containe
 # Native AOT (inherently single-file, smallest and fastest)
 dotnet publish -c Release -r linux-x64
 # (when PublishAot=true is in csproj)
-```
+
+```text
 
 ---
 
@@ -200,13 +210,15 @@ dotnet publish -c Release -r linux-x64
 Trimming removes unused code from the published output. For self-contained non-AOT builds:
 
 ```xml
+
 <PropertyGroup>
   <PublishTrimmed>true</PublishTrimmed>
   <TrimMode>link</TrimMode>
   <!-- Suppress known trim warnings for CLI scenarios -->
   <SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
 </PropertyGroup>
-```
+
+```text
 
 ### AOT Size Optimization
 
@@ -242,8 +254,10 @@ and `StackTraceSupport`.
 ### Framework-Dependent
 
 ```bash
+
 dotnet publish -c Release -r linux-x64 --self-contained false
-```
+
+```bash
 
 **Advantages:**
 
@@ -260,8 +274,10 @@ dotnet publish -c Release -r linux-x64 --self-contained false
 ### Self-Contained
 
 ```bash
+
 dotnet publish -c Release -r linux-x64 --self-contained true
-```
+
+```bash
 
 **Advantages:**
 
@@ -282,16 +298,19 @@ dotnet publish -c Release -r linux-x64 --self-contained true
 ### Local Development
 
 ```bash
+
 # Quick local publish for testing
 dotnet publish -c Release -r osx-arm64
 
 # Verify the binary
 ./bin/Release/net8.0/osx-arm64/publish/mytool --version
-```
+
+```text
 
 ### Producing Release Artifacts
 
 ```bash
+
 #!/bin/bash
 # build-all.sh -- Produce artifacts for all target RIDs
 set -euo pipefail
@@ -323,17 +342,20 @@ for rid in "${RIDS[@]}"; do
 done
 
 echo "Artifacts in $OUTPUT_DIR/"
-```
+
+```text
 
 ### Checksum Generation
 
 Always produce checksums for release artifacts:
 
 ```bash
+
 # Generate SHA-256 checksums
 cd artifacts
 shasum -a 256 *.tar.gz *.zip > checksums-sha256.txt
-```
+
+```bash
 
 See [skill:dotnet-cli-release-pipeline] for automating this in GitHub Actions.
 

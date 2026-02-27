@@ -66,6 +66,7 @@ Separate read models (queries) from write models (commands) to optimize each pat
 ### Approach: Separate DbContext Types
 
 ```csharp
+
 // Write context: full change tracking, navigation properties, interceptors
 public sealed class WriteDbContext : DbContext
 {
@@ -94,11 +95,13 @@ public sealed class ReadDbContext : DbContext
         // Note: this is supplemental -- primary config is in DI registration
     }
 }
-```
+
+```text
 
 ### Registration
 
 ```csharp
+
 // Write context: standard tracking, connection resiliency
 builder.Services.AddDbContext<WriteDbContext>(options =>
     options.UseNpgsql(connectionString, npgsql =>
@@ -108,7 +111,8 @@ builder.Services.AddDbContext<WriteDbContext>(options =>
 builder.Services.AddDbContext<ReadDbContext>(options =>
     options.UseNpgsql(readReplicaConnectionString ?? connectionString)
            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
-```
+
+```text
 
 ### When to Separate
 
@@ -132,6 +136,7 @@ well to aggregate-oriented design when navigation properties follow aggregate bo
 ### Defining Aggregates
 
 ```csharp
+
 // Order is the aggregate root -- it owns OrderItems
 public sealed class Order
 {
@@ -170,11 +175,13 @@ public sealed class OrderItem
 
     private OrderItem() { } // EF Core constructor
 }
-```
+
+```text
 
 ### EF Core Configuration for Aggregates
 
 ```csharp
+
 public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 {
     public void Configure(EntityTypeBuilder<Order> builder)
@@ -201,7 +208,8 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         //     .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
-```
+
+```text
 
 ### Aggregate Design Rules
 
@@ -224,6 +232,7 @@ Whether to use the repository pattern or access `DbContext` directly is a team d
 ### Option A: Direct DbContext Access
 
 ```csharp
+
 public sealed class CreateOrderHandler(WriteDbContext db)
 {
     public async Task<int> HandleAsync(
@@ -243,7 +252,8 @@ public sealed class CreateOrderHandler(WriteDbContext db)
         return order.Id;
     }
 }
-```
+
+```text
 
 **Pros:** Simple, no abstraction overhead, full LINQ power, easy to debug. **Cons:** Business logic can leak into query
 methods, harder to unit test without a database.
@@ -251,6 +261,7 @@ methods, harder to unit test without a database.
 ### Option B: Repository per Aggregate Root
 
 ```csharp
+
 public interface IOrderRepository
 {
     Task<Order?> GetByIdAsync(int id, CancellationToken ct);
@@ -277,7 +288,8 @@ public sealed class OrderRepository(WriteDbContext db) : IOrderRepository
         return db.SaveChangesAsync(ct);
     }
 }
-```
+
+```text
 
 **Pros:** Testable without a database, encapsulates query logic, enforces aggregate loading rules. **Cons:** Extra
 abstraction layer, can become a leaky abstraction if LINQ is exposed, repository per aggregate can proliferate.
@@ -307,18 +319,21 @@ executes a query per element, instead of loading all data upfront.
 Enable sensitive logging in development to see SQL queries:
 
 ```csharp
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString)
            .LogTo(Console.WriteLine, LogLevel.Information)
            .EnableSensitiveDataLogging()  // Development only
            .EnableDetailedErrors());      // Development only
-```
+
+```text
 
 ### Common N+1 Patterns and Fixes
 
 **Pattern 1: Lazy loading in a loop**
 
 ```csharp
+
 // BAD: N+1 -- each order.Items triggers a query
 var orders = await db.Orders.ToListAsync(ct);
 foreach (var order in orders)
@@ -330,11 +345,13 @@ foreach (var order in orders)
 var orders = await db.Orders
     .Include(o => o.Items)
     .ToListAsync(ct);
-```
+
+```text
 
 **Pattern 2: Querying inside a loop**
 
 ```csharp
+
 // BAD: N+1 -- one query per customer
 foreach (var customerId in customerIds)
 {
@@ -348,11 +365,13 @@ foreach (var customerId in customerIds)
 var orders = await db.Orders
     .Where(o => customerIds.Contains(o.CustomerId))
     .ToListAsync(ct);
-```
+
+```text
 
 **Pattern 3: Missing projection**
 
 ```csharp
+
 // BAD: Loads full entity graph, then maps in memory
 var orders = await db.Orders
     .Include(o => o.Items)
@@ -370,7 +389,8 @@ var dtos = await db.Orders
         Total = o.Items.Sum(i => i.Quantity * i.UnitPrice)
     })
     .ToListAsync(ct);
-```
+
+```text
 
 ### Governance Checklist
 
@@ -393,6 +413,7 @@ Keyset pagination (also called cursor-based or seek pagination) is more efficien
 datasets:
 
 ```csharp
+
 public async Task<PagedResult<OrderSummary>> GetOrdersAsync(
     string customerId,
     int? afterId,
@@ -436,20 +457,23 @@ public async Task<PagedResult<OrderSummary>> GetOrdersAsync(
         NextCursor = hasNext ? items[^1].Id : null
     };
 }
-```
+
+```text
 
 ### Offset Pagination (Simple Cases)
 
 For admin UIs or small datasets where exact page numbers matter:
 
 ```csharp
+
 var page = await db.Orders
     .AsNoTracking()
     .OrderBy(o => o.CreatedAt)
     .Skip((pageNumber - 1) * pageSize)
     .Take(pageSize)
     .ToListAsync(ct);
-```
+
+```text
 
 **Warning:** Offset pagination degrades at scale -- `OFFSET 10000` forces the database to scan and discard 10,000 rows.
 Prefer keyset pagination for user-facing APIs.
@@ -459,6 +483,7 @@ Prefer keyset pagination for user-facing APIs.
 Set a hard upper bound on all queries to prevent accidental full-table scans:
 
 ```csharp
+
 // Interceptor approach: enforce max rows at the DbContext level
 public sealed class RowLimitInterceptor : IQueryExpressionInterceptor
 {
@@ -474,7 +499,8 @@ public sealed class RowLimitInterceptor : IQueryExpressionInterceptor
         return queryExpression;
     }
 }
-```
+
+```text
 
 **Practical approach:** Rather than a runtime interceptor, enforce row limits through:
 
@@ -492,6 +518,7 @@ tracking, and eliminate N+1 risks.
 ### Typed Projections
 
 ```csharp
+
 public sealed record OrderSummary
 {
     public int Id { get; init; }
@@ -513,7 +540,8 @@ var summaries = await db.Orders
     .OrderByDescending(o => o.CreatedAt)
     .Take(50)
     .ToListAsync(ct);
-```
+
+```text
 
 ### Advantages Over Entity Loading
 

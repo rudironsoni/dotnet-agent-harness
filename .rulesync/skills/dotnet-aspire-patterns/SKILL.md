@@ -76,6 +76,7 @@ references other projects and backing services, wiring them together with servic
 ### AppHost Project Setup
 
 ```xml
+
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!-- Aspire SDK version is independent of .NET TFM; 9.x works on net8.0+ -->
@@ -100,11 +101,13 @@ references other projects and backing services, wiring them together with servic
   </ItemGroup>
 
 </Project>
-```
+
+```csharp
 
 ### Defining the Topology
 
 ```csharp
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Backing services -- Aspire manages containers automatically
@@ -131,19 +134,22 @@ builder.AddProject<Projects.MyWorker>("worker")
     .WaitFor(api);              // Start worker after API is healthy
 
 builder.Build().Run();
-```
+
+```text
 
 ### Resource Lifecycle
 
 `WaitFor` controls startup ordering. Resources wait until dependencies report healthy before starting:
 
 ```csharp
+
 // Worker waits for both the database and API to be ready
 builder.AddProject<Projects.MyWorker>("worker")
     .WithReference(postgres)
     .WaitFor(postgres)          // Wait for database container health check
     .WaitFor(api);              // Wait for API health endpoint
-```
+
+```text
 
 Without `WaitFor`, resources start in parallel. Use it only when startup order matters (e.g., a worker that requires the
 database schema to exist).
@@ -164,6 +170,7 @@ hardcoded URLs.
 ### Consuming Discovered Services
 
 ```csharp
+
 // In MyApi/Program.cs
 var builder = WebApplication.CreateBuilder(args);
 
@@ -175,7 +182,8 @@ builder.Services.AddHttpClient("worker-client", client =>
 {
     client.BaseAddress = new Uri("https+http://worker");
 });
-```
+
+```text
 
 The `https+http://` scheme prefix tells the service discovery provider to try HTTPS first, falling back to HTTP. This is
 the recommended pattern for inter-service communication in Aspire.
@@ -186,13 +194,15 @@ For backing services (databases, caches), Aspire injects connection strings via 
 configuration section:
 
 ```csharp
+
 // AppHost: .WithReference(postgres) on the API project
 // injects ConnectionStrings__ordersdb automatically
 
 // In MyApi/Program.cs
 builder.AddNpgsqlDbContext<OrdersDbContext>("ordersdb");
 // Resolves ConnectionStrings:ordersdb from configuration
-```
+
+```csharp
 
 ---
 
@@ -209,12 +219,14 @@ connection management, health checks, telemetry, and resilience.
 | `Aspire.* (client)` | Service projects | Consume the resource with health checks and telemetry     |
 
 ```xml
+
 <!-- AppHost project -->
 <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.1.*" />
 
 <!-- API project -->
 <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.1.*" />
-```
+
+```text
 
 ### Common Components
 
@@ -232,6 +244,7 @@ connection management, health checks, telemetry, and resilience.
 ### Client Registration
 
 ```csharp
+
 var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
@@ -239,7 +252,8 @@ builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<OrdersDbContext>("ordersdb");
 builder.AddRedisClient("cache");
 builder.AddRabbitMQClient("messaging");
-```
+
+```text
 
 Component `Add*` methods:
 
@@ -258,6 +272,7 @@ concerns.
 ### What ServiceDefaults Configures
 
 ```csharp
+
 public static class Extensions
 {
     public static IHostApplicationBuilder AddServiceDefaults(
@@ -322,13 +337,15 @@ public static class Extensions
         return app;
     }
 }
-```
+
+```text
 
 ### Using ServiceDefaults
 
 Every service project references the ServiceDefaults project and calls the extension methods:
 
 ```csharp
+
 var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
@@ -340,7 +357,8 @@ app.MapDefaultEndpoints();
 // ... middleware and endpoints
 
 app.Run();
-```
+
+```text
 
 ---
 
@@ -358,20 +376,24 @@ The Aspire dashboard provides a local observability UI that starts automatically
 
 When you run the AppHost (`dotnet run --project MyApp.AppHost`), the dashboard URL is printed to the console:
 
-```
+```text
+
 info: Aspire.Hosting.DistributedApplication[0]
       Login to the dashboard at https://localhost:17043/login?t=<token>
-```
+
+```text
 
 ### Dashboard in Non-Aspire Projects
 
 The dashboard is available as a standalone container for projects not using the full Aspire stack:
 
 ```bash
+
 docker run --rm -it -p 18888:18888 -p 4317:18889 \
   -d --name aspire-dashboard \
   mcr.microsoft.com/dotnet/aspire-dashboard:9.1
-```
+
+```bash
 
 Configure your app to export OTLP telemetry to `http://localhost:4317` and view it at `http://localhost:18888`.
 
@@ -384,22 +406,26 @@ Configure your app to export OTLP telemetry to `http://localhost:4317` and view 
 Each Aspire component automatically registers health checks. The AppHost uses these to determine resource readiness:
 
 ```csharp
+
 // In AppHost -- WaitFor uses health checks to gate startup
 builder.AddProject<Projects.MyApi>("api")
     .WithReference(postgres)
     .WaitFor(postgres);     // Waits for Npgsql health check to pass
-```
+
+```text
 
 ### Custom Health Checks
 
 Add application-specific health checks alongside Aspire defaults:
 
 ```csharp
+
 builder.Services.AddHealthChecks()
     .AddCheck<OrderProcessingHealthCheck>(
         "order-processing",
         tags: ["ready"]);
-```
+
+```text
 
 See [skill:dotnet-observability] for detailed health check patterns (liveness vs readiness, custom checks, health check
 publishing).
@@ -410,6 +436,7 @@ Aspire configures OpenTelemetry tracing through ServiceDefaults. Traces propagat
 For custom spans:
 
 ```csharp
+
 private static readonly ActivitySource s_activitySource = new("MyApp.Orders");
 
 public async Task<Order> ProcessOrderAsync(CreateOrderRequest request, CancellationToken ct)
@@ -424,7 +451,8 @@ public async Task<Order> ProcessOrderAsync(CreateOrderRequest request, Cancellat
     // ... process order
     return order;
 }
-```
+
+```text
 
 See [skill:dotnet-observability] for comprehensive distributed tracing guidance (custom ActivitySource, trace context
 propagation, span events).
@@ -438,6 +466,7 @@ propagation, span events).
 For services not available as Aspire components, add arbitrary container images:
 
 ```csharp
+
 var seq = builder.AddContainer("seq", "datalust/seq")
     .WithHttpEndpoint(port: 5341, targetPort: 80)
     .WithEnvironment("ACCEPT_EULA", "Y");
@@ -445,29 +474,34 @@ var seq = builder.AddContainer("seq", "datalust/seq")
 // Reference the container from a project
 builder.AddProject<Projects.MyApi>("api")
     .WithReference(seq);
-```
+
+```text
 
 ### Persistent Volumes
 
 By default, Aspire containers use ephemeral storage. Add volumes for data persistence across restarts:
 
 ```csharp
+
 var postgres = builder.AddPostgres("pg")
     .WithDataVolume("pg-data")     // Named volume for data persistence
     .AddDatabase("ordersdb");
-```
+
+```csharp
 
 ### External Resources
 
 Reference existing infrastructure not managed by Aspire:
 
 ```csharp
+
 // Connection string from configuration (not an Aspire-managed container)
 var existingDb = builder.AddConnectionString("legacydb");
 
 builder.AddProject<Projects.MyApi>("api")
     .WithReference(existingDb);
-```
+
+```text
 
 ---
 

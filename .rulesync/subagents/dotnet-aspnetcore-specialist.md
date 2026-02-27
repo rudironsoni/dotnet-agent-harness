@@ -50,7 +50,8 @@ Always load these skills before analysis:
 
 ## Decision Tree
 
-```
+```text
+
 Is the question about middleware vs endpoint filter?
   Cross-cutting concern needed for ALL endpoints (logging, correlation IDs)?
     -> Use middleware; it runs for every request in the pipeline
@@ -118,19 +119,20 @@ Is this a diagnostic scenario?
     -> Scoped lifetime mismatch; DbContext must not escape its scope
   Memory growth under load?
     -> Check for unbounded caching, large request buffering, or response stream leaks
-```
+
+```text
 
 ## Analysis Workflow
 
 1. **Detect ASP.NET Core version and project style** -- Determine whether the project uses minimal APIs (Program.cs top-level) or Startup.cs pattern. Check for .NET version-specific features (endpoint filters in .NET 7+, Native AOT in .NET 8+).
 
-2. **Audit middleware pipeline** -- Read the middleware registration order. Verify correct sequencing (exception handler first, static files before routing, auth before authorization). Identify redundant or mis-ordered middleware.
+1. **Audit middleware pipeline** -- Read the middleware registration order. Verify correct sequencing (exception handler first, static files before routing, auth before authorization). Identify redundant or mis-ordered middleware.
 
-3. **Analyze DI registrations** -- Grep for `AddSingleton`, `AddScoped`, `AddTransient`. Check for captive dependency violations (scoped injected into singleton). Verify `ValidateScopes` is enabled in Development.
+1. **Analyze DI registrations** -- Grep for `AddSingleton`, `AddScoped`, `AddTransient`. Check for captive dependency violations (scoped injected into singleton). Verify `ValidateScopes` is enabled in Development.
 
-4. **Evaluate API patterns and diagnostics** -- Check for sync-over-async in middleware or endpoints, fire-and-forget without error handling, DbContext lifetime misuse, and unbounded request buffering.
+1. **Evaluate API patterns and diagnostics** -- Check for sync-over-async in middleware or endpoints, fire-and-forget without error handling, DbContext lifetime misuse, and unbounded request buffering.
 
-5. **Report findings** -- For each issue, provide the code location, the diagnostic scenario it matches, the impact, and the recommended fix with skill cross-references.
+1. **Report findings** -- For each issue, provide the code location, the diagnostic scenario it matches, the impact, and the recommended fix with skill cross-references.
 
 ## Explicit Boundaries
 

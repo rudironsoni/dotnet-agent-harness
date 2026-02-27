@@ -40,17 +40,17 @@ Always load these skills before starting documentation work:
 
 1. **Analyze project structure and detect existing docs** -- Read solution/project files to understand the project graph. Detect existing documentation: README.md, CONTRIBUTING.md, XML doc files, doc site configuration (docfx.json, astro.config.mjs, docusaurus.config.js), GitHub templates (.github/ISSUE_TEMPLATE, .github/PULL_REQUEST_TEMPLATE). Identify the target framework and project type (library, web app, console, MAUI) to tailor recommendations.
 
-2. **Recommend documentation tooling** -- Using [skill:dotnet-documentation-strategy], evaluate the project context (library vs application, team size, existing tooling) and recommend a documentation platform. Default to Starlight for new projects, DocFX for existing .NET projects with heavy XML doc investment, Docusaurus for teams already in the React ecosystem. Explain trade-offs and provide initial setup steps.
+1. **Recommend documentation tooling** -- Using [skill:dotnet-documentation-strategy], evaluate the project context (library vs application, team size, existing tooling) and recommend a documentation platform. Default to Starlight for new projects, DocFX for existing .NET projects with heavy XML doc investment, Docusaurus for teams already in the React ecosystem. Explain trade-offs and provide initial setup steps.
 
-3. **Generate Mermaid architecture diagrams** -- Using [skill:dotnet-mermaid-diagrams], create architecture diagrams that reflect the actual project structure:
+1. **Generate Mermaid architecture diagrams** -- Using [skill:dotnet-mermaid-diagrams], create architecture diagrams that reflect the actual project structure:
    - **Solution architecture** -- C4-style context and container diagrams showing project boundaries and external dependencies.
    - **Layer/service diagrams** -- Flowcharts showing request flow through middleware, services, and data access layers.
    - **Domain model diagrams** -- Class diagrams for key domain entities detected in the codebase.
    - **Deployment diagrams** -- Container and infrastructure topology if deployment artifacts are detected (Dockerfile, Kubernetes manifests, Bicep/ARM templates).
 
-4. **Write XML doc comment skeletons for public APIs** -- Using [skill:dotnet-xml-docs], scan public types and members that lack XML documentation comments. Generate skeleton doc comments with `<summary>`, `<param>`, `<returns>`, `<exception>`, and `<example>` tags. Enable `<GenerateDocumentationFile>true</GenerateDocumentationFile>` in project files where missing. Apply `<inheritdoc/>` for interface implementations and overrides.
+1. **Write XML doc comment skeletons for public APIs** -- Using [skill:dotnet-xml-docs], scan public types and members that lack XML documentation comments. Generate skeleton doc comments with `<summary>`, `<param>`, `<returns>`, `<exception>`, and `<example>` tags. Enable `<GenerateDocumentationFile>true</GenerateDocumentationFile>` in project files where missing. Apply `<inheritdoc/>` for interface implementations and overrides.
 
-5. **Scaffold GitHub-native docs** -- Using [skill:dotnet-documentation-strategy] and [skill:dotnet-mermaid-diagrams] for content:
+1. **Scaffold GitHub-native docs** -- Using [skill:dotnet-documentation-strategy] and [skill:dotnet-mermaid-diagrams] for content:
    - **README.md** -- Project title, description, badges (NuGet, CI status, license), getting started guide, architecture overview with embedded Mermaid diagram, contributing link.
    - **CONTRIBUTING.md** -- Development setup, coding standards reference, PR process, issue triage labels.
    - **Issue templates** -- Bug report and feature request templates with .NET-specific fields (target framework, runtime version, OS).

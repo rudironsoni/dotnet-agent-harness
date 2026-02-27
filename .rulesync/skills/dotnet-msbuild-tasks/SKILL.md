@@ -44,6 +44,7 @@ All MSBuild tasks implement `Microsoft.Build.Framework.ITask`. The simplest appr
 ### Minimal Custom Task
 
 ```csharp
+
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -72,7 +73,8 @@ public class GenerateFileHash : Task
         return true;
     }
 }
-```
+
+```text
 
 ### ITask Contract
 
@@ -101,19 +103,19 @@ For detailed code examples (ToolTask, IIncrementalTask, task parameters, inline 
 
 1. **Returning `false` without logging an error.** If `Execute()` returns `false` but `Log.LogError` was never called, MSBuild reports a generic "task failed" with no actionable message. Always log an error before returning `false`.
 
-2. **Using `Console.WriteLine` instead of `Log.LogMessage`.** Console output bypasses MSBuild's logging infrastructure and may not appear in build logs, binary logs, or IDE error lists. Always use `Log.LogMessage`, `Log.LogWarning`, or `Log.LogError`.
+1. **Using `Console.WriteLine` instead of `Log.LogMessage`.** Console output bypasses MSBuild's logging infrastructure and may not appear in build logs, binary logs, or IDE error lists. Always use `Log.LogMessage`, `Log.LogWarning`, or `Log.LogError`.
 
-3. **Referencing `IIncrementalTask` without version-gating.** This interface requires MSBuild 17.8+ (.NET 8 SDK). Tasks referencing it will fail to load on older MSBuild versions with a `TypeLoadException`. If supporting older SDKs, use target-level `Inputs`/`Outputs` instead. If the task must support both old and new MSBuild, ship separate task assemblies per MSBuild version range or use `#if` conditional compilation with a version constant.
+1. **Referencing `IIncrementalTask` without version-gating.** This interface requires MSBuild 17.8+ (.NET 8 SDK). Tasks referencing it will fail to load on older MSBuild versions with a `TypeLoadException`. If supporting older SDKs, use target-level `Inputs`/`Outputs` instead. If the task must support both old and new MSBuild, ship separate task assemblies per MSBuild version range or use `#if` conditional compilation with a version constant.
 
-4. **Placing task DLLs in the NuGet `lib/` folder.** This adds the assembly as a compile reference to consuming projects, polluting their type namespace. Set `IncludeBuildOutput=false` and pack into `tools/` instead.
+1. **Placing task DLLs in the NuGet `lib/` folder.** This adds the assembly as a compile reference to consuming projects, polluting their type namespace. Set `IncludeBuildOutput=false` and pack into `tools/` instead.
 
-5. **Forgetting `PrivateAssets="all"` on MSBuild framework package references.** Without it, `Microsoft.Build.Framework` and `Microsoft.Build.Utilities.Core` become transitive dependencies of consuming projects, causing version conflicts.
+1. **Forgetting `PrivateAssets="all"` on MSBuild framework package references.** Without it, `Microsoft.Build.Framework` and `Microsoft.Build.Utilities.Core` become transitive dependencies of consuming projects, causing version conflicts.
 
-6. **Using `AssemblyFile` with a path relative to the project.** In NuGet packages, the `.targets` file is in a different location than the consuming project. Use `$(MSBuildThisFileDirectory)` to build paths relative to the `.targets` file itself.
+1. **Using `AssemblyFile` with a path relative to the project.** In NuGet packages, the `.targets` file is in a different location than the consuming project. Use `$(MSBuildThisFileDirectory)` to build paths relative to the `.targets` file itself.
 
-7. **Leaving `Debugger.Launch()` in release builds.** Shipping a task with unconditional `Debugger.Launch()` halts builds on CI/CD servers. Guard with `#if DEBUG` or remove before packaging.
+1. **Leaving `Debugger.Launch()` in release builds.** Shipping a task with unconditional `Debugger.Launch()` halts builds on CI/CD servers. Guard with `#if DEBUG` or remove before packaging.
 
-8. **Inline tasks with complex dependencies.** `CodeTaskFactory` compiles code at build time with limited assembly references. For tasks that need NuGet packages or complex type hierarchies, compile a standalone task assembly instead.
+1. **Inline tasks with complex dependencies.** `CodeTaskFactory` compiles code at build time with limited assembly references. For tasks that need NuGet packages or complex type hierarchies, compile a standalone task assembly instead.
 
 ---
 

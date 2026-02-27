@@ -41,10 +41,12 @@ Cross-references: [skill:dotnet-spectre-console] for rich console output alterna
 ## Package Reference
 
 ```xml
+
 <ItemGroup>
   <PackageReference Include="Terminal.Gui" Version="2.0.0-alpha.*" />
 </ItemGroup>
-```
+
+```xml
 
 ---
 
@@ -55,6 +57,7 @@ Terminal.Gui v2 uses an instance-based model with `IApplication` and `IDisposabl
 ### Basic Application
 
 ```csharp
+
 using Terminal.Gui;
 
 using IApplication app = Application.Create().Init();
@@ -75,7 +78,8 @@ var label = new Label
 window.Add(label);
 
 app.Run(window);
-```
+
+```text
 
 ---
 
@@ -86,6 +90,7 @@ Terminal.Gui v2 unifies layout into a single model. Position is controlled by `P
 ### Pos Types (Positioning)
 
 ```csharp
+
 view.X = 5;                          // Absolute
 view.X = Pos.Percent(25);            // 25% from left
 view.X = Pos.Center();               // Centered
@@ -94,11 +99,13 @@ view.X = Pos.Right(otherView) + 1;   // Relative to another view
 view.Y = Pos.Bottom(otherView) + 1;
 view.X = Pos.Align(Alignment.End);   // Align groups
 view.X = Pos.Func(() => CalculateX());
-```
+
+```text
 
 ### Dim Types (Sizing)
 
 ```csharp
+
 view.Width = 40;                       // Absolute
 view.Width = Dim.Percent(50);          // 50% of parent
 view.Width = Dim.Fill();               // Fill remaining space
@@ -106,7 +113,8 @@ view.Width = Dim.Auto();               // Size based on content
 view.Width = Dim.Auto(minimumContentDim: 20);
 view.Width = Dim.Width(otherView);     // Relative to another view
 view.Width = Dim.Func(() => CalculateWidth());
-```
+
+```text
 
 ### Frame vs. Viewport
 

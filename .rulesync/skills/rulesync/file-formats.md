@@ -5,6 +5,7 @@
 Example:
 
 ```md
+
 ---
 root: true # true that is less than or equal to one file for overview such as `AGENTS.md`, false for details such as `.agents/memories/*.md`
 localRoot: false # (optional, default: false) true for project-specific local rules. Claude Code: generates CLAUDE.local.md; Others: appends to root file
@@ -32,7 +33,8 @@ antigravity: # antigravity specific parameters
 This is Rulesync, a Node.js CLI tool that automatically generates configuration files for various AI development tools from unified AI rule files. The project enables teams to maintain consistent AI coding assistant rules across multiple tools.
 
 ...
-```
+
+```javascript
 
 ## `.rulesync/hooks.json`
 
@@ -51,6 +53,7 @@ Use optional **override keys** so tool-specific events and config live in one fi
 Example:
 
 ```json
+
 {
   "version": 1,
   "hooks": {
@@ -79,13 +82,15 @@ Example:
     }
   }
 }
-```
+
+```bash
 
 ## `rulesync/commands/*.md`
 
 Example:
 
 ```md
+
 ---
 description: "Review a pull request" # command description
 targets: ["*"] # * = all, or specific tools
@@ -103,13 +108,15 @@ If target_pr is not provided, use the PR of the current branch.
 Execute the following in parallel:
 
 ...
-```
+
+```text
 
 ## `rulesync/subagents/*.md`
 
 Example:
 
 ```md
+
 ---
 name: planner # subagent name
 targets: ["*"] # * = all, or specific tools
@@ -140,13 +147,15 @@ You are the planner for any tasks.
 Based on the user's instruction, create a plan while analyzing the related files. Then, report the plan in detail. You can output files to @tmp/ if needed.
 
 Attention, again, you are just the planner, so though you can read any files and run any commands for analysis, please don't write any code.
-```
+
+```bash
 
 ## `.rulesync/skills/*/SKILL.md`
 
 Example:
 
 ```md
+
 ---
 name: example-skill # skill name
 description: >- # skill description
@@ -174,13 +183,15 @@ The skill can include:
 - Any relevant context
 
 Skills are directory-based and can include additional files alongside SKILL.md.
-```
+
+```markdown
 
 ## `.rulesync/mcp.json`
 
 Example:
 
 ```json
+
 {
   "mcpServers": {
     "serena": {
@@ -210,13 +221,15 @@ Example:
     }
   }
 }
-```
+
+```text
 
 ### MCP Tool Config (`enabledTools` / `disabledTools`)
 
 You can control which individual tools from an MCP server are enabled or disabled using `enabledTools` and `disabledTools` arrays per server.
 
 ```json
+
 {
   "mcpServers": {
     "serena": {
@@ -228,7 +241,8 @@ You can control which individual tools from an MCP server are enabled or disable
     }
   }
 }
-```
+
+```text
 
 - `enabledTools`: An array of tool names that should be explicitly enabled for this server.
 - `disabledTools`: An array of tool names that should be explicitly disabled for this server.
@@ -253,6 +267,8 @@ Notes:
 Example:
 
 ```ignore
+
 tmp/
 credentials/
-```
+
+```text

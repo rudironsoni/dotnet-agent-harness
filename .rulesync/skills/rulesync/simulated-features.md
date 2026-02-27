@@ -6,18 +6,21 @@ Simulated commands, subagents and skills allow you to generate simulated feature
 2. Generate simulated commands, subagents and skills for specific tools that are included in cursor, codexcli and etc.
 
    ```bash
+
    rulesync generate \
      --targets copilot,cursor,codexcli \
      --features commands,subagents,skills \
      --simulate-commands \
      --simulate-subagents \
      --simulate-skills
+
    ```
 
 3. Use simulated commands, subagents and skills in your prompts.
    - Prompt examples:
 
      ```txt
+
      # Execute simulated commands. By the way, `s/` stands for `simulate/`.
      s/your-command
 
@@ -26,4 +29,5 @@ Simulated commands, subagents and skills allow you to generate simulated feature
 
      # Use simulated skills
      Use the skill your-skill to achieve something.
+
      ```

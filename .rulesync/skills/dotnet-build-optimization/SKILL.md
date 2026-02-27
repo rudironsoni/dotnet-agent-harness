@@ -53,7 +53,8 @@ the offending target, determine why incrementality failed, and apply the fix.
 
 ### Diagnosis Workflow
 
-```
+```text
+
 1. Symptom: Build takes longer than expected, or output says
    "Building target 'X' completely" on every build
 2. Capture binary log:  dotnet build /bl
@@ -64,11 +65,13 @@ the offending target, determine why incrementality failed, and apply the fix.
    - Yes -> Compare timestamps: are outputs older than inputs?
            -> Check for volatile writers or missing output files
 6. Apply fix, rebuild, verify target is skipped
-```
+
+```text
 
 ### Step 1: Capture a Binary Log
 
 ```bash
+
 # Produce msbuild.binlog in the project directory
 dotnet build /bl
 
@@ -77,7 +80,8 @@ dotnet build /bl:build-debug.binlog
 
 # Binary log for restore + build (captures full pipeline)
 dotnet build /bl -restore
-```
+
+```text
 
 The `/bl` switch records every MSBuild event -- property evaluations, item lists, target entry/exit, task execution, and
 timestamps -- into a compact binary format. Binary logs contain full source paths and environment variables; do not
@@ -117,6 +121,7 @@ ran fully will show "Building target 'X' completely" with a reason:
 **Fix:** Add `Inputs` and `Outputs` that reflect the actual files read and written:
 
 ```xml
+
 <!-- BEFORE: runs every build -->
 <Target Name="GenerateVersionFile" BeforeTargets="CoreCompile">
   <WriteLinesToFile File="$(IntermediateOutputPath)Version.g.cs"
@@ -133,7 +138,8 @@ ran fully will show "Building target 'X' completely" with a reason:
                     Lines="[assembly: System.Reflection.AssemblyInformationalVersion(&quot;$(Version)&quot;)]"
                     Overwrite="true" />
 </Target>
-```
+
+```csharp
 
 See [skill:dotnet-msbuild-authoring] for full Inputs/Outputs patterns and batching.
 
@@ -147,6 +153,7 @@ when content is identical.
 **Fix:**
 
 ```xml
+
 <!-- BEFORE: copies every build, resetting timestamps -->
 <Copy SourceFiles="@(ConfigTemplate)"
       DestinationFolder="$(OutputPath)" />
@@ -155,7 +162,8 @@ when content is identical.
 <Copy SourceFiles="@(ConfigTemplate)"
       DestinationFolder="$(OutputPath)"
       SkipUnchangedFiles="true" />
-```
+
+```text
 
 ### Generators Writing Unconditionally
 
@@ -168,6 +176,7 @@ targets).
 **Fix:** Write to a temp file first, then copy only if content differs:
 
 ```xml
+
 <Target Name="GenerateCode"
         BeforeTargets="CoreCompile"
         Inputs="@(SchemaFile)"
@@ -180,7 +189,8 @@ targets).
         DestinationFiles="$(IntermediateOutputPath)%(SchemaFile.Filename).g.cs"
         SkipUnchangedFiles="true" />
 </Target>
-```
+
+```csharp
 
 ### Volatile Intermediate Files
 
@@ -200,6 +210,7 @@ be modified, use `Touch` task to reset timestamps on its outputs to a stable val
 ### Capturing Binary Logs
 
 ```bash
+
 # Basic binary log (outputs msbuild.binlog)
 dotnet build /bl
 
@@ -211,7 +222,8 @@ dotnet build /bl -restore
 
 # Detailed verbosity in console + binary log
 dotnet build /bl /v:minimal
-```
+
+```text
 
 Binary logs capture everything regardless of the `/v:` verbosity level. The `/v:` switch only controls console output.
 Always use `/bl` for diagnosis; console verbosity is for quick scanning.
@@ -222,12 +234,14 @@ The `-pp` (preprocess) switch dumps the fully evaluated project file after all i
 substitutions:
 
 ```bash
+
 # Dump the preprocessed project to stdout
 dotnet msbuild MyApp.csproj -pp
 
 # Redirect to a file for easier reading
 dotnet msbuild MyApp.csproj -pp > preprocessed.xml
-```
+
+```csharp
 
 The preprocessed output shows:
 
@@ -259,6 +273,7 @@ opening a binary log.
 MSBuild can build independent projects within a solution in parallel using multiple worker nodes:
 
 ```bash
+
 # Use all available CPU cores (default behavior for dotnet build)
 dotnet build
 
@@ -267,7 +282,8 @@ dotnet build /m:4
 
 # Single-threaded (useful for debugging build order issues)
 dotnet build /m:1
-```
+
+```text
 
 `dotnet build` enables `/m` (multi-process) by default. Each worker node is a separate MSBuild process that builds one
 project at a time. Projects with no dependency relationship build in parallel.
@@ -278,12 +294,14 @@ Graph build (`/graph`) analyzes the project dependency graph before building and
 parallelism:
 
 ```bash
+
 # Graph-aware parallel build
 dotnet build /graph
 
 # Graph build with explicit parallelism
 dotnet build /graph /m:8
-```
+
+```text
 
 Graph mode advantages over default parallel build:
 
@@ -299,11 +317,13 @@ parallelism.
 Individual MSBuild tasks (like `MSBuild` task) can declare whether they support parallel invocation:
 
 ```xml
+
 <!-- Build referenced projects in parallel -->
 <MSBuild Projects="@(ProjectReference)"
          BuildInParallel="true"
          Targets="Build" />
-```
+
+```text
 
 `BuildInParallel="true"` allows the `MSBuild` task to distribute its project list across available worker nodes. This is
 the mechanism used by solution builds to parallelize project compilation.
@@ -331,19 +351,23 @@ show project scheduling and reveal race conditions.
 NuGet restore is often the slowest build step, especially in CI. These patterns reduce restore time:
 
 ```bash
+
 # Locked restore: skip resolution if lock file is current
 dotnet restore --locked-mode
 
 # Use lock files for deterministic restores
 dotnet restore --use-lock-file
-```
+
+```text
 
 ```xml
+
 <!-- Enable lock files project-wide in Directory.Build.props -->
 <PropertyGroup>
   <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 </PropertyGroup>
-```
+
+```xml
 
 Lock file restore (`--locked-mode`) skips the dependency resolution algorithm entirely, reading the exact versions from
 `packages.lock.json`. This is faster and ensures CI uses the same versions that were tested locally. For lock file and
@@ -363,6 +387,7 @@ The .NET SDK caches several build artifacts to avoid redundant work:
 ### CI Build Optimization
 
 ```yaml
+
 # GitHub Actions: cache NuGet packages between runs
 - name: Cache NuGet packages
   uses: actions/cache@v4
@@ -375,13 +400,15 @@ The .NET SDK caches several build artifacts to avoid redundant work:
 # Use locked restore for speed and determinism
 - name: Restore
   run: dotnet restore --locked-mode
-```
+
+```text
 
 ### NoWarn and TreatWarningsAsErrors Strategy
 
 Build-level warning configuration affects build time when analyzers are involved:
 
 ```xml
+
 <!-- Directory.Build.props: set warning policy for all projects -->
 <PropertyGroup>
   <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -389,7 +416,8 @@ Build-level warning configuration affects build time when analyzers are involved
   <!-- Suppress specific warnings globally (with justification) -->
   <NoWarn>$(NoWarn);CA2007</NoWarn>  <!-- ConfigureAwait: not needed in ASP.NET Core apps -->
 </PropertyGroup>
-```
+
+```text
 
 **Rules for warning configuration:**
 
@@ -406,29 +434,29 @@ Build-level warning configuration affects build time when analyzers are involved
    critical information about why targets ran. Always capture a binary log (`/bl`) for diagnosis -- it records
    everything regardless of console verbosity level.
 
-2. **Assuming incremental build works without Inputs/Outputs.** A target without `Inputs`/`Outputs` runs on every build
+1. **Assuming incremental build works without Inputs/Outputs.** A target without `Inputs`/`Outputs` runs on every build
    unconditionally. There is no implicit incrementality in MSBuild -- you must declare what files the target reads and
    writes. See [skill:dotnet-msbuild-authoring] for the full pattern.
 
-3. **Forgetting `SkipUnchangedFiles="true"` on Copy tasks.** Without this flag, `Copy` always updates the destination
+1. **Forgetting `SkipUnchangedFiles="true"` on Copy tasks.** Without this flag, `Copy` always updates the destination
    timestamp, which triggers downstream targets to re-run even when file content is identical.
 
-4. **Using `/v:diagnostic` instead of `/bl` for build investigation.** Diagnostic verbosity floods the console with
+1. **Using `/v:diagnostic` instead of `/bl` for build investigation.** Diagnostic verbosity floods the console with
    thousands of lines and is hard to search. Binary logs contain the same information in a structured, searchable
    format. Use `/bl` and the Structured Log Viewer instead.
 
-5. **Sharing the `.binlog` file without reviewing it first.** Binary logs contain full file paths, environment variable
+1. **Sharing the `.binlog` file without reviewing it first.** Binary logs contain full file paths, environment variable
    values, and potentially secrets passed via MSBuild properties. Review or sanitize before sharing externally.
 
-6. **Assuming `/m` (parallel build) is always faster.** For small solutions (fewer than 5 projects), the overhead of
+1. **Assuming `/m` (parallel build) is always faster.** For small solutions (fewer than 5 projects), the overhead of
    spawning worker nodes can exceed the parallelism benefit. Profile with and without `/m` to confirm. For large
    solutions, `/graph` mode provides better scheduling than default `/m`.
 
-7. **Committing `packages.lock.json` without using `--locked-mode` in CI.** The lock file is only useful if CI restores
+1. **Committing `packages.lock.json` without using `--locked-mode` in CI.** The lock file is only useful if CI restores
    in locked mode. Without `--locked-mode`, NuGet ignores the lock file and resolves normally, defeating the purpose of
    deterministic restores.
 
-8. **Modifying `.csproj` properties to fix build performance without checking the binary log first.** Many "slow build"
+1. **Modifying `.csproj` properties to fix build performance without checking the binary log first.** Many "slow build"
    issues are caused by a single non-incremental target, not by global build configuration. Diagnose with `/bl` before
    making broad configuration changes.
 

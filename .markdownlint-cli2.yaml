@@ -22,9 +22,9 @@ config:
   # Heading styles must be consistent
   MD003:
     style: atx
-  # Ordered list item prefix
+  # Ordered list item prefix - allow restart at 1 in subsections
   MD029:
-    style: ordered
+    style: one_or_ordered
   # Spaces after list markers
   MD030: true
   # Fenced code blocks should have language
@@ -40,6 +40,8 @@ config:
   MD032: true
   # Heading levels should only increment by one level at a time
   MD001: true
+  # Table column style - too strict for technical tables
+  MD060: false
 
 ignores:
   - "node_modules/**"

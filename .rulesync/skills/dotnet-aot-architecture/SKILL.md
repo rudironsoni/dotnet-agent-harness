@@ -70,6 +70,7 @@ code at build time that the AOT compiler can analyze and include.
 ### Example: Migrating to Source Gen
 
 ```csharp
+
 // BEFORE: Reflection-based (breaks under AOT)
 var logger = loggerFactory.CreateLogger<OrderService>();
 logger.LogInformation("Order {OrderId} created for {Customer}", order.Id, order.CustomerId);
@@ -85,7 +86,8 @@ public partial class OrderService
 
 // Usage:
 LogOrderCreated(_logger, order.Id, order.CustomerId);
-```
+
+```text
 
 See [skill:dotnet-csharp-source-generators] for source generator mechanics and authoring patterns.
 
@@ -99,6 +101,7 @@ open-generic resolution may require reflection that AOT cannot satisfy.
 ### Explicit Registration (Preferred)
 
 ```csharp
+
 var builder = WebApplication.CreateSlimBuilder(args);
 
 // Explicit registrations -- AOT-safe
@@ -106,11 +109,13 @@ builder.Services.AddSingleton<IOrderRepository, PostgresOrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
 builder.Services.AddSingleton(TimeProvider.System);
-```
+
+```text
 
 ### Avoid Assembly Scanning
 
 ```csharp
+
 // BAD: Assembly scanning uses reflection -- breaks under AOT
 builder.Services.Scan(scan => scan
     .FromAssemblyOf<OrderService>()
@@ -134,11 +139,13 @@ public static class OrderServiceExtensions
         return services;
     }
 }
-```
+
+```text
 
 ### Keyed Services (.NET 8+)
 
 ```csharp
+
 // AOT-safe keyed service registration
 builder.Services.AddKeyedSingleton<INotificationSender, EmailSender>("email");
 builder.Services.AddKeyedSingleton<INotificationSender, SmsSender>("sms");
@@ -146,7 +153,8 @@ builder.Services.AddKeyedSingleton<INotificationSender, SmsSender>("sms");
 // Resolve by key
 app.MapPost("/notify", ([FromKeyedServices("email")] INotificationSender sender) =>
     sender.SendAsync("Hello"));
-```
+
+```text
 
 See [skill:dotnet-csharp-dependency-injection] for full DI patterns.
 
@@ -167,6 +175,7 @@ See [skill:dotnet-csharp-dependency-injection] for full DI patterns.
 ### STJ Source Gen Setup
 
 ```csharp
+
 // Define serializable types
 [JsonSerializable(typeof(Product))]
 [JsonSerializable(typeof(List<Product>))]
@@ -180,7 +189,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0,
         AppJsonContext.Default);
 });
-```
+
+```json
 
 See [skill:dotnet-serialization] for comprehensive serialization patterns.
 
@@ -194,6 +204,7 @@ factory patterns that use explicit construction.
 ### Simple Factory
 
 ```csharp
+
 // BAD: Reflection-based creation -- breaks under AOT
 public T CreateHandler<T>() where T : class
     => (T)Activator.CreateInstance(typeof(T))!;
@@ -214,11 +225,13 @@ public class HandlerFactory
 var factory = new HandlerFactory();
 factory.Register<OrderHandler>(() => new OrderHandler(repository, logger));
 factory.Register<PaymentHandler>(() => new PaymentHandler(gateway));
-```
+
+```text
 
 ### Strategy Pattern via DI
 
 ```csharp
+
 // BAD: Dynamic type resolution
 public IPaymentProcessor GetProcessor(string type)
 {
@@ -239,11 +252,13 @@ app.MapPost("/pay", (
     var processor = sp.GetRequiredKeyedService<IPaymentProcessor>(type);
     return processor.ProcessAsync();
 });
-```
+
+```text
 
 ### Enum-Based Factory
 
 ```csharp
+
 // For a fixed set of types, use a switch expression
 public static IExporter CreateExporter(ExportFormat format) => format switch
 {
@@ -252,7 +267,8 @@ public static IExporter CreateExporter(ExportFormat format) => format switch
     ExportFormat.Pdf => new PdfExporter(),
     _ => throw new ArgumentOutOfRangeException(nameof(format))
 };
-```
+
+```json
 
 ---
 
@@ -287,19 +303,22 @@ Before adopting a NuGet package in an AOT project:
 ### Testing Compatibility
 
 ```bash
+
 # Build with all analyzers enabled
 dotnet build /p:EnableAotAnalyzer=true /p:EnableTrimAnalyzer=true /p:TrimmerSingleWarn=false
 
 # Warnings indicate AOT-incompatible usage
 # IL3050 = RequiresDynamicCode (definitely breaks)
 # IL2026 = RequiresUnreferencedCode (may break)
-```
+
+```text
 
 ---
 
 ## AOT Application Architecture Template
 
-```
+```text
+
 src/
   MyApp/
     Program.cs                   # CreateSlimBuilder, explicit DI
@@ -315,7 +334,8 @@ src/
       OrderRepository.cs         # Data access (Dapper or EF precompiled)
     Extensions/
       ServiceCollectionExtensions.cs  # Grouped DI registrations
-```
+
+```csharp
 
 ---
 

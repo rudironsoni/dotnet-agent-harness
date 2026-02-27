@@ -55,6 +55,7 @@ rather than identity.
 ### Record Classes (reference type)
 
 ```csharp
+
 // Positional record: concise, immutable, value equality
 public record OrderSummary(int OrderId, decimal Total, DateOnly OrderDate);
 
@@ -63,17 +64,20 @@ public record Customer(string Name, string Email)
 {
     public string DisplayName => $"{Name} <{Email}>";
 }
-```
+
+```text
 
 ### Record Structs (value type, C# 10+)
 
 ```csharp
+
 // Positional record struct: value type with value semantics
 public readonly record struct Point(double X, double Y);
 
 // Mutable record struct (rare -- prefer readonly)
 public record struct MutablePoint(double X, double Y);
-```
+
+```text
 
 ### When to Use Records vs Classes
 
@@ -88,8 +92,10 @@ public record struct MutablePoint(double X, double Y);
 ### Non-destructive Mutation
 
 ```csharp
+
 var updated = order with { Total = order.Total + tax };
-```
+
+```csharp
 
 ---
 
@@ -101,6 +107,7 @@ are **not** fields or properties -- they are captured state.
 ### For Services (DI injection)
 
 ```csharp
+
 public class OrderService(IOrderRepository repo, ILogger<OrderService> logger)
 {
     public async Task<Order> GetAsync(int id)
@@ -109,7 +116,8 @@ public class OrderService(IOrderRepository repo, ILogger<OrderService> logger)
         return await repo.GetByIdAsync(id);
     }
 }
-```
+
+```text
 
 ### Gotchas
 
@@ -121,13 +129,15 @@ public class OrderService(IOrderRepository repo, ILogger<OrderService> logger)
   captures.
 
 ```csharp
+
 // Explicit readonly field when immutability matters
 public class Config(string connectionString)
 {
     private readonly string _connectionString = connectionString
         ?? throw new ArgumentNullException(nameof(connectionString));
 }
-```
+
+```text
 
 ---
 
@@ -136,6 +146,7 @@ public class Config(string connectionString)
 Unified syntax for creating collections with `[...]`.
 
 ```csharp
+
 // Array
 int[] numbers = [1, 2, 3];
 
@@ -150,13 +161,15 @@ int[] combined = [..first, ..second, 99];
 
 // Empty collection
 List<int> empty = [];
-```
+
+```text
 
 ### Collection Expression with Arguments (C# 15 preview, net11.0+)
 
 Specify capacity, comparers, or other constructor arguments:
 
 ```csharp
+
 // Capacity hint
 List<int> nums = [with(capacity: 1000), ..Generate()];
 
@@ -166,7 +179,8 @@ HashSet<string> set = [with(comparer: StringComparer.OrdinalIgnoreCase), "Alice"
 // Dictionary with comparer
 Dictionary<string, int> map = [with(comparer: StringComparer.OrdinalIgnoreCase),
     new("key1", 1), new("key2", 2)];
-```
+
+```text
 
 > **net11.0+ only.** Requires `<LangVersion>preview</LangVersion>`. Do not use on earlier TFMs.
 
@@ -177,6 +191,7 @@ Dictionary<string, int> map = [with(comparer: StringComparer.OrdinalIgnoreCase),
 ### Switch Expressions (C# 8+)
 
 ```csharp
+
 string GetDiscount(Customer customer) => customer switch
 {
     { Tier: "Gold", YearsActive: > 5 } => "30%",
@@ -184,11 +199,13 @@ string GetDiscount(Customer customer) => customer switch
     { Tier: "Silver" } => "10%",
     _ => "0%"
 };
-```
+
+```text
 
 ### List Patterns (C# 11+)
 
 ```csharp
+
 bool IsValid(int[] data) => data is [> 0, .., > 0]; // first and last positive
 
 string Describe(int[] values) => values switch
@@ -197,11 +214,13 @@ string Describe(int[] values) => values switch
     [var single] => $"single: {single}",
     [var first, .., var last] => $"range: {first}..{last}"
 };
-```
+
+```text
 
 ### Type and Property Patterns
 
 ```csharp
+
 decimal CalculateShipping(object package) => package switch
 {
     Letter { Weight: < 50 } => 0.50m,
@@ -209,7 +228,8 @@ decimal CalculateShipping(object package) => package switch
     Parcel { IsOversized: true } => 25.00m,
     _ => 10.00m
 };
-```
+
+```text
 
 ---
 
@@ -218,6 +238,7 @@ decimal CalculateShipping(object package) => package switch
 Force callers to initialize properties at construction via object initializers.
 
 ```csharp
+
 public class UserDto
 {
     public required string Name { get; init; }
@@ -227,7 +248,8 @@ public class UserDto
 
 // Compiler enforces Name and Email
 var user = new UserDto { Name = "Alice", Email = "alice@example.com" };
-```
+
+```text
 
 Useful for DTOs that need to be deserialized (System.Text.Json honors `required` in .NET 8+).
 
@@ -238,6 +260,7 @@ Useful for DTOs that need to be deserialized (System.Text.Json honors `required`
 Access the compiler-generated backing field directly in property accessors.
 
 ```csharp
+
 public class TemperatureSensor
 {
     public double Reading
@@ -248,7 +271,8 @@ public class TemperatureSensor
             : throw new ArgumentOutOfRangeException(nameof(value));
     }
 }
-```
+
+```text
 
 Replaces the manual pattern of declaring a private field plus a property with custom logic. Use when you need validation
 or transformation in a setter without a separate backing field.
@@ -262,6 +286,7 @@ or transformation in a setter without a separate backing field.
 Group extension members for a type in a single block.
 
 ```csharp
+
 public static class EnumerableExtensions
 {
     extension<T>(IEnumerable<T> source) where T : class
@@ -273,7 +298,8 @@ public static class EnumerableExtensions
             => !source.Any();
     }
 }
-```
+
+```text
 
 > **net10.0+ only.** On earlier TFMs, use traditional `static` extension methods.
 
@@ -282,12 +308,14 @@ public static class EnumerableExtensions
 ## Alias Any Type (`using`, C# 12+, net8.0+)
 
 ```csharp
+
 using Point = (double X, double Y);
 using UserId = System.Guid;
 
 Point origin = (0, 0);
 UserId id = UserId.NewGuid();
-```
+
+```text
 
 Useful for tuple aliases and domain type aliases without creating a full type.
 
@@ -299,6 +327,7 @@ Useful for tuple aliases and domain type aliases without creating a full type.
 implementing certain collection interfaces.
 
 ```csharp
+
 public void Log(params ReadOnlySpan<string> messages)
 {
     foreach (var msg in messages)
@@ -307,7 +336,8 @@ public void Log(params ReadOnlySpan<string> messages)
 
 // Callers: compiler may avoid heap allocation with span-based params
 Log("hello", "world");
-```
+
+```text
 
 > **net9.0+ only.** On net8.0, `params` only supports arrays.
 
@@ -318,6 +348,7 @@ Log("hello", "world");
 Use `System.Threading.Lock` instead of `object` for locking.
 
 ```csharp
+
 private readonly Lock _lock = new();
 
 public void DoWork()
@@ -327,7 +358,8 @@ public void DoWork()
         // thread-safe operation
     }
 }
-```
+
+```text
 
 `Lock` provides a `Scope`-based API for advanced scenarios and is more expressive than `lock (object)`.
 
@@ -340,6 +372,7 @@ public void DoWork()
 Partial properties enable source generators to define property signatures that users implement, or vice versa.
 
 ```csharp
+
 // In generated file
 public partial class ViewModel
 {
@@ -356,7 +389,8 @@ public partial class ViewModel
         set => SetProperty(ref _name, value);
     }
 }
-```
+
+```text
 
 > **net9.0+ only.** See [skill:dotnet-csharp-source-generators] for generator patterns.
 
@@ -365,9 +399,11 @@ public partial class ViewModel
 ## `nameof` for Unbound Generic Types (C# 14, net10.0+)
 
 ```csharp
+
 string name = nameof(List<>);      // "List"
 string name2 = nameof(Dictionary<,>); // "Dictionary"
-```
+
+```csharp
 
 Useful in logging, diagnostics, and reflection scenarios.
 
@@ -385,6 +421,7 @@ When targeting multiple TFMs, newer language features may not compile on older t
 3. **Conditional compilation** -- Use `#if` for features that cannot be polyfilled:
 
 ```csharp
+
 #if NET10_0_OR_GREATER
     // Use field keyword
     public double Value { get => field; set => field = Math.Max(0, value); }
@@ -392,7 +429,8 @@ When targeting multiple TFMs, newer language features may not compile on older t
     private double _value;
     public double Value { get => _value; set => _value = Math.Max(0, value); }
 #endif
-```
+
+```text
 
 See [skill:dotnet-multi-targeting] for comprehensive polyfill guidance.
 

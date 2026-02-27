@@ -54,6 +54,7 @@ CLI-specific release automation.
 Deploy a .NET project's documentation site to GitHub Pages:
 
 ```yaml
+
 name: Deploy Docs
 
 on:
@@ -109,7 +110,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-```
+
+```text
 
 **Key decisions:**
 
@@ -122,6 +124,7 @@ jobs:
 Generate and deploy API reference documentation from .NET XML comments:
 
 ```yaml
+
 - name: Setup .NET
   uses: actions/setup-dotnet@v4
   with:
@@ -144,7 +147,8 @@ Generate and deploy API reference documentation from .NET XML comments:
   uses: actions/upload-pages-artifact@v3
   with:
     path: docs/_site
-```
+
+```text
 
 ---
 
@@ -153,6 +157,7 @@ Generate and deploy API reference documentation from .NET XML comments:
 ### Push to GHCR with Environment Gates
 
 ```yaml
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -200,13 +205,15 @@ jobs:
         run: |
           set -euo pipefail
           echo "Deploying ghcr.io/${{ github.repository }}@${{ needs.build.outputs.image-digest }} to production"
-```
+
+```text
 
 ### Promote by Digest (Immutable Deployments)
 
 Use image digest references for immutable deployments across environments:
 
 ```yaml
+
 - name: Retag for production
   run: |
     set -euo pipefail
@@ -215,7 +222,8 @@ Use image digest references for immutable deployments across environments:
     docker tag ghcr.io/${{ github.repository }}@${{ needs.build.outputs.image-digest }} \
       ghcr.io/${{ github.repository }}:production
     docker push ghcr.io/${{ github.repository }}:production
-```
+
+```text
 
 Digest-based promotion ensures the exact same image bytes are deployed to production, regardless of tag mutations.
 
@@ -226,6 +234,7 @@ Digest-based promotion ensures the exact same image bytes are deployed to produc
 ### Deploy via `azure/webapps-deploy`
 
 ```yaml
+
 name: Deploy to Azure
 
 on:
@@ -311,13 +320,15 @@ jobs:
         with:
           app-name: myapp-production
           package: ./publish
-```
+
+```text
 
 ### Azure Web App with Deployment Slots
 
 Use deployment slots for zero-downtime deployments with pre-swap validation:
 
 ```yaml
+
 - name: Deploy to staging slot
   uses: azure/webapps-deploy@v3
   with:
@@ -345,20 +356,23 @@ Use deployment slots for zero-downtime deployments with pre-swap validation:
         --name myapp-production \
         --slot staging \
         --target-slot production
-```
+
+```text
 
 ### OIDC Authentication (Federated Credentials)
 
 Use OIDC for passwordless Azure authentication instead of service principal secrets:
 
 ```yaml
+
 - name: Login to Azure (OIDC)
   uses: azure/login@v2
   with:
     client-id: ${{ secrets.AZURE_CLIENT_ID }}
     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-```
+
+```text
 
 OIDC requires configuring a federated credential in Azure AD that trusts the GitHub Actions OIDC provider. No client
 secret is stored in GitHub Secrets.
@@ -370,6 +384,7 @@ secret is stored in GitHub Secrets.
 ### Multi-Environment Pipeline
 
 ```yaml
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -414,7 +429,8 @@ jobs:
         with:
           name: app
       - run: echo "Deploy to production"
-```
+
+```text
 
 ### Protection Rule Configuration
 
@@ -431,6 +447,7 @@ Configure in GitHub Settings > Environments for each environment:
 Each environment can override repository-level secrets:
 
 ```yaml
+
 jobs:
   deploy:
     environment: production
@@ -444,7 +461,8 @@ jobs:
         run: |
           set -euo pipefail
           echo "Deploying to $APP_URL"
-```
+
+```text
 
 ---
 
@@ -455,6 +473,7 @@ jobs:
 Re-deploy the previous known-good version on failure:
 
 ```yaml
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -497,13 +516,15 @@ jobs:
       - name: Fail the job if rollback was needed
         if: steps.deploy.outcome == 'failure' || steps.health.outcome == 'failure'
         run: exit 1
-```
+
+```text
 
 ### Azure Deployment Slot Rollback
 
 Swap back to the previous slot on health check failure:
 
 ```yaml
+
 - name: Swap to production
   id: swap
   uses: azure/cli@v2
@@ -539,13 +560,15 @@ Swap back to the previous slot on health check failure:
         --slot staging \
         --target-slot production
       echo "Rolled back: swapped staging back to production"
-```
+
+```text
 
 ### Manual Rollback via workflow_dispatch
 
 Provide a manual trigger for emergency rollbacks:
 
 ```yaml
+
 on:
   workflow_dispatch:
     inputs:
@@ -580,7 +603,8 @@ jobs:
           set -euo pipefail
           echo "Rolling back ${{ inputs.environment }} to ${{ inputs.version }}"
           # Platform-specific deployment
-```
+
+```text
 
 ---
 

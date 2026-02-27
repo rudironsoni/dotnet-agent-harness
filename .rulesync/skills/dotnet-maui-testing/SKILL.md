@@ -53,14 +53,17 @@ build testing considerations.
 ### Packages
 
 ```xml
+
 <PackageReference Include="Appium.WebDriver" Version="5.*" />
 <PackageReference Include="xunit.v3" Version="3.2.2" />
 <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
-```
+
+```xml
 
 ### Driver Initialization
 
 ```csharp
+
 public class AppiumFixture : IAsyncLifetime
 {
     public AppiumDriver Driver { get; private set; } = null!;
@@ -108,11 +111,13 @@ public class AppiumFixture : IAsyncLifetime
         return ValueTask.CompletedTask;
     }
 }
-```
+
+```text
 
 ### Test Configuration
 
 ```csharp
+
 public static class TestConfig
 {
     // Set via environment variables or test runsettings
@@ -134,7 +139,8 @@ public static class TestConfig
     private static string SolutionDir =>
         Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
 }
-```
+
+```text
 
 ---
 
@@ -146,6 +152,7 @@ for cross-platform tests.
 ### Setting AutomationId in XAML
 
 ```xml
+
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
@@ -165,11 +172,13 @@ for cross-platform tests.
                TextColor="Red" />
     </VerticalStackLayout>
 </ContentPage>
-```
+
+```text
 
 ### Finding Elements in Tests
 
 ```csharp
+
 public class LoginTests : IClassFixture<AppiumFixture>
 {
     private readonly AppiumDriver _driver;
@@ -221,7 +230,8 @@ public class LoginTests : IClassFixture<AppiumFixture>
         Assert.Contains("Invalid", errorLabel.Text);
     }
 }
-```
+
+```text
 
 ---
 
@@ -230,6 +240,7 @@ public class LoginTests : IClassFixture<AppiumFixture>
 Apply the page object model pattern (see [skill:dotnet-ui-testing-core]) with Appium's driver:
 
 ```csharp
+
 public class LoginPage
 {
     private readonly AppiumDriver _driver;
@@ -287,7 +298,8 @@ public void Login_ValidUser_ReachesHomePage()
 
     Assert.True(homePage.IsLoaded);
 }
-```
+
+```text
 
 ---
 
@@ -296,6 +308,7 @@ public void Login_ValidUser_ReachesHomePage()
 ### Conditional Tests by Platform
 
 ```csharp
+
 public class PlatformTests : IClassFixture<AppiumFixture>
 {
     private readonly AppiumDriver _driver;
@@ -364,11 +377,13 @@ public class PlatformTests : IClassFixture<AppiumFixture>
         });
     }
 }
-```
+
+```text
 
 ### Screen Size and Orientation
 
 ```csharp
+
 [Fact]
 public void Dashboard_LandscapeMode_ShowsSidePanel()
 {
@@ -389,7 +404,8 @@ public void Dashboard_LandscapeMode_ShowsSidePanel()
         _driver.Orientation = ScreenOrientation.Portrait;
     }
 }
-```
+
+```text
 
 ---
 
@@ -401,6 +417,7 @@ installation, test execution, and result collection.
 ### Running Tests with XHarness
 
 ```bash
+
 # Install XHarness
 dotnet tool install --global Microsoft.DotNet.XHarness.CLI
 
@@ -423,17 +440,21 @@ xharness android test \
     --package-name com.myapp \
     --device-id emulator-5554 \
     --output-directory test-results
-```
+
+```text
 
 ### XHarness with Device Runner
 
 For xUnit tests running directly on device, add the device runner NuGet package:
 
 ```xml
+
 <PackageReference Include="Microsoft.DotNet.XHarness.TestRunners.Xunit" Version="1.*" />
-```
+
+```xml
 
 ```csharp
+
 // In the MAUI test app's MauiProgram.cs
 public static MauiApp CreateMauiApp()
 {
@@ -441,7 +462,8 @@ public static MauiApp CreateMauiApp()
     builder.UseVisualRunner(); // XHarness visual test runner
     return builder.Build();
 }
-```
+
+```text
 
 ---
 

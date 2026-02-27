@@ -43,6 +43,7 @@ Microsoft.AspNetCore.OpenApi is the first-party OpenAPI package for ASP.NET Core
 ### Basic Setup
 
 ```csharp
+
 // Microsoft.AspNetCore.OpenApi -- included by default in .NET 9+ project templates
 // If not present, add: <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.*" />
 // Version must match the project's target framework major version
@@ -55,13 +56,15 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi(); // Serves /openapi/v1.json
 }
-```
+
+```json
 
 ### Multiple Documents
 
 Generate separate OpenAPI documents per API version or functional group:
 
 ```csharp
+
 builder.Services.AddOpenApi("v1", options =>
 {
     options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_0;
@@ -74,7 +77,8 @@ builder.Services.AddOpenApi("v2", options =>
 
 var app = builder.Build();
 app.MapOpenApi(); // Serves /openapi/v1.json and /openapi/v2.json
-```
+
+```json
 
 ---
 
@@ -85,6 +89,7 @@ Document transformers modify the generated OpenAPI document after it is built. U
 ### IOpenApiDocumentTransformer
 
 ```csharp
+
 public sealed class SecuritySchemeTransformer : IOpenApiDocumentTransformer
 {
     public Task TransformAsync(
@@ -122,13 +127,15 @@ builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer<SecuritySchemeTransformer>();
 });
-```
+
+```text
 
 ### Lambda Document Transformers
 
 For simple transformations, use the lambda overload:
 
 ```csharp
+
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, context, ct) =>
@@ -147,7 +154,8 @@ builder.Services.AddOpenApi(options =>
         return Task.CompletedTask;
     });
 });
-```
+
+```text
 
 ---
 
@@ -156,6 +164,7 @@ builder.Services.AddOpenApi(options =>
 Operation transformers modify individual operations (endpoints) in the OpenAPI document. Use them to add per-operation metadata, examples, or conditional logic.
 
 ```csharp
+
 public sealed class DeprecationTransformer : IOpenApiOperationTransformer
 {
     public Task TransformAsync(
@@ -182,7 +191,8 @@ builder.Services.AddOpenApi(options =>
 {
     options.AddOperationTransformer<DeprecationTransformer>();
 });
-```
+
+```text
 
 ---
 
@@ -191,6 +201,7 @@ builder.Services.AddOpenApi(options =>
 Customize how .NET types map to OpenAPI schemas using schema transformers:
 
 ```csharp
+
 builder.Services.AddOpenApi(options =>
 {
     options.AddSchemaTransformer((schema, context, ct) =>
@@ -208,13 +219,15 @@ builder.Services.AddOpenApi(options =>
         return Task.CompletedTask;
     });
 });
-```
+
+```text
 
 ### Enriching Endpoint Metadata
 
 Use fluent methods on endpoint builders to provide richer OpenAPI metadata:
 
 ```csharp
+
 products.MapGet("/{id:int}", GetProductById)
     .WithName("GetProductById")
     .WithSummary("Get a product by its ID")
@@ -222,7 +235,8 @@ products.MapGet("/{id:int}", GetProductById)
     .WithTags("Products")
     .Produces<Product>(StatusCodes.Status200OK)
     .ProducesProblem(StatusCodes.Status404NotFound);
-```
+
+```text
 
 ---
 
@@ -237,14 +251,17 @@ Swashbuckle (`Swashbuckle.AspNetCore`) is no longer actively maintained. It does
 1. Remove Swashbuckle packages:
 
 ```xml
+
 <!-- Remove these -->
 <!-- <PackageReference Include="Swashbuckle.AspNetCore" Version="..." /> -->
 <!-- <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="..." /> -->
-```
 
-2. Replace service registration:
+```xml
+
+1. Replace service registration:
 
 ```csharp
+
 // Before (Swashbuckle)
 builder.Services.AddSwaggerGen(options =>
 {
@@ -253,22 +270,26 @@ builder.Services.AddSwaggerGen(options =>
 
 // After (Microsoft.AspNetCore.OpenApi)
 builder.Services.AddOpenApi();
-```
 
-3. Replace middleware:
+```text
+
+1. Replace middleware:
 
 ```csharp
+
 // Before (Swashbuckle)
 app.UseSwagger();
 app.UseSwaggerUI();
 
 // After (built-in)
 app.MapOpenApi(); // Serves raw OpenAPI JSON at /openapi/v1.json
-```
 
-4. For Swagger UI, add a standalone UI package or use Scalar:
+```json
+
+1. For Swagger UI, add a standalone UI package or use Scalar:
 
 ```csharp
+
 // Option 1: Scalar (modern, built-in support in .NET 10)
 // <PackageReference Include="Aspire.Dashboard.Components.Scalar" ... /> or use MapScalarApiReference
 app.MapScalarApiReference(); // .NET 10
@@ -279,9 +300,10 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/openapi/v1.json", "v1");
 });
-```
 
-5. Migrate Swashbuckle filters to transformers:
+```json
+
+1. Migrate Swashbuckle filters to transformers:
 
 | Swashbuckle concept | Built-in replacement |
 |---------------------|---------------------|
@@ -300,6 +322,7 @@ NSwag is an alternative OpenAPI toolchain that includes document generation, cli
 ### Document Generation
 
 ```csharp
+
 // <PackageReference Include="NSwag.AspNetCore" Version="14.*" />
 builder.Services.AddOpenApiDocument(options =>
 {
@@ -311,13 +334,15 @@ builder.Services.AddOpenApiDocument(options =>
 var app = builder.Build();
 app.UseOpenApi();    // Serves /swagger/v1/swagger.json
 app.UseSwaggerUi(); // Serves /swagger UI
-```
+
+```json
 
 ### Client Generation
 
 NSwag generates typed C# or TypeScript clients from OpenAPI specs:
 
 ```bash
+
 # Install NSwag CLI
 dotnet tool install --global NSwag.ConsoleCore
 
@@ -326,7 +351,8 @@ nswag openapi2csclient /input:https://api.example.com/openapi/v1.json \
     /output:GeneratedClient.cs \
     /namespace:MyApp.ApiClient \
     /generateClientInterfaces:true
-```
+
+```csharp
 
 **Recommendation:** Use `Microsoft.AspNetCore.OpenApi` for document generation. Use NSwag CLI or Kiota for client generation from the resulting OpenAPI spec. Avoid using NSwag for both generation and serving in new projects.
 
@@ -342,6 +368,7 @@ nswag openapi2csclient /input:https://api.example.com/openapi/v1.json \
 - **JSON Schema alignment:** Full compatibility with JSON Schema draft 2020-12 tooling
 
 ```csharp
+
 // .NET 10: OpenAPI 3.1 is the default
 // <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.*" />
 builder.Services.AddOpenApi(options =>
@@ -349,7 +376,8 @@ builder.Services.AddOpenApi(options =>
     // Explicitly set version if needed (3.1 is default in .NET 10)
     options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
 });
-```
+
+```text
 
 **Gotcha:** Swashbuckle does not support OpenAPI 3.1. Projects requiring 3.1 features must migrate to `Microsoft.AspNetCore.OpenApi`.
 

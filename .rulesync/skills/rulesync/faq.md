@@ -5,10 +5,12 @@
 You can try adding the following to `.claude/settings.json` or `.claude/settings.local.json`:
 
 ```diff
+
 {
 + "enableAllProjectMcpServers": true
 }
-```
+
+```text
 
 According to [the documentation](https://code.claude.com/docs/en/settings), this means:
 
@@ -21,6 +23,7 @@ Google Antigravity has a known limitation where it won't load rules, workflows, 
 **Workaround:** Instead of adding these directories to `.gitignore`, add them to `.git/info/exclude`:
 
 ```bash
+
 # Remove from .gitignore (if present)
 # **/.agent/rules/
 # **/.agent/workflows/
@@ -30,7 +33,8 @@ Google Antigravity has a known limitation where it won't load rules, workflows, 
 echo "**/.agent/rules/" >> .git/info/exclude
 echo "**/.agent/workflows/" >> .git/info/exclude
 echo "**/.agent/skills/" >> .git/info/exclude
-```
+
+```text
 
 `.git/info/exclude` works like `.gitignore` but is local-only, so it won't affect Antigravity's ability to load the rules while still excluding these directories from Git.
 

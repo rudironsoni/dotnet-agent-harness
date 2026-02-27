@@ -60,25 +60,31 @@ exposure and undocumented surface area changes.
 Install the analyzer package:
 
 ```xml
+
 <ItemGroup>
   <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.3.*" PrivateAssets="all" />
 </ItemGroup>
-```
+
+```xml
 
 Create the two tracking files at the project root (adjacent to the `.csproj`):
 
-```
+```csharp
+
 MyLib/
   MyLib.csproj
   PublicAPI.Shipped.txt    # APIs shipped in released versions
   PublicAPI.Unshipped.txt  # APIs added since last release
-```
+
+```csharp
 
 Both files must exist, even if empty. Each must contain a header comment:
 
-```
+```text
+
 #nullable enable
-```
+
+```text
 
 The `#nullable enable` header tells the analyzer to track nullable annotations in API signatures. Without it, nullable
 context differences are ignored.
@@ -106,7 +112,8 @@ Remove the stale line from the appropriate file.
 
 Each line in the tracking files represents one public API symbol using its documentation comment ID format:
 
-```
+```text
+
 #nullable enable
 MyLib.Widget
 MyLib.Widget.Widget() -> void
@@ -120,7 +127,8 @@ MyLib.WidgetOptions
 MyLib.WidgetOptions.WidgetOptions() -> void
 MyLib.WidgetOptions.MaxRetries.get -> int
 MyLib.WidgetOptions.MaxRetries.set -> void
-```
+
+```text
 
 Key formatting rules:
 
@@ -166,7 +174,8 @@ The workflow across release cycles:
 For multi-targeted projects, PublicApiAnalyzers supports per-TFM tracking files when the API surface differs across
 targets:
 
-```
+```text
+
 MyLib/
   MyLib.csproj
   PublicAPI.Shipped.txt           # Shared across all TFMs
@@ -175,7 +184,8 @@ MyLib/
   PublicAPI.Unshipped.net8.0.txt  # net8.0-specific APIs
   PublicAPI.Shipped.net10.0.txt   # net10.0-specific APIs
   PublicAPI.Unshipped.net10.0.txt # net10.0-specific APIs
-```
+
+```text
 
 The shared files contain APIs common to all TFMs. The TFM-specific files contain APIs that only exist on that target.
 The analyzer merges them at build time.
@@ -183,10 +193,12 @@ The analyzer merges them at build time.
 To enable per-TFM files, add to the `.csproj`:
 
 ```xml
+
 <PropertyGroup>
   <RoslynPublicApiPerTfm>true</RoslynPublicApiPerTfm>
 </PropertyGroup>
-```
+
+```xml
 
 See [skill:dotnet-multi-targeting] for multi-TFM packaging mechanics.
 
@@ -196,11 +208,13 @@ PublicApiAnalyzers runs as part of the standard build. To enforce it in CI, ensu
 the RS-series rules:
 
 ```xml
+
 <!-- In Directory.Build.props or the library .csproj -->
 <PropertyGroup>
   <WarningsAsErrors>$(WarningsAsErrors);RS0016;RS0017;RS0036;RS0037</WarningsAsErrors>
 </PropertyGroup>
-```
+
+```csharp
 
 This gates CI builds on any undeclared public API changes. Developers must explicitly update the tracking files before
 the build passes.
@@ -226,6 +240,7 @@ Create a helper method that reflects over an assembly to produce a stable, sorte
 their members:
 
 ```csharp
+
 using System.Reflection;
 using System.Text;
 
@@ -301,11 +316,13 @@ public static class PublicApiExtractor
         return string.Join(" ", parts);
     }
 }
-```
+
+```text
 
 ### Writing the Snapshot Test
 
 ```csharp
+
 [UsesVerify]
 public class PublicApiSurfaceTests
 {
@@ -318,7 +335,8 @@ public class PublicApiSurfaceTests
         return Verify(publicApi);
     }
 }
-```
+
+```text
 
 On first run, this creates a `.verified.txt` file containing the full public API listing. Subsequent runs compare the
 current API surface against the approved snapshot. Any addition, removal, or modification of public members causes a
@@ -368,15 +386,18 @@ For `EnablePackageValidation` basics and suppression file mechanics, see [skill:
 The simplest enforcement uses `EnablePackageValidation` during `dotnet pack`:
 
 ```xml
+
 <PropertyGroup>
   <EnablePackageValidation>true</EnablePackageValidation>
   <PackageValidationBaselineVersion>1.2.0</PackageValidationBaselineVersion>
 </PropertyGroup>
-```
+
+```text
 
 In a CI pipeline, `dotnet pack` runs package validation automatically:
 
 ```yaml
+
 # GitHub Actions -- gate PRs on API compatibility
 name: API Compatibility Check
 on:
@@ -406,7 +427,8 @@ jobs:
         run: dotnet pack --configuration Release --no-build
         # EnablePackageValidation runs during pack and fails
         # the build if breaking changes are detected
-```
+
+```text
 
 ### Standalone ApiCompat Tool for Assembly Comparison
 
@@ -414,6 +436,7 @@ When you need to compare assemblies without packing (e.g., comparing a feature b
 build), use the standalone ApiCompat tool:
 
 ```yaml
+
 # GitHub Actions -- compare assemblies directly
 name: API Diff Check
 on:
@@ -449,13 +472,15 @@ jobs:
         run: |
           apicompat --left-assembly artifacts/baseline/MyLib.dll \
                     --right-assembly artifacts/current/MyLib.dll
-```
+
+```text
 
 ### PR Labeling for API Changes
 
 Combine ApiCompat with PR labeling to surface API changes to reviewers:
 
 ```yaml
+
 - name: Check for API changes
   id: api-check
   continue-on-error: true
@@ -469,23 +494,28 @@ Combine ApiCompat with PR labeling to surface API changes to reviewers:
   run: gh pr edit "${{ github.event.pull_request.number }}" --add-label "api-change"
   env:
     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
+
+```text
 
 ### Handling Intentional Breaking Changes
 
 When a breaking change is intentional (new major version), generate a suppression file:
 
 ```bash
+
 dotnet pack /p:GenerateCompatibilitySuppressionFile=true
-```
+
+```bash
 
 This creates `CompatibilitySuppressions.xml` in the project directory. Reference it explicitly if stored elsewhere:
 
 ```xml
+
 <ItemGroup>
   <ApiCompatSuppressionFile Include="CompatibilitySuppressions.xml" />
 </ItemGroup>
-```
+
+```xml
 
 Note: `ApiCompatSuppressionFile` is an **ItemGroup item**, not a PropertyGroup property. Using PropertyGroup syntax
 silently does nothing.
@@ -493,6 +523,7 @@ silently does nothing.
 The suppression file documents the specific breaking changes that are accepted:
 
 ```xml
+
 <?xml version="1.0" encoding="utf-8"?>
 <Suppressions xmlns:xsd="http://www.w3.org/2001/XMLSchema"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -503,7 +534,8 @@ The suppression file documents the specific breaking changes that are accepted:
     <Right>lib/net8.0/MyLib.dll</Right>
   </Suppression>
 </Suppressions>
-```
+
+```text
 
 Commit suppression files to source control. Reviewers can inspect the file to verify that breaking changes are
 documented and intentional.
@@ -513,6 +545,7 @@ documented and intentional.
 Combine PublicApiAnalyzers warnings-as-errors with a CI step that verifies tracking files are not stale:
 
 ```yaml
+
 - name: Build with API tracking enforcement
   run: dotnet build -c Release /p:TreatWarningsAsErrors=true /warnaserror:RS0016,RS0017,RS0036,RS0037
 
@@ -523,13 +556,15 @@ Combine PublicApiAnalyzers warnings-as-errors with a CI step that verifies track
       git diff -- '**/PublicAPI.*.txt'
       exit 1
     fi
-```
+
+```text
 
 ### Multi-Library Monorepo Enforcement
 
 For repositories with multiple libraries, apply API validation at the solution level:
 
 ```xml
+
 <!-- Directory.Build.props -- applied to all library projects -->
 <Project>
   <PropertyGroup Condition="'$(IsPackable)' == 'true'">
@@ -542,7 +577,8 @@ For repositories with multiple libraries, apply API validation at the solution l
                       Version="3.3.*" PrivateAssets="all" />
   </ItemGroup>
 </Project>
-```
+
+```text
 
 This ensures every packable project in the repository has both PublicApiAnalyzers and package validation enabled without
 duplicating configuration.

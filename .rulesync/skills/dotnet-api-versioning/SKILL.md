@@ -53,14 +53,18 @@ OpenAPI documents.
 Install for Minimal APIs:
 
 ```xml
+
 <PackageReference Include="Asp.Versioning.Http" Version="8.*" />
-```
+
+```xml
 
 Install for MVC controllers:
 
 ```xml
+
 <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.*" />
-```
+
+```xml
 
 ---
 
@@ -72,6 +76,7 @@ HTTP clients, is cacheable, and clearly visible in logs and documentation.
 ### Minimal APIs
 
 ```csharp
+
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -107,11 +112,13 @@ v2.MapGet("/", async (AppDbContext db) =>
     TypedResults.Ok(await db.Products
         .Select(p => new ProductV2Dto(p.Id, p.Name, p.Price, p.Category, p.CreatedAt))
         .ToListAsync()));
-```
+
+```text
 
 ### MVC Controllers
 
 ```csharp
+
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -151,7 +158,8 @@ public sealed class ProductsV2Controller(AppDbContext db) : ControllerBase
             .Select(p => new ProductV2Dto(p.Id, p.Name, p.Price, p.Category, p.CreatedAt))
             .ToListAsync());
 }
-```
+
+```text
 
 ---
 
@@ -161,6 +169,7 @@ Header versioning reads the API version from a custom request header. Keeps URLs
 harder to test from a browser.
 
 ```csharp
+
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -168,15 +177,18 @@ builder.Services.AddApiVersioning(options =>
     options.ReportApiVersions = true;
     options.ApiVersionReader = new HeaderApiVersionReader("X-Api-Version");
 });
-```
+
+```text
 
 Client request:
 
 ```http
+
 GET /api/products HTTP/1.1
 Host: api.example.com
 X-Api-Version: 2.0
-```
+
+```text
 
 ---
 
@@ -186,6 +198,7 @@ Query string versioning uses a query parameter (default: `api-version`). Simple 
 conflict with caching strategies.
 
 ```csharp
+
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -193,14 +206,17 @@ builder.Services.AddApiVersioning(options =>
     options.ReportApiVersions = true;
     options.ApiVersionReader = new QueryStringApiVersionReader("api-version");
 });
-```
+
+```text
 
 Client request:
 
 ```http
+
 GET /api/products?api-version=2.0 HTTP/1.1
 Host: api.example.com
-```
+
+```text
 
 ---
 
@@ -210,11 +226,13 @@ Multiple readers can be combined. The first reader that resolves a version wins.
 one strategy to another:
 
 ```csharp
+
 options.ApiVersionReader = ApiVersionReader.Combine(
     new UrlSegmentApiVersionReader(),
     new HeaderApiVersionReader("X-Api-Version"),
     new QueryStringApiVersionReader("api-version"));
-```
+
+```text
 
 ---
 
@@ -224,6 +242,7 @@ Sunset policies communicate to consumers that an API version is deprecated and w
 response header follows [RFC 8594](https://datatracker.ietf.org/doc/html/rfc8594).
 
 ```csharp
+
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(2, 0);
@@ -234,22 +253,26 @@ builder.Services.AddApiVersioning(options =>
             .Title("V1 to V2 Migration Guide")
             .Type("text/html");
 });
-```
+
+```text
 
 Response headers for a v1 request:
 
 ```http
+
 api-supported-versions: 1.0, 2.0
 api-deprecated-versions: 1.0
 Sunset: Sun, 01 Jun 2026 00:00:00 GMT
 Link: <https://docs.example.com/api/migration-v1-to-v2>; rel="sunset"; title="V1 to V2 Migration Guide"; type="text/html"
-```
+
+```text
 
 ### Deprecating a Version
 
 Mark a version as deprecated using the version set (Minimal APIs) or attribute (MVC):
 
 ```csharp
+
 // Minimal APIs
 var versionSet = app.NewApiVersionSet()
     .HasApiVersion(new ApiVersion(1, 0))
@@ -262,7 +285,8 @@ var versionSet = app.NewApiVersionSet()
 [ApiVersion("1.0", Deprecated = true)]
 [ApiVersion("2.0")]
 public sealed class ProductsController : ControllerBase { }
-```
+
+```text
 
 ---
 

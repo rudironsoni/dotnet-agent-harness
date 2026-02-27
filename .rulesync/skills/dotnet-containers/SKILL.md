@@ -49,6 +49,7 @@ Multi-stage builds separate the build environment from the runtime environment, 
 ### Standard Multi-Stage Pattern
 
 ```dockerfile
+
 # Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
@@ -72,7 +73,8 @@ EXPOSE 8080
 
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "MyApi.dll"]
-```
+
+```text
 
 ### Layer Caching Strategy
 
@@ -84,6 +86,7 @@ Order COPY instructions from least-frequently-changed to most-frequently-changed
 4. **`dotnet publish`** -- runs only when source or restore layer changes
 
 ```dockerfile
+
 # Good: restore layer is cached when only source changes
 COPY ["src/MyApi/MyApi.csproj", "src/MyApi/"]
 RUN dotnet restore
@@ -94,13 +97,15 @@ RUN dotnet publish
 COPY . .
 RUN dotnet restore
 RUN dotnet publish
-```
+
+```text
 
 ### Solution-Level Restore
 
 For multi-project solutions, copy all `.csproj` files and the solution file to enable a single restore:
 
 ```dockerfile
+
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
@@ -115,7 +120,8 @@ RUN dotnet restore
 
 COPY . .
 RUN dotnet publish "src/MyApi/MyApi.csproj" -c Release -o /app/publish --no-restore
-```
+
+```csharp
 
 ---
 
@@ -127,6 +133,7 @@ Starting with .NET 8, `dotnet publish` can produce OCI container images directly
 ### Basic Usage
 
 ```bash
+
 # Publish as a container image to local Docker daemon
 dotnet publish --os linux --arch x64 /t:PublishContainer
 
@@ -134,13 +141,15 @@ dotnet publish --os linux --arch x64 /t:PublishContainer
 dotnet publish --os linux --arch x64 /t:PublishContainer \
   -p:ContainerRegistry=ghcr.io \
   -p:ContainerRepository=myorg/myapi
-```
+
+```text
 
 ### MSBuild Configuration
 
 Configure container properties in the `.csproj`:
 
 ```xml
+
 <PropertyGroup>
   <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:10.0</ContainerBaseImage>
   <ContainerImageName>myapi</ContainerImageName>
@@ -150,11 +159,13 @@ Configure container properties in the `.csproj`:
 <ItemGroup>
   <ContainerPort Include="8080" Type="tcp" />
 </ItemGroup>
-```
+
+```text
 
 ### Advanced Configuration
 
 ```xml
+
 <PropertyGroup>
   <!-- Use chiseled (distroless) base image for smaller attack surface -->
   <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled</ContainerBaseImage>
@@ -171,7 +182,8 @@ Configure container properties in the `.csproj`:
   <!-- Labels -->
   <ContainerLabel Include="org.opencontainers.image.source" Value="https://github.com/myorg/myapi" />
 </ItemGroup>
-```
+
+```text
 
 ### When to Use dotnet publish vs Dockerfile
 
@@ -215,6 +227,7 @@ Running containers as non-root reduces the attack surface. .NET 8+ chiseled imag
 ### Non-Root with Standard Images
 
 ```dockerfile
+
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
@@ -224,20 +237,23 @@ USER appuser
 
 COPY --from=build --chown=appuser:appuser /app/publish .
 ENTRYPOINT ["dotnet", "MyApi.dll"]
-```
+
+```text
 
 ### Non-Root with Chiseled Images
 
 Chiseled images include a pre-configured `app` user (UID 1654). No additional configuration needed:
 
 ```dockerfile
+
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled AS runtime
 WORKDIR /app
 # Already runs as non-root 'app' user (UID 1654)
 
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "MyApi.dll"]
-```
+
+```text
 
 ### Port Configuration
 
@@ -245,13 +261,15 @@ Non-root users cannot bind to ports below 1024. ASP.NET Core defaults to port 80
 `ASPNETCORE_HTTP_PORTS`):
 
 ```dockerfile
+
 # Default in .NET 8+ container images -- no explicit config needed
 # ASPNETCORE_HTTP_PORTS=8080
 
 # If you need a different port:
 ENV ASPNETCORE_HTTP_PORTS=5000
 EXPOSE 5000
-```
+
+```text
 
 ---
 
@@ -263,6 +281,7 @@ Health checks allow container runtimes to monitor application readiness. The app
 ### Docker HEALTHCHECK
 
 ```dockerfile
+
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
@@ -272,12 +291,14 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "MyApi.dll"]
-```
+
+```text
 
 For chiseled images (no `curl`), use a dedicated health check binary or rely on orchestrator-level probes (Kubernetes
 `httpGet`, Docker Compose `test`):
 
 ```dockerfile
+
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled AS runtime
 WORKDIR /app
 
@@ -286,13 +307,15 @@ WORKDIR /app
 
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "MyApi.dll"]
-```
+
+```text
 
 ### Health Check Endpoints
 
 Register health check endpoints in your application (see [skill:dotnet-observability] for full guidance):
 
 ```csharp
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHealthChecks()
@@ -313,7 +336,8 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains("ready")
 });
-```
+
+```text
 
 ---
 
@@ -323,7 +347,8 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
 
 Always include a `.dockerignore` to exclude unnecessary files from the build context:
 
-```
+```text
+
 **/.git
 **/.vs
 **/.vscode
@@ -337,29 +362,34 @@ Always include a `.dockerignore` to exclude unnecessary files from the build con
 **/.dockerignore
 **/README.md
 **/LICENSE
-```
+
+```markdown
 
 ### Globalization and Time Zones
 
 If your app needs globalization support (culture-specific formatting, time zones), configure ICU:
 
 ```dockerfile
+
 # Option 1: Use the chiseled-extra image (includes ICU + tzdata)
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled-extra
 
 # Option 2: Disable globalization for smaller images (if not needed)
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
-```
+
+```text
 
 ### Memory Limits
 
 Configure .NET to respect container memory limits:
 
 ```dockerfile
+
 # .NET automatically detects container memory limits and adjusts GC heap size.
 # Override only if needed:
 ENV DOTNET_GCHeapHardLimit=0x10000000  # 256 MB hard limit
-```
+
+```dockerfile
 
 .NET automatically reads cgroup memory limits. The GC adjusts its heap size to stay within the container memory budget.
 Avoid setting `DOTNET_GCHeapHardLimit` unless you have a specific reason.
@@ -369,9 +399,11 @@ Avoid setting `DOTNET_GCHeapHardLimit` unless you have a specific reason.
 For defense-in-depth, run with a read-only root filesystem. Ensure writable paths for temp files:
 
 ```dockerfile
+
 ENV DOTNET_EnableDiagnostics=0
 # Or mount a tmpfs at /tmp for diagnostics support
-```
+
+```dockerfile
 
 ---
 

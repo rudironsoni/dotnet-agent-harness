@@ -56,6 +56,7 @@ The `System.ComponentModel.DataAnnotations` namespace provides declarative valid
 ### Standard Attributes
 
 ```csharp
+
 using System.ComponentModel.DataAnnotations;
 
 public sealed class CreateProductRequest
@@ -80,7 +81,8 @@ public sealed class CreateProductRequest
     [Range(0, int.MaxValue, ErrorMessage = "Quantity cannot be negative")]
     public int Quantity { get; set; }
 }
-```
+
+```text
 
 ### Attribute Reference
 
@@ -110,6 +112,7 @@ Create reusable validation attributes for domain-specific rules.
 ### Property-Level Custom Attribute
 
 ```csharp
+
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
 public sealed class FutureDateAttribute : ValidationAttribute
 {
@@ -137,13 +140,15 @@ public sealed class CreateEventRequest
     [FutureDate(ErrorMessage = "Event date must be in the future")]
     public DateOnly EventDate { get; set; }
 }
-```
+
+```text
 
 ### Class-Level Custom Attribute
 
 Apply validation across the entire object when multiple properties are involved:
 
 ```csharp
+
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class DateRangeAttribute : ValidationAttribute
 {
@@ -180,7 +185,8 @@ public sealed class DateRangeFilter
     [Required]
     public DateOnly EndDate { get; set; }
 }
-```
+
+```text
 
 ---
 
@@ -189,6 +195,7 @@ public sealed class DateRangeFilter
 Implement `IValidatableObject` for cross-property validation within the model itself. This interface runs after all individual attribute validations pass (when using MVC model binding or `Validator.TryValidateObject` with `validateAllProperties: true`).
 
 ```csharp
+
 public sealed class CreateOrderRequest : IValidatableObject
 {
     [Required]
@@ -243,7 +250,8 @@ public sealed class OrderLineItem
 
     public bool RequiresShipping { get; set; }
 }
-```
+
+```text
 
 **When to use `IValidatableObject` vs custom attribute:** Use `IValidatableObject` when the validation logic is specific to one model and involves multiple properties. Use a custom `ValidationAttribute` when the same rule applies across multiple models (reusable).
 
@@ -256,6 +264,7 @@ Use `IValidateOptions<T>` for complex validation of options/configuration classe
 ### Basic IValidateOptions
 
 ```csharp
+
 public sealed class DatabaseOptions
 {
     public const string SectionName = "Database";
@@ -300,11 +309,13 @@ public sealed class DatabaseOptionsValidator : IValidateOptions<DatabaseOptions>
             : ValidateOptionsResult.Success;
     }
 }
-```
+
+```text
 
 ### Registration
 
 ```csharp
+
 builder.Services
     .AddOptions<DatabaseOptions>()
     .BindConfiguration(DatabaseOptions.SectionName)
@@ -313,13 +324,15 @@ builder.Services
 // Register the validator -- runs automatically with ValidateOnStart
 builder.Services.AddSingleton<
     IValidateOptions<DatabaseOptions>, DatabaseOptionsValidator>();
-```
+
+```text
 
 ### Combining DataAnnotations with IValidateOptions
 
 Use DataAnnotations for simple property constraints and `IValidateOptions<T>` for cross-property or environment-dependent logic:
 
 ```csharp
+
 public sealed class SmtpOptions
 {
     public const string SectionName = "Smtp";
@@ -359,7 +372,8 @@ builder.Services
 
 builder.Services.AddSingleton<
     IValidateOptions<SmtpOptions>, SmtpOptionsValidator>(); // Cross-property checks
-```
+
+```text
 
 ---
 
@@ -368,6 +382,7 @@ builder.Services.AddSingleton<
 Run DataAnnotations validation programmatically outside the MVC/Minimal API pipeline. Useful for validating objects in background services, console apps, or domain logic.
 
 ```csharp
+
 public static class ValidationHelper
 {
     public static (bool IsValid, IReadOnlyList<ValidationResult> Errors) Validate<T>(
@@ -414,7 +429,8 @@ public sealed class OrderImportWorker(
     private Task<Order> ReadNextOrderFromQueue(CancellationToken ct) =>
         throw new NotImplementedException();
 }
-```
+
+```text
 
 **Critical:** Without `validateAllProperties: true`, `Validator.TryValidateObject` only checks `[Required]` attributes, silently skipping `[Range]`, `[StringLength]`, `[RegularExpression]`, and all other attributes.
 
@@ -425,6 +441,7 @@ public sealed class OrderImportWorker(
 `Validator.TryValidateObject` does not recurse into nested objects or collections by default. Implement recursive validation when models contain nested complex types:
 
 ```csharp
+
 public static class RecursiveValidator
 {
     public static bool TryValidateObjectRecursive(
@@ -516,7 +533,8 @@ public static class RecursiveValidator
         || (Nullable.GetUnderlyingType(type) is { } underlying
             && IsSimpleType(underlying));
 }
-```
+
+```text
 
 **Note:** This implementation tracks visited objects via `HashSet<object>` with `ReferenceEqualityComparer` to safely handle circular reference graphs without stack overflow.
 

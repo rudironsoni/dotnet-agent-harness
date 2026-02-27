@@ -70,12 +70,14 @@ via an endpoint filter.
 ### Setup
 
 ```csharp
+
 // <PackageReference Include="Microsoft.Extensions.Validation" Version="10.*" />
 builder.Services.AddValidation();
 
 var app = builder.Build();
 // Validation runs automatically via endpoint filter for Minimal API handlers
-```
+
+```text
 
 `AddValidation()` scans for types annotated with `[ValidatableType]` and generates validation logic at compile time
 using source generators, ensuring Native AOT compatibility.
@@ -83,6 +85,7 @@ using source generators, ensuring Native AOT compatibility.
 ### Defining Validatable Types
 
 ```csharp
+
 [ValidatableType]
 public partial class CreateProductRequest
 {
@@ -97,7 +100,8 @@ public partial class CreateProductRequest
     [RegularExpression(@"^[A-Z]{2,4}-\d{4,8}$", ErrorMessage = "SKU format: AA-0000")]
     public required string Sku { get; set; }
 }
-```
+
+```text
 
 The `partial` keyword is required because the source generator emits validation logic into the same type. The
 `[ValidatableType]` attribute triggers code generation at compile time -- no reflection at runtime.
@@ -123,6 +127,7 @@ validation with cross-property rules, conditional logic, and database-dependent 
 ### Validator Definition
 
 ```csharp
+
 // <PackageReference Include="FluentValidation" Version="11.*" />
 // <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.*" />
 public sealed class CreateOrderValidator : AbstractValidator<CreateOrderRequest>
@@ -158,14 +163,17 @@ public sealed class CreateOrderValidator : AbstractValidator<CreateOrderRequest>
         });
     }
 }
-```
+
+```text
 
 ### DI Registration with Assembly Scanning
 
 ```csharp
+
 // Registers all AbstractValidator<T> implementations from the assembly
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Scoped);
-```
+
+```csharp
 
 ### Manual Validation Pattern (Recommended)
 
@@ -173,6 +181,7 @@ FluentValidation's ASP.NET pipeline auto-validation is deprecated. Use manual va
 endpoint filters instead:
 
 ```csharp
+
 app.MapPost("/api/orders", async (
     CreateOrderRequest request,
     IValidator<CreateOrderRequest> validator,
@@ -189,7 +198,8 @@ app.MapPost("/api/orders", async (
     await db.SaveChangesAsync();
     return TypedResults.Created($"/api/orders/{order.Id}", order);
 });
-```
+
+```text
 
 ### FluentValidation Endpoint Filter
 
@@ -197,6 +207,7 @@ For reusable validation across multiple endpoints, create a generic endpoint fil
 [skill:dotnet-minimal-apis] for filter pipeline details):
 
 ```csharp
+
 public sealed class FluentValidationFilter<T>(IValidator<T> validator) : IEndpointFilter
     where T : class
 {
@@ -219,7 +230,8 @@ public sealed class FluentValidationFilter<T>(IValidator<T> validator) : IEndpoi
 // Apply to endpoints
 products.MapPost("/", CreateProduct)
     .AddEndpointFilter<FluentValidationFilter<CreateProductDto>>();
-```
+
+```text
 
 **Gotcha:** Do not use the deprecated `FluentValidation.AspNetCore` auto-validation pipeline. It was removed in
 FluentValidation 11. Use manual validation or endpoint filters as shown above.
@@ -234,6 +246,7 @@ binding, and the .NET 10 `AddValidation()` source generator.
 ### Standard Attributes
 
 ```csharp
+
 public sealed class UpdateProductDto
 {
     [Required(ErrorMessage = "Product name is required")]
@@ -255,11 +268,13 @@ public sealed class UpdateProductDto
     [Phone]
     public string? SupportPhone { get; set; }
 }
-```
+
+```text
 
 ### Custom ValidationAttribute
 
 ```csharp
+
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
 public sealed class FutureDateAttribute : ValidationAttribute
 {
@@ -285,11 +300,13 @@ public sealed class CreateEventDto
     [FutureDate(ErrorMessage = "Event date must be in the future")]
     public DateOnly EventDate { get; set; }
 }
-```
+
+```text
 
 ### IValidatableObject for Cross-Property Validation
 
 ```csharp
+
 public sealed class DateRangeDto : IValidatableObject
 {
     [Required]
@@ -318,7 +335,8 @@ public sealed class DateRangeDto : IValidatableObject
         }
     }
 }
-```
+
+```text
 
 **Gotcha:** Options pattern classes must use `{ get; set; }` not `{ get; init; }` because the configuration binder needs
 to mutate properties after construction. Validation attributes on `init`-only properties work for request DTOs but fail
@@ -334,6 +352,7 @@ before the handler, enabling centralized validation logic.
 ### Generic Data Annotations Filter
 
 ```csharp
+
 public sealed class DataAnnotationsValidationFilter<T> : IEndpointFilter
     where T : class
 {
@@ -370,7 +389,8 @@ products.MapPost("/", CreateProduct)
 
 products.MapPut("/{id:int}", UpdateProduct)
     .AddEndpointFilter<DataAnnotationsValidationFilter<UpdateProductDto>>();
-```
+
+```text
 
 ### Combining with Route Groups
 
@@ -378,9 +398,11 @@ Apply validation filters at the route group level for consistent validation acro
 [skill:dotnet-minimal-apis] for route group patterns):
 
 ```csharp
+
 var orders = app.MapGroup("/api/orders")
     .AddEndpointFilter<FluentValidationFilter<CreateOrderRequest>>();
-```
+
+```csharp
 
 **Gotcha:** Filter execution order matters -- first-registered filter is outermost. Register validation filters after
 logging but before authorization enrichment so that invalid requests are rejected early without unnecessary processing.
@@ -395,6 +417,7 @@ Use the ProblemDetails standard (RFC 9457) for consistent API error responses. A
 ### ValidationProblem Response
 
 ```csharp
+
 // Returns HTTP 400 with RFC 9457-compliant body
 app.MapPost("/api/products", async (CreateProductDto dto, IValidator<CreateProductDto> validator) =>
 {
@@ -408,11 +431,13 @@ app.MapPost("/api/products", async (CreateProductDto dto, IValidator<CreateProdu
     // ... create product
     return TypedResults.Created($"/api/products/{product.Id}", product);
 });
-```
+
+```text
 
 ### Customizing ProblemDetails
 
 ```csharp
+
 builder.Services.AddProblemDetails(options =>
 {
     options.CustomizeProblemDetails = context =>
@@ -427,11 +452,13 @@ builder.Services.AddProblemDetails(options =>
 var app = builder.Build();
 app.UseStatusCodePages();
 app.UseExceptionHandler();
-```
+
+```text
 
 ### IProblemDetailsService for Global Error Handling
 
 ```csharp
+
 builder.Services.AddProblemDetails();
 
 var app = builder.Build();
@@ -455,7 +482,8 @@ app.UseExceptionHandler(exceptionApp =>
         });
     });
 });
-```
+
+```text
 
 **Gotcha:** `ConfigureHttpJsonOptions` applies to Minimal APIs only, not MVC controllers. Validation error formatting
 (e.g., camelCase property names in the `errors` dictionary) may differ between Minimal APIs and MVC if JSON options are
@@ -474,6 +502,7 @@ Regular expressions with backtracking can be exploited to cause catastrophic per
 Denial of Service). Always apply timeouts or use source-generated regex.
 
 ```csharp
+
 // PREFERRED: [GeneratedRegex] -- compiled at build time, AOT-compatible (.NET 7+).
 // Combine with RegexOptions.NonBacktracking or a timeout for ReDoS safety.
 public static partial class InputPatterns
@@ -495,9 +524,11 @@ if (!InputPatterns.EmailPattern().IsMatch(input))
             ["email"] = ["Invalid email format"]
         });
 }
-```
+
+```text
 
 ```csharp
+
 // FALLBACK: Regex with explicit timeout (when source generation is not available)
 var pattern = new Regex(
     @"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
@@ -513,7 +544,8 @@ catch (RegexMatchTimeoutException)
 {
     return TypedResults.BadRequest("Input validation timed out");
 }
-```
+
+```text
 
 ### Allowlist vs Denylist
 
@@ -521,6 +553,7 @@ Always prefer allowlist validation over denylist. Denylists are inherently incom
 them.
 
 ```csharp
+
 // CORRECT: Allowlist -- only permit known-good values
 private static readonly FrozenSet<string> AllowedFileExtensions =
     new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -532,20 +565,24 @@ public static bool IsAllowedExtension(string filename) =>
 
 // WRONG: Denylist -- attackers find extensions not in the list
 // private static readonly string[] BlockedExtensions = [".exe", ".bat", ".cmd", ".ps1"];
-```
+
+```powershell
 
 ```csharp
+
 // Allowlist for input characters
 public static bool IsValidUsername(string username) =>
     username.Length is >= 3 and <= 50
     && username.All(c => char.IsLetterOrDigit(c) || c is '_' or '-');
-```
+
+```text
 
 ### Max Length Enforcement
 
 Enforce maximum length on all user-controlled string inputs to prevent memory exhaustion and buffer-based attacks:
 
 ```csharp
+
 [ValidatableType]
 public partial class SearchRequest
 {
@@ -556,18 +593,21 @@ public partial class SearchRequest
     [Range(1, 100)]
     public int PageSize { get; set; } = 20;
 }
-```
+
+```text
 
 Also enforce at the Kestrel level for defense in depth:
 
 ```csharp
+
 // Configure BEFORE builder.Build()
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB
     options.Limits.MaxRequestHeadersTotalSize = 32 * 1024; // 32 KB
 });
-```
+
+```text
 
 ### File Upload Validation
 
@@ -575,6 +615,7 @@ Validate file uploads by content type, size, and extension -- never trust the cl
 alone:
 
 ```csharp
+
 app.MapPost("/api/uploads", async (IFormFile file) =>
 {
     // 1. Validate extension (allowlist)
@@ -633,7 +674,8 @@ static bool IsValidImageHeader(ReadOnlySpan<byte> header) =>
     || header[..8].SequenceEqual(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }) // PNG
     || header[..4].SequenceEqual("GIF8"u8)                                                  // GIF
     || (header[..4].SequenceEqual("RIFF"u8) && header[8..12].SequenceEqual("WEBP"u8));      // WebP
-```
+
+```text
 
 For OWASP injection prevention beyond input validation (SQL injection, XSS, command injection), see
 [skill:dotnet-security-owasp].

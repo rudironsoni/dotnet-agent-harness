@@ -7,19 +7,22 @@ You can configure Rulesync by creating a `rulesync.jsonc` file in the root of yo
 Rulesync provides a JSON Schema for editor validation and autocompletion. Add the `$schema` property to your `rulesync.jsonc`:
 
 ```jsonc
+
 // rulesync.jsonc
 {
   "$schema": "https://raw.githubusercontent.com/dyoshikawa/rulesync/refs/heads/main/config-schema.json",
   "targets": ["claudecode"],
   "features": ["rules"],
 }
-```
+
+```json
 
 ## Configuration Options
 
 Example:
 
 ```jsonc
+
 // rulesync.jsonc
 {
   "$schema": "https://raw.githubusercontent.com/dyoshikawa/rulesync/refs/heads/main/config-schema.json",
@@ -63,13 +66,15 @@ Example:
   //   { "source": "org/repo", "skills": ["specific-skill"] },
   // ],
 }
-```
+
+```text
 
 ## Per-Target Features
 
 The `features` option accepts both an array and an object format. Use the object format when you want to generate different features for different targets:
 
 ```jsonc
+
 // rulesync.jsonc
 {
   "targets": ["claudecode", "cursor", "copilot"],
@@ -79,7 +84,8 @@ The `features` option accepts both an array and an object format. Use the object
     "copilot": ["rules", "subagents"],
   },
 }
-```
+
+```text
 
 In this example:
 
@@ -90,6 +96,7 @@ In this example:
 You can also use `*` (wildcard) for specific targets:
 
 ```jsonc
+
 {
   "targets": ["claudecode", "cursor"],
   "features": {
@@ -97,7 +104,8 @@ You can also use `*` (wildcard) for specific targets:
     "cursor": ["rules"], // Only rules for Cursor
   },
 }
-```
+
+```text
 
 ## Local Configuration
 
@@ -113,6 +121,7 @@ Rulesync supports a local configuration file (`rulesync.local.jsonc`) for machin
 Example usage:
 
 ```jsonc
+
 // rulesync.local.jsonc (not committed to git)
 {
   "$schema": "https://raw.githubusercontent.com/dyoshikawa/rulesync/refs/heads/main/config-schema.json",
@@ -121,7 +130,8 @@ Example usage:
   // Enable verbose output for debugging
   "verbose": true,
 }
-```
+
+```text
 
 ## Target Order and File Conflicts
 
@@ -130,12 +140,14 @@ When multiple targets write to the same output file, **the last target in the ar
 For example, both `agentsmd` and `opencode` generate `AGENTS.md`:
 
 ```jsonc
+
 {
   // opencode wins because it comes last
   "targets": ["agentsmd", "opencode"],
   "features": ["rules"],
 }
-```
+
+```text
 
 In this case:
 
@@ -145,9 +157,11 @@ In this case:
 If you want `agentsmd`'s output instead, reverse the order:
 
 ```jsonc
+
 {
   // agentsmd wins because it comes last
   "targets": ["opencode", "agentsmd"],
   "features": ["rules"],
 }
-```
+
+```text

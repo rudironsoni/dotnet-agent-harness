@@ -57,6 +57,7 @@ for Channel<T> patterns used in background work queues.
 ### Basic Polling Worker
 
 ```csharp
+
 public sealed class OrderProcessorWorker(
     IServiceScopeFactory scopeFactory,
     ILogger<OrderProcessorWorker> logger) : BackgroundService
@@ -100,7 +101,8 @@ public sealed class OrderProcessorWorker(
 
 // Registration
 builder.Services.AddHostedService<OrderProcessorWorker>();
-```
+
+```text
 
 ### Critical Rules for BackgroundService
 
@@ -119,6 +121,7 @@ builder.Services.AddHostedService<OrderProcessorWorker>();
 ### Startup Hook (Cache Warming, Migrations)
 
 ```csharp
+
 public sealed class CacheWarmupService(
     IServiceScopeFactory scopeFactory,
     ILogger<CacheWarmupService> logger) : IHostedService
@@ -136,11 +139,13 @@ public sealed class CacheWarmupService(
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }
-```
+
+```text
 
 ### Startup + Shutdown (Resource Lifecycle)
 
 ```csharp
+
 public sealed class MessageBusService(
     ILogger<MessageBusService> logger) : IHostedService
 {
@@ -169,7 +174,8 @@ public sealed class MessageBusService(
         throw new NotImplementedException();
     }
 }
-```
+
+```text
 
 ---
 
@@ -189,6 +195,7 @@ control returns to the host. If you have synchronous setup before the first `awa
 `StartAsync` via an override.
 
 ```csharp
+
 public sealed class MyWorker : BackgroundService
 {
     // StartAsync runs to completion before the host is ready.
@@ -212,7 +219,8 @@ public sealed class MyWorker : BackgroundService
     private Task InitializeAsync(CancellationToken ct) => Task.CompletedTask;
     private Task DoWorkAsync(CancellationToken ct) => Task.CompletedTask;
 }
-```
+
+```text
 
 ### Shutdown Sequence
 
@@ -232,6 +240,7 @@ drain patterns.
 The most common integration is a channel-backed background task queue consumed by a `BackgroundService`:
 
 ```csharp
+
 // Channel-backed work queue -- register as singleton
 public sealed class BackgroundTaskQueue
 {
@@ -272,7 +281,8 @@ public sealed class QueueProcessorWorker(
 // Registration
 builder.Services.AddSingleton<BackgroundTaskQueue>();
 builder.Services.AddHostedService<QueueProcessorWorker>();
-```
+
+```text
 
 ---
 
@@ -283,15 +293,18 @@ builder.Services.AddHostedService<QueueProcessorWorker>();
 By default, the host waits 30 seconds for services to stop. Configure this for long-running operations:
 
 ```csharp
+
 builder.Services.Configure<HostOptions>(options =>
 {
     options.ShutdownTimeout = TimeSpan.FromSeconds(60);
 });
-```
+
+```text
 
 ### Responding to Application Lifetime Events
 
 ```csharp
+
 public sealed class LifecycleLogger(
     IHostApplicationLifetime lifetime,
     ILogger<LifecycleLogger> logger) : IHostedService
@@ -312,7 +325,8 @@ public sealed class LifecycleLogger(
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }
-```
+
+```text
 
 ---
 
@@ -321,6 +335,7 @@ public sealed class LifecycleLogger(
 Use `PeriodicTimer` instead of `Task.Delay` for more accurate periodic execution:
 
 ```csharp
+
 public sealed class HealthCheckReporter(
     IServiceScopeFactory scopeFactory,
     ILogger<HealthCheckReporter> logger) : BackgroundService
@@ -345,7 +360,8 @@ public sealed class HealthCheckReporter(
         }
     }
 }
-```
+
+```text
 
 ---
 

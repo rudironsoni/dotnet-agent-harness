@@ -62,16 +62,19 @@ control, and completion signaling.
 ### Pipe, PipeReader, PipeWriter
 
 ```csharp
+
 // Create a pipe with default options (uses ArrayPool internally)
 var pipe = new Pipe();
 
 PipeWriter writer = pipe.Writer;  // Producer side
 PipeReader reader = pipe.Reader;  // Consumer side
-```
+
+```text
 
 ### PipeWriter -- Producing Data
 
 ```csharp
+
 async Task FillPipeAsync(Stream source, PipeWriter writer,
     CancellationToken ct)
 {
@@ -99,7 +102,8 @@ async Task FillPipeAsync(Stream source, PipeWriter writer,
     // Signal completion -- reader will see IsCompleted = true
     await writer.CompleteAsync();
 }
-```
+
+```text
 
 **Critical rules:**
 
@@ -110,6 +114,7 @@ async Task FillPipeAsync(Stream source, PipeWriter writer,
 ### PipeReader -- Consuming Data
 
 ```csharp
+
 async Task ReadPipeAsync(PipeReader reader, CancellationToken ct)
 {
     while (true)
@@ -135,7 +140,8 @@ async Task ReadPipeAsync(PipeReader reader, CancellationToken ct)
 
     await reader.CompleteAsync();
 }
-```
+
+```text
 
 **Critical rules:**
 
@@ -154,12 +160,14 @@ exceeds a threshold.
 ### PipeOptions Configuration
 
 ```csharp
+
 var pipe = new Pipe(new PipeOptions(
     pauseWriterThreshold: 64 * 1024,   // Pause writer at 64 KB buffered
     resumeWriterThreshold: 32 * 1024,  // Resume writer when buffer drops to 32 KB
     minimumSegmentSize: 4096,
     useSynchronizationContext: false));
-```
+
+```text
 
 | Option                      | Default | Purpose                                                |
 | --------------------------- | ------- | ------------------------------------------------------ |
@@ -191,6 +199,7 @@ buffer segments without copying.
 A common pattern: each message starts with a 4-byte big-endian length header followed by the payload.
 
 ```csharp
+
 static bool TryParseMessage(
     ref ReadOnlySequence<byte> buffer,
     out ReadOnlySequence<byte> payload)
@@ -232,11 +241,13 @@ static bool TryParseMessage(
     buffer = buffer.Slice(totalLength);
     return true;
 }
-```
+
+```text
 
 ### Delimiter-Based Protocol Parser (Line Protocol)
 
 ```csharp
+
 static bool TryReadLine(
     ref ReadOnlySequence<byte> buffer,
     out ReadOnlySequence<byte> line)
@@ -256,13 +267,15 @@ static bool TryReadLine(
     buffer = buffer.Slice(buffer.GetPosition(1, position.Value));
     return true;
 }
-```
+
+```text
 
 ### Working with ReadOnlySequence<byte>
 
 `ReadOnlySequence<byte>` may span multiple non-contiguous memory segments. Handle both paths:
 
 ```csharp
+
 static string DecodeUtf8(ReadOnlySequence<byte> sequence)
 {
     // Fast path: single contiguous segment
@@ -284,7 +297,8 @@ static string DecodeUtf8(ReadOnlySequence<byte> sequence)
         ArrayPool<byte>.Shared.Return(rented);
     }
 }
-```
+
+```text
 
 ---
 
@@ -293,6 +307,7 @@ static string DecodeUtf8(ReadOnlySequence<byte> sequence)
 Bridge `System.IO.Pipelines` with existing `Stream`-based APIs using `PipeReader.Create` and `PipeWriter.Create`.
 
 ```csharp
+
 // Wrap a NetworkStream for pipeline-based reading
 await using var networkStream = tcpClient.GetStream();
 var reader = PipeReader.Create(networkStream, new StreamPipeReaderOptions(
@@ -308,9 +323,11 @@ finally
 {
     await reader.CompleteAsync();
 }
-```
+
+```text
 
 ```csharp
+
 // Wrap a stream for pipeline-based writing
 var writer = PipeWriter.Create(networkStream, new StreamPipeWriterOptions(
     minimumBufferSize: 4096,
@@ -324,7 +341,8 @@ finally
 {
     await writer.CompleteAsync();
 }
-```
+
+```text
 
 ---
 
@@ -336,6 +354,7 @@ connection middleware can access the transport-level pipe directly.
 ### Connection Middleware
 
 ```csharp
+
 // Custom connection middleware for protocol-level processing
 builder.WebHost.ConfigureKestrel(options =>
 {
@@ -392,7 +411,8 @@ public sealed class MyProtocolHandler : ConnectionHandler
         await writer.FlushAsync();
     }
 }
-```
+
+```text
 
 ### IDuplexPipe
 
@@ -400,12 +420,14 @@ Kestrel exposes connections as `IDuplexPipe`, combining `PipeReader` and `PipeWr
 abstraction. This pattern also works for custom TCP servers, WebSocket handlers, and named-pipe protocols.
 
 ```csharp
+
 public interface IDuplexPipe
 {
     PipeReader Input { get; }
     PipeWriter Output { get; }
 }
-```
+
+```text
 
 ---
 
@@ -423,6 +445,7 @@ public interface IDuplexPipe
    `TryReadBigEndian`, `AdvancePast`, and `IsNext` methods that handle multi-segment sequences transparently.
 
 ```csharp
+
 static bool TryParseHeader(
     ref ReadOnlySequence<byte> buffer,
     out int messageType,
@@ -443,7 +466,8 @@ static bool TryParseHeader(
     buffer = buffer.Slice(reader.Position);
     return true;
 }
-```
+
+```text
 
 ---
 

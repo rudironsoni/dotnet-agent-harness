@@ -52,6 +52,7 @@ BenchmarkDotNet's JSON exporter produces machine-readable results for automated 
 benchmark classes:
 
 ```csharp
+
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Exporters.Json;
 
@@ -65,11 +66,13 @@ public class CriticalPathBenchmarks
     [Benchmark]
     public void ProcessOrderOptimized() { /* ... */ }
 }
-```
+
+```text
 
 Or configure via custom config for all benchmark classes:
 
 ```csharp
+
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Exporters.Json;
 using BenchmarkDotNet.Jobs;
@@ -81,13 +84,15 @@ var config = ManualConfig.Create(DefaultConfig.Instance)
     .WithArtifactsPath("./benchmark-results");
 
 BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
-```
+
+```json
 
 ### JSON Export Structure
 
 The exported JSON file (`*-report-full.json`) contains structured benchmark results:
 
 ```json
+
 {
   "Title": "CriticalPathBenchmarks",
   "Benchmarks": [
@@ -108,7 +113,8 @@ The exported JSON file (`*-report-full.json`) contains structured benchmark resu
     }
   ]
 }
-```
+
+```text
 
 Key fields for regression comparison:
 
@@ -137,6 +143,7 @@ reusable actions, see [skill:dotnet-gha-patterns].
 ### Basic Benchmark Workflow
 
 ```yaml
+
 name: Benchmarks
 
 on:
@@ -170,13 +177,15 @@ jobs:
           name: benchmark-results-${{ github.sha }}
           path: benchmarks/BenchmarkDotNet.Artifacts/results/
           retention-days: 90
-```
+
+```text
 
 ### Baseline Comparison Workflow
 
 This workflow downloads the baseline from a previous run and compares against current results:
 
 ```yaml
+
 name: Benchmark Regression Check
 
 on:
@@ -242,7 +251,8 @@ jobs:
           name: benchmark-comparison-${{ github.sha }}
           path: benchmark-comparison.md
           retention-days: 30
-```
+
+```markdown
 
 **Key design decisions:**
 
@@ -262,6 +272,7 @@ Compare current benchmark results against baseline using percentage thresholds. 
 mean exceeds the baseline mean by more than the configured threshold:
 
 ```python
+
 #!/usr/bin/env python3
 """compare-benchmarks.py -- Detect benchmark regressions from BenchmarkDotNet JSON exports."""
 
@@ -343,7 +354,8 @@ if __name__ == "__main__":
         print(f"REGRESSION: {len(regressions)} benchmark(s) exceeded "
               f"{args.threshold}% threshold", file=sys.stderr)
         sys.exit(1)
-```
+
+```text
 
 ### Choosing Thresholds
 
@@ -363,6 +375,7 @@ Memory allocation regressions are more reliable signals than timing regressions 
 (not affected by noisy neighbors):
 
 ```python
+
 # Add to the compare function:
 if alloc_change > 0:
     regressions.append({
@@ -372,7 +385,8 @@ if alloc_change > 0:
         "current_alloc": curr["allocated"],
         "alloc_change": alloc_change,
     })
-```
+
+```text
 
 Use allocation changes as a **hard gate** (zero tolerance for new allocations in zero-alloc paths) and timing changes as
 a **soft gate** (warning with threshold).
@@ -386,6 +400,7 @@ a **soft gate** (warning with threshold).
 Post benchmark comparison results as a PR comment for reviewer visibility:
 
 ```yaml
+
 - name: Comment PR with results
   if: steps.download-baseline.outcome == 'success' && github.event_name == 'pull_request'
   uses: actions/github-script@v7
@@ -399,7 +414,8 @@ Post benchmark comparison results as a PR comment for reviewer visibility:
         issue_number: context.issue.number,
         body: body
       });
-```
+
+```text
 
 ### Fail the Build on Regression
 
@@ -407,6 +423,7 @@ Exit with non-zero status from the comparison script to fail the GitHub Actions 
 introduce performance regressions:
 
 ```yaml
+
 - name: Check for regressions
   if: steps.download-baseline.outcome == 'success'
   shell: bash
@@ -417,7 +434,8 @@ introduce performance regressions:
       --current "${{ env.RESULTS_DIR }}" \
       --threshold 10
     # Script exits non-zero if regressions found -- fails the job
-```
+
+```text
 
 For required status checks and branch protection integration with benchmark gates, see [skill:dotnet-gha-patterns].
 
@@ -445,6 +463,7 @@ Full benchmark runs take 10-30+ minutes. Use `Job.ShortRun` in CI to reduce iter
 detection capability:
 
 ```csharp
+
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 
@@ -460,29 +479,35 @@ public class CiConfig : ManualConfig
         AddExporter(BenchmarkDotNet.Exporters.Json.JsonExporter.Full);
     }
 }
-```
+
+```json
 
 Apply conditionally based on environment:
 
 ```csharp
+
 var config = Environment.GetEnvironmentVariable("CI") is not null
     ? new CiConfig()
     : DefaultConfig.Instance;
 
 BenchmarkRunner.Run<CriticalPathBenchmarks>(config);
-```
+
+```text
 
 ### Filtering Benchmarks for CI
 
 Run only critical-path benchmarks in CI to reduce pipeline duration:
 
 ```bash
+
 # Run only benchmarks in the "Critical" category
 dotnet run -c Release --project benchmarks/MyBenchmarks.csproj -- \
   --filter *Critical* --exporters json
-```
+
+```bash
 
 ```csharp
+
 [BenchmarkCategory("Critical")]
 [MemoryDiagnoser]
 [JsonExporterAttribute.Full]
@@ -499,13 +524,15 @@ public class ExtendedBenchmarks
     [Benchmark]
     public void RareCodePath() { /* ... */ }
 }
-```
+
+```text
 
 Run `Critical` benchmarks on every PR; run `Extended` benchmarks on a nightly schedule.
 
 ### Nightly Benchmark Schedule
 
 ```yaml
+
 name: Nightly Benchmarks (Full Suite)
 
 on:
@@ -534,7 +561,8 @@ jobs:
           name: benchmark-full-${{ github.run_number }}
           path: benchmarks/BenchmarkDotNet.Artifacts/results/
           retention-days: 90
-```
+
+```text
 
 For scheduled workflow patterns and matrix builds across TFMs, see [skill:dotnet-gha-patterns].
 

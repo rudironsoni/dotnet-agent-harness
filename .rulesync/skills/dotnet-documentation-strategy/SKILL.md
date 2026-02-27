@@ -66,7 +66,8 @@ Choose documentation tooling based on project context, team capabilities, and ex
 
 ### Decision Flowchart
 
-```
+```text
+
 Start: New documentation site for .NET project
   |
   +-- Do you have existing DocFX content?
@@ -82,7 +83,8 @@ Start: New documentation site for .NET project
   |                 +-- Yes --> Docusaurus (leverage React skills, plugin ecosystem)
   |                 |
   |                 +-- No --> Starlight (modern default, best DX)
-```
+
+```text
 
 ### Project Context Factors
 
@@ -116,17 +118,20 @@ to fast build times, built-in search (Pagefind), i18n, and native Mermaid suppor
 ### Initial Setup
 
 ```bash
+
 # Create a new Starlight project
 npm create astro@latest -- --template starlight my-docs
 
 cd my-docs
 npm install
 npm run dev
-```
+
+```text
 
 ### Project Structure
 
-```
+```text
+
 my-docs/
   astro.config.mjs      # Starlight configuration
   src/
@@ -144,11 +149,13 @@ my-docs/
           cli.md
     assets/              # Images, diagrams
   public/                # Static assets (favicon, robots.txt)
-```
+
+```markdown
 
 ### Configuration
 
 ```javascript
+
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
@@ -180,16 +187,20 @@ export default defineConfig({
     }),
   ],
 });
-```
+
+```text
 
 ### Mermaid Support in Starlight
 
 ```bash
+
 # Install Mermaid remark plugin
 npm install remark-mermaidjs
-```
+
+```bash
 
 ```javascript
+
 // astro.config.mjs
 import remarkMermaid from 'remark-mermaidjs';
 
@@ -203,7 +214,8 @@ export default defineConfig({
     }),
   ],
 });
-```
+
+```text
 
 After configuration, use standard Mermaid fenced code blocks in any Markdown file. See [skill:dotnet-mermaid-diagrams]
 for .NET-specific diagram patterns.
@@ -215,7 +227,8 @@ Starlight versioned docs.
 
 Alternatively, use directory-based versioning with explicit routing in `astro.config.mjs`:
 
-```
+```text
+
 src/content/docs/
   v1/
     getting-started.md
@@ -223,7 +236,8 @@ src/content/docs/
   v2/
     getting-started.md
     api-reference.md
-```
+
+```markdown
 
 Configure the sidebar to point to the current version directory and add a version selector via the plugin or custom
 Astro component.
@@ -238,16 +252,19 @@ in the React ecosystem, offering a rich plugin system, built-in blog, and versio
 ### Initial Setup
 
 ```bash
+
 npx create-docusaurus@latest my-docs classic
 
 cd my-docs
 npm install
 npm start
-```
+
+```text
 
 ### Project Structure
 
-```
+```text
+
 my-docs/
   docusaurus.config.js   # Docusaurus configuration
   docs/                   # Markdown/MDX documentation
@@ -262,11 +279,13 @@ my-docs/
     pages/                # Custom pages
   static/                 # Static assets
   sidebars.js             # Sidebar configuration
-```
+
+```javascript
 
 ### Configuration
 
 ```javascript
+
 // docusaurus.config.js
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -298,15 +317,19 @@ const config = {
 };
 
 module.exports = config;
-```
+
+```text
 
 ### Mermaid Support in Docusaurus
 
 ```bash
+
 npm install @docusaurus/theme-mermaid
-```
+
+```bash
 
 ```javascript
+
 // docusaurus.config.js
 const config = {
   markdown: {
@@ -315,18 +338,21 @@ const config = {
   themes: ['@docusaurus/theme-mermaid'],
   // ...
 };
-```
+
+```text
 
 ### Versioned Documentation
 
 Docusaurus has first-class versioning support:
 
 ```bash
+
 # Snapshot current docs as a version
 npx docusaurus docs:version 1.0
 
 # Creates versioned_docs/version-1.0/ and versions.json
-```
+
+```json
 
 This creates a snapshot of the current `docs/` directory. The `docs/` directory continues to represent the "next"
 unreleased version.
@@ -342,6 +368,7 @@ dropped official support in November 2022, and the project is now community-main
 ### Initial Setup
 
 ```bash
+
 # Install DocFX as a .NET tool
 dotnet tool install -g docfx
 
@@ -353,11 +380,13 @@ docfx build
 
 # Serve locally
 docfx serve _site
-```
+
+```text
 
 ### Project Structure
 
-```
+```text
+
 docs/
   docfx.json              # DocFX configuration
   toc.yml                 # Table of contents
@@ -369,11 +398,13 @@ docs/
     .gitignore            # Generated files excluded from source control
   images/                 # Static assets
   templates/              # Custom templates (optional)
-```
+
+```text
 
 ### Configuration
 
 ```json
+
 {
   "metadata": [
     {
@@ -410,19 +441,22 @@ docs/
     }
   }
 }
-```
+
+```text
 
 ### XML Doc Integration
 
 DocFX's primary advantage is native API reference generation from XML documentation comments:
 
 ```bash
+
 # Generate API metadata from project XML docs
 docfx metadata docfx.json
 
 # This creates YAML files in the api/ directory
 # representing all public types, methods, and properties
-```
+
+```json
 
 The generated API reference automatically links to conceptual articles via `uid` cross-references. See
 [skill:dotnet-xml-docs] for XML documentation comment authoring best practices.
@@ -432,6 +466,7 @@ The generated API reference automatically links to conceptual articles via `uid`
 DocFX requires a template plugin for Mermaid rendering:
 
 ```json
+
 {
   "build": {
     "globalMetadata": {
@@ -441,7 +476,8 @@ DocFX requires a template plugin for Mermaid rendering:
     "postProcessors": ["ExtractSearchIndex"]
   }
 }
-```
+
+```text
 
 The `modern` template includes Mermaid support since DocFX v2.75+. Earlier versions require a custom template extension.
 Note that `_enableMermaid` is a template-specific convention, not an officially documented DocFX property. For the
@@ -457,19 +493,22 @@ documentation. This eliminates stale code examples by keeping documentation in s
 ### Installation
 
 ```bash
+
 # Install as a local dotnet tool
 dotnet new tool-manifest
 dotnet tool install MarkdownSnippets.Tool
 
 # Or install globally
 dotnet tool install -g MarkdownSnippets.Tool
-```
+
+```markdown
 
 ### Usage
 
 **1. Mark code regions in source files with `#region` directives:**
 
 ```csharp
+
 // src/MyLibrary/WidgetService.cs
 public class WidgetService
 {
@@ -484,24 +523,29 @@ public class WidgetService
     }
     #endregion
 }
-```
+
+```text
 
 **2. Reference snippets in Markdown:**
 
 ```markdown
+
 ## Creating a Widget
 
 To create a widget, use the `CreateWidgetAsync` method:
 
 <!-- snippet: CreateWidget -->
 <!-- endSnippet -->
-```
+
+```text
 
 **3. Run MarkdownSnippets to inject the code:**
 
 ```bash
+
 dotnet tool run mdsnippets
-```
+
+```bash
 
 This replaces the snippet placeholder with the actual code from the source file, keeping the documentation in sync with
 the implementation.
@@ -509,6 +553,7 @@ the implementation.
 ### Configuration
 
 ```json
+
 // mdsnippets.json (project root)
 {
   "Convention": "InPlaceOverwrite",
@@ -518,7 +563,8 @@ the implementation.
   "TocExcludes": ["**/obj/**", "**/bin/**"],
   "ExcludeDirectories": ["node_modules", ".git"]
 }
-```
+
+```text
 
 ### Integration with Doc Platforms
 
@@ -526,6 +572,7 @@ MarkdownSnippets works with all three documentation platforms since it operates 
 platform build step:
 
 ```bash
+
 # In your build script or CI pipeline:
 dotnet tool run mdsnippets    # 1. Inject verified snippets
 npm run build                 # 2. Build Starlight/Docusaurus site
@@ -533,7 +580,8 @@ npm run build                 # 2. Build Starlight/Docusaurus site
 # For DocFX:
 dotnet tool run mdsnippets    # 1. Inject verified snippets
 docfx build                   # 2. Build DocFX site
-```
+
+```text
 
 ---
 
@@ -552,12 +600,18 @@ files.
 Use standard fenced code blocks with the `mermaid` language identifier across all platforms:
 
 ````markdown
+
+
 ```mermaid
+
 graph LR
     A[Client] --> B[API Gateway]
     B --> C[Service A]
     B --> D[Service B]
-```
+
+```text
+
+
 ````
 
 See [skill:dotnet-mermaid-diagrams] for .NET-specific diagram types (C4 architecture, async patterns, EF Core models, DI
@@ -590,12 +644,14 @@ DocFX-to-Starlight migration is the most common path for .NET projects modernizi
 **Checklist:**
 
 ```bash
+
 # Find all DocFX-specific syntax to convert
 grep -rn "xref:" articles/                # Cross-references
 grep -rn "\[!NOTE\]" articles/            # Callout syntax
 grep -rn "\[!WARNING\]" articles/         # Callout syntax
 grep -rn "^\s*uid:" articles/             # UID metadata
-```
+
+```text
 
 ### Docusaurus to Starlight
 
@@ -621,26 +677,26 @@ grep -rn "^\s*uid:" articles/             # UID metadata
    integration or the team is deeply invested in React (Docusaurus). Do not recommend DocFX for new projects without XML
    doc API reference needs.
 
-2. **DocFX is community-maintained since November 2022** -- Microsoft transferred the repository to the community. It is
+1. **DocFX is community-maintained since November 2022** -- Microsoft transferred the repository to the community. It is
    still actively maintained and widely used, but new projects should evaluate Starlight or Docusaurus first.
 
-3. **MarkdownSnippets runs BEFORE the doc platform build** -- it is a pre-processing step that modifies Markdown files
+1. **MarkdownSnippets runs BEFORE the doc platform build** -- it is a pre-processing step that modifies Markdown files
    in place. Always run `dotnet tool run mdsnippets` before `npm run build` (Starlight/Docusaurus) or `docfx build`
    (DocFX).
 
-4. **Do not generate CI deployment YAML** -- doc site deployment workflows belong to [skill:dotnet-gha-deploy]. This
+1. **Do not generate CI deployment YAML** -- doc site deployment workflows belong to [skill:dotnet-gha-deploy]. This
    skill covers tooling selection and local authoring setup only.
 
-5. **Do not generate API reference configuration** -- DocFX API reference setup, OpenAPI-as-documentation patterns, and
+1. **Do not generate API reference configuration** -- DocFX API reference setup, OpenAPI-as-documentation patterns, and
    doc-code sync belong to [skill:dotnet-api-docs]. This skill helps choose the platform, not configure API reference
    generation.
 
-6. **Mermaid fenced code blocks work identically across GitHub, Starlight, and Docusaurus** -- use the same `mermaid`
+1. **Mermaid fenced code blocks work identically across GitHub, Starlight, and Docusaurus** -- use the same `mermaid`
    language identifier everywhere. Only DocFX requires additional template configuration.
 
-7. **MarkdownSnippets `#region` names must be unique across the entire solution** -- duplicate region names cause
+1. **MarkdownSnippets `#region` names must be unique across the entire solution** -- duplicate region names cause
    ambiguous snippet resolution. Use descriptive names like `CreateWidgetAsync` not generic names like `Example1`.
 
-8. **Starlight versioning is directory-based, not command-based** -- unlike Docusaurus (`npx docusaurus docs:version`),
+1. **Starlight versioning is directory-based, not command-based** -- unlike Docusaurus (`npx docusaurus docs:version`),
    Starlight uses directory structure or community plugins for versioning. Do not suggest Docusaurus versioning commands
    for Starlight projects.

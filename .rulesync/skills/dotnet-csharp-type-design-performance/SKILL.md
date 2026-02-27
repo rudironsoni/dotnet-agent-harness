@@ -61,11 +61,13 @@ API shape. Make the decision once, correctly.
 
 ### Size Guidelines
 
-```
+```text
+
 <= 16 bytes:  Ideal struct -- fits in two registers, passed efficiently
 17-64 bytes:  Acceptable struct -- measure copy cost vs allocation cost
 > 64 bytes:   Prefer class -- copying cost outweighs allocation avoidance
-```
+
+```text
 
 The 16-byte threshold comes from x64 calling conventions: two register-sized values can be passed in registers without
 stack spilling. Beyond that, the struct is passed by reference on the stack, and copying becomes the dominant cost.
@@ -96,6 +98,7 @@ For library types (code consumed by other assemblies), seal classes by default:
    is safe.
 
 ```csharp
+
 // GOOD -- sealed by default for library types
 public sealed class WidgetService
 {
@@ -110,7 +113,8 @@ public abstract class WidgetValidatorBase
     // Template method pattern -- intentional extension point
     protected virtual void OnValidationComplete(Widget widget) { }
 }
-```
+
+```text
 
 ### When NOT to Seal
 
@@ -131,6 +135,7 @@ structs through `in` parameters or `readonly` fields.
 ### The Defensive Copy Problem
 
 ```csharp
+
 // NON-readonly struct -- JIT must defensively copy on every method call
 public struct MutablePoint
 {
@@ -145,9 +150,11 @@ public double GetLength(in MutablePoint point)
 {
     return point.Length(); // Hidden copy here!
 }
-```
+
+```text
 
 ```csharp
+
 // GOOD -- readonly struct: JIT knows no mutation is possible
 public readonly struct ImmutablePoint
 {
@@ -164,7 +171,8 @@ public double GetLength(in ImmutablePoint point)
 {
     return point.Length(); // No copy, direct call
 }
-```
+
+```text
 
 ### readonly struct Checklist
 
@@ -195,17 +203,20 @@ methods. This constraint enables safe wrapping of `Span<T>`.
 
 ### Selection Flowchart
 
-```
+```text
+
 Will the buffer be used in an async method or stored in a field?
   YES -> Use Memory<T> (convert to Span<T> with .Span for synchronous processing)
   NO  -> Do you need to wrap a stackalloc buffer?
            YES -> Use Span<T>
            NO  -> Prefer Span<T> for lowest overhead; Memory<T> is also acceptable
-```
+
+```text
 
 ### Practical Pattern
 
 ```csharp
+
 // Public API uses Memory<T> for maximum flexibility
 public async Task<int> ProcessAsync(ReadOnlyMemory<byte> data,
     CancellationToken ct = default)
@@ -227,7 +238,8 @@ private static int CountNonZero(ReadOnlySpan<byte> data)
     }
     return count;
 }
-```
+
+```text
 
 ---
 
@@ -252,6 +264,7 @@ is higher than `Dictionary`, but subsequent lookups are faster because the hash 
 specific keys:
 
 ```csharp
+
 using System.Collections.Frozen;
 
 // One-time creation cost during initialization
@@ -266,7 +279,8 @@ private static readonly FrozenDictionary<string, int> StatusCodes =
 // Optimized lookups on every request
 public int GetStatusCode(string name) =>
     StatusCodes.TryGetValue(name, out var code) ? code : -1;
-```
+
+```text
 
 **When to use FrozenDictionary:**
 
@@ -304,6 +318,7 @@ public int GetStatusCode(string name) =>
 | Size              | Reference (8 bytes on x64) + heap  | Full size on stack               |
 
 ```csharp
+
 // record class -- heap allocated, good for DTOs passed through layers
 public record CustomerDto(string Name, string Email, DateOnly JoinDate);
 
@@ -314,7 +329,8 @@ public readonly record struct Money(decimal Amount, string Currency);
 // 1. Size <= ~64 bytes
 // 2. Value semantics are desired
 // 3. High-throughput scenarios where allocation matters
-```
+
+```text
 
 ---
 

@@ -46,6 +46,7 @@ Every method in the async call chain must be `async` and `await`ed. Mixing sync 
 pool starvation.
 
 ```csharp
+
 // Correct: async all the way
 public async Task<Order> GetOrderAsync(int id, CancellationToken ct = default)
 {
@@ -58,7 +59,8 @@ public Order GetOrder(int id)
 {
     return _repo.GetByIdAsync(id).Result; // DEADLOCK RISK
 }
-```
+
+```text
 
 ### Prefer `Task` and `ValueTask`
 
@@ -66,6 +68,7 @@ Return `Task` or `Task<T>` by default. Use `ValueTask<T>` when the method freque
 hits, buffered I/O) to avoid `Task` allocation.
 
 ```csharp
+
 // ValueTask: frequently synchronous completion
 public ValueTask<User?> GetCachedUserAsync(int id, CancellationToken ct = default)
 {
@@ -87,7 +90,8 @@ private async ValueTask<User?> LoadUserAsync(int id, CancellationToken ct)
 
     return user;
 }
-```
+
+```text
 
 **ValueTask rules:**
 
@@ -104,6 +108,7 @@ These are the most common async mistakes AI agents make when generating C# code.
 ### 1. Blocking on Async (`.Result`, `.Wait()`, `.GetAwaiter().GetResult()`)
 
 ```csharp
+
 // WRONG -- all of these can deadlock
 var result = GetDataAsync().Result;
 GetDataAsync().Wait();
@@ -111,7 +116,8 @@ var result = GetDataAsync().GetAwaiter().GetResult();
 
 // CORRECT
 var result = await GetDataAsync();
-```
+
+```text
 
 The only safe place for `.GetAwaiter().GetResult()` is in `Main()` pre-C# 7.1 or in rare infrastructure code where async
 is impossible (static constructors, `Dispose()`).
@@ -121,6 +127,7 @@ is impossible (static constructors, `Dispose()`).
 `async void` methods cannot be awaited, and unhandled exceptions in them crash the process.
 
 ```csharp
+
 // WRONG -- fire-and-forget, unobserved exceptions
 async void ProcessOrder(Order order)
 {
@@ -132,7 +139,8 @@ async Task ProcessOrderAsync(Order order)
 {
     await _repo.SaveAsync(order);
 }
-```
+
+```text
 
 The **only** valid use of `async void` is event handlers (WinForms, WPF, Blazor `@onclick`), where the framework
 requires a `void` return type.
@@ -143,6 +151,7 @@ In **library code**, use `ConfigureAwait(false)` to avoid capturing the synchron
 (ASP.NET Core, console apps), it is not needed because there is no synchronization context.
 
 ```csharp
+
 // Library code
 public async Task<byte[]> ReadFileAsync(string path, CancellationToken ct = default)
 {
@@ -156,21 +165,25 @@ public async Task<IActionResult> GetOrder(int id, CancellationToken ct)
     var order = await _service.GetOrderAsync(id, ct);
     return Ok(order);
 }
-```
+
+```text
 
 ### 4. Fire-and-Forget Without Error Handling
 
 ```csharp
+
 // WRONG -- exception is silently swallowed
 _ = SendEmailAsync(order);
 
 // CORRECT -- use IHostedService or a background channel
 await _backgroundQueue.EnqueueAsync(ct => SendEmailAsync(order, ct));
-```
+
+```text
 
 If fire-and-forget is truly necessary, at minimum log the exception:
 
 ```csharp
+
 _ = Task.Run(async () =>
 {
     try
@@ -182,13 +195,15 @@ _ = Task.Run(async () =>
         _logger.LogError(ex, "Failed to send email for order {OrderId}", order.Id);
     }
 });
-```
+
+```text
 
 ### 5. Forgetting `CancellationToken`
 
 Always accept and forward `CancellationToken`. Never silently drop it.
 
 ```csharp
+
 // WRONG -- token not forwarded
 public async Task<List<Order>> GetAllAsync(CancellationToken ct = default)
 {
@@ -200,7 +215,8 @@ public async Task<List<Order>> GetAllAsync(CancellationToken ct = default)
 {
     return await _dbContext.Orders.ToListAsync(ct);
 }
-```
+
+```text
 
 ---
 
@@ -211,6 +227,7 @@ public async Task<List<Order>> GetAllAsync(CancellationToken ct = default)
 Combine external cancellation with a timeout:
 
 ```csharp
+
 public async Task<Result> ProcessWithTimeoutAsync(CancellationToken ct = default)
 {
     using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -218,11 +235,13 @@ public async Task<Result> ProcessWithTimeoutAsync(CancellationToken ct = default
 
     return await DoWorkAsync(cts.Token);
 }
-```
+
+```text
 
 ### Responding to Cancellation
 
 ```csharp
+
 public async Task ProcessBatchAsync(IEnumerable<Item> items, CancellationToken ct = default)
 {
     foreach (var item in items)
@@ -231,7 +250,8 @@ public async Task ProcessBatchAsync(IEnumerable<Item> items, CancellationToken c
         await ProcessItemAsync(item, ct);
     }
 }
-```
+
+```text
 
 ---
 
@@ -240,6 +260,7 @@ public async Task ProcessBatchAsync(IEnumerable<Item> items, CancellationToken c
 ### `Task.WhenAll` for Independent Operations
 
 ```csharp
+
 public async Task<Dashboard> LoadDashboardAsync(int userId, CancellationToken ct = default)
 {
     var ordersTask = _orderService.GetRecentAsync(userId, ct);
@@ -250,11 +271,13 @@ public async Task<Dashboard> LoadDashboardAsync(int userId, CancellationToken ct
 
     return new Dashboard(ordersTask.Result, profileTask.Result, statsTask.Result);
 }
-```
+
+```text
 
 ### `Parallel.ForEachAsync` (.NET 6+) for Bounded Parallelism
 
 ```csharp
+
 await Parallel.ForEachAsync(items, new ParallelOptions
 {
     MaxDegreeOfParallelism = 4,
@@ -263,7 +286,8 @@ await Parallel.ForEachAsync(items, new ParallelOptions
 {
     await ProcessItemAsync(item, token);
 });
-```
+
+```text
 
 ---
 
@@ -272,6 +296,7 @@ await Parallel.ForEachAsync(items, new ParallelOptions
 Use `IAsyncEnumerable<T>` for streaming results instead of buffering entire collections:
 
 ```csharp
+
 public async IAsyncEnumerable<Order> GetOrdersStreamAsync(
     [EnumeratorCancellation] CancellationToken ct = default)
 {
@@ -280,7 +305,8 @@ public async IAsyncEnumerable<Order> GetOrdersStreamAsync(
         yield return order;
     }
 }
-```
+
+```text
 
 ---
 
@@ -290,6 +316,7 @@ For background processing, use `BackgroundService` (or `IHostedService`) instead
 patterns. See [skill:dotnet-csharp-dependency-injection] for registration patterns.
 
 ```csharp
+
 public sealed class OrderProcessorWorker(
     IServiceScopeFactory scopeFactory,
     ILogger<OrderProcessorWorker> logger) : BackgroundService
@@ -306,13 +333,15 @@ public sealed class OrderProcessorWorker(
         }
     }
 }
-```
+
+```text
 
 ---
 
 ## Testing Async Code
 
 ```csharp
+
 [Fact]
 public async Task GetOrderAsync_WhenFound_ReturnsOrder()
 {
@@ -339,7 +368,8 @@ public async Task ProcessAsync_WhenCancelled_ThrowsOperationCanceled()
     await Assert.ThrowsAsync<OperationCanceledException>(
         () => _service.ProcessAsync(cts.Token));
 }
-```
+
+```text
 
 ---
 

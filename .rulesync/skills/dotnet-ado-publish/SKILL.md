@@ -51,6 +51,7 @@ release automation, [skill:dotnet-add-ci] for starter publish templates.
 ### Push with `DotNetCoreCLI@2`
 
 ```yaml
+
 trigger:
   tags:
     include:
@@ -106,7 +107,8 @@ stages:
               packagesToPush: '$(Pipeline.Workspace)/nupkgs/*.nupkg'
               nuGetFeedType: 'internal'
               publishVstsFeed: 'MyProject/MyFeed'
-```
+
+```bash
 
 ### Version from Git Tag
 
@@ -114,6 +116,7 @@ Extract the version from the triggering Git tag using a script step. `Build.Sour
 a script to parse it rather than compile-time template expressions:
 
 ```yaml
+
 steps:
   - script: |
       set -euo pipefail
@@ -133,7 +136,8 @@ steps:
       configuration: 'Release'
       outputDir: '$(Build.ArtifactStagingDirectory)/nupkgs'
       arguments: '-p:Version=$(packageVersion)'
-```
+
+```csharp
 
 ---
 
@@ -144,6 +148,7 @@ steps:
 For pushing to external NuGet feeds (nuget.org), use a service connection:
 
 ```yaml
+
 - task: NuGetCommand@2
   displayName: 'Push to nuget.org'
   inputs:
@@ -151,7 +156,8 @@ For pushing to external NuGet feeds (nuget.org), use a service connection:
     packagesToPush: '$(Pipeline.Workspace)/nupkgs/*.nupkg'
     nuGetFeedType: 'external'
     publishFeedCredentials: 'NuGetOrgServiceConnection'
-```
+
+```bash
 
 The service connection stores the nuget.org API key securely. Create it in Project Settings > Service Connections >
 NuGet.
@@ -159,6 +165,7 @@ NuGet.
 ### Conditional Push (Stable vs Pre-Release)
 
 ```yaml
+
 - task: NuGetCommand@2
   displayName: 'Push to nuget.org (stable only)'
   condition: and(succeeded(), not(contains(variables['packageVersion'], '-')))
@@ -175,7 +182,8 @@ NuGet.
     packagesToPush: '$(Pipeline.Workspace)/nupkgs/*.nupkg'
     nuGetFeedType: 'internal'
     publishVstsFeed: 'MyProject/MyFeed'
-```
+
+```bash
 
 Pre-release versions (containing `-` like `1.2.3-preview.1`) go only to Azure Artifacts; stable versions go to both
 feeds.
@@ -183,6 +191,7 @@ feeds.
 ### Skip Duplicate Packages
 
 ```yaml
+
 - task: DotNetCoreCLI@2
   displayName: 'Push (skip duplicates)'
   inputs:
@@ -191,7 +200,8 @@ feeds.
     nuGetFeedType: 'internal'
     publishVstsFeed: 'MyProject/MyFeed'
   continueOnError: true # Azure Artifacts returns 409 for duplicates
-```
+
+```text
 
 Azure Artifacts returns HTTP 409 for duplicate package versions. Use `continueOnError: true` for idempotent pipeline
 reruns, or configure the feed to allow overwriting pre-release versions in Feed Settings.
@@ -206,6 +216,7 @@ Build and push a container image to Azure Container Registry. See [skill:dotnet-
 guidance:
 
 ```yaml
+
 stages:
   - stage: BuildContainer
     jobs:
@@ -230,11 +241,13 @@ stages:
               tags: |
                 $(Build.BuildId)
                 latest
-```
+
+```text
 
 ### Tagging Strategy
 
 ```yaml
+
 - task: Docker@2
   displayName: 'Build and push with semver tags'
   inputs:
@@ -247,7 +260,8 @@ stages:
       $(packageVersion)
       $(Build.SourceVersion)
       latest
-```
+
+```text
 
 Use semantic version tags for release images and commit SHA tags for traceability. The `latest` tag should only be
 applied to stable releases.
@@ -258,6 +272,7 @@ Use .NET SDK container publish for projects without a Dockerfile. See [skill:dot
 MSBuild configuration:
 
 ```yaml
+
 - task: Docker@2
   displayName: 'Login to ACR'
   inputs:
@@ -279,7 +294,8 @@ MSBuild configuration:
   displayName: 'Publish container via SDK'
   env:
     ACR_LOGIN_SERVER: $(acrLoginServer)
-```
+
+```text
 
 ### Native AOT Container Publish
 
@@ -287,6 +303,7 @@ Publish a Native AOT binary as a container image. AOT configuration is owned by 
 the CI pipeline step only:
 
 ```yaml
+
 - script: |
     dotnet publish src/MyApp/MyApp.csproj \
       -c Release \
@@ -298,7 +315,8 @@ the CI pipeline step only:
       -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-noble-chiseled \
       -p:ContainerImageTags='"$(packageVersion)"'
   displayName: 'Publish AOT container'
-```
+
+```text
 
 The `runtime-deps` base image is sufficient for AOT binaries since they include the runtime. See
 [skill:dotnet-native-aot] for AOT MSBuild properties and [skill:dotnet-containers] for base image selection.
@@ -312,6 +330,7 @@ The `runtime-deps` base image is sufficient for AOT binaries since they include 
 Pipeline artifacts are the modern replacement for build artifacts, offering faster upload/download and deduplication:
 
 ```yaml
+
 steps:
   - task: DotNetCoreCLI@2
     displayName: 'Publish app'
@@ -331,24 +350,28 @@ steps:
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)/nupkgs'
       artifactName: 'nupkgs'
-```
+
+```text
 
 ### `PublishBuildArtifacts@1` (Legacy)
 
 Use only when integrating with classic release pipelines that require build artifacts:
 
 ```yaml
+
 - task: PublishBuildArtifacts@1
   displayName: 'Upload build artifact (legacy)'
   inputs:
     pathToPublish: '$(Build.ArtifactStagingDirectory)/app'
     artifactName: 'app'
     publishLocation: 'Container'
-```
+
+```text
 
 ### Downloading Artifacts in Downstream Stages
 
 ```yaml
+
 stages:
   - stage: Build
     jobs:
@@ -372,7 +395,8 @@ stages:
                 - download: current
                   artifact: app
                 - script: echo "Deploying from $(Pipeline.Workspace)/app"
-```
+
+```text
 
 The `download: current` keyword downloads artifacts from the current pipeline run. Use `download: pipelineName` for
 artifacts from a different pipeline.
@@ -384,6 +408,7 @@ artifacts from a different pipeline.
 ### Multi-Stage Release with Artifact Promotion
 
 ```yaml
+
 trigger:
   tags:
     include:
@@ -485,13 +510,15 @@ stages:
                 - download: current
                   artifact: app
                 - script: echo "Deploying to production from $(Pipeline.Workspace)/app"
-```
+
+```text
 
 ### Cross-Pipeline Artifact Consumption
 
 Consume artifacts from a different pipeline (e.g., a shared build pipeline):
 
 ```yaml
+
 resources:
   pipelines:
     - pipeline: buildPipeline
@@ -513,7 +540,8 @@ stages:
                 - download: buildPipeline
                   artifact: app
                 - script: echo "Deploying from $(Pipeline.Workspace)/buildPipeline/app"
-```
+
+```text
 
 ---
 

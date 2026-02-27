@@ -50,6 +50,7 @@ Use this matrix to select the correct strategy for each type of gap between your
 | Platform API divergence | Conditional compilation with `[SupportedOSPlatform]` | API exists only on specific OS targets | Windows Registry APIs, Android-specific intents, iOS keychain |
 
 **Decision flow:**
+
 1. Can a compile-time polyfill satisfy the gap? Use PolySharp or SimonCropp/Polyfill.
 2. Is the gap a missing BCL API with no polyfill available? Use `#if` with TFM-specific code.
 3. Is the gap a runtime behavior difference? Use `#if` or the adapter pattern to isolate divergent code paths.
@@ -78,6 +79,7 @@ PolySharp is a source generator that synthesizes the attribute and type stubs th
 ### Setup
 
 ```xml
+
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
@@ -93,13 +95,15 @@ PolySharp is a source generator that synthesizes the attribute and type stubs th
     </PackageReference>
   </ItemGroup>
 </Project>
-```
+
+```text
 
 ### How It Works
 
 PolySharp detects which polyfill types are missing for the current TFM and generates source for only those types. On net10.0, where `required` is natively supported, the generator emits nothing -- zero overhead.
 
 ```csharp
+
 // This compiles on net8.0 WITH PolySharp installed,
 // because PolySharp generates the required CompilerFeatureRequired
 // and IsExternalInit types that the compiler needs.
@@ -109,7 +113,8 @@ public class UserProfile
     public required string Email { get; init; }
     public string? Bio { get; set; }
 }
-```
+
+```text
 
 ### PolySharp Limitations
 
@@ -141,6 +146,7 @@ Key polyfilled APIs (non-exhaustive):
 ### Setup
 
 ```xml
+
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
@@ -155,11 +161,13 @@ Key polyfilled APIs (non-exhaustive):
     </PackageReference>
   </ItemGroup>
 </Project>
-```
+
+```text
 
 ### Usage Example
 
 ```csharp
+
 // System.Threading.Lock is a net9.0+ type.
 // With Polyfill installed, this compiles on net8.0.
 public class ThrottledProcessor
@@ -175,13 +183,15 @@ public class ThrottledProcessor
         }
     }
 }
-```
+
+```text
 
 ### Combining PolySharp and Polyfill
 
 For maximum compatibility, use both packages together. They are complementary and do not conflict:
 
 ```xml
+
 <ItemGroup>
   <!-- PolySharp: compiler attribute stubs (required, init, etc.) -->
   <PackageReference Include="PolySharp" Version="1.*">
@@ -195,7 +205,8 @@ For maximum compatibility, use both packages together. They are complementary an
     <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
   </PackageReference>
 </ItemGroup>
-```
+
+```text
 
 With both installed, you get full language feature support (PolySharp) **and** BCL API backporting (Polyfill) on older TFMs.
 
@@ -210,6 +221,7 @@ Use conditional compilation (`#if`) when the gap is a runtime behavior differenc
 The compiler defines preprocessor symbols for each TFM. Use `NET8_0_OR_GREATER`-style symbols (available since .NET 5) for version range checks:
 
 ```csharp
+
 public static class PerformanceHelper
 {
 #if NET10_0_OR_GREATER
@@ -233,7 +245,8 @@ public static class PerformanceHelper
     }
 #endif
 }
-```
+
+```text
 
 ### Available Preprocessor Symbols
 
@@ -267,19 +280,22 @@ public static class PerformanceHelper
 ### Basic Multi-Targeting
 
 ```xml
+
 <PropertyGroup>
   <!-- Semicolon-delimited list of TFMs -->
   <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
   <!-- Use the highest C# version to access all language features -->
   <LangVersion>14</LangVersion>
 </PropertyGroup>
-```
+
+```csharp
 
 ### Conditional Package References
 
 Some packages are only needed on specific TFMs:
 
 ```xml
+
 <ItemGroup>
   <!-- Polyfill packages: only needed on older TFMs, but safe to reference
        unconditionally because they emit nothing when features are native -->
@@ -292,13 +308,15 @@ Some packages are only needed on specific TFMs:
   <PackageReference Include="System.Text.Json" Version="9.*"
                     Condition="'$(TargetFramework)' == 'net8.0'" />
 </ItemGroup>
-```
+
+```json
 
 ### TFM-Specific Source Files
 
 For large blocks of TFM-specific code, use dedicated source files instead of `#if` blocks:
 
 ```xml
+
 <ItemGroup>
   <!-- SDK-style projects auto-include all *.cs files. Remove TFM-specific
        directories first to avoid NETSDK1022 duplicate compile items. -->
@@ -310,10 +328,13 @@ For large blocks of TFM-specific code, use dedicated source files instead of `#i
   <Compile Include="Compatibility\Net10\**\*.cs"
            Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net10.0'))" />
 </ItemGroup>
-```
+
+```csharp
 
 Directory structure:
-```
+
+```text
+
 MyLibrary/
   Compatibility/
     Net8/
@@ -323,13 +344,15 @@ MyLibrary/
   Services/
     TextAnalyzer.cs          # shared code, references interface
   MyLibrary.csproj
-```
+
+```csharp
 
 ### Platform-Specific TFMs
 
 For projects targeting platform-specific TFMs (MAUI, Uno):
 
 ```xml
+
 <PropertyGroup>
   <!-- Use version-agnostic platform globs where possible -->
   <TargetFrameworks>net10.0;net10.0-android;net10.0-ios;net10.0-windows10.0.19041.0</TargetFrameworks>
@@ -338,13 +361,15 @@ For projects targeting platform-specific TFMs (MAUI, Uno):
 <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
   <PackageReference Include="Xamarin.AndroidX.Core" Version="1.*" />
 </ItemGroup>
-```
+
+```text
 
 ### Shared Properties via Directory.Build.props
 
 For multi-project solutions, centralize multi-targeting configuration:
 
 ```xml
+
 <!-- Directory.Build.props -->
 <Project>
   <PropertyGroup>
@@ -362,7 +387,8 @@ For multi-project solutions, centralize multi-targeting configuration:
     </PackageReference>
   </ItemGroup>
 </Project>
-```
+
+```text
 
 This ensures all projects in the solution share the same polyfill setup. Individual projects set their own `<TargetFrameworks>`.
 
@@ -379,6 +405,7 @@ Package validation runs automatically during `dotnet pack` and checks:
 - **Compatible framework validation:** Ensures APIs available on one TFM are available on all compatible TFMs.
 
 ```xml
+
 <PropertyGroup>
   <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
   <!-- Enable package validation during pack -->
@@ -386,36 +413,43 @@ Package validation runs automatically during `dotnet pack` and checks:
   <!-- Compare against last published version for breaking change detection -->
   <PackageValidationBaselineVersion>1.2.0</PackageValidationBaselineVersion>
 </PropertyGroup>
-```
+
+```text
 
 ### API Compatibility Workflow
 
 **Step 1: Enable validation in .csproj**
 
 ```xml
+
 <PropertyGroup>
   <EnablePackageValidation>true</EnablePackageValidation>
 </PropertyGroup>
-```
+
+```xml
 
 **Step 2: Set baseline version (for existing packages)**
 
 ```xml
+
 <PropertyGroup>
   <!-- The last published stable version to compare against -->
   <PackageValidationBaselineVersion>2.0.0</PackageValidationBaselineVersion>
 </PropertyGroup>
-```
+
+```text
 
 **Step 3: Pack and check**
 
 ```bash
+
 # Pack triggers validation automatically
 dotnet pack --configuration Release
 
 # Success: no output about compatibility issues
 # Failure: error messages listing incompatible API changes
-```
+
+```text
 
 **Step 4: Interpret results**
 
@@ -432,14 +466,17 @@ dotnet pack --configuration Release
 For intentional API differences between TFMs, use a suppression file. Package validation can generate one when suppression generation is enabled:
 
 ```bash
+
 # Build with suppression-file generation enabled
 dotnet pack /p:ApiCompatGenerateSuppressionFile=true
 # Creates CompatibilitySuppressions.xml in the project directory
-```
+
+```bash
 
 The generated `CompatibilitySuppressions.xml` contains targeted suppressions:
 
 ```xml
+
 <?xml version="1.0" encoding="utf-8"?>
 <Suppressions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -450,16 +487,19 @@ The generated `CompatibilitySuppressions.xml` contains targeted suppressions:
     <Right>lib/net10.0/MyLib.dll</Right>
   </Suppression>
 </Suppressions>
-```
+
+```text
 
 Reference the suppression file in .csproj (automatic when file is at project root):
 
 ```xml
+
 <PropertyGroup>
   <!-- Explicit path if suppression file is not at project root -->
   <ApiCompatSuppressionFile>CompatibilitySuppressions.xml</ApiCompatSuppressionFile>
 </PropertyGroup>
-```
+
+```xml
 
 **Prefer targeted suppression files over blanket `<NoWarn>$(NoWarn);CP0002</NoWarn>`** -- blanket suppression hides real issues. Commit the suppression file to source control so reviewers can see intentional API differences.
 
@@ -468,6 +508,7 @@ Reference the suppression file in .csproj (automatic when file is at project roo
 For CI pipelines that validate without packing:
 
 ```bash
+
 # Install as a global tool
 dotnet tool install -g Microsoft.DotNet.ApiCompat.Tool
 
@@ -482,7 +523,8 @@ dotnet tool install Microsoft.DotNet.ApiCompat.Tool
 # Local tool invocation
 dotnet tool run apicompat --left-assembly bin/Release/net8.0/MyLib.dll \
                           --right-assembly bin/Release/net10.0/MyLib.dll
-```
+
+```text
 
 ---
 
@@ -490,21 +532,21 @@ dotnet tool run apicompat --left-assembly bin/Release/net8.0/MyLib.dll \
 
 1. **Do not use `#if` for language feature polyfills.** If the gap is a compiler attribute or syntax feature (e.g., `required`, `init`, `SetsRequiredMembers`), use PolySharp. `#if` blocks for language features create unnecessary code duplication and maintenance burden.
 
-2. **Do not omit `<PrivateAssets>all</PrivateAssets>` on polyfill packages.** PolySharp and SimonCropp/Polyfill are source generators meant for compile time only. Without `PrivateAssets=all`, the polyfill types leak into your package's dependency graph and can conflict with consumers' own polyfills.
+1. **Do not omit `<PrivateAssets>all</PrivateAssets>` on polyfill packages.** PolySharp and SimonCropp/Polyfill are source generators meant for compile time only. Without `PrivateAssets=all`, the polyfill types leak into your package's dependency graph and can conflict with consumers' own polyfills.
 
-3. **Do not hardcode TFM versions in conditional compilation.** Use `NET10_0_OR_GREATER`-style range symbols instead of `NET10_0` exact symbols. Exact symbols break when a new TFM is added (e.g., net11.0 would skip the net10.0-specific path). Range symbols automatically include future TFMs.
+1. **Do not hardcode TFM versions in conditional compilation.** Use `NET10_0_OR_GREATER`-style range symbols instead of `NET10_0` exact symbols. Exact symbols break when a new TFM is added (e.g., net11.0 would skip the net10.0-specific path). Range symbols automatically include future TFMs.
 
-4. **Do not set `<LangVersion>` per TFM.** Set it once to the highest version needed across all TFMs (e.g., `<LangVersion>14</LangVersion>`). PolySharp and Polyfill handle the backporting. Per-TFM LangVersion causes confusing syntax errors.
+1. **Do not set `<LangVersion>` per TFM.** Set it once to the highest version needed across all TFMs (e.g., `<LangVersion>14</LangVersion>`). PolySharp and Polyfill handle the backporting. Per-TFM LangVersion causes confusing syntax errors.
 
-5. **Do not skip `EnablePackageValidation` for multi-targeted NuGet packages.** Without it, you can accidentally expose different API surfaces on different TFMs, causing consumer build failures when they switch TFMs.
+1. **Do not skip `EnablePackageValidation` for multi-targeted NuGet packages.** Without it, you can accidentally expose different API surfaces on different TFMs, causing consumer build failures when they switch TFMs.
 
-6. **Do not use `$(TargetFramework)` string equality for range checks in MSBuild conditions.** Use `$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net10.0'))` for forward-compatible range checks. String equality (e.g., `== 'net10.0'`) misses net11.0 and higher.
+1. **Do not use `$(TargetFramework)` string equality for range checks in MSBuild conditions.** Use `$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net10.0'))` for forward-compatible range checks. String equality (e.g., `== 'net10.0'`) misses net11.0 and higher.
 
-7. **Do not re-implement TFM detection.** This skill consumes the structured output from [skill:dotnet-version-detection]. Never parse `.csproj` files to determine TFMs -- use the detection skill's output (TFM, C# version, SDK version, warnings).
+1. **Do not re-implement TFM detection.** This skill consumes the structured output from [skill:dotnet-version-detection]. Never parse `.csproj` files to determine TFMs -- use the detection skill's output (TFM, C# version, SDK version, warnings).
 
-8. **Do not assume polyfills cover runtime behavior.** PolySharp and Polyfill provide compile-time stubs and source-generated implementations. Features that require runtime changes (e.g., runtime-async, GC improvements, JIT optimizations) cannot be polyfilled -- use `#if` for these.
+1. **Do not assume polyfills cover runtime behavior.** PolySharp and Polyfill provide compile-time stubs and source-generated implementations. Features that require runtime changes (e.g., runtime-async, GC improvements, JIT optimizations) cannot be polyfilled -- use `#if` for these.
 
-9. **Do not use version-specific TFM globs for platform targets.** Use `net*-android` pattern matching (version-agnostic) instead of `net10.0-android` in documentation and tooling to avoid false negatives when users target different .NET versions.
+1. **Do not use version-specific TFM globs for platform targets.** Use `net*-android` pattern matching (version-agnostic) instead of `net10.0-android` in documentation and tooling to avoid false negatives when users target different .NET versions.
 
 ---
 

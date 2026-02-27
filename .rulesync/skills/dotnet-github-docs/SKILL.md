@@ -58,6 +58,7 @@ A well-structured README provides immediate context for contributors and consume
 Place badges at the top of the README, grouped by category:
 
 ```markdown
+
 # My.Library
 
 [![NuGet](https://img.shields.io/nuget/v/My.Library.svg)](https://www.nuget.org/packages/My.Library)
@@ -65,7 +66,8 @@ Place badges at the top of the README, grouped by category:
 [![Build Status](https://github.com/mycompany/my-library/actions/workflows/ci.yml/badge.svg)](https://github.com/mycompany/my-library/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/mycompany/my-library/branch/main/graph/badge.svg)](https://codecov.io/gh/mycompany/my-library)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-```
+
+```yaml
 
 **Badge categories for .NET projects:**
 
@@ -81,6 +83,7 @@ Place badges at the top of the README, grouped by category:
 ### Recommended README Sections
 
 ````markdown
+
 # My.Library
 
 [badges here]
@@ -90,24 +93,30 @@ Short one-paragraph description of what the library does and why it exists.
 ## Installation
 
 ```shell
+
 dotnet add package My.Library
-```
+
+```bash
 
 Or via PackageReference in your `.csproj`:
 
 ```xml
+
 <PackageReference Include="My.Library" Version="1.0.0" />
-```
+
+```csharp
 
 ## Quick Start
 
 ```csharp
+
 using My.Library;
 
 var service = new WidgetService();
 var widget = await service.CreateWidgetAsync("example");
 Console.WriteLine(widget.Id);
-```
+
+```text
 
 ## Features
 
@@ -136,6 +145,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 See [CHANGELOG.md](CHANGELOG.md) for a history of changes. For changelog format conventions, see
 [skill:dotnet-release-management].
+
 ````
 
 ### Architecture Diagram in README
@@ -144,9 +154,11 @@ Embed a Mermaid architecture diagram directly in the README for visual context. 
 blocks natively:
 
 ````markdown
+
 ## Architecture
 
 ```mermaid
+
 graph TB
     subgraph Client
         App["Consumer App"]
@@ -159,7 +171,10 @@ graph TB
     App --> API
     API --> Core
     Core --> Cache
-```
+
+```text
+
+
 ````
 
 See [skill:dotnet-mermaid-diagrams] for .NET-specific diagram patterns including C4-style architecture, sequence
@@ -172,6 +187,7 @@ diagrams for API flows, and class diagrams for domain models.
 ### Fork-PR Workflow
 
 ````markdown
+
 # Contributing to My.Library
 
 Thank you for your interest in contributing! This document provides guidelines and instructions for contributing.
@@ -195,22 +211,30 @@ Thank you for your interest in contributing! This document provides guidelines a
 ### Building
 
 ```shell
+
 dotnet restore
 dotnet build
-```
+
+```bash
+
+
 ````
 
 ### Running Tests
 
 ```shell
+
 dotnet test
-```
+
+```bash
 
 To run tests with coverage:
 
 ```shell
+
 dotnet test --collect:"XPlat Code Coverage"
-```
+
+```bash
 
 ### Coding Standards
 
@@ -243,6 +267,7 @@ dotnet test --collect:"XPlat Code Coverage"
 ### Bug Report Template
 
 ```yaml
+
 # .github/ISSUE_TEMPLATE/bug_report.yml
 name: Bug Report
 description: Report a bug in the library
@@ -316,11 +341,13 @@ body:
     attributes:
       label: Additional Context
       description: Any other context about the problem (project type, related packages, etc.)
+
 ````
 
 ### Feature Request Template
 
 ```yaml
+
 # .github/ISSUE_TEMPLATE/feature_request.yml
 name: Feature Request
 description: Suggest a new feature or enhancement
@@ -357,11 +384,13 @@ body:
       description: |
         If you have a proposed API design, include it here.
       render: csharp
-```
+
+```csharp
 
 ### Question / Discussion Template
 
 ```yaml
+
 # .github/ISSUE_TEMPLATE/question.yml
 name: Question
 description: Ask a question about using the library
@@ -384,11 +413,13 @@ body:
         Provide context about what you're trying to accomplish.
         Include code snippets if relevant.
       render: csharp
-```
+
+```csharp
 
 ### Issue Template Config
 
 ```yaml
+
 # .github/ISSUE_TEMPLATE/config.yml
 blank_issues_enabled: false
 contact_links:
@@ -398,7 +429,8 @@ contact_links:
   - name: Stack Overflow
     url: https://stackoverflow.com/questions/tagged/my-library
     about: Search for existing answers on Stack Overflow
-```
+
+```text
 
 ---
 
@@ -407,6 +439,7 @@ contact_links:
 ### Pull Request Template
 
 ```markdown
+
 <!-- .github/pull_request_template.md -->
 
 ## Description
@@ -442,7 +475,8 @@ N/A
 ## Additional Notes
 
 <!-- Any additional information that reviewers should know -->
-```
+
+```text
 
 ---
 
@@ -461,7 +495,8 @@ repository configuration; CI deployment pipeline configuration belongs to [skill
 
 Place documentation source files in a `docs/` directory at the repository root:
 
-```
+```text
+
 my-library/
   src/
     MyLibrary/
@@ -475,7 +510,8 @@ my-library/
       deploy-docs.yml          # Deployment workflow -- see [skill:dotnet-gha-deploy]
   README.md
   CONTRIBUTING.md
-```
+
+```yaml
 
 ### Custom Domain
 
@@ -488,9 +524,11 @@ Configure a custom domain for GitHub Pages:
 
 Content in the `CNAME` file:
 
-```
+```text
+
 docs.mylibrary.dev
-```
+
+```text
 
 For documentation platform selection and configuration, see [skill:dotnet-documentation-strategy]. For deployment
 workflow YAML, see [skill:dotnet-gha-deploy].
@@ -503,7 +541,8 @@ workflow YAML, see [skill:dotnet-gha-deploy].
 
 Define code ownership for automated review assignment:
 
-```
+```text
+
 # .github/CODEOWNERS
 
 # Default owner for everything
@@ -526,18 +565,21 @@ Define code ownership for automated review assignment:
 # NuGet configuration
 nuget.config @mycompany/core-team
 Directory.Packages.props @mycompany/core-team
-```
+
+```xml
 
 ### FUNDING.yml
 
 Configure GitHub Sponsors and other funding links:
 
 ```yaml
+
 # .github/FUNDING.yml
 github: [maintainer-username]
 open_collective: my-library
 custom: ['https://www.buymeacoffee.com/maintainer']
-```
+
+```yaml
 
 ### Social Preview
 
@@ -575,33 +617,33 @@ Example: "High-performance JSON serialization library for .NET 8+ with source ge
    structured form fields with validation, dropdowns, and required fields. Markdown templates are the legacy format and
    offer no input validation.
 
-2. **The `.github/ISSUE_TEMPLATE/` directory must contain a `config.yml`** -- without it, the "blank issue" option
+1. **The `.github/ISSUE_TEMPLATE/` directory must contain a `config.yml`** -- without it, the "blank issue" option
    appears by default. Set `blank_issues_enabled: false` to force users through templates.
 
-3. **Badge URLs must use the correct NuGet package ID** -- the package ID is case-sensitive on shields.io. Use the exact
+1. **Badge URLs must use the correct NuGet package ID** -- the package ID is case-sensitive on shields.io. Use the exact
    ID from NuGet.org (e.g., `Newtonsoft.Json`, not `newtonsoft.json`).
 
-4. **CODEOWNERS patterns follow `.gitignore` syntax** -- use `/src/` for root-relative paths. Without the leading `/`,
+1. **CODEOWNERS patterns follow `.gitignore` syntax** -- use `/src/` for root-relative paths. Without the leading `/`,
    the pattern matches anywhere in the tree.
 
-5. **GitHub Pages source must be set to "GitHub Actions"** -- the legacy "Deploy from a branch" mode does not support
+1. **GitHub Pages source must be set to "GitHub Actions"** -- the legacy "Deploy from a branch" mode does not support
    custom build steps. The GitHub Actions source delegates build and deployment to a workflow. For the workflow YAML,
    see [skill:dotnet-gha-deploy].
 
-6. **Do not generate CI/CD deployment YAML in this skill** -- deployment workflows for GitHub Pages belong to
+1. **Do not generate CI/CD deployment YAML in this skill** -- deployment workflows for GitHub Pages belong to
    [skill:dotnet-gha-deploy]. This skill covers repository structure and template content only.
 
-7. **Do not generate changelog content** -- changelog format, versioning strategy, and release notes belong to
+1. **Do not generate changelog content** -- changelog format, versioning strategy, and release notes belong to
    [skill:dotnet-release-management]. Reference CHANGELOG.md in the README but do not define its format here.
 
-8. **PR template file must be named exactly `pull_request_template.md`** -- GitHub only recognizes this exact filename
+1. **PR template file must be named exactly `pull_request_template.md`** -- GitHub only recognizes this exact filename
    (case-insensitive). It can live in the root, `docs/`, or `.github/` directory. The `.github/` location is recommended
    for consistency with issue templates.
 
-9. **Include `.NET Version` in bug report templates** -- .NET version is critical for reproducing bugs. Use
+1. **Include `.NET Version` in bug report templates** -- .NET version is critical for reproducing bugs. Use
    `dotnet --version` output as the expected format. Include OS as a dropdown since behavior often varies across
    platforms.
 
-10. **Mermaid diagrams in README render natively on GitHub** -- no special configuration is needed. Use standard fenced
+1. **Mermaid diagrams in README render natively on GitHub** -- no special configuration is needed. Use standard fenced
     code blocks with the `mermaid` language identifier. See [skill:dotnet-mermaid-diagrams] for .NET-specific diagram
     patterns to embed in architecture sections.

@@ -52,17 +52,17 @@ Always load these skills before review:
 
 1. **Scan for correctness issues** -- Check for bugs, logic errors, unhandled exceptions, missing null checks, incorrect async patterns (sync-over-async, fire-and-forget without error handling), and resource disposal.
 
-2. **Check coding standards** -- Verify naming conventions, modern C# usage (pattern matching, target-typed new, collection expressions where applicable), NRT annotations, and consistent formatting.
+1. **Check coding standards** -- Verify naming conventions, modern C# usage (pattern matching, target-typed new, collection expressions where applicable), NRT annotations, and consistent formatting.
 
-3. **Evaluate architecture concerns** -- Look for DI lifetime mismatches, layer violations (data access in controllers, business logic in views), tight coupling, and missing abstractions.
+1. **Evaluate architecture concerns** -- Look for DI lifetime mismatches, layer violations (data access in controllers, business logic in views), tight coupling, and missing abstractions.
 
-4. **Spot performance red flags** -- Identify obvious performance issues: allocations in hot paths, LINQ in tight loops, unbounded collection growth, N+1 query patterns, missing `AsNoTracking()` for read-only EF Core queries.
+1. **Spot performance red flags** -- Identify obvious performance issues: allocations in hot paths, LINQ in tight loops, unbounded collection growth, N+1 query patterns, missing `AsNoTracking()` for read-only EF Core queries.
 
-5. **Flag security concerns** -- Check for SQL injection (raw SQL without parameters), missing input validation, hardcoded secrets, insecure deserialization, and missing authorization.
+1. **Flag security concerns** -- Check for SQL injection (raw SQL without parameters), missing input validation, hardcoded secrets, insecure deserialization, and missing authorization.
 
-6. **Assess test impact** -- For changed code, note whether corresponding tests exist and recommend test types for untested paths.
+1. **Assess test impact** -- For changed code, note whether corresponding tests exist and recommend test types for untested paths.
 
-7. **Classify and route** -- Assign each finding a severity (critical, warning, suggestion) and determine whether specialist review is needed.
+1. **Classify and route** -- Assign each finding a severity (critical, warning, suggestion) and determine whether specialist review is needed.
 
 ## Routing Table
 

@@ -88,6 +88,7 @@ Default interface members (DIM) added in C# 8 allow adding members to interfaces
 -- **but only at the binary level**:
 
 ```csharp
+
 public interface IWidget
 {
     string Name { get; }
@@ -95,7 +96,8 @@ public interface IWidget
     // Binary-safe: existing implementors inherit this default
     string DisplayName => Name.ToUpperInvariant();
 }
-```
+
+```text
 
 However, if a consumer explicitly casts to the interface and the runtime cannot find the default implementation (older
 runtime), this fails. All runtimes in the .NET 8.0+ baseline support DIMs.
@@ -127,12 +129,14 @@ Adding overloads is the most common source of source-breaking changes in librari
 overload at compile time, and a new overload can change which method wins:
 
 ```csharp
+
 // V1 -- only overload
 public void Send(object message) { }
 
 // V2 -- new overload; ALL callers passing string now bind here
 public void Send(string message) { }
-```
+
+```text
 
 This is **source-breaking** (callers silently rebind) but **binary-compatible** (old compiled code still calls the
 `object` overload token).
@@ -147,6 +151,7 @@ Extension methods resolve at compile time based on imported namespaces. Adding a
 existing instance method or conflict with extensions from other libraries:
 
 ```csharp
+
 // Library V1 ships in namespace MyLib.Extensions
 public static class StringExtensions
 {
@@ -157,7 +162,8 @@ public static class StringExtensions
 // Library V2 adds to SAME namespace -- safe
 // Library V2 adds to DIFFERENT namespace -- may conflict
 // if consumer imports both namespaces
-```
+
+```text
 
 **Mitigation:** Keep extension methods in the same namespace across versions. Document any namespace additions in
 release notes.
@@ -182,6 +188,7 @@ In the **original assembly** (the one types are moving FROM), add forwarding att
 new assembly:
 
 ```csharp
+
 // In the ORIGINAL assembly's AssemblyInfo.cs or a dedicated TypeForwarders.cs
 // This tells the runtime: "Widget now lives in MyLib.Core"
 using System.Runtime.CompilerServices;
@@ -189,7 +196,8 @@ using System.Runtime.CompilerServices;
 [assembly: TypeForwardedTo(typeof(MyLib.Core.Widget))]
 [assembly: TypeForwardedTo(typeof(MyLib.Core.IWidgetFactory))]
 [assembly: TypeForwardedTo(typeof(MyLib.Core.WidgetOptions))]
-```
+
+```text
 
 The original assembly must reference the destination assembly so that `typeof()` resolves correctly.
 
@@ -200,6 +208,7 @@ are needed on the destination side. The `[TypeForwardedFrom]` attribute is optio
 originally lived -- useful for serialization compatibility:
 
 ```csharp
+
 // In the DESTINATION assembly -- optional but recommended for
 // types that participate in serialization
 using System.Runtime.CompilerServices;
@@ -212,7 +221,8 @@ public class Widget
     public string Name { get; set; } = string.Empty;
     public decimal Price { get; set; }
 }
-```
+
+```text
 
 `[TypeForwardedFrom]` is critical for types deserialized by `BinaryFormatter`, `DataContractSerializer`, or any
 serializer that encodes assembly-qualified type names. Without it, deserialization of data written by older versions
@@ -229,6 +239,7 @@ When restructuring assemblies in a multi-TFM library, the forwarding assembly mu
 use. A common pattern:
 
 ```xml
+
 <!-- Original assembly (MyLib.csproj) -- now just a forwarding shim -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -238,7 +249,8 @@ use. A common pattern:
     <ProjectReference Include="../MyLib.Core/MyLib.Core.csproj" />
   </ItemGroup>
 </Project>
-```
+
+```csharp
 
 See [skill:dotnet-multi-targeting] for multi-TFM packaging mechanics and [skill:dotnet-nuget-authoring] for NuGet
 packaging of forwarding shims.
@@ -281,6 +293,7 @@ The standard workflow for removing public API members across major versions:
 | v3.0 (Major) | Remove the member entirely                                                  | Binary-breaking; consumers must migrate                                |
 
 ```csharp
+
 // v2.1 -- warn consumers
 [Obsolete("Use CalculateAsync() instead. This method will be removed in v3.0.")]
 public int Calculate() => CalculateAsync().GetAwaiter().GetResult();
@@ -290,7 +303,8 @@ public int Calculate() => CalculateAsync().GetAwaiter().GetResult();
 public int Calculate() => CalculateAsync().GetAwaiter().GetResult();
 
 // v3.0 -- remove the member (Major version bump)
-```
+
+```text
 
 Always include the replacement API and the planned removal version in the obsolete message so both humans and agents can
 migrate proactively.
@@ -316,34 +330,42 @@ Use `EnablePackageValidation` in your `.csproj` to automatically compare the cur
 shipped package and detect binary/source-breaking changes:
 
 ```xml
+
 <PropertyGroup>
   <EnablePackageValidation>true</EnablePackageValidation>
   <!-- Compare against the last shipped version -->
   <PackageValidationBaselineVersion>1.2.0</PackageValidationBaselineVersion>
 </PropertyGroup>
-```
+
+```text
 
 Build output flags breaking changes:
 
-```
+```text
+
 error CP0002: Member 'MyLib.Widget.Calculate()' was removed
 error CP0006: Cannot change return type of 'MyLib.Widget.GetName()'
-```
+
+```text
 
 To suppress known intentional breaks, generate a suppression file:
 
 ```bash
+
 dotnet pack /p:GenerateCompatibilitySuppressionFile=true
-```
+
+```bash
 
 This produces a `CompatibilitySuppressions.xml` file that can be checked in. If unspecified, the SDK reads
 `CompatibilitySuppressions.xml` from the project directory automatically. To specify explicit suppression files:
 
 ```xml
+
 <ItemGroup>
   <ApiCompatSuppressionFile Include="CompatibilitySuppressions.xml" />
 </ItemGroup>
-```
+
+```xml
 
 Note: `ApiCompatSuppressionFile` is an **ItemGroup item**, not a PropertyGroup property. Multiple suppression files can
 be included.

@@ -40,7 +40,7 @@ Always load these skills before analysis:
 
 1. **Scan configuration** -- Search for secrets in `appsettings*.json`, `.env` files, and source code. Check for hardcoded connection strings, API keys, and passwords. Verify `.gitignore` excludes secret files. Reference [skill:dotnet-secrets-management] for anti-patterns.
 
-2. **Review OWASP compliance** -- For each OWASP Top 10 category, check relevant code patterns:
+1. **Review OWASP compliance** -- For each OWASP Top 10 category, check relevant code patterns:
    - A01: Verify `[Authorize]` attributes and fallback policy
    - A02: Check for weak crypto (MD5, SHA1, DES, RC2) and plaintext secrets
    - A03: Look for SQL injection (string concatenation in queries), XSS (raw HTML output), command injection
@@ -52,21 +52,21 @@ Always load these skills before analysis:
    - A09: Verify security event logging without sensitive data exposure
    - A10: Check `HttpClient` usage with user-supplied URLs
 
-3. **Assess cryptography** -- Reference [skill:dotnet-cryptography] to verify:
+1. **Assess cryptography** -- Reference [skill:dotnet-cryptography] to verify:
    - No deprecated algorithms (MD5, SHA1, DES, RC2) for security purposes
    - Correct AES-GCM usage (unique nonces, proper tag sizes)
    - Adequate PBKDF2 iterations (600,000+ with SHA-256) or Argon2
    - RSA key sizes >= 2048 bits, OAEP padding for encryption
    - PQC readiness for .NET 10+ targets
 
-4. **Check deprecated patterns** -- Reference [skill:dotnet-security-owasp] deprecated section:
+1. **Check deprecated patterns** -- Reference [skill:dotnet-security-owasp] deprecated section:
    - CAS attributes (`SecurityPermission`, `SecurityCritical` for CAS purposes)
    - `[AllowPartiallyTrustedCallers]` (no effect in .NET Core+)
    - .NET Remoting usage
    - DCOM references
    - `BinaryFormatter` or `EnableUnsafeBinaryFormatterSerialization`
 
-5. **Report findings** -- For each issue found, report:
+1. **Report findings** -- For each issue found, report:
    - **Severity:** Critical / High / Medium / Low / Informational
    - **Category:** OWASP category or CWE reference
    - **Location:** File path and line number

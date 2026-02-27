@@ -56,6 +56,7 @@ tools.
 A formula downloads pre-built binaries per platform. This is the recommended approach for Native AOT CLI tools.
 
 ```ruby
+
 # Formula/mytool.rb
 class Mytool < Formula
   desc "A CLI tool for managing widgets"
@@ -94,30 +95,36 @@ class Mytool < Formula
     assert_match version.to_s, shell_output("#{bin}/mytool --version")
   end
 end
-```
+
+```bash
 
 ### Hosting a Tap
 
 A tap is a Git repository containing formulae. Create a repo named `homebrew-tap`:
 
-```
+```text
+
 myorg/homebrew-tap/
   Formula/
     mytool.rb
-```
+
+```text
 
 Users install with:
 
 ```bash
+
 brew tap myorg/tap
 brew install mytool
-```
+
+```bash
 
 ### Homebrew Cask
 
 Casks are for GUI applications or tools with an installer. For pure CLI tools, prefer formulae over casks.
 
 ```ruby
+
 # Casks/mytool.rb -- only if the tool has a GUI component
 cask "mytool" do
   version "1.2.3"
@@ -129,7 +136,8 @@ cask "mytool" do
 
   binary "mytool"
 end
-```
+
+```text
 
 ---
 
@@ -139,18 +147,21 @@ end
 
 Create the package directory structure:
 
-```
+```text
+
 mytool_1.2.3_amd64/
   DEBIAN/
     control
   usr/
     bin/
       mytool
-```
+
+```text
 
 **Control file:**
 
-```
+```text
+
 Package: mytool
 Version: 1.2.3
 Section: utils
@@ -161,11 +172,13 @@ Description: A CLI tool for managing widgets
  MyTool provides fast widget management from the command line.
  Built with .NET Native AOT for zero-dependency execution.
 Homepage: https://github.com/myorg/mytool
-```
+
+```bash
 
 **Build the package:**
 
 ```bash
+
 #!/bin/bash
 set -euo pipefail
 
@@ -195,7 +208,8 @@ EOF
 # Build the .deb
 dpkg-deb --build --root-owner-group "$PKG_DIR"
 echo "Built: ${PKG_DIR}.deb"
-```
+
+```text
 
 **RID to Debian architecture mapping:**
 
@@ -207,8 +221,10 @@ echo "Built: ${PKG_DIR}.deb"
 ### Installing the .deb
 
 ```bash
+
 sudo dpkg -i mytool_1.2.3_amd64.deb
-```
+
+```bash
 
 ---
 
@@ -221,7 +237,8 @@ repository.
 
 **Directory structure:**
 
-```
+```text
+
 manifests/
   m/
     MyOrg/
@@ -230,21 +247,25 @@ manifests/
           MyOrg.MyTool.yaml              # Version manifest
           MyOrg.MyTool.installer.yaml    # Installer manifest
           MyOrg.MyTool.locale.en-US.yaml # Locale manifest
-```
+
+```yaml
 
 **Version manifest (MyOrg.MyTool.yaml):**
 
 ```yaml
+
 PackageIdentifier: MyOrg.MyTool
 PackageVersion: 1.2.3
 DefaultLocale: en-US
 ManifestType: version
 ManifestVersion: 1.9.0
-```
+
+```text
 
 **Installer manifest (MyOrg.MyTool.installer.yaml):**
 
 ```yaml
+
 PackageIdentifier: MyOrg.MyTool
 PackageVersion: 1.2.3
 InstallerType: zip
@@ -261,11 +282,13 @@ Installers:
     InstallerSha256: DEF456...
 ManifestType: installer
 ManifestVersion: 1.9.0
-```
+
+```text
 
 **Locale manifest (MyOrg.MyTool.locale.en-US.yaml):**
 
 ```yaml
+
 PackageIdentifier: MyOrg.MyTool
 PackageVersion: 1.2.3
 PackageLocale: en-US
@@ -276,7 +299,8 @@ License: MIT
 PackageUrl: https://github.com/myorg/mytool
 ManifestType: defaultLocale
 ManifestVersion: 1.9.0
-```
+
+```text
 
 ### Submitting to winget-pkgs
 
@@ -297,6 +321,7 @@ Scoop is popular among Windows power users. Manifests are JSON files in a bucket
 ### Scoop Manifest
 
 ```json
+
 {
   "version": "1.2.3",
   "description": "A CLI tool for managing widgets",
@@ -327,24 +352,29 @@ Scoop is popular among Windows power users. Manifests are JSON files in a bucket
     }
   }
 }
-```
+
+```text
 
 ### Hosting a Scoop Bucket
 
 Create a GitHub repo named `scoop-mytool` (or `scoop-bucket`):
 
-```
+```text
+
 myorg/scoop-mytool/
   bucket/
     mytool.json
-```
+
+```json
 
 Users install with:
 
 ```powershell
+
 scoop bucket add myorg https://github.com/myorg/scoop-mytool
 scoop install mytool
-```
+
+```bash
 
 ---
 
@@ -354,17 +384,20 @@ Chocolatey is Windows' most established package manager for binary distribution.
 
 ### Package Structure
 
-```
+```text
+
 mytool/
   mytool.nuspec
   tools/
     chocolateyInstall.ps1
     LICENSE.txt
-```
+
+```powershell
 
 **mytool.nuspec:**
 
 ```xml
+
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.xmldata.org/2004/07/nuspec">
   <metadata>
@@ -378,11 +411,13 @@ mytool/
     <tags>cli dotnet tools</tags>
   </metadata>
 </package>
-```
+
+```text
 
 **tools/chocolateyInstall.ps1:**
 
 ```powershell
+
 $ErrorActionPreference = 'Stop'
 
 $packageArgs = @{
@@ -394,11 +429,13 @@ $packageArgs = @{
 }
 
 Install-ChocolateyZipPackage @packageArgs
-```
+
+```bash
 
 ### Building and Publishing
 
 ```powershell
+
 # Pack the .nupkg
 choco pack mytool.nuspec
 
@@ -407,7 +444,8 @@ choco install mytool --source="." --force
 
 # Push to Chocolatey Community Repository
 choco push mytool.1.2.3.nupkg --source https://push.chocolatey.org/ --api-key $env:CHOCO_API_KEY
-```
+
+```text
 
 ---
 
@@ -418,6 +456,7 @@ choco push mytool.1.2.3.nupkg --source https://push.chocolatey.org/ --api-key $e
 ### Project Configuration for Tool Packaging
 
 ```xml
+
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -439,11 +478,13 @@ choco push mytool.1.2.3.nupkg --source https://push.chocolatey.org/ --api-key $e
     <None Include="../../README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 </Project>
-```
+
+```markdown
 
 ### Building and Publishing
 
 ```bash
+
 # Pack the tool
 dotnet pack -c Release
 
@@ -451,11 +492,13 @@ dotnet pack -c Release
 dotnet nuget push bin/Release/MyOrg.MyTool.1.2.3.nupkg \
   --source https://api.nuget.org/v3/index.json \
   --api-key "$NUGET_API_KEY"
-```
+
+```json
 
 ### Installing dotnet Tools
 
 ```bash
+
 # Global tool (available system-wide)
 dotnet tool install -g MyOrg.MyTool
 
@@ -470,7 +513,8 @@ dotnet tool update -g MyOrg.MyTool
 dotnet tool run mytool
 # or just:
 dotnet mytool
-```
+
+```text
 
 ### Global vs Local Tools
 
@@ -491,6 +535,7 @@ For tools distributed as NuGet packages (either as `dotnet tool` or standalone):
 ### Package Metadata
 
 ```xml
+
 <PropertyGroup>
   <PackageId>MyOrg.MyTool</PackageId>
   <Version>1.2.3</Version>
@@ -503,11 +548,13 @@ For tools distributed as NuGet packages (either as `dotnet tool` or standalone):
   <RepositoryUrl>https://github.com/myorg/mytool</RepositoryUrl>
   <RepositoryType>git</RepositoryType>
 </PropertyGroup>
-```
+
+```text
 
 ### Publishing to NuGet.org
 
 ```bash
+
 # Pack
 dotnet pack -c Release -o ./nupkgs
 
@@ -515,16 +562,19 @@ dotnet pack -c Release -o ./nupkgs
 dotnet nuget push ./nupkgs/MyOrg.MyTool.1.2.3.nupkg \
   --source https://api.nuget.org/v3/index.json \
   --api-key "$NUGET_API_KEY"
-```
+
+```json
 
 ### Private Feed Distribution
 
 ```bash
+
 # Push to a private feed (Azure Artifacts, GitHub Packages, etc.)
 dotnet nuget push ./nupkgs/MyOrg.MyTool.1.2.3.nupkg \
   --source https://pkgs.dev.azure.com/myorg/_packaging/myfeed/nuget/v3/index.json \
   --api-key "$AZURE_ARTIFACTS_PAT"
-```
+
+```json
 
 ---
 

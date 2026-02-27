@@ -42,7 +42,8 @@ Use this structured flow to narrow framework choices based on project constraint
 
 The most significant constraint. Identify which platforms the application must support.
 
-```
+```text
+
 Target platforms?
 |
 +-- Web browser only
@@ -69,7 +70,8 @@ Target platforms?
 +-- Desktop cross-platform (Windows + macOS + Linux)
     --> Uno Platform or Avalonia
         MAUI supports macOS/Windows but not Linux
-```
+
+```text
 
 ### Step 2: Team Expertise
 

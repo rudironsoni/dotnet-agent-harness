@@ -10,8 +10,10 @@ Rulesync provides an MCP (Model Context Protocol) server that enables AI agents 
 ### Starting the MCP Server
 
 ```bash
+
 rulesync mcp
-```
+
+```bash
 
 This starts an MCP server using stdio transport that AI agents can communicate with.
 
@@ -20,6 +22,7 @@ This starts an MCP server using stdio transport that AI agents can communicate w
 Add the Rulesync MCP server to your `.rulesync/mcp.json`:
 
 ```json
+
 {
   "mcpServers": {
     "rulesync-mcp": {
@@ -30,4 +33,5 @@ Add the Rulesync MCP server to your `.rulesync/mcp.json`:
     }
   }
 }
-```
+
+```text

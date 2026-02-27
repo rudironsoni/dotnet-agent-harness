@@ -58,9 +58,11 @@ Resource files (`.resx`) are the standard .NET localization format. They compile
 
 Resources resolve in order of specificity, falling back until a match is found:
 
-```
+```text
+
 sr-Cyrl-RS.resx -> sr-Cyrl.resx -> sr.resx -> Resources.resx (default/neutral)
-```
+
+```text
 
 The default `.resx` file (no culture suffix) is the single source of truth. Translation files must not contain keys
 absent from the default file.
@@ -68,6 +70,7 @@ absent from the default file.
 ### Project Setup
 
 ```xml
+
 <!-- MyApp.csproj -->
 <PropertyGroup>
   <NeutralLanguage>en-US</NeutralLanguage>
@@ -80,11 +83,13 @@ absent from the default file.
   <EmbeddedResource Include="Resources\Messages.fr-FR.resx" />
   <EmbeddedResource Include="Resources\Messages.de-DE.resx" />
 </ItemGroup>
-```
+
+```text
 
 ### Resource File Structure
 
 ```xml
+
 <!-- Resources/Messages.resx (default/neutral) -->
 <?xml version="1.0" encoding="utf-8"?>
 <root>
@@ -97,11 +102,13 @@ absent from the default file.
     <comment>{0} = number of items</comment>
   </data>
 </root>
-```
+
+```text
 
 ### Accessing Resources
 
 ```csharp
+
 // Via generated strongly-typed class (ResXFileCodeGenerator custom tool)
 string welcome = Messages.Welcome;
 
@@ -109,7 +116,8 @@ string welcome = Messages.Welcome;
 var rm = new ResourceManager("MyApp.Resources.Messages",
     typeof(Messages).Assembly);
 string welcome = rm.GetString("Welcome", CultureInfo.CurrentUICulture);
-```
+
+```text
 
 ---
 
@@ -121,12 +129,14 @@ Lightweight alternative for projects already using JSON for configuration. Libra
 implementations backed by JSON files.
 
 ```json
+
 // Resources/en-US.json
 {
   "Welcome": "Welcome to the application",
   "ItemCount": "You have {0} item(s)"
 }
-```
+
+```text
 
 **Libraries:**
 
@@ -150,20 +160,24 @@ Source generators eliminate runtime reflection by generating strongly-typed acce
 | Built-in `ResXFileCodeGenerator` | Visual Studio custom tool (not a Roslyn source generator)                  | No -- generates static properties but still uses `ResourceManager` |
 
 ```xml
+
 <!-- Using ResXGenerator -->
 <ItemGroup>
   <PackageReference Include="ResXGenerator" Version="1.*"
                     PrivateAssets="all" />
 </ItemGroup>
-```
+
+```text
 
 ```csharp
+
 // Generated at compile time -- no runtime reflection
 string welcome = Messages.Welcome;
 
 // With DI registration (ResXGenerator)
 services.AddResXLocalization();
-```
+
+```text
 
 **Recommendation:** Use `.resx` files as the resource format (broadest tooling support) with a source generator for
 AOT/trimming scenarios. Use JSON resources only for lightweight or config-heavy projects.
@@ -175,6 +189,7 @@ AOT/trimming scenarios. Use JSON resources only for lightweight or config-heavy 
 ### Registration
 
 ```csharp
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Register localization services
@@ -191,7 +206,8 @@ app.UseRequestLocalization(options =>
            .AddSupportedCultures(supportedCultures)
            .AddSupportedUICultures(supportedCultures);
 });
-```
+
+```text
 
 ### IStringLocalizer<T>
 
@@ -199,6 +215,7 @@ The primary localization interface. Injectable via DI. Use everywhere: services,
 middleware.
 
 ```csharp
+
 public class OrderService
 {
     private readonly IStringLocalizer<OrderService> _localizer;
@@ -221,19 +238,22 @@ public class OrderService
         return !result.ResourceNotFound;
     }
 }
-```
+
+```text
 
 ### IViewLocalizer (MVC Razor Views Only)
 
 Auto-resolves resource files matching the view path. Not supported in Blazor.
 
 ```cshtml
+
 @* Views/Home/Index.cshtml *@
 @inject IViewLocalizer Localizer
 
 <h1>@Localizer["Welcome"]</h1>
 <p>@Localizer["ItemCount", Model.Count]</p>
-```
+
+```text
 
 Resource file location: `Resources/Views/Home/Index.en-US.resx`
 
@@ -243,12 +263,14 @@ HTML-aware variant that HTML-encodes format arguments but preserves HTML in the 
 Blazor.
 
 ```cshtml
+
 @inject IHtmlLocalizer<SharedResource> HtmlLocalizer
 
 @* Resource: "Read our <a href='/terms'>terms</a>, {0}" *@
 @* {0} is HTML-encoded, the <a> tag is preserved *@
 <p>@HtmlLocalizer["TermsNotice", Model.UserName]</p>
-```
+
+```text
 
 ### When to Use Each
 
@@ -264,8 +286,10 @@ If resource lookup fails, check namespace alignment. `IStringLocalizer<T>` resol
 of `T` relative to the `ResourcesPath`. Use `RootNamespaceAttribute` to fix namespace/assembly mismatches:
 
 ```csharp
+
 [assembly: RootNamespace("MyApp")]
-```
+
+```csharp
 
 ---
 
@@ -279,6 +303,7 @@ of `T` relative to the `ResourcesPath`. Use `RootNamespaceAttribute` to fix name
 - `CultureInfo.CurrentUICulture` -- controls **resource lookup** (which `.resx` file)
 
 ```csharp
+
 // Always pass explicit CultureInfo -- never rely on thread defaults in server code
 var date = DateTime.Now.ToString("D", new CultureInfo("fr-FR"));
 // "vendredi 14 fevrier 2026"
@@ -288,11 +313,13 @@ var price = 1234.56m.ToString("C", new CultureInfo("de-DE"));
 
 var number = 1234567.89.ToString("N2", new CultureInfo("ja-JP"));
 // "1,234,567.89"
-```
+
+```text
 
 ### Server-Side Best Practices
 
 ```csharp
+
 // Use useUserOverride: false in server scenarios to avoid
 // picking up user-customized formats
 var culture = new CultureInfo("en-US", useUserOverride: false);
@@ -300,7 +327,8 @@ var culture = new CultureInfo("en-US", useUserOverride: false);
 // Set culture per-request (ASP.NET Core middleware handles this)
 CultureInfo.CurrentCulture = culture;
 CultureInfo.CurrentUICulture = culture;
-```
+
+```text
 
 ### Format Specifiers
 
@@ -319,35 +347,43 @@ CultureInfo.CurrentUICulture = culture;
 ### Detecting RTL Cultures
 
 ```csharp
+
 bool isRtl = CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
 // true for: ar-*, he-*, fa-*, ur-*, etc.
-```
+
+```csharp
 
 ### Per-Framework RTL Patterns
 
 **Blazor:** No native `FlowDirection` -- use CSS `dir` attribute:
 
 ```javascript
+
 // wwwroot/js/app.js
 window.setDocumentDirection = dir => (document.documentElement.dir = dir);
-```
+
+```javascript
 
 ```csharp
+
 // Set via named JS function (avoid eval -- causes CSP unsafe-eval violations)
 await JSRuntime.InvokeVoidAsync("setDocumentDirection",
     isRtl ? "rtl" : "ltr");
-```
+
+```csharp
 
 For deep Blazor component patterns, see [skill:dotnet-blazor-components].
 
 **MAUI:** `FlowDirection` property on `VisualElement` and `Window`:
 
 ```csharp
+
 // Set at window level -- cascades to all children
 window.FlowDirection = isRtl
     ? FlowDirection.RightToLeft
     : FlowDirection.LeftToRight;
-```
+
+```text
 
 Android requires `android:supportsRtl="true"` in AndroidManifest.xml (set by default in MAUI). For deep MAUI patterns,
 see [skill:dotnet-maui-development].
@@ -355,20 +391,24 @@ see [skill:dotnet-maui-development].
 **Uno Platform:** Inherits WinUI `FlowDirection` model:
 
 ```xml
+
 <Page FlowDirection="RightToLeft">
   <!-- All children inherit RTL layout -->
 </Page>
-```
+
+```xml
 
 For Uno Extensions and x:Uid binding, see [skill:dotnet-uno-platform].
 
 **WPF:** `FlowDirection` property on `FrameworkElement`:
 
 ```xml
+
 <Window FlowDirection="RightToLeft">
   <!-- All children inherit RTL layout -->
 </Window>
-```
+
+```xml
 
 For WPF on modern .NET patterns, see [skill:dotnet-wpf-modern].
 
@@ -381,9 +421,11 @@ For WPF on modern .NET patterns, see [skill:dotnet-wpf-modern].
 Simple string interpolation fails for pluralization across languages:
 
 ```csharp
+
 // WRONG: English-only, breaks in languages with complex plural rules
 $"You have {count} item{(count != 1 ? "s" : "")}"
-```
+
+```csharp
 
 Languages like Arabic have six plural forms (zero, one, two, few, many, other). Polish distinguishes "few" from "many"
 based on number ranges.
@@ -393,6 +435,7 @@ based on number ranges.
 CLDR-compliant pluralization using ICU plural categories. Recommended for internationalization-first projects.
 
 ```csharp
+
 // Package: jeffijoe/messageformat.net (v5.0+, ships CLDR pluralizers)
 var formatter = new MessageFormatter();
 
@@ -404,13 +447,15 @@ string pattern = "{count, plural, " +
 formatter.Format(pattern, new { count = 0 });  // "No items"
 formatter.Format(pattern, new { count = 1 });  // "1 item"
 formatter.Format(pattern, new { count = 42 }); // "42 items"
-```
+
+```text
 
 ### SmartFormat.NET
 
 Flexible text templating with built-in pluralization. Good for projects wanting maximum flexibility.
 
 ```csharp
+
 // Package: axuno/SmartFormat (v3.6.1+)
 using SmartFormat;
 
@@ -420,7 +465,8 @@ Smart.Format("{count:plural:No items|# item|# items}",
     new { count = 1 });  // "1 item"
 Smart.Format("{count:plural:No items|# item|# items}",
     new { count = 5 });  // "5 items"
-```
+
+```text
 
 ### Choosing a Pluralization Engine
 
@@ -441,11 +487,13 @@ Blazor supports `IStringLocalizer` only -- `IHtmlLocalizer` and `IViewLocalizer`
 **Component injection:**
 
 ```razor
+
 @inject IStringLocalizer<MyComponent> Loc
 
 <h1>@Loc["Welcome"]</h1>
 <p>@Loc["ItemCount", items.Count]</p>
-```
+
+```text
 
 **Culture configuration by render mode:**
 
@@ -458,11 +506,13 @@ Blazor supports `IStringLocalizer` only -- `IHtmlLocalizer` and `IViewLocalizer`
 **WASM globalization data:**
 
 ```xml
+
 <!-- Required for full ICU data in Blazor WASM -->
 <PropertyGroup>
   <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
 </PropertyGroup>
-```
+
+```text
 
 Without this property, Blazor WASM loads only a subset of ICU data. For minimal download size, use
 `InvariantGlobalization=true` (disables localization entirely).
@@ -470,11 +520,13 @@ Without this property, Blazor WASM loads only a subset of ICU data. For minimal 
 **Dynamic culture switching:**
 
 ```csharp
+
 // CultureSelector component pattern:
 // 1. Store selected culture in browser local storage
 // 2. Set culture cookie via controller redirect (server-side)
 // 3. Read cookie in RequestLocalizationMiddleware
-```
+
+```text
 
 For deep Blazor component patterns (lifecycle, state management, JS interop), see [skill:dotnet-blazor-components].
 
@@ -484,17 +536,20 @@ MAUI uses `.resx` files with strongly-typed generated properties.
 
 **Resource setup:**
 
-```
+```text
+
 Resources/
   Strings/
     AppResources.resx              # Default (neutral) culture
     AppResources.fr-FR.resx        # French
     AppResources.ja-JP.resx        # Japanese
-```
+
+```text
 
 **XAML binding:**
 
 ```xml
+
 <!-- Import namespace -->
 <ContentPage xmlns:strings="clr-namespace:MyApp.Resources.Strings">
 
@@ -502,13 +557,16 @@ Resources/
   <Label Text="{x:Static strings:AppResources.Welcome}" />
   <Button Text="{x:Static strings:AppResources.LoginButton}" />
 </ContentPage>
-```
+
+```text
 
 **Code access:**
 
 ```csharp
+
 string welcome = AppResources.Welcome;
-```
+
+```csharp
 
 **Platform requirements:**
 
@@ -524,37 +582,45 @@ Uno uses `.resw` files (Windows resource format) with `x:Uid` for automatic XAML
 
 **Resource structure:**
 
-```
+```text
+
 Strings/
   en/Resources.resw
   fr-FR/Resources.resw
   ja-JP/Resources.resw
-```
+
+```text
 
 **Registration:**
 
 ```csharp
+
 // In Host builder configuration
 .UseLocalization()
-```
+
+```csharp
 
 **XAML binding with x:Uid:**
 
 ```xml
+
 <!-- x:Uid maps to resource keys: "MainPage_Title.Text", "LoginButton.Content" -->
 <TextBlock x:Uid="MainPage_Title" />
 <Button x:Uid="LoginButton" />
-```
+
+```xml
 
 **Runtime culture switching:**
 
 ```csharp
+
 var localizationService = serviceProvider
     .GetRequiredService<ILocalizationService>();
 await localizationService.SetCurrentCultureAsync(
     new CultureInfo("fr-FR"));
 // Note: XAML x:Uid bindings retain old culture until app restart
-```
+
+```text
 
 **Known limitation:** `x:Uid`-based localization keeps the old culture until app restart, even after calling
 `SetCurrentCultureAsync`. Code-based `IStringLocalizer` updates immediately.
@@ -569,23 +635,28 @@ LocBaml (works only on .NET Framework).
 **Resource dictionary approach:**
 
 ```xml
+
 <!-- Resources/Strings.en-US.xaml -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
   <sys:String x:Key="Welcome">Welcome</sys:String>
   <sys:String x:Key="LoginButton">Log In</sys:String>
 </ResourceDictionary>
-```
 
 ```xml
+
+```xml
+
 <!-- MainWindow.xaml -->
 <TextBlock Text="{DynamicResource Welcome}" />
 <Button Content="{DynamicResource LoginButton}" />
-```
+
+```xml
 
 **Runtime locale switching:**
 
 ```csharp
+
 // Swap resource dictionary at runtime
 var dict = new ResourceDictionary
 {
@@ -594,11 +665,13 @@ var dict = new ResourceDictionary
 };
 Application.Current.Resources.MergedDictionaries.Clear();
 Application.Current.Resources.MergedDictionaries.Add(dict);
-```
+
+```text
 
 **ResX approach (simpler, works on all .NET versions):**
 
 ```csharp
+
 // Standard .resx with generated class
 string welcome = Strings.Welcome;
 
@@ -606,7 +679,8 @@ string welcome = Strings.Welcome;
 Thread.CurrentThread.CurrentUICulture = new CultureInfo("fr-FR");
 // Re-read after culture change
 string welcomeFr = Strings.Welcome; // Now returns French
-```
+
+```text
 
 **Community options:**
 

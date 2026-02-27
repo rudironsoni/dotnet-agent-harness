@@ -49,6 +49,7 @@ application memory (`IEnumerable<T>`).
 ### The Problem
 
 ```csharp
+
 // DANGEROUS: Materializes entire table into memory, then filters in C#
 IEnumerable<Order> orders = dbContext.Orders;
 var recent = orders.Where(o => o.CreatedAt > cutoff).ToList();
@@ -58,7 +59,8 @@ var recent = orders.Where(o => o.CreatedAt > cutoff).ToList();
 IQueryable<Order> orders = dbContext.Orders;
 var recent = orders.Where(o => o.CreatedAt > cutoff).ToList();
 // SQL: SELECT ... FROM Orders WHERE CreatedAt > @cutoff
-```
+
+```text
 
 ### When Materialization Happens
 
@@ -74,6 +76,7 @@ var recent = orders.Where(o => o.CreatedAt > cutoff).ToList();
 ### Common Mistakes
 
 ```csharp
+
 // MISTAKE 1: AsEnumerable() before filtering
 var results = dbContext.Orders
     .AsEnumerable()           // <-- switches to client evaluation
@@ -99,7 +102,8 @@ var names = dbContext.Orders.ToList().Select(o => o.CustomerName);
 // FIX: Project before materializing
 var names = dbContext.Orders.Select(o => o.CustomerName).ToList();
 // SQL: SELECT CustomerName FROM Orders
-```
+
+```text
 
 ### Detection Checklist
 
@@ -117,6 +121,7 @@ per second, this can reduce overhead significantly.
 ### Standard Compiled Query
 
 ```csharp
+
 public sealed class OrderRepository(AppDbContext db)
 {
     // Compiled once, reused across all calls
@@ -138,7 +143,8 @@ public sealed class OrderRepository(AppDbContext db)
     public IAsyncEnumerable<Order> FindRecentAsync(DateTime cutoff) =>
         s_findRecent(db, cutoff);
 }
-```
+
+```text
 
 ### When to Use Compiled Queries
 
@@ -165,6 +171,7 @@ powerful but creates subtle bugs.
 ### Multiple Enumeration
 
 ```csharp
+
 // BUG: Enumerates the database query twice
 IQueryable<Order> query = dbContext.Orders.Where(o => o.Status == Status.Active);
 
@@ -177,11 +184,13 @@ var items = dbContext.Orders
     .ToList();
 
 var count = items.Count;           // In-memory, no SQL
-```
+
+```text
 
 ### Closure Capture in Loops
 
 ```csharp
+
 // BUG: All queries capture the same loop variable 'i' by reference
 var queries = new List<IQueryable<Order>>();
 for (int i = 0; i < statuses.Length; i++)
@@ -196,7 +205,8 @@ for (int i = 0; i < statuses.Length; i++)
     var localStatus = statuses[i];
     queries.Add(dbContext.Orders.Where(o => o.Status == localStatus));
 }
-```
+
+```text
 
 Note: C# 5+ `foreach` loop variables are scoped per iteration and do not exhibit this bug. The `for` loop index variable
 is shared across iterations, making this a common pitfall when building deferred LINQ queries in a loop.
@@ -204,6 +214,7 @@ is shared across iterations, making this a common pitfall when building deferred
 ### Deferred Execution in Method Returns
 
 ```csharp
+
 // DANGEROUS: Returns an unevaluated query -- caller may not realize
 // the DbContext could be disposed before enumeration
 public IEnumerable<Order> GetActiveOrders()
@@ -219,7 +230,8 @@ public async Task<List<Order>> GetActiveOrdersAsync(CancellationToken ct)
         .Where(o => o.Status == Status.Active)
         .ToListAsync(ct);
 }
-```
+
+```text
 
 ---
 
@@ -250,6 +262,7 @@ LINQ allocations are negligible for most code. Optimize only when:
 ### Manual Loop Alternatives
 
 ```csharp
+
 // LINQ: Allocates iterator + delegate + List<T>
 var result = items
     .Where(x => x.IsActive)
@@ -265,9 +278,11 @@ foreach (var item in items)
         result.Add(item.Name);
     }
 }
-```
+
+```text
 
 ```csharp
+
 // LINQ: Allocates iterator + delegate + bool boxing (Any)
 var hasActive = items.Any(x => x.IsActive);
 
@@ -281,13 +296,15 @@ foreach (var item in items)
         break;
     }
 }
-```
+
+```text
 
 ### Reducing Allocations Without Abandoning LINQ
 
 Before dropping to manual loops, consider these intermediate steps:
 
 ```csharp
+
 // 1. Use Array.Find / Array.Exists for arrays (no iterator allocation)
 var first = Array.Find(items, x => x.IsActive);
 var exists = Array.Exists(items, x => x.IsActive);
@@ -301,7 +318,8 @@ var result = items.Where(static x => x.IsActive).ToList();
 // Note: static lambdas prevent accidental closure capture
 // but the delegate is already cached by the compiler for
 // non-capturing lambdas; the main benefit is enforcement
-```
+
+```text
 
 ---
 
@@ -313,17 +331,20 @@ These APIs are not LINQ-compatible but cover common patterns.
 ### Span Search and Filter
 
 ```csharp
+
 // Zero-allocation contains check on an array
 ReadOnlySpan<int> values = stackalloc int[] { 1, 2, 3, 4, 5 };
 bool found = values.Contains(3);
 
 // Zero-allocation index search
 int index = values.IndexOf(4);
-```
+
+```text
 
 ### MemoryExtensions for String Processing
 
 ```csharp
+
 // Zero-allocation split and iterate
 ReadOnlySpan<char> csv = "alice,bob,charlie";
 foreach (var segment in csv.Split(','))
@@ -335,7 +356,8 @@ foreach (var segment in csv.Split(','))
 // Zero-allocation trim and compare
 ReadOnlySpan<char> input = "  hello  ";
 bool match = input.Trim().SequenceEqual("hello");
-```
+
+```text
 
 ### When to Use Span Over LINQ
 
@@ -357,6 +379,7 @@ See [skill:dotnet-performance-patterns] for comprehensive Span<T>/Memory<T> patt
 Always select only the columns you need:
 
 ```csharp
+
 // BAD: Loads entire entity graph
 var orders = await dbContext.Orders
     .Include(o => o.Lines)
@@ -379,11 +402,13 @@ var summaries = await dbContext.Orders
         Total = o.Lines.Sum(l => l.Price * l.Quantity)
     })
     .ToListAsync(ct);
-```
+
+```text
 
 ### Pagination with Keyset (Seek) Method
 
 ```csharp
+
 // Offset pagination: O(N) -- server must skip rows
 var page = await dbContext.Orders
     .OrderBy(o => o.Id)
@@ -397,11 +422,13 @@ var page = await dbContext.Orders
     .OrderBy(o => o.Id)
     .Take(pageSize)
     .ToListAsync(ct);
-```
+
+```text
 
 ### Batch Operations
 
 ```csharp
+
 // BAD: N UPDATE statements (one per tracked entity change)
 foreach (var order in orders)
 {
@@ -416,7 +443,8 @@ await dbContext.Orders
     .ExecuteUpdateAsync(
         s => s.SetProperty(o => o.Status, OrderStatus.Archived),
         ct);
-```
+
+```text
 
 ---
 

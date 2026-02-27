@@ -152,31 +152,31 @@ deployment.
    (DbContext, IRepository, MediatR), real .NET tools (EF Core, MassTransit, YARP), and real .NET patterns (middleware
    pipeline, DI registration).
 
-2. **Keep diagrams under 50 nodes** -- larger diagrams render poorly on GitHub and doc sites. Split complex
+1. **Keep diagrams under 50 nodes** -- larger diagrams render poorly on GitHub and doc sites. Split complex
    architectures into multiple focused diagrams (context, container, component) rather than one monolithic diagram.
 
-3. **Use `<br/>` for line breaks in node labels, not `\n`** -- Mermaid renders `\n` literally as text. Multi-line labels
+1. **Use `<br/>` for line breaks in node labels, not `\n`** -- Mermaid renders `\n` literally as text. Multi-line labels
    require `<br/>` HTML tags.
 
-4. **Test Mermaid syntax before committing** -- syntax errors cause GitHub to render raw text instead of a diagram. Use
+1. **Test Mermaid syntax before committing** -- syntax errors cause GitHub to render raw text instead of a diagram. Use
    the Mermaid Live Editor (https://mermaid.live) or a local preview tool to validate.
 
-5. **ER diagram relationship notation follows Mermaid syntax, not UML** -- use `||--o{` for one-to-many, `||--||` for
+1. **ER diagram relationship notation follows Mermaid syntax, not UML** -- use `||--o{` for one-to-many, `||--||` for
    one-to-one. Do not use UML multiplicity notation.
 
-6. **Use the `neutral` theme for GitHub compatibility** -- `%%{init: {'theme': 'neutral'}}%%` provides the best
+1. **Use the `neutral` theme for GitHub compatibility** -- `%%{init: {'theme': 'neutral'}}%%` provides the best
    rendering in both light and dark modes.
 
-7. **Sequence diagram participant names cannot contain special characters** -- use `participant DB as "SQL Server"`
+1. **Sequence diagram participant names cannot contain special characters** -- use `participant DB as "SQL Server"`
    alias syntax for names with spaces or special characters.
 
-8. **Nested generics (`Task~List~T~~`) may not render on all Mermaid versions** -- the double `~~` at the end of nested
+1. **Nested generics (`Task~List~T~~`) may not render on all Mermaid versions** -- the double `~~` at the end of nested
    generic types requires Mermaid v10.3+. Test rendering in your target environment before committing complex generic
    type diagrams.
 
-9. **Do not use Font Awesome icon syntax (`fa:fa-user`) in diagrams intended for GitHub** -- GitHub's native Mermaid
+1. **Do not use Font Awesome icon syntax (`fa:fa-user`) in diagrams intended for GitHub** -- GitHub's native Mermaid
    renderer does not load Font Awesome CSS. Icons render as literal text. Use plain text labels instead.
 
-10. **Do not configure Mermaid rendering in doc platforms** -- platform setup (Starlight remark plugin, Docusaurus
+1. **Do not configure Mermaid rendering in doc platforms** -- platform setup (Starlight remark plugin, Docusaurus
     theme, DocFX template) belongs to [skill:dotnet-documentation-strategy]. This skill provides the diagram content
     only.

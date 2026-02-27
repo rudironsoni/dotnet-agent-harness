@@ -40,11 +40,11 @@ Always load these skills before analysis:
 
 1. **Detect context** -- Run [skill:dotnet-version-detection] to determine TFM. Read project files via [skill:dotnet-project-analysis] to identify current hosting model and dependencies.
 
-2. **Assess hosting model** -- Using [skill:dotnet-blazor-patterns], identify render modes in use (InteractiveServer, InteractiveWebAssembly, InteractiveAuto, Static SSR, Hybrid via MAUI WebView). Determine whether render modes are set globally, per-page, or per-component.
+1. **Assess hosting model** -- Using [skill:dotnet-blazor-patterns], identify render modes in use (InteractiveServer, InteractiveWebAssembly, InteractiveAuto, Static SSR, Hybrid via MAUI WebView). Determine whether render modes are set globally, per-page, or per-component.
 
-3. **Recommend patterns** -- Based on hosting model and requirements, recommend component patterns from [skill:dotnet-blazor-components], state management approaches (cascading values, DI, browser storage), and auth configuration from [skill:dotnet-blazor-auth]. Provide version-specific guidance based on detected TFM.
+1. **Recommend patterns** -- Based on hosting model and requirements, recommend component patterns from [skill:dotnet-blazor-components], state management approaches (cascading values, DI, browser storage), and auth configuration from [skill:dotnet-blazor-auth]. Provide version-specific guidance based on detected TFM.
 
-4. **Delegate** -- For concerns outside Blazor core, delegate to specialist skills:
+1. **Delegate** -- For concerns outside Blazor core, delegate to specialist skills:
    - [skill:dotnet-blazor-testing] for bUnit component testing
    - [skill:dotnet-playwright] for browser-based E2E testing
    - [skill:dotnet-api-security] for API-level auth (JWT, OAuth/OIDC, passkeys)

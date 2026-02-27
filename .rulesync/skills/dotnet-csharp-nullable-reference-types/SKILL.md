@@ -56,17 +56,21 @@ upgraded to net8.0 may not have it enabled.
 ### Project-Wide (Recommended)
 
 ```xml
+
 <!-- In .csproj or Directory.Build.props -->
 <PropertyGroup>
   <Nullable>enable</Nullable>
 </PropertyGroup>
-```
+
+```csharp
 
 ### Per-File (Migration)
 
 ```csharp
+
 #nullable enable   // top of file -- enables NRT for this file only
-```
+
+```csharp
 
 ### Migration Strategy
 
@@ -84,6 +88,7 @@ For large codebases, enable NRT incrementally:
 ### Nullable and Non-Nullable
 
 ```csharp
+
 public class UserService
 {
     // Non-nullable: must never be null
@@ -102,13 +107,15 @@ public class UserService
             ?? throw new NotFoundException($"User {id} not found");
     }
 }
-```
+
+```text
 
 ### Nullable Attributes
 
 Use attributes from `System.Diagnostics.CodeAnalysis` to express nullability contracts the compiler cannot infer:
 
 ```csharp
+
 using System.Diagnostics.CodeAnalysis;
 
 // Output is non-null when method returns true
@@ -153,7 +160,8 @@ public static void ThrowNotFound(string message)
 {
     throw new NotFoundException(message);
 }
-```
+
+```text
 
 ### Common Attributes Summary
 
@@ -180,6 +188,7 @@ These are the most common NRT mistakes AI agents make when generating C# code.
 ### 1. Using `!` (Null-Forgiving Operator) to Silence Warnings
 
 ```csharp
+
 // WRONG -- hides real null bugs
 var user = _repo.FindByEmail(email)!;  // will throw NRE if null
 string name = user!.Name!;            // double suppression is a red flag
@@ -187,7 +196,8 @@ string name = user!.Name!;            // double suppression is a red flag
 // CORRECT -- handle null explicitly
 var user = _repo.FindByEmail(email)
     ?? throw new NotFoundException($"User with email {email} not found");
-```
+
+```text
 
 The `!` operator should only be used when you have knowledge the compiler cannot verify (e.g., after a debug assertion,
 in test code with known data).
@@ -195,6 +205,7 @@ in test code with known data).
 ### 2. Ignoring Nullable Warnings
 
 ```csharp
+
 // WRONG -- warning CS8602: Dereference of a possibly null reference
 public string GetDisplayName(User? user)
 {
@@ -206,11 +217,13 @@ public string GetDisplayName(User? user)
 {
     return user?.Name ?? "Unknown";
 }
-```
+
+```text
 
 ### 3. Wrong Nullability on Interface Implementations
 
 ```csharp
+
 // Interface says nullable
 public interface IRepository
 {
@@ -234,11 +247,13 @@ public class UserRepository : IRepository
         return _db.Users.FirstOrDefault(u => u.Id == id);
     }
 }
-```
+
+```text
 
 ### 4. Missing `[NotNullWhen]` on Try-Pattern Methods
 
 ```csharp
+
 // WRONG -- compiler doesn't know result is non-null on success
 public bool TryParse(string input, out Order? result)
 {
@@ -254,23 +269,27 @@ public bool TryParse(string input, [NotNullWhen(true)] out Order? result)
 }
 
 // After call: result is Order (non-nullable) when method returned true
-```
+
+```text
 
 ### 5. Nullable Value Types vs Nullable Reference Types Confusion
 
 ```csharp
+
 // These are different systems!
 int? nullableInt = null;       // Nullable<int> -- always existed
 string? nullableStr = null;    // NRT annotation -- compile-time only, no runtime type change
 
 // typeof(int?) != typeof(int), but typeof(string?) == typeof(string)
-```
+
+```text
 
 ---
 
 ## Generic Constraints for Nullability
 
 ```csharp
+
 // Constrain to non-nullable reference types
 public class Repository<T> where T : class
 {
@@ -289,13 +308,15 @@ public class Wrapper<T>
 {
     public T? Value { get; set; }  // T? behavior depends on whether T is value or reference type
 }
-```
+
+```text
 
 ---
 
 ## Collections and Nullability
 
 ```csharp
+
 // Dictionary: value might not exist
 Dictionary<string, User> users = new();
 if (users.TryGetValue(key, out var user))
@@ -316,7 +337,8 @@ foreach (var name in names)
 // Non-nullable collection with nullable lookup
 IReadOnlyList<Order> orders = GetOrders();
 Order? first = orders.FirstOrDefault(); // FirstOrDefault returns T? for reference types
-```
+
+```text
 
 ---
 
@@ -325,6 +347,7 @@ Order? first = orders.FirstOrDefault(); // FirstOrDefault returns T? for referen
 EF Core respects NRT annotations for required vs optional columns:
 
 ```csharp
+
 public class Order
 {
     public int Id { get; set; }
@@ -332,7 +355,8 @@ public class Order
     public string? Notes { get; set; }               // NULL column
     public Address Address { get; set; } = null!;    // Required navigation (EF convention)
 }
-```
+
+```text
 
 **Note:** `= null!` is acceptable for EF Core navigation properties where EF guarantees initialization. This is one of
 the few valid uses of the null-forgiving operator.

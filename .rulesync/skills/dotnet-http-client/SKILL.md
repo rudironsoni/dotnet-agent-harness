@@ -52,6 +52,7 @@ Creating `HttpClient` instances directly causes two problems:
 (default: 2-minute handler lifetime).
 
 ```csharp
+
 // Do not do this
 var client = new HttpClient(); // Socket exhaustion risk
 
@@ -60,7 +61,8 @@ static readonly HttpClient _client = new(); // DNS staleness risk
 
 // Do this -- use IHttpClientFactory
 builder.Services.AddHttpClient();
-```
+
+```text
 
 ---
 
@@ -69,6 +71,7 @@ builder.Services.AddHttpClient();
 Register clients by name for scenarios where you consume multiple APIs with different configurations:
 
 ```csharp
+
 // Registration
 builder.Services.AddHttpClient("catalog-api", client =>
 {
@@ -102,7 +105,8 @@ public sealed class OrderService(IHttpClientFactory clientFactory)
             .ReadFromJsonAsync<Product>(ct);
     }
 }
-```
+
+```json
 
 ---
 
@@ -112,6 +116,7 @@ Typed clients encapsulate HTTP logic behind a strongly-typed interface. Prefer t
 single API with multiple operations:
 
 ```csharp
+
 // Typed client class
 public sealed class CatalogApiClient(HttpClient httpClient)
 {
@@ -163,13 +168,15 @@ builder.Services.AddHttpClient<CatalogApiClient>(client =>
     client.BaseAddress = new Uri("https://catalog.internal");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
-```
+
+```json
 
 ### Typed Client with Interface
 
 For testability, define an interface:
 
 ```csharp
+
 public interface ICatalogApiClient
 {
     Task<Product?> GetProductAsync(string productId, CancellationToken ct = default);
@@ -186,7 +193,8 @@ builder.Services.AddHttpClient<ICatalogApiClient, CatalogApiClient>(client =>
 {
     client.BaseAddress = new Uri("https://catalog.internal");
 });
-```
+
+```text
 
 ---
 
@@ -201,17 +209,20 @@ The standard handler applies the full pipeline (rate limiter, total timeout, ret
 with sensible defaults:
 
 ```csharp
+
 builder.Services
     .AddHttpClient<CatalogApiClient>(client =>
     {
         client.BaseAddress = new Uri("https://catalog.internal");
     })
     .AddStandardResilienceHandler();
-```
+
+```text
 
 ### Standard Handler with Custom Options
 
 ```csharp
+
 builder.Services
     .AddHttpClient<CatalogApiClient>(client =>
     {
@@ -225,13 +236,15 @@ builder.Services
         options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(5);
         options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(60);
     });
-```
+
+```text
 
 ### Hedging Handler (for Read-Only APIs)
 
 For idempotent read operations where tail latency matters:
 
 ```csharp
+
 builder.Services
     .AddHttpClient("search-api")
     .AddStandardHedgingHandler(options =>
@@ -239,7 +252,8 @@ builder.Services
         options.Hedging.MaxHedgedAttempts = 2;
         options.Hedging.Delay = TimeSpan.FromMilliseconds(500);
     });
-```
+
+```text
 
 See [skill:dotnet-resilience] for when to use hedging vs standard retry.
 
@@ -254,16 +268,19 @@ them for cross-cutting concerns that apply to HTTP traffic.
 
 Handlers execute in registration order for requests (outermost to innermost) and reverse order for responses:
 
-```
+```text
+
 Request  --> Handler A --> Handler B --> Handler C --> HttpClientHandler --> Server
 Response <-- Handler A <-- Handler B <-- Handler C <-- HttpClientHandler <-- Server
-```
+
+```text
 
 ### Common Handlers
 
 #### Request Logging
 
 ```csharp
+
 public sealed class RequestLoggingHandler(
     ILogger<RequestLoggingHandler> logger) : DelegatingHandler
 {
@@ -297,11 +314,13 @@ builder.Services.AddTransient<RequestLoggingHandler>();
 builder.Services
     .AddHttpClient<CatalogApiClient>(/* ... */)
     .AddHttpMessageHandler<RequestLoggingHandler>();
-```
+
+```text
 
 #### API Key Authentication
 
 ```csharp
+
 public sealed class ApiKeyHandler(IConfiguration config) : DelegatingHandler
 {
     protected override Task<HttpResponseMessage> SendAsync(
@@ -322,11 +341,13 @@ builder.Services.AddTransient<ApiKeyHandler>();
 builder.Services
     .AddHttpClient<CatalogApiClient>(/* ... */)
     .AddHttpMessageHandler<ApiKeyHandler>();
-```
+
+```text
 
 #### Bearer Token (from Downstream Auth)
 
 ```csharp
+
 public sealed class BearerTokenHandler(
     IHttpContextAccessor httpContextAccessor) : DelegatingHandler
 {
@@ -348,11 +369,13 @@ public sealed class BearerTokenHandler(
         return base.SendAsync(request, cancellationToken);
     }
 }
-```
+
+```text
 
 #### Correlation ID Propagation
 
 ```csharp
+
 public sealed class CorrelationIdHandler : DelegatingHandler
 {
     private const string HeaderName = "X-Correlation-Id";
@@ -371,13 +394,15 @@ public sealed class CorrelationIdHandler : DelegatingHandler
         return base.SendAsync(request, cancellationToken);
     }
 }
-```
+
+```text
 
 ### Chaining Multiple Handlers
 
 Handlers are added in execution order:
 
 ```csharp
+
 builder.Services.AddTransient<CorrelationIdHandler>();
 builder.Services.AddTransient<BearerTokenHandler>();
 builder.Services.AddTransient<RequestLoggingHandler>();
@@ -391,7 +416,8 @@ builder.Services
     .AddHttpMessageHandler<BearerTokenHandler>()     // 2nd: add auth token
     .AddHttpMessageHandler<RequestLoggingHandler>()  // 3rd: log request/response
     .AddStandardResilienceHandler();                 // 4th (innermost): resilience pipeline
-```
+
+```text
 
 **Note:** In `IHttpClientFactory`, handlers registered first are outermost. `.AddStandardResilienceHandler()` added last
 is innermost -- it wraps the actual HTTP call directly. This means retries happen inside the resilience handler without
@@ -407,6 +433,7 @@ expired bearer tokens), move the token handler inside the resilience boundary or
 ### Base Address from Configuration
 
 ```csharp
+
 builder.Services.AddHttpClient<CatalogApiClient>(client =>
 {
     var baseUrl = builder.Configuration["Services:CatalogApi:BaseUrl"]
@@ -414,9 +441,11 @@ builder.Services.AddHttpClient<CatalogApiClient>(client =>
             "CatalogApi base URL not configured");
     client.BaseAddress = new Uri(baseUrl);
 });
-```
+
+```text
 
 ```json
+
 {
   "Services": {
     "CatalogApi": {
@@ -424,17 +453,20 @@ builder.Services.AddHttpClient<CatalogApiClient>(client =>
     }
   }
 }
-```
+
+```text
 
 ### Handler Lifetime
 
 The default handler lifetime is 2 minutes. Adjust for services with different DNS characteristics:
 
 ```csharp
+
 builder.Services
     .AddHttpClient<CatalogApiClient>(/* ... */)
     .SetHandlerLifetime(TimeSpan.FromMinutes(5));
-```
+
+```csharp
 
 **Shorter lifetime** (1 min): for services behind load balancers with frequent DNS changes. **Longer lifetime** (5-10
 min): for stable internal services where connection reuse improves performance.
@@ -448,6 +480,7 @@ min): for stable internal services where connection reuse improves performance.
 Test typed clients by providing a mock handler that returns controlled responses:
 
 ```csharp
+
 public sealed class CatalogApiClientTests
 {
     [Fact]
@@ -511,13 +544,15 @@ public sealed class MockHttpMessageHandler(
         return Task.FromResult(response);
     }
 }
-```
+
+```text
 
 ### Testing DelegatingHandlers
 
 Test handlers in isolation by providing an inner handler:
 
 ```csharp
+
 public sealed class ApiKeyHandlerTests
 {
     [Fact]
@@ -555,15 +590,18 @@ public sealed class ApiKeyHandlerTests
                 .GetValues("X-Api-Key").Single());
     }
 }
-```
+
+```text
 
 ### Integration Testing with WebApplicationFactory
 
 Test the full HTTP client pipeline including DI registration:
 
 ```csharp
+
 // See [skill:dotnet-integration-testing] for WebApplicationFactory patterns
-```
+
+```csharp
 
 ---
 

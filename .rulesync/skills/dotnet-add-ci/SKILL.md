@@ -56,6 +56,7 @@ Detect the CI platform from existing repo indicators:
 Create `.github/workflows/build.yml`:
 
 ```yaml
+
 name: Build and Test
 
 on:
@@ -99,7 +100,8 @@ jobs:
         with:
           name: test-results
           path: TestResults/**/*.trx
-```
+
+```text
 
 ### Key Decisions Explained
 
@@ -116,6 +118,7 @@ jobs:
 For projects that publish to NuGet, add a pack step:
 
 ```yaml
+
 - name: Pack
   run: dotnet pack --no-build -c Release -o artifacts
 
@@ -124,7 +127,8 @@ For projects that publish to NuGet, add a pack step:
   with:
     name: nuget-packages
     path: artifacts/*.nupkg
-```
+
+```text
 
 ---
 
@@ -133,6 +137,7 @@ For projects that publish to NuGet, add a pack step:
 Create `azure-pipelines.yml` at the repo root:
 
 ```yaml
+
 trigger:
   branches:
     include:
@@ -170,11 +175,13 @@ steps:
       command: 'test'
       arguments: '--no-build -c $(buildConfiguration) --logger trx'
       publishTestResults: true
-```
+
+```bash
 
 ### Adding NuGet Pack (Libraries)
 
 ```yaml
+
 - script: dotnet pack --no-build -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)
   displayName: 'Pack'
 
@@ -183,7 +190,8 @@ steps:
   inputs:
     pathToPublish: '$(Build.ArtifactStagingDirectory)'
     artifactName: 'nuget-packages'
-```
+
+```text
 
 ---
 
@@ -199,22 +207,26 @@ TFMs automatically. No matrix is needed for the starter.
 Change the runner:
 
 ```yaml
+
 # GitHub Actions
 runs-on: windows-latest
 
 # Azure DevOps
 pool:
   vmImage: 'windows-latest'
-```
+
+```text
 
 ### Solution Filter
 
 If the repo has multiple solutions or uses solution filters:
 
 ```yaml
+
 - name: Build
   run: dotnet build MyApp.slnf --no-restore -c Release
-```
+
+```yaml
 
 ---
 
@@ -223,6 +235,7 @@ If the repo has multiple solutions or uses solution filters:
 After adding the workflow, verify locally:
 
 ```bash
+
 # GitHub Actions — validate YAML syntax
 # Install: gh extension install moritztomasi/gh-workflow-validator
 gh workflow-validator .github/workflows/build.yml
@@ -231,7 +244,8 @@ gh workflow-validator .github/workflows/build.yml
 dotnet restore --locked-mode
 dotnet build --no-restore -c Release
 dotnet test --no-build -c Release
-```
+
+```text
 
 Push a branch and open a PR to trigger the workflow.
 
