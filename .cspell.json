@@ -122,6 +122,12 @@
     "shellcheck",
     "cspell",
     "prettier",
-    "eslint"
+    "eslint",
+    "microsoftdocs",
+    "deepwiki",
+    "windbg",
+    "modelcontextprotocol",
+    "mydb",
+    "skillz"
   ]
 }
