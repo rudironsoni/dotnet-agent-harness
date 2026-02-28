@@ -261,7 +261,13 @@ Before any .NET guidance, determine the project's target framework:
 
 - [skill:dotnet-harness-manifest] -- Skill manifest management: dependencies, conflicts, version resolution
 
-### 23. Testing & Debugging `implemented`
+### 23. Serena MCP Integration `implemented`
+
+- [skill:dotnet-serena-code-navigation] -- Efficient code navigation using symbol operations
+- [skill:dotnet-serena-refactoring] -- Symbol-level refactoring with automatic reference updates
+- [skill:dotnet-serena-analysis-patterns] -- Architecture validation and pattern detection
+
+### 24. Testing & Debugging `implemented`
 
 - [skill:dotnet-windbg-debugging] -- WinDbg MCP: crash dumps, hangs, high CPU, memory triage (any Windows app)
 
