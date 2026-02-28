@@ -152,7 +152,6 @@ exit 0
 | microsoftdocs-mcp | http  | Full         | Active | MS Learn          |
 | deepwiki          | http  | Full         | Active | Wiki search       |
 | github-mcp        | http  | Full         | New    | GitHub API        |
-| docker-mcp        | http  | Full         | New    | Containers        |
 
 ## Auto-Configuration
 
