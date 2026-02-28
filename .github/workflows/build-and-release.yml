@@ -92,11 +92,10 @@ jobs:
 
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Generate descriptive changelog
+      - name: Generate changelog
         id: changelog
         env:
           VERSION: ${{ steps.get_version.outputs.VERSION }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
 
@@ -105,162 +104,69 @@ jobs:
 
           if [[ -n "${PREVIOUS_TAG}" ]]; then
             COMMIT_RANGE="${PREVIOUS_TAG}..HEAD"
-            COMPARE_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${PREVIOUS_TAG}...${VERSION}"
           else
             COMMIT_RANGE="HEAD"
-            COMPARE_URL=""
           fi
 
-          # Function to categorize commits
-          categorize_commits() {
+          # Get list of changed files
+          if [[ -n "${PREVIOUS_TAG}" ]]; then
+            CHANGED_FILES=$(git diff --name-only "${PREVIOUS_TAG}" HEAD || true)
+          else
+            CHANGED_FILES=$(git log --pretty=format: --name-only --diff-filter=A -1 || true)
+          fi
+
+          # Function to check if component changed
+          component_changed() {
             local pattern="${1}"
-            git log "${COMMIT_RANGE}" --pretty=format:"%s" --reverse | grep -E "^${pattern}:" || true
+            echo "${CHANGED_FILES}" | grep -Eq "^${pattern}" || false
           }
 
-          # Function to format commit message
-          format_commit() {
-            local msg="${1}"
-            # Extract the description after the type(scope): prefix
-            local desc
-            desc=$(echo "${msg}" | sed -E 's/^[a-z]+(\([^)]+\))?:\s*//')
-            # Extract scope if present
-            local scope
-            scope=$(echo "${msg}" | grep -oE '^[a-z]+\(([^)]+)\)' | sed -E 's/^[a-z]+\(([^)]+)\)/\1/' || true)
-            
-            if [[ -n "${scope}" ]]; then
-              echo "- **${scope}**: ${desc}"
-            else
-              echo "- ${desc}"
-            fi
+          # Get commits for a component
+          get_component_commits() {
+            local pattern="${1}"
+            git log "${COMMIT_RANGE}" --pretty=format:"%s" -- "${pattern}" 2>/dev/null || true
           }
 
-          # Generate changelog
+          # Generate changelog in the required format
           {
-            echo "## What's Changed"
+            echo "${VERSION}"
             echo ""
-            
-            if [[ -n "${COMPARE_URL}" ]]; then
-              echo "**Full Changelog**: ${COMPARE_URL}"
-              echo ""
+            if [[ -n "${PREVIOUS_TAG}" ]]; then
+              echo "Changes since ${PREVIOUS_TAG}."
+            else
+              echo "Initial release."
             fi
-            
-            # Features
-            FEATS=$(categorize_commits "feat")
-            if [[ -n "${FEATS}" ]]; then
-              echo "### Features"
-              echo "${FEATS}" | while read -r line; do
-                format_commit "${line}"
-              done
-              echo ""
-            fi
-            
-            # Bug Fixes
-            FIXES=$(categorize_commits "fix")
-            if [[ -n "${FIXES}" ]]; then
-              echo "### Bug Fixes"
-              echo "${FIXES}" | while read -r line; do
-                format_commit "${line}"
-              done
-              echo ""
-            fi
-            
-            # Performance
-            PERFS=$(categorize_commits "perf")
-            if [[ -n "${PERFS}" ]]; then
-              echo "### Performance Improvements"
-              echo "${PERFS}" | while read -r line; do
-                format_commit "${line}"
-              done
-              echo ""
-            fi
-            
-            # Documentation
-            DOCS=$(categorize_commits "docs")
-            if [[ -n "${DOCS}" ]]; then
-              echo "### Documentation"
-              echo "${DOCS}" | while read -r line; do
-                format_commit "${line}"
-              done
-              echo ""
-            fi
-            
-            # Refactoring
-            REFACTORS=$(categorize_commits "refactor")
-            if [[ -n "${REFACTORS}" ]]; then
-              echo "### Code Refactoring"
-              echo "${REFACTORS}" | while read -r line; do
-                format_commit "${line}"
-              done
-              echo ""
-            fi
-            
-            # Build System
-            BUILDS=$(categorize_commits "build")
-            if [[ -n "${BUILDS}" ]]; then
-              echo "### Build System"
-              echo "${BUILDS}" | while read -r line; do
-                format_commit "${line}"
-              done
-              echo ""
-            fi
-            
-            # CI/CD
-            CIS=$(categorize_commits "ci")
-            if [[ -n "${CIS}" ]]; then
-              echo "### CI/CD"
-              echo "${CIS}" | while read -r line; do
-                format_commit "${line}"
-              done
-              echo ""
-            fi
-            
-            # Tests
-            TESTS=$(categorize_commits "test")
-            if [[ -n "${TESTS}" ]]; then
-              echo "### Tests"
-              echo "${TESTS}" | while read -r line; do
-                format_commit "${line}"
-              done
-              echo ""
-            fi
-            
-            # Other commits (excluding chore and merge)
-            OTHERS=$(git log "${COMMIT_RANGE}" --pretty=format:"%s" --reverse | grep -v -E '^(feat|fix|perf|docs|refactor|build|ci|test|chore|Merge|merge):' || true)
-            if [[ -n "${OTHERS}" ]]; then
-              echo "### Other Changes"
-              echo "${OTHERS}" | while read -r line; do
-                echo "- ${line}"
-              done
-              echo ""
-            fi
-            
-            # Contributors
-            echo "### Contributors"
             echo ""
-            CONTRIBUTORS=$(git log "${COMMIT_RANGE}" --pretty=format:"%an <%ae>" | sort | uniq)
-            echo "${CONTRIBUTORS}" | while read -r contributor; do
-              if [[ -n "${contributor}" ]]; then
-                echo "- ${contributor}"
+
+            # Check each component
+            declare -A COMPONENTS
+            COMPONENTS=(
+              ["rulesync"]="^\.rulesync/"
+              ["claudecode"]="^(packages/dotnet-harness-claudecode/|\.rulesync/rules/targets/claudecode\.md)"
+              ["opencode"]="^(packages/dotnet-harness-opencode/|\.rulesync/rules/targets/opencode\.md)"
+              ["copilot"]="^(packages/dotnet-harness-copilot/|\.rulesync/rules/targets/copilot\.md|\.github/)"
+              ["codexcli"]="^(packages/dotnet-harness-codexcli/|\.rulesync/rules/targets/codexcli\.md)"
+              ["geminicli"]="^(packages/dotnet-harness-geminicli/|\.rulesync/rules/targets/geminicli\.md)"
+              ["agentsmd"]="^(packages/dotnet-harness-agentsmd/|\.rulesync/rules/targets/agentsmd\.md)"
+              ["antigravity"]="^(packages/dotnet-harness-antigravity/|\.rulesync/rules/targets/antigravity\.md)"
+            )
+
+            for component in rulesync claudecode opencode copilot codexcli geminicli agentsmd antigravity; do
+              echo "${component}"
+              pattern="${COMPONENTS[${component}]}"
+              if echo "${CHANGED_FILES}" | grep -Eq "${pattern}" 2>/dev/null; then
+                # Get commits for this component
+                commits=$(git log "${COMMIT_RANGE}" --pretty=format:"- %s" -- . 2>/dev/null | head -5 || true)
+                if [[ -n "${commits}" ]]; then
+                  echo "${commits}"
+                else
+                  echo "- Updated"
+                fi
+              else
+                echo "No changes in this release."
               fi
+              echo ""
             done
-            echo ""
-            
-            echo "---"
-            echo ""
-            echo "## Plugin Assets"
-            echo ""
-            echo "This release includes the following plugin bundles:"
-            echo ""
-            echo "| Plugin | Description |"
-            echo "|--------|-------------|"
-            echo "| dotnet-harness-claudecode.zip | Claude Code plugin bundle |"
-            echo "| dotnet-harness-opencode.zip | OpenCode plugin bundle |"
-            echo "| dotnet-harness-copilot.zip | GitHub Copilot plugin bundle |"
-            echo "| dotnet-harness-codexcli.zip | Codex CLI plugin bundle |"
-            echo "| dotnet-harness-geminicli.zip | Gemini CLI plugin bundle |"
-            echo "| dotnet-harness-agentsmd.zip | AGENTS.md plugin bundle |"
-            echo "| dotnet-harness-antigravity.zip | Antigravity plugin bundle |"
-            echo ""
           } > CHANGELOG.md
 
           echo "Generated changelog for version ${VERSION}"
