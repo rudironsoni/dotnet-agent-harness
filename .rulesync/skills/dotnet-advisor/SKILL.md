@@ -252,10 +252,10 @@ Before any .NET guidance, determine the project's target framework:
 ### 21. Intelligence & Recommendations `implemented`
 
 - [skill:dotnet-harness-recommender] -- AI-powered skill recommendations
-- [skill:dotnet-harness-search] -- Semantic skill search with filtering
 
-- [skill:dotnet-harness-recommender] -- AI-powered skill recommendations based on project analysis
-- [skill:dotnet-harness-search] -- Semantic skill search with filtering
+**Commands:**
+
+- `/dotnet-harness:search` -- Semantic skill search (see commands/)
 
 ### 22. Skill Management `implemented`
 
