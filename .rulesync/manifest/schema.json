@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://dotnet-harness.io/schemas/skill-manifest.json",
+  "title": "dotnet-harness Skill Manifest",
+  "description": "Schema for skill dependency manifest in dotnet-harness toolkit",
+  "type": "object",
+  "required": ["version", "generated_at", "skills"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Manifest format version",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "default": "1.0.0"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of manifest generation"
+    },
+    "skills": {
+      "type": "object",
+      "description": "Map of skill names to metadata",
+      "patternProperties": {
+        "^[a-z0-9-]+$": {
+          "$ref": "#/definitions/skill"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "skill": {
+      "type": "object",
+      "required": ["name", "version", "file_path"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique skill identifier"
+        },
+        "version": {
+          "type": "string",
+          "description": "Semantic version of the skill",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief skill description"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9/-]+$"
+          },
+          "description": "Hierarchical tags for categorization"
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "description": "Required dependencies (must be loaded first)"
+        },
+        "optional": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "description": "Optional dependencies (enhance if available)"
+        },
+        "conflicts_with": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "description": "Conflicting skills (cannot be used together)"
+        },
+        "file_path": {
+          "type": "string",
+          "description": "Relative path to skill file"
+        },
+        "line_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total lines in skill file"
+        },
+        "platforms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["claudecode", "opencode", "copilot", "codexcli", "geminicli"]
+          },
+          "description": "Supported AI platforms"
+        }
+      }
+    }
+  }
+}

@@ -249,7 +249,11 @@ Before any .NET guidance, determine the project's target framework:
 - [skill:mcp-health] -- Validate MCP server connectivity and health status
 - [skill:mcp-discovery] -- Discover and catalog available MCP servers from registries
 
-### 21. Debugging `implemented`
+### 21. Skill Management `implemented`
+
+- [skill:dotnet-harness-manifest] -- Skill manifest management: dependencies, conflicts, version resolution
+
+### 22. Debugging `implemented`
 
 - [skill:dotnet-windbg-debugging] -- WinDbg MCP: crash dumps, hangs, high CPU, memory triage (any Windows app)
 
