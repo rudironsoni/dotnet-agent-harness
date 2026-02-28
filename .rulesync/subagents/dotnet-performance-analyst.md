@@ -14,6 +14,7 @@ claudecode:
     - Read
     - Grep
     - Glob
+    - Bash
     - Write
     - Edit
 opencode:
@@ -25,7 +26,7 @@ opencode:
 copilot:
   tools: ['read', 'search', 'execute', 'edit']
 codexcli:
-  sandbox_mode: 'read-only'
+  sandbox_mode: 'inherit'
 ---
 
 # dotnet-performance-analyst

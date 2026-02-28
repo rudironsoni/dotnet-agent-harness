@@ -14,6 +14,7 @@ claudecode:
     - Read
     - Grep
     - Glob
+    - Bash
     - Write
     - Edit
 opencode:
