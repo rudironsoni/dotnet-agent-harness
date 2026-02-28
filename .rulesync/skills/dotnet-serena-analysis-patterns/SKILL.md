@@ -389,7 +389,7 @@ for method in all_methods:
 - [skill:dotnet-solid-principles] - Validate SOLID compliance
 - [skill:dotnet-security-owasp] - Security-focused analysis
 - [skill:dotnet-performance-patterns] - Performance analysis
-- [skill:dotnet-code-smells] - Code smell catalog
+- [skill:dotnet-csharp-code-smells] - Code smell catalog
 
 ## Analysis Report Template
 
