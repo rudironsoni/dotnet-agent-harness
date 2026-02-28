@@ -218,8 +218,7 @@ Example:
       "url": "https://mcp.context7.com/mcp",
       "headers": {
         "CONTEXT7_API_KEY": "YOUR_API_KEY"
-      },
-      "tools": ["query-docs", "resolve-library-id"]
+      }
     }
   }
 }
