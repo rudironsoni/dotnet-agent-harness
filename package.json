@@ -1,6 +1,6 @@
 {
   "name": "dotnet-harness",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Comprehensive .NET development skills for all AI agents",
   "type": "module",
   "scripts": {

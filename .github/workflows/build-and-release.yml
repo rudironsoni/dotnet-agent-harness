@@ -90,13 +90,24 @@ jobs:
 
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Generate changelog
+        id: changelog
+        env:
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          bash scripts/build/generate-changelog.sh "$VERSION"
+          echo "Generated changelog:"
+          cat CHANGELOG.md
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
           name: Release ${{ steps.get_version.outputs.VERSION }}
+          body_path: CHANGELOG.md
           files: dist/*.zip
-          generate_release_notes: true
           draft: false
           prerelease: false
 
