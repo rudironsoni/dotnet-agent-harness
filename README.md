@@ -42,6 +42,33 @@ When developers use AI coding tools for .NET development, they encounter:
 **dotnet-harness solves this** by providing a curated, version-controlled, continuously updated knowledge base that
 ensures consistent, expert-level .NET guidance across all AI coding platforms.
 
+### Serena MCP Integration
+
+This toolkit now uses [Serena MCP](https://github.com/orgs/rudironsoni/dotnet-harness-toolkit/.rulesync/skills/serena)
+for efficient code editing:
+
+**Serena-First Approach:**
+
+- **Symbol-level navigation** instead of text search
+- **Precise refactoring** with automatic reference updates
+- **Dependency analysis** via `serena_find_referencing_symbols`
+- **Safe transformations** with symbol-aware operations
+
+**Available in all subagents:**
+
+- `serena_find_symbol` - Navigate to definitions
+- `serena_get_symbols_overview` - Understand file structure
+- `serena_find_referencing_symbols` - Track dependencies
+- `serena_replace_symbol_body` - Precise edits
+
+**Fallback:** If Serena unavailable, traditional Read/Grep/Edit tools work seamlessly.
+
+**Learn more:**
+
+- [dotnet-serena-code-navigation](.rulesync/skills/dotnet-serena-code-navigation/SKILL.md) - Navigation patterns
+- [dotnet-serena-refactoring](.rulesync/skills/dotnet-serena-refactoring/SKILL.md) - Refactoring techniques
+- [dotnet-serena-analysis-patterns](.rulesync/skills/dotnet-serena-analysis-patterns/SKILL.md) - Code analysis
+
 ### What You Get
 
 | Component       | Count | Description                                                     |
