@@ -243,6 +243,9 @@ Before any .NET guidance, determine the project's target framework:
 
 - [skill:dotnet-microsoft-agent-framework] -- Microsoft Agent Framework: agents, workflows, tools, MCP servers,
   multi-agent orchestration
+- [skill:microsoft-learn-mcp] -- Microsoft Learn documentation via MCP
+- [skill:github-mcp] -- GitHub operations: repos, PRs, issues, Actions via MCP
+- [skill:docker-mcp] -- Docker container management, images, Compose via MCP
 
 ### 21. Debugging `implemented`
 

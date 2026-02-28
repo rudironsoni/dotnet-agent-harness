@@ -39,6 +39,29 @@
       "description": "DeepWiki MCP for documentation access",
       "type": "http",
       "url": "https://mcp.deepwiki.com/mcp"
+    },
+    "github-mcp": {
+      "description": "GitHub MCP for repository operations, PRs, and issues",
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "docker-mcp": {
+      "description": "Docker MCP for container management and image builds",
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-v",
+        "/var/run/docker.sock:/var/run/docker.sock",
+        "mcp/docker"
+      ],
+      "env": {}
     }
   }
 }
