@@ -162,10 +162,9 @@ exit 0
       "latency_ms": 45
     },
     "context7": {
-      "type": "stdio",
-      "status": "unavailable",
-      "command": "npx",
-      "error": "npx not found"
+      "type": "remote",
+      "status": "healthy",
+      "url": "https://mcp.context7.com/mcp"
     }
   },
   "summary": {

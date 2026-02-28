@@ -147,7 +147,7 @@ exit 0
 | MCP Server        | Type  | .NET Support | Status | Notes             |
 | ----------------- | ----- | ------------ | ------ | ----------------- |
 | serena            | stdio | Full         | Active | Semantic analysis |
-| context7          | stdio | Full         | Active | Library docs      |
+| context7          | http  | Full         | Active | Library docs      |
 | mcp-windbg        | stdio | Windows      | Active | Debugging         |
 | microsoftdocs-mcp | http  | Full         | Active | MS Learn          |
 | deepwiki          | http  | Full         | Active | Wiki search       |
@@ -283,7 +283,7 @@ Inform user of discovered MCPs:
 Discovered MCP servers:
 ✓ serena (local)
 ✓ microsoftdocs-mcp (cloud)
-✓ github (new - available)
+✓ github (remote)
 
 Run [mcp-discovery:update-config] to add new MCPs.
 ```text
