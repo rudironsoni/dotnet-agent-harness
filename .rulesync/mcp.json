@@ -17,11 +17,11 @@
       "env": {}
     },
     "context7": {
-      "description": "Library documentation search server",
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@2.1.2"],
-      "env": {}
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "YOUR_API_KEY"
+      }
     },
     "microsoftdocs-mcp": {
       "description": "Microsoft Learn documentation MCP",
@@ -40,28 +40,10 @@
       "type": "http",
       "url": "https://mcp.deepwiki.com/mcp"
     },
-    "github-mcp": {
+    "github": {
       "description": "GitHub MCP for repository operations, PRs, and issues",
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
-      }
-    },
-    "docker-mcp": {
-      "description": "Docker MCP for container management and image builds",
-      "type": "stdio",
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-v",
-        "/var/run/docker.sock:/var/run/docker.sock",
-        "mcp/docker"
-      ],
-      "env": {}
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
     }
   }
 }

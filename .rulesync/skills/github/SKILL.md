@@ -1,5 +1,5 @@
 ---
-name: github-mcp
+name: github
 description:
   'GitHub MCP Server integration for repository operations, pull requests, issues, and GitHub Actions. Triggers on:
   github mcp, github operations, pull request, issue, repository, github actions, commit, branch, merge.'
@@ -31,13 +31,14 @@ The MCP server is configured in `.rulesync/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "github-mcp": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
-      }
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {env:GITHUB_TOKEN}"
+      },
+      "enabled": true
     }
   }
 }

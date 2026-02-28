@@ -10,18 +10,9 @@ author: 'dotnet-harness'
 claudecode:
   model: inherit
   allowed-tools:
-    - serena_get_symbols_overview
-    - serena_find_symbol
-    - serena_find_referencing_symbols
-    - serena_replace_symbol_body
-    - serena_replace_content
-    - serena_insert_after_symbol
-    - serena_insert_before_symbol
     - Read
     - Grep
     - Glob
-    - Write
-    - Edit
 opencode:
   mode: 'subagent'
   tools:

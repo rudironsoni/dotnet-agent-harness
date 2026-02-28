@@ -5,27 +5,18 @@ description:
   and design patterns. Triggers on: what framework to use, how to structure a project, recommend an approach,
   architecture review.'
 targets: ['*']
-tags: ['dotnet', 'subagent']
+tags: ['dotnet', 'agent']
 version: '0.0.1'
 author: 'dotnet-harness'
 claudecode:
   model: inherit
   allowed-tools:
-    - serena_get_symbols_overview
-    - serena_find_symbol
-    - serena_find_referencing_symbols
-    - serena_replace_symbol_body
-    - serena_replace_content
-    - serena_insert_after_symbol
-    - serena_insert_before_symbol
     - Read
     - Grep
     - Glob
     - Bash
-    - Write
-    - Edit
 opencode:
-  mode: primary
+  mode: 'primary'
   hidden: false
   tools:
     bash: true

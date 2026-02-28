@@ -244,8 +244,7 @@ Before any .NET guidance, determine the project's target framework:
 - [skill:dotnet-microsoft-agent-framework] -- Microsoft Agent Framework: agents, workflows, tools, MCP servers,
   multi-agent orchestration
 - [skill:microsoft-learn-mcp] -- Microsoft Learn documentation via MCP
-- [skill:github-mcp] -- GitHub operations: repos, PRs, issues, Actions via MCP
-- [skill:docker-mcp] -- Docker container management, images, Compose via MCP
+- [skill:github] -- GitHub operations: repos, PRs, issues, Actions via MCP
 - [skill:mcp-health] -- Validate MCP server connectivity and health status
 - [skill:mcp-discovery] -- Discover and catalog available MCP servers from registries
 
