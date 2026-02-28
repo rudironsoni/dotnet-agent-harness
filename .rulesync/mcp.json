@@ -41,13 +41,9 @@
       "url": "https://mcp.deepwiki.com/mcp"
     },
     "github": {
-      "type": "remote",
-      "url": "https://api.githubcopilot.com/mcp/",
-      "oauth": false,
-      "headers": {
-        "Authorization": "Bearer {env:GITHUB_TOKEN}"
-      },
-      "enabled": true
+      "description": "GitHub MCP for repository operations, PRs, and issues",
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
     }
   }
 }
