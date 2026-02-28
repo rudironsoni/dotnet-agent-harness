@@ -23,7 +23,7 @@ opencode:
     edit: false
     write: false
 copilot:
-  tools: ['read', 'search', 'execute', 'edit']
+  tools: ['read', 'search', 'execute']
 ---
 
 # dotnet-architect
