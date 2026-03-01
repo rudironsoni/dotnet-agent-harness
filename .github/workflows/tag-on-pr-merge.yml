@@ -108,24 +108,5 @@ jobs:
           echo "Failed to create unique semver tag after ${max_attempts} attempts"
           exit 1
 
-      - name: Trigger build-and-release workflow
-        if: steps.create_tag.outputs.tag_created == 'true'
-        env:
-          TAG: ${{ steps.create_tag.outputs.release_tag }}
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-
-          if [[ -z "${TAG}" ]]; then
-            echo "No tag output from create_tag step"
-            exit 1
-          fi
-
-          gh api \
-            --method POST \
-            -H "Accept: application/vnd.github+json" \
-            "/repos/${GITHUB_REPOSITORY}/actions/workflows/build-and-release.yml/dispatches" \
-            -f ref=main \
-            -f "inputs[version]=${TAG}"
-
-          echo "Triggered build-and-release workflow for ${TAG}"
+      # Note: build-and-release workflow was removed as part of npm migration
+      # Future releases can be handled manually or via a new workflow
