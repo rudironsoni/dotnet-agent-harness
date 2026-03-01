@@ -25,11 +25,11 @@ runs:
         }
 
         run_rulesync() {
-          if [[ -x "$GITHUB_WORKSPACE/node_modules/.bin/rulesync" ]]; then
-            "$GITHUB_WORKSPACE/node_modules/.bin/rulesync" "$@"
+          if command -v rulesync >/dev/null 2>&1; then
+            rulesync "$@"
             return
           fi
-          npx rulesync "$@"
+          fail "rulesync binary not found. Run scripts/ci/install_rulesync.sh"
         }
 
         reset_generated_workspace() {

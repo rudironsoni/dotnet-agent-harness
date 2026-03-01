@@ -2,13 +2,13 @@
 layout: home
 
 hero:
-  name: 'dotnet-harness'
+  name: 'dotnet-agent-harness'
   text: 'Comprehensive .NET Development Toolkit'
   tagline:
     131 skills, 15 subagents, and expert guidance for modern C#, ASP.NET Core, MAUI, Blazor, and cloud-native apps
   image:
     src: /logo.png
-    alt: dotnet-harness
+    alt: dotnet-agent-harness
   actions:
     - theme: brand
       text: Get Started
@@ -18,7 +18,7 @@ hero:
       link: /skills/
     - theme: alt
       text: GitHub
-      link: https://github.com/rudironsoni/dotnet-harness
+      link: https://github.com/rudironsoni/dotnet-agent-harness
 
 features:
   - icon: 🎯
@@ -53,7 +53,7 @@ features:
 npm install -g rulesync
 
 # Fetch the toolkit
-rulesync fetch rudironsoni/dotnet-harness:.rulesync
+rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
 
 # Generate for your platform
 rulesync generate --targets "*" --features "*"
@@ -77,7 +77,7 @@ rulesync generate --targets "*" --features "*"
 
 ```mermaid
 graph TB
-    subgraph "dotnet-harness Toolkit"
+    subgraph "dotnet-agent-harness Toolkit"
         SKILLS[131 Skills]
         SUBAGENTS[15 Subagents]
         COMMANDS[15 Commands]
@@ -105,8 +105,8 @@ graph TB
 
 ### Phase 4 Complete 🎉
 
-- **5 New Commands**: `/dotnet-harness:search`, `/dotnet-harness:test`, `/dotnet-harness:profile`,
-  `/dotnet-harness:graph`, `/dotnet-harness:compare`
+- **5 New Commands**: `/dotnet-agent-harness:search`, `/dotnet-agent-harness:test`, `/dotnet-agent-harness:profile`,
+  `/dotnet-agent-harness:graph`, `/dotnet-agent-harness:compare`
 - **VS Code Extension**: Real-time validation and autocomplete
 - **Skill Manifest**: Dependency tracking and version resolution
 - **Quick-Start Templates**: web-api, blazor-app, maui-mobile, clean-arch, console, classlib

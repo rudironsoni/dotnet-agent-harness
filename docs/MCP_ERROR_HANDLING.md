@@ -2,7 +2,8 @@
 
 ## Overview
 
-This document defines error handling strategies for MCP (Model Context Protocol) integration in dotnet-harness skills.
+This document defines error handling strategies for MCP (Model Context Protocol) integration in dotnet-agent-harness
+skills.
 
 ## Failure Modes
 

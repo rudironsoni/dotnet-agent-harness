@@ -1,0 +1,126 @@
+name: "dotnet-agent-harness"
+description: "Comprehensive .NET development guidance toolkit for AI agents"
+author: "dotnet-agent-harness"
+branding:
+  icon: "box"
+  color: "blue"
+
+inputs:
+  targets:
+    description: 'Target platforms to generate (comma-separated or "*" for all)'
+    required: false
+    default: "*"
+  features:
+    description: 'Features to include (comma-separated or "*" for all)'
+    required: false
+    default: "*"
+  base-dirs:
+    description: "Base directories to scan (comma-separated)"
+    required: false
+    default: "."
+  delete-existing:
+    description: "Delete existing files before generating"
+    required: false
+    default: "false"
+  validate-only:
+    description: "Only validate configuration, do not generate"
+    required: false
+    default: "false"
+  version:
+    description: "Version of rulesync to use"
+    required: false
+    default: "latest"
+
+outputs:
+  generated-files:
+    description: "Number of files generated"
+    value: ${{ steps.generate.outputs.count }}
+  manifest-path:
+    description: "Path to generated skill manifest"
+    value: ${{ steps.generate.outputs.manifest }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: "10.0.x"
+        include-prerelease: true
+
+    - name: Install rulesync
+      shell: bash
+      run: |
+        if [ "${{ inputs.version }}" = "latest" ]; then
+          bash scripts/ci/install_rulesync.sh
+        else
+          bash scripts/ci/install_rulesync.sh "${{ inputs.version }}"
+        fi
+        rulesync --version
+
+    - name: Validate configuration
+      shell: bash
+      run: |
+        rulesync validate
+
+    - name: Install declarative sources
+      if: ${{ inputs.validate-only != 'true' }}
+      shell: bash
+      run: |
+        if [ -f "rulesync.jsonc" ] || [ -f "rulesync.local.jsonc" ]; then
+          rulesync install || true
+        fi
+
+    - name: Generate files
+      if: ${{ inputs.validate-only != 'true' }}
+      id: generate
+      shell: bash
+      run: |
+        # Build command arguments
+        ARGS=""
+
+        if [ "${{ inputs.targets }}" != "*" ]; then
+          ARGS="$ARGS --targets ${{ inputs.targets }}"
+        fi
+
+        if [ "${{ inputs.features }}" != "*" ]; then
+          ARGS="$ARGS --features ${{ inputs.features }}"
+        fi
+
+        if [ "${{ inputs.base-dirs }}" != "." ]; then
+          ARGS="$ARGS --base-dirs ${{ inputs.base-dirs }}"
+        fi
+
+        if [ "${{ inputs.delete-existing }}" = "true" ]; then
+          ARGS="$ARGS --delete"
+        fi
+
+        # Run generation
+        rulesync generate $ARGS
+
+        # Count generated files
+        COUNT=$(find .github/agents .github/skills -type f 2>/dev/null | wc -l)
+        echo "count=$COUNT" >> $GITHUB_OUTPUT
+
+        # Set manifest path if exists
+        if [ -f ".rulesync/manifest/skill-manifest.json" ]; then
+          echo "manifest=.rulesync/manifest/skill-manifest.json" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Verify generated files
+      if: ${{ inputs.validate-only != 'true' }}
+      shell: bash
+      run: |
+        echo "Generated ${{ steps.generate.outputs.count }} files"
+        echo "Manifest: ${{ steps.generate.outputs.manifest }}"
+
+        # Verify AGENTS.md exists
+        if [ ! -f "AGENTS.md" ]; then
+          echo "Warning: AGENTS.md not generated"
+        fi
+
+    - name: Build skill manifest
+      if: ${{ inputs.validate-only != 'true' }}
+      shell: bash
+      run: |
+        dotnet run --project src/DotNetAgentHarness.Tools -- build-manifest || true

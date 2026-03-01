@@ -2,9 +2,9 @@
 
 ## Commands
 
-- `/dotnet-harness:search` - Search skills
-- `/dotnet-harness:test` - Test skills
-- `/dotnet-harness:profile` - Profile performance
+- `/dotnet-agent-harness:search` - Search skills
+- `/dotnet-agent-harness:test` - Test skills
+- `/dotnet-agent-harness:profile` - Profile performance
 
 ## Skills
 

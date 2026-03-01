@@ -1,7 +1,7 @@
 {
-  "name": "dotnet-harness-docs",
+  "name": "dotnet-agent-harness-docs",
   "version": "1.0.0",
-  "description": "Documentation site for dotnet-harness toolkit",
+  "description": "Documentation site for dotnet-agent-harness toolkit",
   "scripts": {
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",

@@ -37,7 +37,11 @@ echo "=== Generating RuleSync outputs ==="
 cd "${PROJECT_ROOT}"
 
 # Generate for all targets
-npx rulesync generate --targets "*" --features "*"
+if ! command -v rulesync >/dev/null 2>&1; then
+  echo "ERROR: rulesync is not installed. Run scripts/ci/install_rulesync.sh" >&2
+  exit 1
+fi
+rulesync generate --targets "*" --features "*"
 
 # Define platforms, their output directories, and any root-level files to include
 # Format: platform|directory|root_files (comma-separated, empty if none)
@@ -65,7 +69,7 @@ echo "=== Building platform bundles ==="
 for config in "${PLATFORM_CONFIGS[@]}"; do
     IFS='|' read -r platform dir_name root_files <<< "${config}"
     src_dir="${PROJECT_ROOT}/${dir_name}"
-    bundle_name="dotnet-harness-${platform}.zip"
+    bundle_name="dotnet-agent-harness-${platform}.zip"
     bundle_path="${DIST_DIR}/${bundle_name}"
 
     if [[ ! -d "${src_dir}" ]]; then

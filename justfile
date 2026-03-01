@@ -1,0 +1,84 @@
+# justfile for dotnet-agent-harness
+
+set shell := ["bash", "-c"]
+
+default:
+    @just --list
+
+# --- Setup ---
+
+# Install tools required to work on the project
+setup:
+    @echo "Checking prerequisites..."
+    @which act > /dev/null || (echo "Please install act (https://github.com/nektos/act)"; exit 1)
+    @which yq > /dev/null || (echo "Please install yq (https://github.com/mikefarah/yq)"; exit 1)
+    @which dotnet > /dev/null || (echo "Please install .NET SDK"; exit 1)
+    @which just > /dev/null || (echo "Please install just"; exit 1)
+    @which mdl > /dev/null || echo "Note: mdl not found - Markdown linting will be skipped"
+    @which codespell > /dev/null || echo "Note: codespell not found - spell checking will be skipped"
+    @which shellcheck > /dev/null || echo "Note: shellcheck not found - shell script linting will be skipped"
+    @which rulesync > /dev/null || (echo "Please install rulesync (scripts/ci/install_rulesync.sh)"; exit 1)
+    @echo "Setup complete."
+
+# --- Evaluation (DotNetAgentHarness.Evals) ---
+
+# Run the evaluation harness (requires EVAL_OPENAI_KEY and EVAL_ANTHROPIC_KEY)
+eval:
+    dotnet run --project src/DotNetAgentHarness.Evals/DotNetAgentHarness.Evals.csproj
+
+# Run the evaluation harness and update the baseline
+eval-update-baseline:
+    dotnet run --project src/DotNetAgentHarness.Evals/DotNetAgentHarness.Evals.csproj -- --update-baseline
+
+# Build the evaluation harness
+build-eval:
+    dotnet build src/DotNetAgentHarness.Evals/DotNetAgentHarness.Evals.csproj
+
+# Run tests for the evaluation harness
+test-eval:
+    dotnet test src/DotNetAgentHarness.Evals/DotNetAgentHarness.Evals.csproj
+
+# --- Code Generation & Validation ---
+
+# Validate subagents
+validate-subagents:
+    bash scripts/ci/validate_subagents.sh
+
+# Validate rulesync outputs
+validate-rulesync:
+    bash scripts/ci/validate_rulesync.sh
+
+# Generate rulesync artifacts
+generate:
+    rulesync generate
+
+# Run CI rulesync checks
+ci-rulesync: lint validate-subagents validate-rulesync
+
+# --- Linting & Formatting ---
+
+# Run all linters
+lint: lint-md lint-frontmatter lint-spell lint-shell
+    @echo "Linting passed."
+
+lint-md:
+    @which mdl > /dev/null && mdl -i node_modules -i src -i packages . || echo "Skipping lint-md (mdl not installed)"
+
+lint-frontmatter:
+    dotnet run --project src/DotNetAgentHarness.Tools -- lint-frontmatter
+
+lint-spell:
+    @which codespell > /dev/null && codespell -q 3 --skip="./.git,./.opencode,./.claude,./.gemini,./.codex,./.agent,./.vscode,./dist,./node_modules,./packages" || echo "Skipping lint-spell (codespell not installed)"
+
+lint-shell:
+    shellcheck scripts/**/*.sh || true
+
+format:
+    dotnet csharpier src/
+
+# --- CI Equivalency ---
+
+# Run GitHub actions locally using act
+act:
+    act -j rulesync-validate
+    act -j lint

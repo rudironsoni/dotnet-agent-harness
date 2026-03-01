@@ -20,49 +20,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
+      - name: Install just
+        uses: extractions/setup-just@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          node-version: "22"
-          cache: "npm"
+          dotnet-version: "10.0.x"
+          include-prerelease: true
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck codespell ruby-full
+          sudo gem install mdl
 
-      - name: Run npm audit
-        run: npm audit --audit-level=high
-
-      - name: Lint Markdown
-        run: npm run lint:md
-
-      - name: Lint Frontmatter
-        run: npm run lint:frontmatter
-
-      - name: Check Spelling
-        run: npm run lint:spell
-
-      - name: Lint JavaScript
-        run: npm run lint:js
-
-      - name: Check Formatting
-        run: npm run format:check
-
-  links:
-    name: Check Links
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: "22"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check Markdown Links
-        run: npm run lint:links
-        continue-on-error: true
+      - name: Lint
+        run: just lint

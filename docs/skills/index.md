@@ -1,6 +1,6 @@
 # Skills Reference
 
-Browse all 147 skills in the dotnet-harness toolkit.
+Browse all 147 skills in the dotnet-agent-harness toolkit.
 
 ## Categories
 

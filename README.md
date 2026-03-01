@@ -1,18 +1,18 @@
-# dotnet-harness
+# dotnet-agent-harness
 
 > **The definitive .NET development companion for AI coding tools.**
 >
 > 147 specialized skills · 15 expert subagents · 20 powerful commands · Multi-platform distribution
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Workflows](https://github.com/rudironsoni/dotnet-harness/workflows/CI/badge.svg)](https://github.com/rudironsoni/dotnet-harness/actions)
+[![Workflows](https://github.com/rudironsoni/dotnet-agent-harness/workflows/CI/badge.svg)](https://github.com/rudironsoni/dotnet-agent-harness/actions)
 [![RuleSync](https://img.shields.io/badge/Powered%20by-RuleSync-purple)](https://github.com/dyoshikawa/rulesync)
 
 ---
 
 ## Table of Contents
 
-- [What is dotnet-harness?](#what-is-dotnet-harness)
+- [What is dotnet-agent-harness?](#what-is-dotnet-agent-harness)
 - [Why RuleSync?](#why-rulesync)
 - [Architecture & Components](#architecture--components)
 - [Installation](#installation)
@@ -23,12 +23,12 @@
 
 ---
 
-## What is dotnet-harness?
+## What is dotnet-agent-harness?
 
-**dotnet-harness** is a comprehensive, production-ready toolkit that transforms AI coding assistants into .NET
-development experts. Unlike generic coding assistants, dotnet-harness provides deep, specialized knowledge covering the
-entire .NET ecosystem—from C# language features and ASP.NET Core patterns to MAUI mobile development and cloud-native
-architecture.
+**dotnet-agent-harness** is a comprehensive, production-ready toolkit that transforms AI coding assistants into .NET
+development experts. Unlike generic coding assistants, dotnet-agent-harness provides deep, specialized knowledge
+covering the entire .NET ecosystem—from C# language features and ASP.NET Core patterns to MAUI mobile development and
+cloud-native architecture.
 
 ### The Problem We Solve
 
@@ -39,13 +39,13 @@ When developers use AI coding tools for .NET development, they encounter:
 - **Inconsistent quality**: Varying expertise across different AI platforms
 - **No standardization**: Each project reinvents guidance and conventions
 
-**dotnet-harness solves this** by providing a curated, version-controlled, continuously updated knowledge base that
-ensures consistent, expert-level .NET guidance across all AI coding platforms.
+**dotnet-agent-harness solves this** by providing a curated, version-controlled, continuously updated knowledge base
+that ensures consistent, expert-level .NET guidance across all AI coding platforms.
 
 ### Serena MCP Integration
 
-This toolkit now uses [Serena MCP](https://github.com/orgs/rudironsoni/dotnet-harness-toolkit/.rulesync/skills/serena)
-for efficient code editing:
+This toolkit now uses [Serena MCP](https://github.com/orgs/rudironsoni/dotnet-agent-harness/.rulesync/skills/serena) for
+efficient code editing:
 
 **Serena-First Approach:**
 
@@ -124,7 +124,7 @@ Without RuleSync, maintaining a multi-platform toolkit would require:
 With RuleSync:
 
 - **Edit once** in `.rulesync/skills/`, generate for all platforms
-- **Validate before commit** with `npm run ci:rulesync`
+- **Validate before commit** with `just ci-rulesync`
 - **Automated distribution** via GitHub Actions
 - **Clear contribution model** through GitHub PRs
 
@@ -132,12 +132,12 @@ With RuleSync:
 
 ## Architecture & Components
 
-Understanding the dotnet-harness architecture helps you use it effectively and contribute meaningfully.
+Understanding the dotnet-agent-harness architecture helps you use it effectively and contribute meaningfully.
 
 ### Component Overview
 
 ```text
-dotnet-harness/
+dotnet-agent-harness/
 ├── .rulesync/                    # Source of truth (you edit here)
 │   ├── skills/                   # 147 knowledge modules
 │   │   ├── dotnet-*/             # .NET-specific skills
@@ -148,7 +148,7 @@ dotnet-harness/
 │   │   ├── dotnet-*-specialist/  # Domain experts
 │   │   └── wiki-*/               # Documentation agents
 │   ├── commands/                 # 20 slash commands
-│   │   └── dotnet-harness-*/     # Toolkit commands
+│   │   └── dotnet-agent-harness-*/     # Toolkit commands
 │   ├── rules/                    # RuleSync configuration
 │   │   ├── overview.md           # Entry point
 │   │   └── 10-conventions.md     # Coding standards
@@ -223,12 +223,12 @@ tags: ['dotnet', 'skill', 'data/ef-core']
 
 **Command Categories**:
 
-| Command                   | Purpose                                       |
-| ------------------------- | --------------------------------------------- |
-| `/dotnet-harness:search`  | Find skills by keyword or semantic similarity |
-| `/dotnet-harness:test`    | Run automated skill tests                     |
-| `/dotnet-harness:profile` | Analyze local performance                     |
-| `/dotnet-harness:graph`   | Generate dependency visualizations            |
+| Command                         | Purpose                                       |
+| ------------------------------- | --------------------------------------------- |
+| `/dotnet-agent-harness:search`  | Find skills by keyword or semantic similarity |
+| `/dotnet-agent-harness:test`    | Run automated skill tests                     |
+| `/dotnet-agent-harness:profile` | Analyze local performance                     |
+| `/dotnet-agent-harness:graph`   | Generate dependency visualizations            |
 
 #### Hooks (`.rulesync/hooks.json`)
 
@@ -270,8 +270,9 @@ tags: ['dotnet', 'skill', 'data/ef-core']
 
 ### Prerequisites
 
-- Node.js 18+
 - Git
+- just (task runner)
+- .NET 10 SDK (for evaluation harness)
 - GitHub CLI (optional, for `gh` commands)
 
 ### Quick Start (Project Mode - Recommended)
@@ -279,11 +280,11 @@ tags: ['dotnet', 'skill', 'data/ef-core']
 Project mode installs the full harness in your repository:
 
 ```bash
-# 1. Install rulesync globally
-npm install -g rulesync
+# 1. Install rulesync (binary)
+curl -fsSL https://github.com/dyoshikawa/rulesync/releases/latest/download/install.sh | bash
 
 # 2. Fetch the harness
-rulesync fetch rudironsoni/dotnet-harness:.rulesync
+rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
 
 # 3. Generate for all platforms
 rulesync generate --targets "*" --features "*"
@@ -295,6 +296,7 @@ rulesync generate --targets "*" --features "*"
 - `.opencode/` - OpenCode configuration
 - `.github/` - GitHub Copilot configuration
 - `.codex/` - Codex CLI configuration
+- `.gemini/` - Gemini CLI configuration
 - `AGENTS.md` - Agent definitions
 
 ### Declarative Sources (Advanced)
@@ -306,7 +308,7 @@ For curated skill selection or multiple sources:
 cat > rulesync.jsonc << 'EOF'
 {
   "sources": [
-    { "source": "rudironsoni/dotnet-harness", "path": ".rulesync" }
+    { "source": "rudironsoni/dotnet-agent-harness", "path": ".rulesync" }
   ],
   "targets": ["claudecode", "opencode"],
   "features": ["skills", "subagents", "commands"]
@@ -322,11 +324,11 @@ rulesync generate
 
 ```bash
 # Pull the image
-docker pull ghcr.io/rudironsoni/dotnet-harness:latest
+docker pull ghcr.io/rudironsoni/dotnet-agent-harness:latest
 
 # Run commands
 docker run --rm -v $(pwd):/workspace \
-  ghcr.io/rudironsoni/dotnet-harness:latest \
+  ghcr.io/rudironsoni/dotnet-agent-harness:latest \
   rulesync validate
 ```
 
@@ -355,13 +357,13 @@ docker run --rm -v $(pwd):/workspace \
 
 ````bash
 # Search by keyword
-/dotnet-harness:search authentication
+/dotnet-agent-harness:search authentication
 
 # Search by category
-/dotnet-harness:search --category ui/blazor
+/dotnet-agent-harness:search --category ui/blazor
 
 # Semantic search
-/dotnet-harness:search "how to handle JWT tokens"
+/dotnet-agent-harness:search "how to handle JWT tokens"
 ### Using Subagents
 
 ```text
@@ -374,38 +376,38 @@ docker run --rm -v $(pwd):/workspace \
 
 ```bash
 # Test a specific skill
-/dotnet-harness:test dotnet-efcore-patterns
+/dotnet-agent-harness:test dotnet-efcore-patterns
 
 # Test all skills
-/dotnet-harness:test --all
+/dotnet-agent-harness:test --all
 
 # Generate coverage report
-/dotnet-harness:test --coverage --output report.html
+/dotnet-agent-harness:test --coverage --output report.html
 ```
 
 ### Profiling Performance
 
 ```bash
 # Analyze current session
-/dotnet-harness:profile
+/dotnet-agent-harness:profile
 
 # Compare with baseline
-/dotnet-harness:profile --compare-with baseline.json
+/dotnet-agent-harness:profile --compare-with baseline.json
 ```
 
 ---
 
 ## The Plugin Repository
 
-**Critical Understanding**: This repository (`rudironsoni/dotnet-harness`) is the **source of truth**. The actual
+**Critical Understanding**: This repository (`rudironsoni/dotnet-agent-harness`) is the **source of truth**. The actual
 distribution happens through a separate repository:
 
 ### Repository Structure
 
-| Repository              | Purpose          | Content                                |
-| ----------------------- | ---------------- | -------------------------------------- |
-| `dotnet-harness`        | **Source**       | `.rulesync/`, scripts, docs, workflows |
-| `dotnet-harness-plugin` | **Distribution** | Generated artifacts only               |
+| Repository                    | Purpose          | Content                                |
+| ----------------------------- | ---------------- | -------------------------------------- |
+| `dotnet-agent-harness`        | **Source**       | `.rulesync/`, scripts, docs, workflows |
+| `dotnet-agent-harness-plugin` | **Distribution** | Generated artifacts only               |
 
 ### Why Two Repositories?
 
@@ -417,11 +419,11 @@ distribution happens through a separate repository:
 ### Distribution Flow
 
 ```text
-Source Repo (dotnet-harness)
+Source Repo (dotnet-agent-harness)
     ↓ Push to main
 GitHub Actions
     ↓ Generate bundles
-Distribution Repo (dotnet-harness-plugin)
+Distribution Repo (dotnet-agent-harness-plugin)
     ↓ Marketplace sync
 AI Platforms (Claude, OpenCode, etc.)
 ```
@@ -434,7 +436,7 @@ AI Platforms (Claude, OpenCode, etc.)
 - `.rulesync/subagents/*.md` → agent definitions
 - `.rulesync/commands/*.md` → slash commands
 
-**Plugin Repo** (`rudironsoni/dotnet-harness-plugin`):
+**Plugin Repo** (`rudironsoni/dotnet-agent-harness-plugin`):
 
 - `.claude/skills/*.md` → Claude-specific formatting
 - `.opencode/skills/*.md` → OpenCode-specific formatting
@@ -445,16 +447,16 @@ AI Platforms (Claude, OpenCode, etc.)
 
 ```bash
 # Users install from plugin repo
-rulesync fetch rudironsoni/dotnet-harness-plugin:.claude
+rulesync fetch rudironsoni/dotnet-agent-harness-plugin:.claude
 
-# Or use npm packages
-npm install @rudironsoni/dotnet-harness-opencode
+# Or use platform-specific packages (coming soon)
+# See https://github.com/rudironsoni/dotnet-agent-harness-plugin for distribution
 ```
 
 ### Governance
 
-- **Humans edit only** in `dotnet-harness`
-- **Bot manages** `dotnet-harness-plugin`
+- **Humans edit only** in `dotnet-agent-harness`
+- **Bot manages** `dotnet-agent-harness-plugin`
 - **Pull requests** in source repo trigger automatic plugin updates
 - **No manual edits** in plugin repo (enforced by CI)
 
@@ -468,17 +470,19 @@ We welcome contributions! This section explains how to contribute effectively.
 
 ```bash
 # 1. Fork and clone
-git clone https://github.com/YOUR_USERNAME/dotnet-harness.git
-cd dotnet-harness
+git clone https://github.com/YOUR_USERNAME/dotnet-agent-harness.git
+cd dotnet-agent-harness
 
-# 2. Install dependencies
-npm install
+# 2. Install just (task runner)
+# macOS: brew install just
+# Linux: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash
+# Windows: winget install --id Casey.Just
 
-# 3. Run validation
-npm run ci:rulesync
+# 3. Install dependencies
+just setup
 
-# 4. Run tests
-npm test
+# 4. Run validation
+just ci-rulesync
 ```
 
 ### Contribution Workflow
@@ -491,7 +495,7 @@ git checkout -b feature/my-new-skill
 vim .rulesync/skills/dotnet-my-new-skill/SKILL.md
 
 # 3. Validate locally
-npm run ci:rulesync
+just ci-rulesync
 
 # 4. Commit
 git add -A
@@ -577,7 +581,7 @@ public void BadExample() { } // Don't do this because...
 **Requirements**:
 
 - Must have frontmatter with `name`, `description`, `targets`
-- Must pass `npm run lint:frontmatter`
+- Must pass `just lint-frontmatter`
 - Must include code examples
 - Must reference related skills
 - Must be tagged with appropriate categories
@@ -614,7 +618,7 @@ MIT License. See [LICENSE](LICENSE).
 
 <div align="center">
 
-**[⬆ Back to Top](#dotnet-harness)**
+**[⬆ Back to Top](#dotnet-agent-harness)**
 
 Built with ❤️ for the .NET community
 

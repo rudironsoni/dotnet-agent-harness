@@ -231,7 +231,7 @@ jq '.skills += [{
 
 1. Check [MCP Error Handling Guide](MCP_ERROR_HANDLING.md)
 2. Review [David Fowler's dotnet-skillz](https://github.com/davidfowl/dotnet-skillz)
-3. Open an issue on [GitHub](https://github.com/rudironsoni/dotnet-harness/issues)
+3. Open an issue on [GitHub](https://github.com/rudironsoni/dotnet-agent-harness/issues)
 
 ---
 
@@ -240,6 +240,6 @@ jq '.skills += [{
 - [ ] Explore existing skills in `.opencode/skill/`
 - [ ] Create your first custom skill
 - [ ] Share your skill with the community
-- [ ] Contribute to dotnet-harness
+- [ ] Contribute to dotnet-agent-harness
 
 **Time to complete:** ~5 minutes for basic setup, ~30 minutes for first custom skill.

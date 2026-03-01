@@ -20,11 +20,11 @@ fail() {
 }
 
 run_rulesync() {
-  if [[ -x "$REPO_ROOT/node_modules/.bin/rulesync" ]]; then
-    "$REPO_ROOT/node_modules/.bin/rulesync" "$@"
+  if command -v rulesync >/dev/null 2>&1; then
+    rulesync "$@"
     return
   fi
-  npx rulesync "$@"
+  fail "rulesync is not installed. Run scripts/ci/install_rulesync.sh to install the binary."
 }
 
 run_claude() {
@@ -32,7 +32,7 @@ run_claude() {
     claude "$@"
     return
   fi
-  npx -y @anthropic-ai/claude-code "$@"
+  fail "claude-cli is not installed. Please install it and retry."
 }
 
 run_copilot() {
@@ -40,7 +40,7 @@ run_copilot() {
     copilot "$@"
     return
   fi
-  npx -y @github/copilot "$@"
+  fail "copilot CLI is not installed. Please install it and retry."
 }
 
 run_gemini() {
@@ -48,7 +48,7 @@ run_gemini() {
     gemini "$@"
     return
   fi
-  npx -y @google/gemini-cli "$@"
+  fail "gemini CLI is not installed. Please install it and retry."
 }
 
 run_opencode() {
@@ -56,5 +56,5 @@ run_opencode() {
     opencode "$@"
     return
   fi
-  npx -y opencode-ai "$@"
+  fail "opencode CLI is not installed. Please install it and retry."
 }

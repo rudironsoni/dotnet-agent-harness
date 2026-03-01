@@ -4,8 +4,8 @@
 
 ### 🎉 Major Milestone: All 4 Phases Complete
 
-This release represents a comprehensive enhancement of the dotnet-harness toolkit with significant new capabilities
-across architecture, tooling, and developer experience.
+This release represents a comprehensive enhancement of the dotnet-agent-harness toolkit with significant new
+capabilities across architecture, tooling, and developer experience.
 
 ---
 
@@ -13,11 +13,11 @@ across architecture, tooling, and developer experience.
 
 ### New Commands (5)
 
-- `/dotnet-harness:search` - Semantic skill search with filtering
-- `/dotnet-harness:test` - Comprehensive skill testing framework
-- `/dotnet-harness:profile` - Local performance analysis (no telemetry)
-- `/dotnet-harness:graph` - Dependency visualization with Mermaid
-- `/dotnet-harness:compare` - Skill version comparison
+- `/dotnet-agent-harness:search` - Semantic skill search with filtering
+- `/dotnet-agent-harness:test` - Comprehensive skill testing framework
+- `/dotnet-agent-harness:profile` - Local performance analysis (no telemetry)
+- `/dotnet-agent-harness:graph` - Dependency visualization with Mermaid
+- `/dotnet-agent-harness:compare` - Skill version comparison
 
 ### VS Code Extension
 
@@ -51,7 +51,7 @@ across architecture, tooling, and developer experience.
 - Dependency tracking (`depends_on`, `conflicts_with`)
 - Topological sorting and circular dependency detection
 - Version conflict validation
-- Build tool: `dotnet-harness:build-manifest`
+- Build tool: `dotnet-agent-harness:build-manifest`
 
 ### Docker & GitHub Actions
 
@@ -132,12 +132,12 @@ To take advantage of new features:
 
 ```bash
 # Update to latest
-rulesync fetch rudironsoni/dotnet-harness:.rulesync
+rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
 rulesync generate --targets "*" --features "*"
 
 # Try new commands
-/dotnet-harness:search testing
-/dotnet-harness:profile
+/dotnet-agent-harness:search testing
+/dotnet-agent-harness:profile
 ```
 
 ## Statistics
@@ -154,8 +154,8 @@ Thanks to everyone who contributed to this release!
 
 ## Support
 
-- [GitHub Issues](https://github.com/rudironsoni/dotnet-harness/issues)
-- [Discussions](https://github.com/rudironsoni/dotnet-harness/discussions)
+- [GitHub Issues](https://github.com/rudironsoni/dotnet-agent-harness/issues)
+- [Discussions](https://github.com/rudironsoni/dotnet-agent-harness/discussions)
 
 ---
 

@@ -1,4 +1,4 @@
-# Dockerfile for dotnet-harness toolkit
+# Dockerfile for dotnet-agent-harness toolkit
 # Multi-stage build for optimal size
 
 FROM node:20-alpine AS builder
@@ -50,7 +50,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 CMD ["node", "--version"]
 
 # Labels
-LABEL org.opencontainers.image.title="dotnet-harness"
+LABEL org.opencontainers.image.title="dotnet-agent-harness"
 LABEL org.opencontainers.image.description="Comprehensive .NET development guidance toolkit"
-LABEL org.opencontainers.image.source="https://github.com/rudironsoni/dotnet-harness"
+LABEL org.opencontainers.image.source="https://github.com/rudironsoni/dotnet-agent-harness"
 LABEL org.opencontainers.image.licenses="MIT"

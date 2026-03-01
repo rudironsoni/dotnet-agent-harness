@@ -5,7 +5,6 @@ on:
   push:
     branches: ["main"]
 
-# Restrict to read-only by default; jobs opt-in as needed
 permissions: {}
 
 concurrency:
@@ -13,43 +12,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: "22"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run npm audit
-        run: npm audit --audit-level=high
-        continue-on-error: false
-
-      - name: Lint Markdown
-        run: npm run lint:md
-
-      - name: Lint Frontmatter
-        run: npm run lint:frontmatter
-
-      - name: Check Spelling
-        run: npm run lint:spell
-
-      - name: Check Formatting
-        run: npm run format:check
-
   validate:
     name: Validate RuleSync
-    needs: lint
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -57,14 +21,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: "22"
-          cache: "npm"
+      - name: Install just
+        uses: extractions/setup-just@v2
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y yq shellcheck
+          bash scripts/ci/install_rulesync.sh
 
       - name: Validate RuleSync generation
         uses: ./.github/actions/validate-rulesync

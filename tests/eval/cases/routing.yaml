@@ -1,0 +1,19 @@
+- id: "arch-001"
+  description: "Microservice architecture recommendation"
+  prompt: "Suggest an architecture for a high-throughput .NET 10 microservice."
+  expected_trigger: "dotnet-architect"
+  assertions:
+    - type: "contains"
+      value: "Aspire"
+    - type: "contains"
+      value: "Minimal APIs"
+    - type: "not_contains"
+      value: "WCF"
+
+- id: "ui-001"
+  description: "Web assembly vs Server side rendering"
+  prompt: "Should I use InteractiveServer or InteractiveWebAssembly for a public-facing blog?"
+  expected_trigger: "dotnet-blazor-specialist"
+  assertions:
+    - type: "contains"
+      value: "SSR"

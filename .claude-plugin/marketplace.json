@@ -1,9 +1,9 @@
 {
-  "name": "dotnet-harness",
+  "name": "dotnet-agent-harness",
   "version": "1.0.0",
   "description": "Comprehensive .NET development guidance with 131+ skills for modern C#, ASP.NET Core, MAUI, Blazor, and cloud-native apps",
   "author": "rudironsoni",
-  "repository": "https://github.com/rudironsoni/dotnet-harness",
+  "repository": "https://github.com/rudironsoni/dotnet-agent-harness",
   "license": "MIT",
   "compatibility": {
     "claude-code": ">=0.1.0",
@@ -13,7 +13,7 @@
   "skills": [
     {
       "name": "dotnet-mcp-integration",
-      "description": "Integrates MCP servers for external tool connectivity in dotnet-harness skills",
+      "description": "Integrates MCP servers for external tool connectivity in dotnet-agent-harness skills",
       "category": "Integration",
       "path": ".opencode/skill/dotnet-mcp-integration/SKILL.md"
     },

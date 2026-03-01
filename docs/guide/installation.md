@@ -22,5 +22,5 @@ brew install rulesync
 ### Docker
 
 ```bash
-docker pull ghcr.io/rudironsoni/dotnet-harness:latest
+docker pull ghcr.io/rudironsoni/dotnet-agent-harness:latest
 ```

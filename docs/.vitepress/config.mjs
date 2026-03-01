@@ -1,10 +1,10 @@
 import { defineConfig } from 'vitepress';
 
 export default defineConfig({
-  title: 'dotnet-harness',
+  title: 'dotnet-agent-harness',
   description:
     'Comprehensive .NET development guidance for modern C#, ASP.NET Core, MAUI, Blazor, and cloud-native apps',
-  base: '/dotnet-harness/',
+  base: '/dotnet-agent-harness/',
 
   themeConfig: {
     nav: [
@@ -57,10 +57,10 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [{ icon: 'github', link: 'https://github.com/rudironsoni/dotnet-harness' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/rudironsoni/dotnet-agent-harness' }],
 
     editLink: {
-      pattern: 'https://github.com/rudironsoni/dotnet-harness/edit/main/docs/:path',
+      pattern: 'https://github.com/rudironsoni/dotnet-agent-harness/edit/main/docs/:path',
     },
 
     search: {

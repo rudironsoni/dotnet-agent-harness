@@ -1,5 +1,5 @@
 #!/bin/sh
-# Pre-commit hook for dotnet-harness
+# Pre-commit hook for dotnet-agent-harness
 # Runs lint-staged to check and fix files before commit
 
 npx lint-staged

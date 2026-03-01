@@ -38,7 +38,7 @@ export default [
       '.gemini/**',
       '.agents/**',
       '.agent/**',
-      'packages/dotnet-harness-opencode/bundled/**',
+      'packages/dotnet-agent-harness-opencode/bundled/**',
       '**/*.d.ts',
       '**/*.ts',
     ],

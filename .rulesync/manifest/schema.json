@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://dotnet-harness.io/schemas/skill-manifest.json",
-  "title": "dotnet-harness Skill Manifest",
-  "description": "Schema for skill dependency manifest in dotnet-harness toolkit",
+  "$id": "https://dotnet-agent-harness.io/schemas/skill-manifest.json",
+  "title": "dotnet-agent-harness Skill Manifest",
+  "description": "Schema for skill dependency manifest in dotnet-agent-harness toolkit",
   "type": "object",
   "required": ["version", "generated_at", "skills"],
   "properties": {
