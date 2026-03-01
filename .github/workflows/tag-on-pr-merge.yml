@@ -110,6 +110,7 @@ jobs:
 
             - name: Create GitHub Release
         if: steps.create_tag.outputs.tag_created == 'true'
+        shell: bash
         env:
           TAG: ${{ steps.create_tag.outputs.release_tag }}
           GH_TOKEN: ${{ github.token }}
