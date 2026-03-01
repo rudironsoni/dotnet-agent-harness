@@ -1,9 +1,12 @@
-name: Tag On PR Merge
+name: Tag On PR Merge or Push to Main
 
 on:
   pull_request_target:
     types:
       - closed
+  push:
+    branches:
+      - main
 
 permissions: {}
 
@@ -13,16 +16,18 @@ concurrency:
 
 jobs:
   tag:
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    if: |
+      (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main') ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     permissions:
       actions: write
       contents: write
     steps:
-      - name: Checkout merge commit
+      - name: Checkout commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
           fetch-depth: 0
 
       - name: Configure git identity for tagging
@@ -33,9 +38,9 @@ jobs:
       - name: Create and push next semver tag
         id: create_tag
         env:
-          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number || '' }}
+          PR_TITLE: ${{ github.event.pull_request.title || 'Direct push to main' }}
         run: |
           set -euo pipefail
 
@@ -81,7 +86,11 @@ jobs:
               continue
             fi
 
-            git tag -a "${next_tag}" "${MERGE_SHA}" -m "Release ${next_tag} from merged PR #${PR_NUMBER}: ${PR_TITLE}"
+            if [[ -n "${PR_NUMBER}" ]]; then
+              git tag -a "${next_tag}" "${MERGE_SHA}" -m "Release ${next_tag} from merged PR #${PR_NUMBER}: ${PR_TITLE}"
+            else
+              git tag -a "${next_tag}" "${MERGE_SHA}" -m "Release ${next_tag}: ${PR_TITLE}"
+            fi
             if git push origin "${next_tag}"; then
               echo "Created and pushed ${next_tag}"
               echo "release_tag=${next_tag}" >> "${GITHUB_OUTPUT}"
