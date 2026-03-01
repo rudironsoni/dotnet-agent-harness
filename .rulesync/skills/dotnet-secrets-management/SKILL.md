@@ -67,13 +67,14 @@ commits.
 
 ````bash
 
+// Do NOT commit real secrets; use dotnet user-secrets or env vars
 # Initialize user secrets for a project (creates UserSecretsId in csproj)
 dotnet user-secrets init
 
-# Set individual secrets
-dotnet user-secrets set "ConnectionStrings:DefaultDb" "Server=localhost;Database=myapp;User=sa;Password=dev123"
-dotnet user-secrets set "Smtp:ApiKey" "SG.dev-key-here"
-dotnet user-secrets set "Jwt:SigningKey" "dev-signing-key-min-32-chars-long!!"
+# Set individual secrets (placeholders shown)
+dotnet user-secrets set "ConnectionStrings:DefaultDb" "Server=localhost;Database=myapp;User=sa;Password=<DB_PASSWORD_PLACEHOLDER>"
+dotnet user-secrets set "Smtp:ApiKey" "<SENDGRID_API_KEY_PLACEHOLDER>"
+dotnet user-secrets set "Jwt:SigningKey" "<JWT_SIGNING_KEY_PLACEHOLDER>"
 
 # List current secrets
 dotnet user-secrets list
@@ -98,13 +99,13 @@ The `secrets.json` file is plain JSON with the same structure as `appsettings.js
 
 {
   "ConnectionStrings": {
-    "DefaultDb": "Server=localhost;Database=myapp;User=sa;Password=dev123"
+    "DefaultDb": "Server=localhost;Database=myapp;User=sa;Password=<DB_PASSWORD_PLACEHOLDER>"
   },
   "Smtp": {
-    "ApiKey": "SG.dev-key-here"
+    "ApiKey": "<SENDGRID_API_KEY_PLACEHOLDER>"
   },
   "Jwt": {
-    "SigningKey": "dev-signing-key-min-32-chars-long!!"
+    "SigningKey": "<JWT_SIGNING_KEY_PLACEHOLDER>"
   }
 }
 
@@ -163,8 +164,8 @@ In the default ASP.NET Core configuration stack, environment variables override 
 
 # These environment variables map to configuration sections:
 export ConnectionStrings__DefaultDb="Server=prod-db;Database=myapp;..."
-export Smtp__ApiKey="SG.production-key"
-export Jwt__SigningKey="production-signing-key-256-bits"
+  export Smtp__ApiKey="<SENDGRID_API_KEY_PLACEHOLDER>"
+  export Jwt__SigningKey="<JWT_SIGNING_KEY_PLACEHOLDER>"
 
 # With a prefix (recommended to avoid collisions):
 export MYAPP_ConnectionStrings__DefaultDb="Server=prod-db;..."

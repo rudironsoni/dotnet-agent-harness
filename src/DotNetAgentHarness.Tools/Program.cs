@@ -208,12 +208,12 @@ public static class Program
                 .Build();
             return deserializer.Deserialize<Dictionary<string, object>>(match.Groups[1].Value);
         }
-        catch (Exception ex)
-        {
-            // Fail loud: log context and rethrow to avoid swallowing errors silently
-            Console.Error.WriteLine($"Error parsing frontmatter for file: {ex.Message}");
-            throw;
-        }
+            catch (Exception ex)
+            {
+                // Fail loud: log context and rethrow to avoid swallowing errors silently
+                Console.Error.WriteLine($"Error parsing frontmatter for file: {ex.Message}");
+                throw;
+            }
     }
 
     private static void ValidateFieldOrder(Dictionary<string, object> frontmatter, string fileType, string filePath, List<string> warnings)

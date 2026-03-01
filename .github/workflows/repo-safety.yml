@@ -1,27 +1,33 @@
-name: Repo Safety Checks
+name: Repo Safety Scan
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
 
 jobs:
-  scan-secrets:
+  repo-safety:
+    name: repo-safety
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Install ripgrep
-        run: sudo apt-get update && sudo apt-get install -y ripgrep
-      - name: Scan for likely secrets
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ripgrep
+
+      - name: Run ripgrep safety scan
         run: |
           set -e
-          # Detect common API key patterns and known test secrets
-          rg --hidden --no-ignore-vcs --line-number "sk-live-[A-Za-z0-9]{10,}" || true
-          rg --hidden --no-ignore-vcs --line-number "SG\.[A-Za-z0-9_-]{10,}" || true
-          rg --hidden --no-ignore-vcs --line-number "P@ssw0rd!" || true
-          # Fail the job if any matches are found
-          if rg --hidden --no-ignore-vcs "sk-live-[A-Za-z0-9]{10,}|SG\.[A-Za-z0-9_-]{10,}|P@ssw0rd!"; then
-            echo "Potential secrets detected. Please remove or replace with placeholders.";
-            exit 1;
+          # Patterns: OpenAI-like sk-, SendGrid SG., AWS AKIA, connection password, TODO/FIXME/HACK/XXX, broad catch(Exception)
+          RG='(?i)(sk-[A-Za-z0-9_-]{8,}|SG\.[A-Za-z0-9_-]{8,}|AKIA[A-Z0-9]{16}|Server=.*Password=|Password=.*;|\b(TODO|FIXME|HACK|XXX)\b|catch\s*\(\s*Exception\s*\))'
+          echo "Scanning repository for high-risk patterns..."
+          rg --hidden --line-number --no-ignore -S -n -e "$RG" || true
+          # Fail if any matches
+          if rg --hidden --line-number --no-ignore -S -n -e "$RG" >/dev/null; then
+            echo "Repository safety check failed: sensitive patterns or TODOs found." >&2
+            rg --hidden --line-number --no-ignore -S -n -e "$RG" >&2
+            exit 1
           fi
-    # Make this an opt-in gate that runs only on pull requests (no push gating)
-    permissions: read-all

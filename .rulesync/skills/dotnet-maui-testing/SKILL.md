@@ -476,7 +476,7 @@ public static MauiApp CreateMauiApp()
   native accessibility identifier on every platform.
 - **Run tests against real emulators/simulators, not just unit tests.** MAUI rendering, navigation, and platform
   services behave differently than in-memory tests.
-- **Use explicit waits, never implicit waits or delays.** `WebDriverWait` with a condition is reliable; `Thread.Sleep`
+ - **Use explicit waits, never implicit waits or delays.** `WebDriverWait` with a condition is reliable; avoid `Thread.Sleep`.
   and implicit waits hide timing issues.
 - **Tag platform-specific tests with `[Trait]` and `Assert.SkipWhen`.** xUnit v3's native skip support allows running
   the correct tests per platform in CI without failures from unsupported features.

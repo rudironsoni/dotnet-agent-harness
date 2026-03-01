@@ -287,14 +287,23 @@ cut.WaitForAssertion(() =>
 ```csharp
 
 // BAD: Hardcoded delay -- slow and still flaky
+// Replace with framework-native wait or deterministic polling with timeout
+/*
 await Task.Delay(3000);
 await page.ClickAsync("[data-testid='results']");
+*/
 
 // BAD: Polling with Thread.Sleep
-while (!element.IsVisible)
+// Replace with deterministic polling using Task.Delay and a timeout cancellation token
+// Example:
+/*
+var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+while (!element.IsVisible && !cts.IsCancellationRequested)
 {
-    Thread.Sleep(100); // blocks thread, no timeout safety
+    await Task.Delay(100, cts.Token);
 }
+if (!element.IsVisible) throw new TimeoutException("Element did not become visible within timeout");
+*/
 
 // GOOD: Framework-native wait
 await page.Locator("[data-testid='results']")
