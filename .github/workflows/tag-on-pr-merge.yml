@@ -108,5 +108,23 @@ jobs:
           echo "Failed to create unique semver tag after ${max_attempts} attempts"
           exit 1
 
-      # Note: build-and-release workflow was removed as part of npm migration
-      # Future releases can be handled manually or via a new workflow
+            - name: Create GitHub Release
+        if: steps.create_tag.outputs.tag_created == 'true'
+        env:
+          TAG: ${{ steps.create_tag.outputs.release_tag }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${TAG}" ]]; then
+            echo "No tag to create release for"
+            exit 0
+          fi
+
+          # Generate release notes from commit messages since last tag
+          gh release create "${TAG}" \
+            --title "${TAG}" \
+            --generate-notes \
+            --notes-start-tag "$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || echo '')"
+
+          echo "Created GitHub Release for ${TAG}"
