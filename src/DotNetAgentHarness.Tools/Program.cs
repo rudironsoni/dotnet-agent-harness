@@ -211,7 +211,7 @@ public static class Program
             catch (Exception ex)
             {
                 // Fail loud: log context and rethrow to avoid swallowing errors silently
-                Console.Error.WriteLine($"Error parsing frontmatter for file: {ex.Message}");
+                Console.Error.WriteLine($"Error parsing frontmatter for file: {ex}");
                 throw;
             }
     }

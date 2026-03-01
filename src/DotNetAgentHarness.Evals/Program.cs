@@ -51,8 +51,7 @@ public class Program
         catch (Exception ex)
         {
             // Log exception details to stderr for CI visibility, then rethrow to preserve fail-fast behavior
-            Console.Error.WriteLine($"Evaluations run failed: {ex.Message}");
-            Console.Error.WriteLine(ex);
+            Console.Error.WriteLine($"Evaluations run failed: {ex}");
             throw;
         }
     }
