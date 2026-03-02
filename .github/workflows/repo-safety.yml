@@ -47,7 +47,7 @@ jobs:
           trap 'rm -f "$tmp_out" "$tmp_err"' EXIT
 
           git ls-files -z \
-            | xargs -0 -r rg --line-number -S -n -e "$RG" -- \
+            | xargs -0 -r -- rg --line-number -S -n -e "$RG" -- \
             >"$tmp_out" 2>"$tmp_err" || true
 
           if [ -s "$tmp_err" ]; then

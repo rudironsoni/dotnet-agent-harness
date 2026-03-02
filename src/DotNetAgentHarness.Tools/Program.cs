@@ -216,11 +216,9 @@ public static class Program
         }
         catch (Exception ex)
         {
-            // Narrow catch: preserve original behavior but fail fast with diagnostic
+            // Keep validation running: treat as a parsing failure and surface as an error to callers.
             Console.Error.WriteLine($"Unexpected error parsing YAML frontmatter: {ex.Message}");
-            // Convert TODO into issue placeholder: ISSUE-XXXX
-            // See: https://github.com/<OWNER>/<REPO>/issues/ISSUE-XXXX
-            throw;
+            return new Dictionary<string, object> { ["_error"] = $"{ex.GetType().Name}: {ex.Message}" };
         }
     }
 
