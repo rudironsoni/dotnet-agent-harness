@@ -72,3 +72,14 @@ Thumbs.db
 
 # Serena local cache
 .serena/
+
+# Repo-root scan/build artifacts (do not commit)
+/*scan*.txt
+/*_matches.txt
+/build_*_output.txt
+/build_*_exit.txt
+/dotnet_version.txt
+/git_status*.txt
+/current_branch.txt
+/recent_commits.txt
+/summary.json
