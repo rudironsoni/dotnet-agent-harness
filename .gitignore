@@ -62,6 +62,10 @@ replit.md
 dist/
 packages/dotnet-agent-harness-*/bundled/
 
+# .NET build intermediates (repo-local)
+src/**/bin/
+src/**/obj/
+
 # Local editor and OS files
 .DS_Store
 Thumbs.db
