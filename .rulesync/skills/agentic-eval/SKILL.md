@@ -1,5 +1,6 @@
 ---
 name: agentic-eval
+location: file:///.rulesync/skills/agentic-eval/SKILL.md
 description: >-
   Patterns and techniques for evaluating and improving AI agent outputs.
 targets: ['*']
