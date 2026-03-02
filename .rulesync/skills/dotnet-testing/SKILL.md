@@ -84,7 +84,7 @@ This file is a "navigation center" used to help find the correct **sub-skills**.
 
 ### ✅ Correct Flow
 
-````text
+```text
 User: Please help me create tests for CreateUserValidator
 
 AI: I notice you need to test a Validator. According to the quick reference table,
@@ -93,7 +93,7 @@ AI: I notice you need to test a Validator. According to the quick reference tabl
     [Use Skill tool to load sub-skill]
 
 AI: Now following the FluentValidation Testing skill guidelines to create tests for you...
-```text
+```
 
 ### ❌ Incorrect Flow
 
@@ -101,13 +101,14 @@ AI: Now following the FluentValidation Testing skill guidelines to create tests 
 User: Please help me create tests for CreateUserValidator
 
 AI: Okay, let me write the tests... (start writing code directly without loading sub-skills)
-```text
+```
 
 ---
 
 ## 📚 Complete Skill List
 
-To view the complete list of 19 fundamental skills, detailed decision trees, and learning path recommendations, please continue reading the subsequent content of this file.
+To view the complete list of 19 fundamental skills, detailed decision trees, and learning path recommendations, please
+continue reading the subsequent content of this file.
 
 **Human Developer Reference**: For quick lookup, please check [SKILLS_QUICK_INDEX.md](/SKILLS_QUICK_INDEX.md)
 
@@ -132,11 +133,13 @@ When you encounter the following situations, I will help you find the correct sk
 #### Scenario 1: Complete Beginner, Never Written Tests Before
 
 **Recommended Learning Path**:
+
 1. `dotnet-testing-unit-test-fundamentals` - Understand FIRST principles and 3A Pattern
 2. `dotnet-testing-test-naming-conventions` - Learn naming conventions
 3. `dotnet-testing-xunit-project-setup` - Create your first test project
 
 **Why This Path**:
+
 - FIRST principles are the foundation of all tests, establish correct concepts first
 - Naming conventions make tests readable and maintainable
 - Hands-on project creation transforms theory into practice
@@ -148,30 +151,33 @@ When you encounter the following situations, I will help you find the correct sk
 **Recommended Skills (Choose One or Combine)**:
 
 ### Option A - Automation First
-→ `dotnet-testing-autofixture-basics`
-Suitable: Need large amounts of test data, reduce boilerplate code
+
+→ `dotnet-testing-autofixture-basics` Suitable: Need large amounts of test data, reduce boilerplate code
 
 ### Option B - Realistic Data First
-→ `dotnet-testing-bogus-fake-data`
-Suitable: Need realistic test data (names, addresses, emails, etc.)
+
+→ `dotnet-testing-bogus-fake-data` Suitable: Need realistic test data (names, addresses, emails, etc.)
 
 ### Option C - Semantic Clarity First
-→ `dotnet-testing-test-data-builder-pattern`
-Suitable: Need high readability, clear expression of test intent
+
+→ `dotnet-testing-test-data-builder-pattern` Suitable: Need high readability, clear expression of test intent
 
 ### Option D - Best of Both
-→ `dotnet-testing-autofixture-basics` + `dotnet-testing-autofixture-bogus-integration`
-Suitable: Need both automation and realistic data
+
+→ `dotnet-testing-autofixture-basics` + `dotnet-testing-autofixture-bogus-integration` Suitable: Need both automation
+and realistic data
 
 ---
 
 #### Scenario 3: Have External Dependencies (Database, API, Third-party Services) Need to Mock
 
 **Recommended Skill Combination**:
+
 1. `dotnet-testing-nsubstitute-mocking` - NSubstitute Mock framework fundamentals
 2. `dotnet-testing-autofixture-nsubstitute-integration` - (Optional) Integrate AutoFixture with NSubstitute
 
 **When Is the Second Skill Needed**:
+
 - If you are already using AutoFixture to generate test data
 - Want to automatically create Mock objects, reduce manual configuration
 
@@ -180,69 +186,75 @@ Suitable: Need both automation and realistic data
 #### Scenario 4: Special Scenarios in Testing
 
 ### Time-related Testing
-→ `dotnet-testing-datetime-testing-timeprovider`
-Handles: DateTime.Now, timezone conversion, time calculations
+
+→ `dotnet-testing-datetime-testing-timeprovider` Handles: DateTime.Now, timezone conversion, time calculations
 
 ### File System Testing
-→ `dotnet-testing-filesystem-testing-abstractions`
-Handles: File read/write, directory operations, path handling
+
+→ `dotnet-testing-filesystem-testing-abstractions` Handles: File read/write, directory operations, path handling
 
 ### Private/Internal Member Testing
-→ `dotnet-testing-private-internal-testing`
-Handles: Need to test private, internal members (but use cautiously)
+
+→ `dotnet-testing-private-internal-testing` Handles: Need to test private, internal members (but use cautiously)
 
 ---
 
 #### Scenario 5: Need Better Assertion Methods
 
 ### Basic Needs - Fluent Assertions
-→ `dotnet-testing-awesome-assertions-guide`
-Should be used by all projects to improve test readability
+
+→ `dotnet-testing-awesome-assertions-guide` Should be used by all projects to improve test readability
 
 ### Advanced Needs - Complex Object Comparison
-→ `dotnet-testing-complex-object-comparison`
-Handles: Deep object comparison, DTO validation, Entity comparison
+
+→ `dotnet-testing-complex-object-comparison` Handles: Deep object comparison, DTO validation, Entity comparison
 
 ### Validation Rule Testing
-→ `dotnet-testing-fluentvalidation-testing`
-Handles: Testing FluentValidation validators
+
+→ `dotnet-testing-fluentvalidation-testing` Handles: Testing FluentValidation validators
 
 ---
 
 #### Scenario 6: Want to Learn About Test Coverage
 
-→ `dotnet-testing-code-coverage-analysis`
-Learn: Use Coverlet to analyze code coverage, generate reports
+→ `dotnet-testing-code-coverage-analysis` Learn: Use Coverlet to analyze code coverage, generate reports
 
 ## Skill Classification Map
 
-Divide 19 fundamental skills into 7 categories (testing fundamentals, test data generation, test doubles, assertion validation, special scenarios, test metrics, framework integration), each containing skill reference tables, learning paths, and code examples.
+Divide 19 fundamental skills into 7 categories (testing fundamentals, test data generation, test doubles, assertion
+validation, special scenarios, test metrics, framework integration), each containing skill reference tables, learning
+paths, and code examples.
 
 > 📖 For details, please refer to [references/skill-classification-map.md](references/skill-classification-map.md)
 
 ## Common Task Mapping Table
 
-Provide 7 common testing tasks (create project from scratch, service dependency testing, time logic testing, etc.) with skill combination recommendations, implementation steps, and prompt examples.
+Provide 7 common testing tasks (create project from scratch, service dependency testing, time logic testing, etc.) with
+skill combination recommendations, implementation steps, and prompt examples.
 
 > 📖 For details, please refer to [references/task-mapping-table.md](references/task-mapping-table.md)
 
 ## Learning Path Recommendations
 
-Plan daily learning schedules for beginner path (1-2 weeks) and advanced path (2-3 weeks), including skills, learning focuses, and practical exercises.
+Plan daily learning schedules for beginner path (1-2 weeks) and advanced path (2-3 weeks), including skills, learning
+focuses, and practical exercises.
 
 > 📖 For details, please refer to [references/learning-paths.md](references/learning-paths.md)
 
 ## Guided Conversation Examples
 
-Show how AI interacts with you to help choose the correct skills, including 4 common conversation scenarios: beginner entry, handling dependencies, specific problems, improving tests.
+Show how AI interacts with you to help choose the correct skills, including 4 common conversation scenarios: beginner
+entry, handling dependencies, specific problems, improving tests.
 
 > 📖 For details, please refer to [references/conversation-examples.md](references/conversation-examples.md)
 
 ## Relationship with Advanced Skills
 
-After completing fundamental skills, if you need integration testing, API testing, containerized testing, or microservice testing, please refer to:
+After completing fundamental skills, if you need integration testing, API testing, containerized testing, or
+microservice testing, please refer to:
 
 **Advanced Integration Testing** → `dotnet-testing-advanced`
+
 - ASP.NET Core integration testing
 - Containerized testing (Testcontainers)
 - Microservice testing (.NET Aspire)
@@ -252,7 +264,8 @@ After completing fundamental skills, if you need integration testing, API testin
 
 ### Original Data Sources
 
-- **iThome Ironman Competition Series**: [Old School Software Engineer's Testing Practice - 30 Day Challenge](https://ithelp.ithome.com.tw/users/20066083/ironman/8276)
+- **iThome Ironman Competition Series**:
+  [Old School Software Engineer's Testing Practice - 30 Day Challenge](https://ithelp.ithome.com.tw/users/20066083/ironman/8276)
   🏆 2025 iThome Ironman Competition Software Development Group Champion
 
 - **Complete Sample Code**: [30Days_in_Testing_Samples](https://github.com/kevintsengtw/30Days_in_Testing_Samples)
@@ -262,21 +275,22 @@ After completing fundamental skills, if you need integration testing, API testin
 
 This skill set is refined from the following complete materials:
 
-- **Agent Skills: From Architecture Design to Practical Application** (docs/Agent_Skills_Mastery.pdf)
-  Complete coverage of Agent Skills from theory to practice
+- **Agent Skills: From Architecture Design to Practical Application** (docs/Agent_Skills_Mastery.pdf) Complete coverage
+  of Agent Skills from theory to practice
 
-- **Claude Code Skills: Making AI a Professional Craftsman** (docs/Agent_Skills_Architecture.pdf)
-  In-depth analysis of Agent Skills architecture design
+- **Claude Code Skills: Making AI a Professional Craftsman** (docs/Agent_Skills_Architecture.pdf) In-depth analysis of
+  Agent Skills architecture design
 
-- **.NET Testing: Write Better, Run Faster** (docs/NET_Testing_Write_Better_Run_Faster.pdf)
-  Test execution optimization and debugging techniques
+- **.NET Testing: Write Better, Run Faster** (docs/NET_Testing_Write_Better_Run_Faster.pdf) Test execution optimization
+  and debugging techniques
 
 ## Next Steps
 
-Choose the skill that matches your needs to start learning, or tell me your specific situation and I will recommend the most suitable learning path!
+Choose the skill that matches your needs to start learning, or tell me your specific situation and I will recommend the
+most suitable learning path!
 
 **Quick Start**:
+
 - Beginner → Start with `dotnet-testing-unit-test-fundamentals`
 - Experienced → Tell me the specific problems you encounter
 - Unsure → Tell me your project situation and I will help you analyze
-````

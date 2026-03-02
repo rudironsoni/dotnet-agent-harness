@@ -35,14 +35,14 @@ Validators are the first line of defense for applications, testing validators ca
 
 ### Package Installation
 
-````xml
+```xml
 <PackageReference Include="FluentValidation" Version="11.11.0" />
 <PackageReference Include="FluentValidation.TestHelper" Version="11.11.0" />
 <PackageReference Include="xunit" Version="2.9.3" />
 <PackageReference Include="Microsoft.Extensions.Time.Testing" Version="9.0.0" />
 <PackageReference Include="NSubstitute" Version="5.3.0" />
 <PackageReference Include="AwesomeAssertions" Version="9.1.0" />
-```text
+```
 
 ### Basic using Directives
 
@@ -53,7 +53,7 @@ using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
 using Xunit;
 using AwesomeAssertions;
-```text
+```
 
 ## Core Testing Patterns
 
@@ -61,11 +61,16 @@ This section covers 7 core testing patterns, each including validator definition
 
 > For complete code examples, see [references/core-test-patterns.md](references/core-test-patterns.md)
 
-- **Pattern 1: Basic Field Validation** — Using `TestValidate` + `ShouldHaveValidationErrorFor` / `ShouldNotHaveValidationErrorFor` to test single field rules
-- **Pattern 2: Parameterized Tests** — Using `[Theory]` + `[InlineData]` to test multiple invalid/valid input combinations
-- **Pattern 3: Cross-Field Validation** — Password confirmation, custom `Must()` rules, and other multi-field related validations
-- **Pattern 4: Time-Dependent Validation** — Injecting `TimeProvider`, using `FakeTimeProvider` to control time for testing
-- **Pattern 5: Conditional Validation** — Using `.When()` for optional field validation, testing conditional trigger and skip scenarios
+- **Pattern 1: Basic Field Validation** — Using `TestValidate` + `ShouldHaveValidationErrorFor` /
+  `ShouldNotHaveValidationErrorFor` to test single field rules
+- **Pattern 2: Parameterized Tests** — Using `[Theory]` + `[InlineData]` to test multiple invalid/valid input
+  combinations
+- **Pattern 3: Cross-Field Validation** — Password confirmation, custom `Must()` rules, and other multi-field related
+  validations
+- **Pattern 4: Time-Dependent Validation** — Injecting `TimeProvider`, using `FakeTimeProvider` to control time for
+  testing
+- **Pattern 5: Conditional Validation** — Using `.When()` for optional field validation, testing conditional trigger and
+  skip scenarios
 - **Pattern 6: Async Validation** — `MustAsync` + `TestValidateAsync`, using NSubstitute Mock for external services
 - **Pattern 7: Collection Validation** — Validating collections non-empty and element validity
 
@@ -86,31 +91,31 @@ public class UserValidatorTests
               .WithErrorMessage("Username cannot be null or blank");
     }
 }
-```text
+```
 
 ## FluentValidation.TestHelper Core API
 
 ### Test Methods
 
-| Method                     | Purpose           | Example                                        |
-| -------------------------- | ----------------- | ---------------------------------------------- |
-| `TestValidate(model)`      | Execute sync validation | `_validator.TestValidate(request)`        |
+| Method                     | Purpose                  | Example                                       |
+| -------------------------- | ------------------------ | --------------------------------------------- |
+| `TestValidate(model)`      | Execute sync validation  | `_validator.TestValidate(request)`            |
 | `TestValidateAsync(model)` | Execute async validation | `await _validator.TestValidateAsync(request)` |
 
 ### Assertion Methods
 
-| Method                                             | Purpose                   | Example                                                   |
-| -------------------------------------------------- | ------------------------- | --------------------------------------------------------- |
-| `ShouldHaveValidationErrorFor(x => x.Property)`    | Assert property should have error | `result.ShouldHaveValidationErrorFor(x => x.Username)` |
+| Method                                             | Purpose                               | Example                                                |
+| -------------------------------------------------- | ------------------------------------- | ------------------------------------------------------ |
+| `ShouldHaveValidationErrorFor(x => x.Property)`    | Assert property should have error     | `result.ShouldHaveValidationErrorFor(x => x.Username)` |
 | `ShouldNotHaveValidationErrorFor(x => x.Property)` | Assert property should not have error | `result.ShouldNotHaveValidationErrorFor(x => x.Email)` |
-| `ShouldNotHaveAnyValidationErrors()`               | Assert entire object has no errors | `result.ShouldNotHaveAnyValidationErrors()`          |
+| `ShouldNotHaveAnyValidationErrors()`               | Assert entire object has no errors    | `result.ShouldNotHaveAnyValidationErrors()`            |
 
 ### Error Message Validation
 
-| Method                     | Purpose             | Example                                      |
-| -------------------------- | ------------------- | -------------------------------------------- |
+| Method                     | Purpose                        | Example                                         |
+| -------------------------- | ------------------------------ | ----------------------------------------------- |
 | `WithErrorMessage(string)` | Validate error message content | `.WithErrorMessage("Username cannot be empty")` |
-| `WithErrorCode(string)`    | Validate error code | `.WithErrorCode("NOT_EMPTY")`               |
+| `WithErrorCode(string)`    | Validate error code            | `.WithErrorCode("NOT_EMPTY")`                   |
 
 ## Testing Best Practices
 
@@ -147,7 +152,7 @@ public void Validate_Invalid_Email_Should_Validation_Fail(string email, string e
     var result = _validator.TestValidate(request);
     result.ShouldHaveValidationErrorFor(x => x.Email).WithErrorMessage(expectedError);
 }
-```text
+```
 
 ### Scenario 2: Age Range Validation
 
@@ -161,7 +166,7 @@ public void Validate_Invalid_Age_Should_Validation_Fail(int age, string expected
     var result = _validator.TestValidate(request);
     result.ShouldHaveValidationErrorFor(x => x.Age).WithErrorMessage(expectedError);
 }
-```text
+```
 
 ### Scenario 3: Required Field Validation
 
@@ -174,7 +179,7 @@ public void Validate_Not_Agree_To_Terms_Should_Validation_Fail()
     result.ShouldHaveValidationErrorFor(x => x.AgreeToTerms)
           .WithErrorMessage("Must agree to terms of use");
 }
-```text
+```
 
 ## Testing Helper Tools
 
@@ -185,16 +190,16 @@ public static class TestDataBuilder
 {
     public static UserRegistrationRequest CreateValidRequest()
     {
-        return new UserRegistrationRequest
-        {
-            Username = "testuser123",
-            Email = "test@example.com",
-            Password = <DB_PASSWORD_PLACEHOLDER>
-            ConfirmPassword = <DB_PASSWORD_PLACEHOLDER>
-            BirthDate = new DateTime(1990, 1, 1),
-            Age = 34,
-            PhoneNumber = "0912345678",
-            Roles = new List<string> { "User" },
+         return new UserRegistrationRequest
+         {
+             Username = "testuser123",
+             Email = "test@example.com",
+             Password = "<DB_PASSWORD_PLACEHOLDER>",
+             ConfirmPassword = "<DB_PASSWORD_PLACEHOLDER>",
+             BirthDate = new DateTime(1990, 1, 1),
+             Age = 34,
+             PhoneNumber = "0912345678",
+             Roles = new List<string> { "User" },
             AgreeToTerms = true
         };
     }
@@ -216,7 +221,7 @@ public static class TestDataBuilder
 var request = TestDataBuilder.CreateValidRequest()
                             .WithUsername("newuser")
                             .WithEmail("new@example.com");
-```text
+```
 
 ## Integration with Other Skills
 
@@ -237,7 +242,7 @@ This skill can be combined with:
 ```csharp
 _mockUserService.IsUsernameAvailableAsync("username")
                 .Returns(Task.FromResult(false));
-```text
+```
 
 ### Q2: How to Handle Time-Related Validation?
 
@@ -245,7 +250,7 @@ _mockUserService.IsUsernameAvailableAsync("username")
 
 ```csharp
 _fakeTimeProvider.SetUtcNow(new DateTime(2024, 1, 1));
-```text
+```
 
 ### Q3: How to Test Complex Cross-Field Validation?
 
@@ -255,7 +260,7 @@ _fakeTimeProvider.SetUtcNow(new DateTime(2024, 1, 1));
 // Test birthday passed scenario
 // Test birthday not yet arrived scenario
 // Test boundary date
-```text
+```
 
 ### Q4: How Much Should Be Tested?
 
@@ -277,7 +282,8 @@ This skill provides the following template files:
 
 ### Original Articles
 
-This skill content is distilled from the "Old School Software Engineer's Testing Practice - 30 Day Challenge" article series:
+This skill content is distilled from the "Old School Software Engineer's Testing Practice - 30 Day Challenge" article
+series:
 
 - **Day 18 - Validation Testing: FluentValidation Test Extensions**
   - Article: https://ithelp.ithome.com.tw/articles/10376147
@@ -293,4 +299,3 @@ This skill content is distilled from the "Old School Software Engineer's Testing
 
 - `unit-test-fundamentals` - Unit testing basics
 - `nsubstitute-mocking` - Test doubles and mocking
-````

@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Spectre.Console;
 using DotNetAgentHarness.Evals.Engine;
 
 
@@ -12,22 +11,22 @@ public class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        AnsiConsole.MarkupLine("[bold blue]Starting .NET Agent Harness Evaluations...[/]");
+        Console.WriteLine("Starting .NET Agent Harness Evaluations...");
 
         try
         {
             // For now bypass loading the real client during tests
-            AnsiConsole.MarkupLine("[green]LLM Client successfully initialized (Dummy mode).[/]");
+            Console.WriteLine("LLM Client successfully initialized (Dummy mode).");
 
             var caseFilePath = Path.Combine(AppContext.BaseDirectory, "../../../../tests/eval/cases/routing.yaml");
             var evalCases = YamlParser.LoadCases(caseFilePath);
-            AnsiConsole.MarkupLine($"[blue]Loaded {evalCases.Count} evaluation cases.[/]");
+            Console.WriteLine($"Loaded {evalCases.Count} evaluation cases.");
 
             int failed = 0;
 
             foreach (var eval in evalCases)
             {
-                AnsiConsole.MarkupLine($"\n[bold yellow]Running Case:[/] {eval.Id} ({eval.Description})");
+                Console.WriteLine($"\nRunning Case: {eval.Id} ({eval.Description})");
 
                 var dummyResponse = "I recommend using .NET Aspire and Minimal APIs for high throughput microservices.";
 
@@ -36,11 +35,11 @@ public class Program
                     var result = AssertionRunner.Evaluate(dummyResponse, assertion);
                     if (result.Passed)
                     {
-                        AnsiConsole.MarkupLine($"[green]✓ PASS[/]: {result.Message}");
+                        Console.WriteLine($"PASS: {result.Message}");
                     }
                     else
                     {
-                        AnsiConsole.MarkupLine($"[red]✗ FAIL[/]: {result.Message}");
+                        Console.Error.WriteLine($"FAIL: {result.Message}");
                         failed++;
                     }
                 }
@@ -48,26 +47,10 @@ public class Program
 
             return failed > 0 ? 1 : 0;
         }
-        catch (FileNotFoundException ex)
-        {
-            Console.Error.WriteLine($"File not found in Program.cs: {ex.Message}");
-            throw;
-        }
-        catch (InvalidDataException ex)
-        {
-            Console.Error.WriteLine($"Invalid data in Program.cs: {ex.Message}");
-            throw;
-        }
-        catch (IOException ex)
-        {
-            Console.Error.WriteLine($"I/O error in Program.cs: {ex.Message}");
-            throw;
-        }
         catch (Exception ex)
         {
-            // Final catch-all: log and return non-zero exit code instead of letting the process crash
-            AnsiConsole.WriteException(ex, ExceptionFormats.ShortenPaths | ExceptionFormats.ShortenTypes);
-            Console.Error.WriteLine($"Unexpected error in evaluations: {ex.Message}");
+            // Fail fast, but exit gracefully: print once and return non-zero.
+            Console.Error.WriteLine(ex);
             return 1;
         }
     }
