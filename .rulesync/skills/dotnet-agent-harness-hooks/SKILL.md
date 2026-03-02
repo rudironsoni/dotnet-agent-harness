@@ -1,119 +1,142 @@
 ---
 name: dotnet-agent-harness-hooks
-description: |
-  Guide for hook and MCP server integration patterns used by dotnet-agent-harness-compatible toolchains.
-  Use when configuring Claude Code hooks (SessionStart/PostToolUse), aligning safety behaviors, or wiring MCP servers via `.mcp.json`.
-  Keywords: hooks, PostToolUse, SessionStart, Claude Code hooks, MCP, .mcp.json, context injection, dotnet format hook
+description:
+  Hooks and MCP server guide for dotnet-agent-harness. How hooks behave, how to disable them, MCP configuration and
+  troubleshooting.
 license: MIT
-metadata:
-  attribution:
-    - Source: dotnet-artisan (Claire Novotny LLC) – hooks-and-mcp-guide.md (MIT)
-    - Ported/adapted into dotnet-agent-harness
+targets: ['*']
+tags: ['hooks', 'mcp', 'claude-code', 'dotnet', 'tooling']
+version: '0.0.1'
+author: 'dotnet-agent-harness'
+invocable: true
+claudecode:
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
+codexcli:
+  short-description: 'Hooks + MCP integration guide'
+opencode:
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 ---
 
-<!--
-Attribution:
-- Source: dotnet-artisan (Claire Novotny LLC) – docs/hooks-and-mcp-guide.md (MIT)
-- This file was ported/adapted into dotnet-agent-harness.
--->
+# dotnet-agent-harness-hooks
 
-## Purpose
+Source: dotnet-artisan (MIT) — Claire Novotny LLC. Ported into dotnet-agent-harness.
 
-Provide a practical reference for:
+This guide explains the hook patterns and MCP server integration used by the dotnet-agent-harness ecosystem.
 
-- Hook behaviors that improve .NET workflows (formatting suggestions, restore prompts, basic validation).
-- MCP server wiring and operational expectations.
+---
 
-## When to use
+## Hooks overview
 
-Use this skill when you need to:
+Hooks fire automatically during Claude Code sessions. They provide .NET-focused defaults and suggestions.
 
-- Configure or review hook behavior for a .NET repo.
-- Add session-start context injection (solution/project discovery, TFM detection).
-- Add or troubleshoot MCP servers configured via `.mcp.json`.
-- Validate that hooks are non-blocking and fail-safe.
+### PostToolUse hook (Write|Edit)
 
-## Hook patterns
+A single hook entry with matcher `Write|Edit` dispatches to `scripts/hooks/post-edit-dotnet.sh`, which inspects the
+edited file's extension and takes the appropriate action.
 
-## PostToolUse hook (Write/Edit)
+| File pattern            | Behavior                          | Details                                                                                           |
+| ----------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `*Tests.cs`, `*Test.cs` | Suggests running related tests    | Outputs a `systemMessage` with a `dotnet test --filter` command targeting the modified test class |
+| `*.cs`                  | Auto-formats with `dotnet format` | Runs `dotnet format --include <file>` asynchronously; reports results on the next turn            |
+| `*.csproj`              | Suggests `dotnet restore`         | Outputs a `systemMessage` recommending restore after project file changes                         |
+| `*.xaml`                | Validates XML well-formedness     | Uses `xmllint` or falls back to `python3 xml.etree.ElementTree`; reports validation errors        |
 
-A common pattern is a single PostToolUse hook that matches `Write|Edit` and dispatches to a script (for example,
-`scripts/hooks/post-edit-dotnet.sh`). The script can inspect the edited file extension and take appropriate action.
+This hook runs asynchronously (`async: true`) with a 60-second timeout. It never blocks editing (always exits 0).
 
-Example behaviors:
+### SessionStart hook (startup)
 
-| File pattern            | Behavior                      | Notes                                                                            |
-| ----------------------- | ----------------------------- | -------------------------------------------------------------------------------- |
-| `*Tests.cs`, `*Test.cs` | Suggest running related tests | Emit a suggested `dotnet test --filter` targeting the modified test class        |
-| `*.cs`                  | Auto-format                   | Run `dotnet format --include <file>` asynchronously and report results next turn |
-| `*.csproj`              | Suggest restore               | Recommend `dotnet restore` after project file changes                            |
-| `*.xaml`                | Validate XML well-formedness  | Use `xmllint` or fall back to `python3` XML parsing                              |
+The `scripts/hooks/session-start-context.sh` hook fires once when a new Claude Code session starts. It detects whether
+the current directory is a .NET project and injects context.
 
-Safety properties for PostToolUse hooks:
+- Counts `.sln`/`.slnx` solution files (up to 3 directories deep)
+- Counts `.csproj` project files (up to 3 directories deep)
+- Checks for `global.json`
+- Extracts the target framework moniker (TFM) from the first `.csproj` found
 
-- Run asynchronously when possible.
-- Use a bounded timeout (for example, 60 seconds).
-- Never block editing; exit successfully even on non-critical failures.
-
-## SessionStart hook (startup)
-
-A SessionStart hook can run once at session startup (for example, `scripts/hooks/session-start-context.sh`) to detect
-whether the current directory appears to be a .NET project and inject context.
-
-Common context signals:
-
-- Count `.sln`/`.slnx` solution files (bounded depth, e.g., 3 levels).
-- Count `.csproj` project files (bounded depth, e.g., 3 levels).
-- Detect `global.json`.
-- Extract a target framework moniker (TFM) from the first `.csproj` found.
-
-Example injected context:
+If .NET project indicators are found, the hook outputs an `additionalContext` message such as:
 
 > This is a .NET project (net10.0) with 3 project(s) in 1 solution(s).
 
+This context helps Claude understand the project environment from the start of the session.
+
+---
+
+## How to disable hooks
+
+Plugin hooks can be disabled in two ways:
+
+1. **Disable all hooks globally**: set `disableAllHooks: true` in your `.claude/settings.json` file. This disables hooks
+   from all plugins.
+2. **Per-session control**: use the `/hooks` menu within Claude Code to review and toggle individual hooks during a
+   session. Hooks snapshot at session startup; changes via `/hooks` take effect immediately but do not persist across
+   restarts.
+
+To re-enable hooks after disabling, remove the `disableAllHooks` setting or toggle them back on via `/hooks`.
+
+---
+
 ## MCP server configuration
 
-MCP servers are commonly configured in `.mcp.json`.
+The plugin configures the following MCP server in `.mcp.json`.
 
-## Example: Context7 (stdio via npx)
+### Context7
 
-| Property  | Value                                                                       |
-| --------- | --------------------------------------------------------------------------- |
-| Transport | stdio                                                                       |
-| Command   | `npx -y @upstash/context7-mcp@latest`                                       |
-| Purpose   | Documentation lookup for Microsoft Learn, NuGet, and broader .NET ecosystem |
+| Property  | Value                                                                                 |
+| --------- | ------------------------------------------------------------------------------------- |
+| Transport | stdio                                                                                 |
+| Command   | `npx -y @upstash/context7-mcp@latest`                                                 |
+| Purpose   | Library documentation lookup covering Microsoft Learn, NuGet, and .NET ecosystem docs |
 
-Operational notes:
+Context7 provides on-demand documentation lookups that enhance skill guidance with live, up-to-date library references.
 
-- Using `@latest` is convenient for initial shipping; pin versions once stabilized to reduce upstream break risk.
-- Node.js is required for MCP servers started via `npx`.
+**Version note**: The plugin currently uses `@latest` for initial ship. After stabilization, the version may be pinned
+(for example `@1.x.x`) to prevent upstream breaking changes.
 
-## Safety considerations
+### Requirements
 
-- Hooks should fail safe: if required tools are missing (`dotnet`, `jq`, `npx`, `xmllint`, `python3`), emit a warning
-  and exit successfully.
-- Hooks should be scoped: only act on files that match clear patterns.
-- Avoid emitting or persisting secrets in hook output.
+- **Node.js** is required for MCP servers that use `npx`. Verify Node.js is installed by running `node --version` in
+  your terminal. You can also check MCP server status with the `/mcp` command inside Claude Code.
+- MCP servers start automatically when the plugin is enabled. After enabling or disabling the plugin, restart Claude
+  Code to apply MCP server changes.
+
+---
 
 ## Troubleshooting
 
-## `dotnet` not found
+### `dotnet` not found
 
-If `dotnet` is not available in `PATH`, a formatting hook should degrade gracefully (warn and exit).
+The PostToolUse hook checks for `dotnet` in `PATH` before running `dotnet format`. If the .NET SDK is not installed or
+not in `PATH`, the hook degrades gracefully: it outputs a warning message and exits 0 without blocking.
 
-## `npx` not available
+**Fix**: install the .NET SDK and ensure `dotnet` is available in your shell's `PATH`.
 
-If Node.js is missing, `npx`-based MCP servers will not start.
+### `npx` not available
 
-## Hooks not firing
+MCP servers configured with `npx` (such as Context7) will not start if Node.js is not installed.
 
-Hooks are typically snapshotted at session start. Restart the tool to pick up hook changes.
+**Fix**: install Node.js (LTS recommended). After installation, restart Claude Code so MCP servers can initialize.
 
-## `jq` not found
+### Hooks not firing
 
-If hook scripts parse JSON from stdin, they may require `jq`. If missing, the scripts should report and exit
-successfully.
+Hooks are snapshotted when a Claude Code session starts. If you install or update the plugin mid-session, hooks from the
+new version will not fire until the next session.
 
-## XAML validation unavailable
+**Fix**: restart Claude Code to pick up hook changes. Use `/hooks` to verify hooks are registered.
 
-If neither `xmllint` nor `python3` are available, skip validation and report a warning.
+### `jq` not found
+
+The hook scripts use `jq` to parse JSON input from stdin. If `jq` is not installed, the hook scripts will fail. The
+`post-edit-dotnet.sh` script requires `jq` for extracting the `file_path` from tool input.
+
+**Fix**: install `jq` via your system package manager.
+
+- macOS: `brew install jq`
+- Ubuntu/Debian: `sudo apt-get install jq`
+- Windows: `winget install jqlang.jq`
+
+### XAML validation unavailable
+
+The XAML well-formedness check requires either `xmllint` or `python3`. If neither is available, the hook skips
+validation and reports a warning.
+
+**Fix**: install `libxml2-utils` (for `xmllint`) or ensure `python3` is in your `PATH`.
