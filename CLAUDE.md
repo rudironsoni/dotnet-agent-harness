@@ -18,6 +18,11 @@ dotnet agent-harness bootstrap
 - [Consumer Guide](docs/guide/) - Installation, commands, troubleshooting
 - [Maintainer Guide](docs/maintainer/) - Authoring, bundles, releases
 
+## Inventory
+
+- 189 skills - Self-contained guidance documents
+- 15 specialist agents/subagents - Specialized AI agents for specific domains
+
 ## License
 
 MIT

@@ -1,6 +1,7 @@
 # dotnet-agent-harness
 
-> **The definitive .NET development companion for AI coding tools.**
+> **The definitive .NET development companion for AI coding tools.** 189 specialized skills · 15 expert subagents · 27
+> powerful commands
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -39,11 +40,12 @@ After installation, use these commands:
 
 ## What You Get
 
-| Component       | Count | Description                                           |
-| --------------- | ----- | ----------------------------------------------------- |
-| **Skills**      | 189   | Self-contained guidance documents for .NET topics     |
-| **Subagents**   | 15    | Specialized AI agents for specific domains            |
-| **Commands**    | 20    | CLI commands for common workflows                     |
+| Component       | Count | Description                                            |
+| --------------- | ----- | ------------------------------------------------------ |
+| **Skills**      | 189   | Self-contained guidance documents for .NET topics      |
+| **Subagents**   | 15    | Specialized AI agents for specific domains             |
+| **Commands**    | 27    | CLI commands for common workflows                      |
+| **MCP Servers** | 6     | Model Context Protocol servers for AI tool integration |
 
 **Coverage Areas:**
 
@@ -55,6 +57,31 @@ After installation, use these commands:
 - Mobile (MAUI)
 - Security (OWASP)
 - Performance (profiling, optimization)
+
+## Repository Structure
+
+```text
+.rulesync/
+├── skills/        # 189 knowledge modules
+├── subagents/     # 15 specialized agents
+├── commands/      # 27 slash commands
+├── agents/        # 3 primary agents
+└── mcp.json       # MCP server definitions
+```
+
+## MCP Inventory
+
+MCP inventory (source: .rulesync/mcp.json): `context7`, `deepwiki`, `github`, `mcp-windbg`, `microsoftdocs-mcp`,
+`serena`
+
+| MCP Server          | Description                                  |
+| ------------------- | -------------------------------------------- |
+| `context7`          | Context7 MCP server for documentation        |
+| `deepwiki`          | DeepWiki MCP for repository documentation    |
+| `github`            | GitHub MCP for repository operations         |
+| `mcp-windbg`        | WinDbg MCP for debugging                     |
+| `microsoftdocs-mcp` | Microsoft Learn documentation access         |
+| `serena`            | Symbol-level code navigation and refactoring |
 
 ## License
 
