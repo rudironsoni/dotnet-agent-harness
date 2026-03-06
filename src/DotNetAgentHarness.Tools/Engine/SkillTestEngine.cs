@@ -12,6 +12,7 @@ namespace DotNetAgentHarness.Tools.Engine;
 public static class SkillTestEngine
 {
     private static readonly IDeserializer Deserializer = new DeserializerBuilder().Build();
+    private const string SharedTestCasesRelativePath = ".rulesync/skill-tests/shared";
 
     public static SkillTestSuiteResult Run(string repoRoot, string skillName, bool failFast, string? filter = null)
     {
@@ -107,6 +108,7 @@ public static class SkillTestEngine
         var skillFile = Path.Combine(skillDirectory, "SKILL.md");
         var checks = new List<SkillTestCheck>();
         var caseCount = 0;
+        var skillTags = new List<string>();
 
         if (!File.Exists(skillFile))
         {
@@ -165,8 +167,10 @@ public static class SkillTestEngine
             });
         }
 
-        var testCasesDir = Path.Combine(skillDirectory, "test-cases");
-        if (!Directory.Exists(testCasesDir))
+        skillTags = GetStrings(frontmatter.TryGetValue("tags", out var tagsValue) ? tagsValue : null);
+
+        var caseSources = EnumerateCaseSources(repoRoot, skillDirectory);
+        if (caseSources.Count == 0)
         {
             checks.Add(new SkillTestCheck
             {
@@ -178,34 +182,39 @@ public static class SkillTestEngine
         }
         else
         {
-            foreach (var filePath in EnumerateTestCaseFiles(testCasesDir))
+            foreach (var caseSource in caseSources)
             {
                 SkillTestCaseDefinition definition;
                 try
                 {
-                    definition = LoadDefinition(filePath);
+                    definition = LoadDefinition(caseSource.FilePath);
                 }
                 catch (Exception ex)
                 {
                     checks.Add(new SkillTestCheck
                     {
-                        Name = $"{Path.GetFileName(filePath)}: parse",
+                        Name = $"{Path.GetFileName(caseSource.FilePath)}: parse",
                         Passed = false,
                         Message = ex.Message,
-                        SourceFile = Path.GetRelativePath(repoRoot, filePath),
-                        CaseName = Path.GetFileNameWithoutExtension(filePath)
+                        SourceFile = Path.GetRelativePath(repoRoot, caseSource.FilePath),
+                        CaseName = Path.GetFileNameWithoutExtension(caseSource.FilePath)
                     });
                     continue;
                 }
 
-                var selectedTests = SelectTests(definition, filePath, filter);
+                if (!MatchesScope(definition.Scope, skillId, skillTags))
+                {
+                    continue;
+                }
+
+                var selectedTests = SelectTests(definition, caseSource.FilePath, filter);
                 if (selectedTests.Count == 0)
                 {
                     continue;
                 }
 
                 caseCount++;
-                checks.AddRange(RunTestCase(repoRoot, skillDirectory, filePath, definition, selectedTests, content, frontmatter));
+                checks.AddRange(RunTestCase(repoRoot, skillDirectory, caseSource.FilePath, definition, selectedTests, content, frontmatter, skillId));
             }
 
             if (caseCount == 0)
@@ -217,7 +226,7 @@ public static class SkillTestEngine
                     Message = string.IsNullOrWhiteSpace(filter)
                         ? "No runnable test cases were found."
                         : $"No test cases matched filter '{filter}'.",
-                    SourceFile = Path.GetRelativePath(repoRoot, testCasesDir)
+                    SourceFile = Path.GetRelativePath(repoRoot, caseSources[0].RootDirectory)
                 });
             }
         }
@@ -238,6 +247,29 @@ public static class SkillTestEngine
             .Where(path => path.EndsWith(".yml", StringComparison.OrdinalIgnoreCase)
                         || path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase))
             .OrderBy(path => path, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static List<SkillTestCaseSource> EnumerateCaseSources(string repoRoot, string skillDirectory)
+    {
+        var sources = new List<SkillTestCaseSource>();
+
+        var localTestCasesDir = Path.Combine(skillDirectory, "test-cases");
+        if (Directory.Exists(localTestCasesDir))
+        {
+            sources.AddRange(EnumerateTestCaseFiles(localTestCasesDir)
+                .Select(path => new SkillTestCaseSource(path, localTestCasesDir)));
+        }
+
+        var sharedTestCasesDir = Path.Combine(repoRoot, SharedTestCasesRelativePath);
+        if (Directory.Exists(sharedTestCasesDir))
+        {
+            sources.AddRange(EnumerateTestCaseFiles(sharedTestCasesDir)
+                .Select(path => new SkillTestCaseSource(path, sharedTestCasesDir)));
+        }
+
+        return sources
+            .OrderBy(source => source.FilePath, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     private static List<SkillTestDefinition> SelectTests(SkillTestCaseDefinition definition, string filePath, string? filter)
@@ -272,7 +304,8 @@ public static class SkillTestEngine
         SkillTestCaseDefinition definition,
         IReadOnlyList<SkillTestDefinition> tests,
         string skillContent,
-        IReadOnlyDictionary<string, object> frontmatter)
+        IReadOnlyDictionary<string, object> frontmatter,
+        string skillId)
     {
         var checks = new List<SkillTestCheck>();
         var workspace = Path.Combine(
@@ -286,6 +319,7 @@ public static class SkillTestEngine
         var tokens = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             ["repo_root"] = repoRoot,
+            ["skill_id"] = skillId,
             ["skill_dir"] = skillDirectory,
             ["skill_file"] = Path.Combine(skillDirectory, "SKILL.md"),
             ["workspace"] = workspace
@@ -374,7 +408,8 @@ public static class SkillTestEngine
         if (!string.IsNullOrWhiteSpace(expected.Status))
         {
             hasAssertions = true;
-            var expectSuccess = expected.Status.Equals("success", StringComparison.OrdinalIgnoreCase);
+            var expectedStatus = ReplaceTokens(expected.Status, tokens);
+            var expectSuccess = expectedStatus.Equals("success", StringComparison.OrdinalIgnoreCase);
             var passed = execution.TimedOut
                 ? false
                 : expectSuccess
@@ -385,8 +420,8 @@ public static class SkillTestEngine
                 "status",
                 passed,
                 passed
-                    ? $"Command completed with expected status '{expected.Status}'."
-                    : $"Expected status '{expected.Status}' but exit code was {execution.ExitCode}.",
+                    ? $"Command completed with expected status '{expectedStatus}'."
+                    : $"Expected status '{expectedStatus}' but exit code was {execution.ExitCode}.",
                 caseRelativePath,
                 definition.Name,
                 test.Name));
@@ -394,15 +429,16 @@ public static class SkillTestEngine
 
         foreach (var fragment in expected.OutputContains)
         {
+            var expectedFragment = ReplaceTokens(fragment, tokens);
             hasAssertions = true;
-            var passed = execution.StandardOutput.Contains(fragment, StringComparison.OrdinalIgnoreCase);
+            var passed = execution.StandardOutput.Contains(expectedFragment, StringComparison.OrdinalIgnoreCase);
             checks.Add(BuildCheck(
                 prefix,
-                $"output_contains '{fragment}'",
+                $"output_contains '{expectedFragment}'",
                 passed,
                 passed
-                    ? $"Found '{fragment}' in stdout."
-                    : $"Expected '{fragment}' in stdout.",
+                    ? $"Found '{expectedFragment}' in stdout."
+                    : $"Expected '{expectedFragment}' in stdout.",
                 caseRelativePath,
                 definition.Name,
                 test.Name));
@@ -410,15 +446,16 @@ public static class SkillTestEngine
 
         foreach (var pattern in expected.OutputMatches)
         {
+            var expectedPattern = ReplaceTokens(pattern, tokens);
             hasAssertions = true;
-            var passed = Regex.IsMatch(execution.StandardOutput, pattern, RegexOptions.Multiline);
+            var passed = Regex.IsMatch(execution.StandardOutput, expectedPattern, RegexOptions.Multiline);
             checks.Add(BuildCheck(
                 prefix,
-                $"output_matches '{pattern}'",
+                $"output_matches '{expectedPattern}'",
                 passed,
                 passed
-                    ? $"Stdout matched regex '{pattern}'."
-                    : $"Stdout did not match regex '{pattern}'.",
+                    ? $"Stdout matched regex '{expectedPattern}'."
+                    : $"Stdout did not match regex '{expectedPattern}'.",
                 caseRelativePath,
                 definition.Name,
                 test.Name));
@@ -426,15 +463,16 @@ public static class SkillTestEngine
 
         foreach (var fragment in expected.ErrorContains)
         {
+            var expectedFragment = ReplaceTokens(fragment, tokens);
             hasAssertions = true;
-            var passed = execution.StandardError.Contains(fragment, StringComparison.OrdinalIgnoreCase);
+            var passed = execution.StandardError.Contains(expectedFragment, StringComparison.OrdinalIgnoreCase);
             checks.Add(BuildCheck(
                 prefix,
-                $"error_contains '{fragment}'",
+                $"error_contains '{expectedFragment}'",
                 passed,
                 passed
-                    ? $"Found '{fragment}' in stderr."
-                    : $"Expected '{fragment}' in stderr.",
+                    ? $"Found '{expectedFragment}' in stderr."
+                    : $"Expected '{expectedFragment}' in stderr.",
                 caseRelativePath,
                 definition.Name,
                 test.Name));
@@ -456,16 +494,17 @@ public static class SkillTestEngine
 
         foreach (var relativePath in expected.FileExists)
         {
+            var expectedPath = ReplaceTokens(relativePath, tokens);
             hasAssertions = true;
-            var fullPath = ResolvePath(relativePath, definition.WorkingDirectory, test.WorkingDirectory, tokens);
+            var fullPath = ResolvePath(expectedPath, definition.WorkingDirectory, test.WorkingDirectory, tokens);
             var passed = File.Exists(fullPath) || Directory.Exists(fullPath);
             checks.Add(BuildCheck(
                 prefix,
-                $"file_exists '{relativePath}'",
+                $"file_exists '{expectedPath}'",
                 passed,
                 passed
-                    ? $"Found '{relativePath}'."
-                    : $"Expected '{relativePath}' to exist.",
+                    ? $"Found '{expectedPath}'."
+                    : $"Expected '{expectedPath}' to exist.",
                 caseRelativePath,
                 definition.Name,
                 test.Name));
@@ -473,16 +512,17 @@ public static class SkillTestEngine
 
         foreach (var relativePath in expected.FileNotExists)
         {
+            var expectedPath = ReplaceTokens(relativePath, tokens);
             hasAssertions = true;
-            var fullPath = ResolvePath(relativePath, definition.WorkingDirectory, test.WorkingDirectory, tokens);
+            var fullPath = ResolvePath(expectedPath, definition.WorkingDirectory, test.WorkingDirectory, tokens);
             var passed = !File.Exists(fullPath) && !Directory.Exists(fullPath);
             checks.Add(BuildCheck(
                 prefix,
-                $"file_not_exists '{relativePath}'",
+                $"file_not_exists '{expectedPath}'",
                 passed,
                 passed
-                    ? $"Confirmed '{relativePath}' is absent."
-                    : $"Expected '{relativePath}' to be absent.",
+                    ? $"Confirmed '{expectedPath}' is absent."
+                    : $"Expected '{expectedPath}' to be absent.",
                 caseRelativePath,
                 definition.Name,
                 test.Name));
@@ -490,15 +530,16 @@ public static class SkillTestEngine
 
         foreach (var fragment in expected.SkillContains)
         {
+            var expectedFragment = ReplaceTokens(fragment, tokens);
             hasAssertions = true;
-            var passed = skillContent.Contains(fragment, StringComparison.OrdinalIgnoreCase);
+            var passed = skillContent.Contains(expectedFragment, StringComparison.OrdinalIgnoreCase);
             checks.Add(BuildCheck(
                 prefix,
-                $"skill_contains '{fragment}'",
+                $"skill_contains '{expectedFragment}'",
                 passed,
                 passed
-                    ? $"Found '{fragment}' in SKILL.md."
-                    : $"Expected '{fragment}' in SKILL.md.",
+                    ? $"Found '{expectedFragment}' in SKILL.md."
+                    : $"Expected '{expectedFragment}' in SKILL.md.",
                 caseRelativePath,
                 definition.Name,
                 test.Name));
@@ -506,15 +547,16 @@ public static class SkillTestEngine
 
         foreach (var pattern in expected.SkillMatches)
         {
+            var expectedPattern = ReplaceTokens(pattern, tokens);
             hasAssertions = true;
-            var passed = Regex.IsMatch(skillContent, pattern, RegexOptions.Multiline);
+            var passed = Regex.IsMatch(skillContent, expectedPattern, RegexOptions.Multiline);
             checks.Add(BuildCheck(
                 prefix,
-                $"skill_matches '{pattern}'",
+                $"skill_matches '{expectedPattern}'",
                 passed,
                 passed
-                    ? $"SKILL.md matched regex '{pattern}'."
-                    : $"SKILL.md did not match regex '{pattern}'.",
+                    ? $"SKILL.md matched regex '{expectedPattern}'."
+                    : $"SKILL.md did not match regex '{expectedPattern}'.",
                 caseRelativePath,
                 definition.Name,
                 test.Name));
@@ -522,16 +564,17 @@ public static class SkillTestEngine
 
         foreach (var pair in expected.Frontmatter)
         {
+            var expectedValue = ReplaceTokens(pair.Value, tokens);
             hasAssertions = true;
             var actual = frontmatter.TryGetValue(pair.Key, out var value) ? ConvertToString(value) : string.Empty;
-            var passed = actual.Equals(pair.Value, StringComparison.OrdinalIgnoreCase);
+            var passed = actual.Equals(expectedValue, StringComparison.OrdinalIgnoreCase);
             checks.Add(BuildCheck(
                 prefix,
                 $"frontmatter.{pair.Key}",
                 passed,
                 passed
-                    ? $"Frontmatter '{pair.Key}' matched '{pair.Value}'."
-                    : $"Expected frontmatter '{pair.Key}' to be '{pair.Value}', got '{actual}'.",
+                    ? $"Frontmatter '{pair.Key}' matched '{expectedValue}'."
+                    : $"Expected frontmatter '{pair.Key}' to be '{expectedValue}', got '{actual}'.",
                 caseRelativePath,
                 definition.Name,
                 test.Name));
@@ -635,6 +678,7 @@ public static class SkillTestEngine
             Name = GetString(root, "name") ?? Path.GetFileNameWithoutExtension(filePath),
             Description = GetString(root, "description") ?? string.Empty,
             WorkingDirectory = GetString(root, "working_directory") ?? string.Empty,
+            Scope = ParseScope(GetValue(root, "scope"), root),
             SetupCommands = ParseCommands(GetValue(root, "setup")),
             TeardownCommands = ParseCommands(GetValue(root, "teardown"))
         };
@@ -789,6 +833,18 @@ public static class SkillTestEngine
         return commands;
     }
 
+    private static SkillTestScope ParseScope(object? scopeNode, IReadOnlyDictionary<string, object?> root)
+    {
+        var scopeMap = ToDictionary(scopeNode);
+        return new SkillTestScope
+        {
+            IncludeSkills = GetStrings(GetValue(scopeMap, "include_skills") ?? GetValue(root, "include_skills")),
+            ExcludeSkills = GetStrings(GetValue(scopeMap, "exclude_skills") ?? GetValue(root, "exclude_skills")),
+            IncludeTags = GetStrings(GetValue(scopeMap, "include_tags") ?? GetValue(root, "include_tags")),
+            ExcludeTags = GetStrings(GetValue(scopeMap, "exclude_tags") ?? GetValue(root, "exclude_tags"))
+        };
+    }
+
     private static Dictionary<string, object?> ToDictionary(object? value)
     {
         var result = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
@@ -914,6 +970,47 @@ public static class SkillTestEngine
                || expectation.NoErrors;
     }
 
+    private static bool MatchesScope(SkillTestScope scope, string skillId, IReadOnlyCollection<string> skillTags)
+    {
+        if (scope.IncludeSkills.Count > 0 && !scope.IncludeSkills.Any(pattern => MatchesPattern(pattern, skillId)))
+        {
+            return false;
+        }
+
+        if (scope.ExcludeSkills.Any(pattern => MatchesPattern(pattern, skillId)))
+        {
+            return false;
+        }
+
+        if (scope.IncludeTags.Count > 0 && !skillTags.Any(tag => scope.IncludeTags.Any(pattern => MatchesPattern(pattern, tag))))
+        {
+            return false;
+        }
+
+        if (skillTags.Any(tag => scope.ExcludeTags.Any(pattern => MatchesPattern(pattern, tag))))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool MatchesPattern(string pattern, string value)
+    {
+        if (string.IsNullOrWhiteSpace(pattern))
+        {
+            return false;
+        }
+
+        if (pattern.Equals("*", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        var regexPattern = "^" + Regex.Escape(pattern).Replace("\\*", ".*") + "$";
+        return Regex.IsMatch(value, regexPattern, RegexOptions.IgnoreCase);
+    }
+
     private static string ResolveWorkingDirectory(string caseWorkingDirectory, string testWorkingDirectory, IReadOnlyDictionary<string, string> tokens)
     {
         var candidate = !string.IsNullOrWhiteSpace(testWorkingDirectory)
@@ -969,4 +1066,6 @@ public static class SkillTestEngine
         var chars = value.Where(character => char.IsLetterOrDigit(character) || character is '-' or '_').ToArray();
         return chars.Length == 0 ? "case" : new string(chars);
     }
+
+    private sealed record SkillTestCaseSource(string FilePath, string RootDirectory);
 }

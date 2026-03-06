@@ -15,19 +15,24 @@ public static class PromptBundleBuilder
             throw new ArgumentException("prepare-message requires a non-empty request.");
         }
 
+        var platform = PromptBundleRenderer.NormalizePlatform(options.Platform);
         var profile = ProjectAnalyzer.Analyze(repoRoot);
         var doctor = DoctorEngine.BuildReport(profile);
         var catalog = ToolkitCatalogLoader.Load(repoRoot);
         var personas = PersonaCatalogLoader.Load(repoRoot);
-        var recommendations = RecommendationEngine.Recommend(profile, catalog, Math.Max(1, options.SkillLimit));
+        var recommendations = RecommendationEngine.Recommend(profile, catalog, new RecommendationQuery
+        {
+            LimitPerKind = Math.Max(1, options.SkillLimit),
+            Platform = platform
+        });
         var target = RepoTargetResolver.Resolve(repoRoot, profile, options.TargetPath);
         var persona = ResolvePersona(personas, rawRequest, options.PersonaId);
-        var skills = SelectSkills(persona, recommendations, catalog, options.SkillLimit);
-        var subagent = SelectSubagent(persona, recommendations, catalog);
+        var skills = SelectSkills(persona, recommendations, catalog, options.SkillLimit, platform);
+        var subagent = SelectSubagent(persona, recommendations, catalog, platform);
         var risks = BuildRisks(doctor, target);
         var enhancedRequest = BuildEnhancedRequest(rawRequest, profile, target, persona, skills, subagent, risks);
         var bundle = BuildPromptBundle(target, persona, skills, subagent, enhancedRequest);
-        var renderedPrompt = PromptBundleRenderer.Render(options.Platform, bundle);
+        var renderedPrompt = PromptBundleRenderer.Render(platform, bundle);
 
         return new PreparedMessageReport
         {
@@ -92,15 +97,27 @@ public static class PromptBundleBuilder
         return score;
     }
 
-    private static List<PreparedCatalogSelection> SelectSkills(PersonaDefinition persona, RecommendationBundle recommendations, ToolkitCatalog catalog, int limit)
+    private static List<PreparedCatalogSelection> SelectSkills(
+        PersonaDefinition persona,
+        RecommendationBundle recommendations,
+        ToolkitCatalog catalog,
+        int limit,
+        string platform)
     {
+        if (!PlatformCapabilityCatalog.SupportsCatalogKind(platform, CatalogKinds.Skill))
+        {
+            return [];
+        }
+
         var selections = new Dictionary<string, PreparedCatalogSelection>(StringComparer.OrdinalIgnoreCase);
         var ordered = new List<PreparedCatalogSelection>();
 
         foreach (var skillId in persona.DefaultSkills)
         {
             var item = catalog.Find(skillId);
-            if (item is null || item.Kind != CatalogKinds.Skill)
+            if (item is null
+                || item.Kind != CatalogKinds.Skill
+                || !PlatformCapabilityCatalog.SupportsItem(platform, item))
             {
                 continue;
             }
@@ -146,12 +163,23 @@ public static class PromptBundleBuilder
         return ordered;
     }
 
-    private static PreparedCatalogSelection? SelectSubagent(PersonaDefinition persona, RecommendationBundle recommendations, ToolkitCatalog catalog)
+    private static PreparedCatalogSelection? SelectSubagent(
+        PersonaDefinition persona,
+        RecommendationBundle recommendations,
+        ToolkitCatalog catalog,
+        string platform)
     {
+        if (!PlatformCapabilityCatalog.SupportsCatalogKind(platform, CatalogKinds.Subagent))
+        {
+            return null;
+        }
+
         if (!string.IsNullOrWhiteSpace(persona.DefaultSubagent))
         {
             var item = catalog.Find(persona.DefaultSubagent);
-            if (item is not null && item.Kind == CatalogKinds.Subagent)
+            if (item is not null
+                && item.Kind == CatalogKinds.Subagent
+                && PlatformCapabilityCatalog.SupportsItem(platform, item))
             {
                 return new PreparedCatalogSelection
                 {
@@ -249,11 +277,14 @@ public static class PromptBundleBuilder
         builder.AppendLine($"- technologies: {FormatList(profile.Technologies)}");
         builder.AppendLine($"- target: {(string.IsNullOrWhiteSpace(target.DisplayPath) ? "unresolved" : target.DisplayPath)}");
         builder.AppendLine($"- resolution: {target.Resolution}");
-        builder.AppendLine();
-        builder.AppendLine("Load these skills first:");
-        foreach (var skill in skills)
+        if (skills.Count > 0)
         {
-            builder.AppendLine($"- {skill.Id}: {string.Join("; ", skill.Reasons)}");
+            builder.AppendLine();
+            builder.AppendLine("Load these skills first:");
+            foreach (var skill in skills)
+            {
+                builder.AppendLine($"- {skill.Id}: {string.Join("; ", skill.Reasons)}");
+            }
         }
 
         if (subagent is not null)
@@ -361,6 +392,11 @@ public static class PromptBundleBuilder
 
     private static string BuildSkillLayer(IReadOnlyList<PreparedCatalogSelection> skills, PreparedCatalogSelection? subagent)
     {
+        if (skills.Count == 0 && subagent is null)
+        {
+            return string.Empty;
+        }
+
         var builder = new StringBuilder();
         builder.AppendLine("Skill load order:");
         foreach (var skill in skills)

@@ -31,6 +31,136 @@ public sealed class SkillTestSuiteResult
     public int FailedChecks { get; init; }
 }
 
+public sealed class EvalHarnessOptions
+{
+    public string? Platform { get; init; }
+    public int TrialCount { get; init; } = 3;
+    public bool UseDummyMode { get; init; } = true;
+    public bool UnloadedCheckOnly { get; init; }
+    public string? CaseFilePath { get; init; }
+    public string? ArtifactId { get; init; }
+    public string? ArtifactPath { get; init; }
+    public string? Provider { get; init; }
+    public string? Model { get; init; }
+    public int TimeoutMs { get; init; } = 300_000;
+}
+
+public sealed class EvalHarnessRunResult
+{
+    public string Command { get; init; } = string.Empty;
+    public int ExitCode { get; init; }
+    public bool TimedOut { get; init; }
+    public string StandardOutput { get; init; } = string.Empty;
+    public string StandardError { get; init; } = string.Empty;
+    public string Platform { get; init; } = string.Empty;
+    public int TrialCount { get; init; }
+    public bool UseDummyMode { get; init; }
+    public bool UnloadedCheckOnly { get; init; }
+    public string ArtifactPath { get; init; } = string.Empty;
+    public EvalHarnessArtifactSummary? Artifact { get; init; }
+    public bool Passed => !TimedOut && ExitCode == 0 && (Artifact?.Overall.FailedTrials ?? 0) == 0;
+}
+
+public sealed class EvalHarnessArtifactSummary
+{
+    public string RunId { get; init; } = string.Empty;
+    public string Provider { get; init; } = string.Empty;
+    public string Model { get; init; } = string.Empty;
+    public string? PlatformFilter { get; init; }
+    public string CaseFilePath { get; init; } = string.Empty;
+    public int DefaultTrialCount { get; init; }
+    public string Gate { get; init; } = string.Empty;
+    public string PolicyProfile { get; init; } = string.Empty;
+    public string? PromptEvidenceId { get; init; }
+    public EvalHarnessOverallSummary Overall { get; init; } = new();
+    public List<EvalHarnessCaseSummary> Cases { get; init; } = new();
+}
+
+public sealed class EvalHarnessOverallSummary
+{
+    public int CaseCount { get; init; }
+    public int TrialCount { get; init; }
+    public int PassedTrials { get; init; }
+    public int FailedTrials { get; init; }
+    public double PassRate { get; init; }
+}
+
+public sealed class EvalHarnessCaseSummary
+{
+    public string CaseId { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+    public string CaseType { get; init; } = string.Empty;
+    public string Prompt { get; init; } = string.Empty;
+    public string ExpectedTrigger { get; init; } = string.Empty;
+    public string UnloadedExpectedTrigger { get; init; } = string.Empty;
+    public string SelectedPlatform { get; init; } = string.Empty;
+    public List<string> Platforms { get; init; } = new();
+    public int TrialCount { get; init; }
+    public int PassedTrials { get; init; }
+    public int FailedTrials { get; init; }
+    public double PassRate { get; init; }
+    public double AverageElapsedMilliseconds { get; init; }
+    public List<EvalHarnessFailureSummary> Failures { get; init; } = new();
+}
+
+public sealed class EvalHarnessFailureSummary
+{
+    public string Scenario { get; init; } = string.Empty;
+    public int TrialNumber { get; init; }
+    public string TriggerMessage { get; init; } = string.Empty;
+    public List<string> AssertionMessages { get; init; } = new();
+    public string Summary { get; init; } = string.Empty;
+}
+
+public sealed class McpExportOptions
+{
+    public string OutputDirectory { get; init; } = string.Empty;
+    public string? Platform { get; init; }
+    public string Kind { get; init; } = "all";
+}
+
+public sealed class McpExportReport
+{
+    public string RepoRoot { get; init; } = string.Empty;
+    public string OutputDirectory { get; init; } = string.Empty;
+    public string Platform { get; init; } = string.Empty;
+    public string Kind { get; init; } = "all";
+    public string ManifestPath { get; init; } = string.Empty;
+    public string PromptIndexPath { get; init; } = string.Empty;
+    public string ResourceIndexPath { get; init; } = string.Empty;
+    public int PromptCount { get; init; }
+    public int ResourceCount { get; init; }
+    public List<McpPromptExportItem> Prompts { get; init; } = new();
+    public List<McpResourceExportItem> Resources { get; init; } = new();
+}
+
+public sealed class McpPromptExportItem
+{
+    public string Id { get; init; } = string.Empty;
+    public string Kind { get; init; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+    public string Uri { get; init; } = string.Empty;
+    public string SourcePath { get; init; } = string.Empty;
+    public string ExportPath { get; init; } = string.Empty;
+    public List<string> Platforms { get; init; } = new();
+    public List<string> Tags { get; init; } = new();
+}
+
+public sealed class McpResourceExportItem
+{
+    public string Id { get; init; } = string.Empty;
+    public string Kind { get; init; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+    public string Uri { get; init; } = string.Empty;
+    public string SourcePath { get; init; } = string.Empty;
+    public string ExportPath { get; init; } = string.Empty;
+    public List<string> Platforms { get; init; } = new();
+    public List<string> Tags { get; init; } = new();
+    public List<string> References { get; init; } = new();
+}
+
 public sealed class SkillTestResult
 {
     public string SkillId { get; init; } = string.Empty;
@@ -55,9 +185,18 @@ public sealed class SkillTestCaseDefinition
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string WorkingDirectory { get; set; } = string.Empty;
+    public SkillTestScope Scope { get; set; } = new();
     public List<SkillTestCommandDefinition> SetupCommands { get; set; } = new();
     public List<SkillTestDefinition> Tests { get; set; } = new();
     public List<SkillTestCommandDefinition> TeardownCommands { get; set; } = new();
+}
+
+public sealed class SkillTestScope
+{
+    public List<string> IncludeSkills { get; set; } = new();
+    public List<string> ExcludeSkills { get; set; } = new();
+    public List<string> IncludeTags { get; set; } = new();
+    public List<string> ExcludeTags { get; set; } = new();
 }
 
 public sealed class SkillTestCommandDefinition

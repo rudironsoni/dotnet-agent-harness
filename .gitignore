@@ -62,12 +62,16 @@ replit.md
 # Build output
 dist/
 packages/dotnet-agent-harness-*/bundled/
+/artifacts/
 
 # .NET build intermediates (repo-local)
 src/**/bin/
 src/**/obj/
 tests/**/bin/
 tests/**/obj/
+
+# Repo-local tool manifests used only for maintainer smoke/bootstrap work
+/.config/dotnet-tools.json
 
 # Local editor and OS files
 .DS_Store

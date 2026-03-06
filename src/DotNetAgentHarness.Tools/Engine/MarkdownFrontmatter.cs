@@ -75,5 +75,5 @@ public static class MarkdownFrontmatter
 
 public static class KnownPlatforms
 {
-    public static readonly string[] All = { "claudecode", "opencode", "copilot", "codexcli", "geminicli", "antigravity" };
+    public static readonly string[] All = { "claudecode", "opencode", "copilot", "codexcli", "geminicli", "antigravity", "factorydroid" };
 }

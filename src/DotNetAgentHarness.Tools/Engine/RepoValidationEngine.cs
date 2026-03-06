@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace DotNetAgentHarness.Tools.Engine;
@@ -88,6 +89,7 @@ public static class RepoValidationEngine
                 Message = "Test execution was skipped by option.",
                 Remediation = "Run `validate --run` without `--skip-test` when you want end-to-end repo verification."
             });
+            AddOptionalQualityChecks(checks, repoRoot, options);
             return checks;
         }
 
@@ -101,6 +103,7 @@ public static class RepoValidationEngine
                 Message = "No test projects were detected, so `dotnet test` was skipped.",
                 Remediation = "Add a dedicated test project if you want the harness to verify behavior with repo-native tests."
             });
+            AddOptionalQualityChecks(checks, repoRoot, options);
             return checks;
         }
 
@@ -115,6 +118,7 @@ public static class RepoValidationEngine
                 Message = $"Target '{selection.DisplayPath}' is not a solution or test project, so `dotnet test` would not cover the repository tests.",
                 Remediation = "Pass `--target <solution-or-test-project>` or add a solution file so runtime validation can execute repo-native tests."
             });
+            AddOptionalQualityChecks(checks, repoRoot, options);
             return checks;
         }
 
@@ -124,6 +128,7 @@ public static class RepoValidationEngine
             repoRoot,
             options.TimeoutMs);
         checks.Add(testCheck);
+        AddOptionalQualityChecks(checks, repoRoot, options);
 
         return checks;
     }
@@ -155,6 +160,87 @@ public static class RepoValidationEngine
             Evidence = evidence,
             Remediation = !result.TimedOut && result.ExitCode == 0 ? string.Empty : remediation
         };
+    }
+
+    private static void AddOptionalQualityChecks(List<ValidationCheck> checks, string repoRoot, ValidationOptions options)
+    {
+        var slopwatchConfigPath = Path.Combine(repoRoot, ".slopwatch", "config.json");
+        var slopwatchBaselinePath = Path.Combine(repoRoot, ".slopwatch", "baseline.json");
+        var hasLocalManifestTool = HasLocalToolManifestEntry(repoRoot, "slopwatch.cmd");
+        var hasGlobalSlopwatch = IsCommandAvailable("slopwatch", repoRoot);
+
+        if (!File.Exists(slopwatchConfigPath) && !File.Exists(slopwatchBaselinePath) && !hasLocalManifestTool && !hasGlobalSlopwatch)
+        {
+            return;
+        }
+
+        checks.Add(new ValidationCheck
+        {
+            Name = "slopwatch-pack",
+            Passed = true,
+            Severity = "info",
+            Message = "Slopwatch quality gate is configured for this repository.",
+            Evidence = File.Exists(slopwatchConfigPath)
+                ? slopwatchConfigPath
+                : hasLocalManifestTool
+                    ? Path.Combine(repoRoot, ".config", "dotnet-tools.json")
+                    : string.Empty,
+            Remediation = "Keep the Slopwatch baseline intentional and run repo validation with `--run` after edits."
+        });
+
+        if (!File.Exists(slopwatchBaselinePath))
+        {
+            checks.Add(new ValidationCheck
+            {
+                Name = "slopwatch-baseline",
+                Passed = true,
+                Severity = "warning",
+                Message = "Slopwatch is enabled, but `.slopwatch/baseline.json` is missing so analysis was skipped.",
+                Remediation = "Run `dotnet tool restore && dotnet tool run slopwatch init`, review the baseline, and commit it before expecting runtime validation to enforce Slopwatch."
+            });
+            return;
+        }
+
+        if (hasLocalManifestTool)
+        {
+            var restoreCheck = RunDotNetCommand("slopwatch-tool-restore", "tool restore", repoRoot, options.TimeoutMs);
+            checks.Add(restoreCheck);
+            if (!restoreCheck.Passed)
+            {
+                return;
+            }
+
+            var analyzeCheck = RunSlopwatchCheck(
+                "slopwatch-analyze",
+                "dotnet",
+                "tool run slopwatch analyze -d . --fail-on warning",
+                repoRoot,
+                options.TimeoutMs,
+                "Inspect SW001-SW006 findings, fix the underlying code or tests, and only update the baseline with explicit justification.");
+            checks.Add(analyzeCheck);
+            return;
+        }
+
+        if (!hasGlobalSlopwatch)
+        {
+            checks.Add(new ValidationCheck
+            {
+                Name = "slopwatch-tool-missing",
+                Passed = true,
+                Severity = "warning",
+                Message = "Slopwatch config was detected, but no local or global Slopwatch tool is available so analysis was skipped.",
+                Remediation = "Enable the dotnet-intelligence pack or install `Slopwatch.Cmd` before relying on repo validation to enforce Slopwatch."
+            });
+            return;
+        }
+
+        checks.Add(RunSlopwatchCheck(
+            "slopwatch-analyze",
+            "slopwatch",
+            "analyze -d . --fail-on warning",
+            repoRoot,
+            options.TimeoutMs,
+            "Inspect SW001-SW006 findings, fix the underlying code or tests, and only update the baseline with explicit justification."));
     }
 
     private static string BuildDotNetArguments(string verb, string targetPath, ValidationOptions options, bool includeNoRestore, bool includeNoBuild)
@@ -342,5 +428,57 @@ public static class RepoValidationEngine
     private static string Quote(string value)
     {
         return $"\"{value}\"";
+    }
+
+    private static ValidationCheck RunSlopwatchCheck(string name, string command, string arguments, string workingDirectory, int timeoutMs, string remediation)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        var result = ProcessRunner.Run(command, arguments, workingDirectory, timeoutMs, throwOnError: false);
+        stopwatch.Stop();
+
+        var output = CombineOutput(result);
+        return new ValidationCheck
+        {
+            Name = name,
+            Passed = !result.TimedOut && result.ExitCode == 0,
+            Severity = !result.TimedOut && result.ExitCode == 0 ? "info" : "error",
+            Message = result.TimedOut
+                ? $"{name} timed out after {stopwatch.Elapsed.TotalMilliseconds:F0}ms."
+                : result.ExitCode == 0
+                    ? $"{name} succeeded in {stopwatch.Elapsed.TotalMilliseconds:F0}ms."
+                    : $"{name} failed with exit code {result.ExitCode}.",
+            Command = $"{command} {arguments}",
+            ExitCode = result.ExitCode,
+            DurationMs = stopwatch.Elapsed.TotalMilliseconds,
+            Evidence = ExtractEvidence(output),
+            Remediation = !result.TimedOut && result.ExitCode == 0 ? string.Empty : remediation
+        };
+    }
+
+    private static bool HasLocalToolManifestEntry(string repoRoot, string packageId)
+    {
+        var manifestPath = Path.Combine(repoRoot, ".config", "dotnet-tools.json");
+        if (!File.Exists(manifestPath))
+        {
+            return false;
+        }
+
+        using var document = JsonDocument.Parse(File.ReadAllText(manifestPath));
+        if (!document.RootElement.TryGetProperty("tools", out var tools))
+        {
+            return false;
+        }
+
+        return tools.TryGetProperty(packageId.ToLowerInvariant(), out _)
+               || tools.TryGetProperty(packageId, out _);
+    }
+
+    private static bool IsCommandAvailable(string command, string workingDirectory)
+    {
+        var checker = OperatingSystem.IsWindows()
+            ? ProcessRunner.Run("where", command, workingDirectory, timeoutMs: 15_000, throwOnError: false)
+            : ProcessRunner.RunShell($"command -v {command}", workingDirectory, timeoutMs: 15_000);
+
+        return checker.ExitCode == 0 && !checker.TimedOut;
     }
 }

@@ -95,7 +95,7 @@ public class PromptBundleBuilderTests
     }
 
     [Fact]
-    public void Prepare_RendersGeminiAndAntigravityPlatforms()
+    public void Prepare_RendersGeminiAntigravityAndFactoryDroidPlatforms()
     {
         using var repo = new TestRepositoryBuilder();
         WritePersonas(repo);
@@ -120,14 +120,27 @@ public class PromptBundleBuilderTests
             TargetPath = "src/App/App.csproj",
             Platform = PromptPlatforms.Antigravity
         });
+        var factory = PromptBundleBuilder.Prepare(repo.Root, "Plan a safer API rollout", new PromptAssemblyOptions
+        {
+            PersonaId = "implementer",
+            TargetPath = "src/App/App.csproj",
+            Platform = "factory"
+        });
 
         Assert.Equal(PromptPlatforms.GeminiCli, gemini.RenderedPrompt.Platform);
+        Assert.Null(gemini.Subagent);
         Assert.Contains("SYSTEM INSTRUCTIONS", gemini.RenderedPrompt.CompositeText);
         Assert.Contains("USER REQUEST", gemini.RenderedPrompt.CompositeText);
 
         Assert.Equal(PromptPlatforms.Antigravity, antigravity.RenderedPrompt.Platform);
         Assert.Contains("MISSION", antigravity.RenderedPrompt.CompositeText);
         Assert.Contains("WORKFLOW", antigravity.RenderedPrompt.CompositeText);
+
+        Assert.Equal(PromptPlatforms.FactoryDroid, factory.RenderedPrompt.Platform);
+        Assert.Empty(factory.Skills);
+        Assert.Null(factory.Subagent);
+        Assert.Contains("RUNTIME PROFILE", factory.RenderedPrompt.CompositeText);
+        Assert.Contains("TASK REQUEST", factory.RenderedPrompt.CompositeText);
     }
 
     private static void WritePersonas(TestRepositoryBuilder repo)

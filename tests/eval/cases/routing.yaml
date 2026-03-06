@@ -1,7 +1,9 @@
-- id: "arch-001"
-  description: "Microservice architecture recommendation"
+- id: "arch-claude-001"
+  description: "Claude Code architecture recommendation"
   prompt: "Suggest an architecture for a high-throughput .NET 10 microservice."
   expected_trigger: "dotnet-architect"
+  case_type: "positive"
+  platforms: ["claudecode"]
   trial_count: 3
   fixture_trigger: "dotnet-architect"
   fixture_response: "Use .NET Aspire with Minimal APIs and an async messaging backbone for resilient high-throughput services."
@@ -13,22 +15,106 @@
     - type: "not_contains"
       value: "WCF"
 
-- id: "ui-001"
-  description: "Web assembly vs server side rendering"
-  prompt: "Should I use InteractiveServer or InteractiveWebAssembly for a public-facing blog?"
-  expected_trigger: "dotnet-blazor-specialist"
-  fixture_trigger: "dotnet-blazor-specialist"
-  fixture_response: "Start with SSR and add interactivity where needed to keep first load performance predictable."
+- id: "review-opencode-001"
+  description: "OpenCode code review routing"
+  prompt: "Review this ASP.NET Core change for async bugs, nullability regressions, and hidden test gaps."
+  expected_trigger: "dotnet-code-review-agent"
+  case_type: "positive"
+  platforms: ["opencode"]
+  trial_count: 3
+  fixture_trigger: "dotnet-code-review-agent"
+  fixture_response: "Check async cancellation flow, nullable annotations, and whether the changed tests still exercise the failure path."
   assertions:
     - type: "contains"
-      value: "SSR"
+      value: "nullable"
+    - type: "contains"
+      value: "tests"
+
+- id: "api-codex-001"
+  description: "Codex CLI ASP.NET routing"
+  prompt: "I need help restructuring my ASP.NET Core endpoints and middleware ordering."
+  expected_trigger: "dotnet-aspnetcore-specialist"
+  case_type: "positive"
+  platforms: ["codexcli"]
+  trial_count: 3
+  fixture_trigger: "dotnet-aspnetcore-specialist"
+  fixture_response: "Use route groups, validate middleware ordering, and keep exception handling ahead of endpoint execution."
+  assertions:
+    - type: "contains"
+      value: "middleware"
+    - type: "contains"
+      value: "route groups"
+
+- id: "testing-gemini-001"
+  description: "Gemini CLI testing specialist routing"
+  prompt: "How should I validate a .NET API that uses PostgreSQL and Redis in integration tests?"
+  expected_trigger: "dotnet-testing-specialist"
+  case_type: "positive"
+  platforms: ["geminicli"]
+  trial_count: 4
+  fixture_trigger: "dotnet-testing-specialist"
+  fixture_response: "Use WebApplicationFactory with Testcontainers for PostgreSQL and Redis, and verify the real persistence path."
+  assertions:
+    - type: "contains"
+      value: "Testcontainers"
+    - type: "contains"
+      value: "WebApplicationFactory"
+
+- id: "docs-copilot-001"
+  description: "Copilot documentation routing"
+  prompt: "Generate the GitHub-facing docs plan for releasing this .NET library."
+  expected_trigger: "dotnet-github-docs"
+  case_type: "positive"
+  platforms: ["copilot"]
+  trial_count: 3
+  fixture_trigger: "dotnet-github-docs"
+  fixture_response: "Document release steps, package badges, changelog policy, and contribution expectations in the GitHub docs set."
+  assertions:
+    - type: "contains"
+      value: "GitHub"
+    - type: "contains"
+      value: "changelog"
+
+- id: "cloud-antigravity-001"
+  description: "Antigravity deployment routing"
+  prompt: "Recommend the safest path to deploy this .NET service as a container into Kubernetes."
+  expected_trigger: "dotnet-cloud-specialist"
+  case_type: "positive"
+  platforms: ["antigravity"]
+  trial_count: 3
+  fixture_trigger: "dotnet-cloud-specialist"
+  fixture_response: "Use a multi-stage container build, health probes, and explicit rollout safeguards before production promotion."
+  assertions:
+    - type: "contains"
+      value: "health probes"
+    - type: "contains"
+      value: "container"
 
 - id: "neg-001"
   description: "Negative control should not trigger a specialist"
   prompt: "Write a two-line thank-you message for a teammate."
   expected_trigger: "none"
+  case_type: "negative"
+  platforms: ["claudecode", "opencode", "codexcli", "geminicli", "copilot", "antigravity"]
+  trial_count: 3
   fixture_trigger: "none"
   fixture_response: "Thanks for your help this week. I appreciate your thoughtful feedback on the project."
   assertions:
     - type: "not_contains"
       value: "dotnet"
+
+- id: "retirement-001"
+  description: "Capability retirement check for testing routing"
+  prompt: "Decide how to test a small pure C# value object without I/O or framework dependencies."
+  expected_trigger: "dotnet-testing-strategy"
+  unloaded_expected_trigger: "none"
+  case_type: "retirement"
+  platforms: ["claudecode", "opencode", "codexcli", "geminicli", "copilot", "antigravity"]
+  trial_count: 3
+  fixture_trigger: "dotnet-testing-strategy"
+  fixture_response: "Prefer a small unit-test slice with no infrastructure, keep assertions focused, and avoid unnecessary integration scaffolding."
+  assertions:
+    - type: "contains"
+      value: "unit-test"
+    - type: "not_contains"
+      value: "Testcontainers"

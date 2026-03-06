@@ -19,7 +19,10 @@ public static class ReviewEngine
         ".rulesync",
         ".codex",
         ".claude",
-        ".opencode"
+        ".opencode",
+        ".gemini",
+        ".agent",
+        ".factory"
     };
 
     private static readonly ReviewRule[] Rules =

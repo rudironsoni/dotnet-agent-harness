@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Text.Json;
 using System.Xml.Linq;
 
@@ -10,8 +11,9 @@ namespace DotNetAgentHarness.Tools.Engine;
 
 public static class ProjectAnalyzer
 {
-    private static readonly string[] IgnoredDirectoryNames = { ".git", ".tmp", "bin", "obj", "node_modules", "dist", ".rulesync", ".codex", ".claude", ".opencode" };
+    private static readonly string[] IgnoredDirectoryNames = { ".git", ".tmp", "bin", "obj", "node_modules", "dist", ".rulesync", ".codex", ".claude", ".opencode", ".gemini", ".agent", ".factory" };
     private static readonly string[] TestPackages = { "xunit", "nunit", "mstest", "microsoft.net.test.sdk" };
+    private static readonly Regex LocalToolUsagePattern = new(@"\bdotnet\s+tool\s+(?:restore|run)\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public static RepositoryProfile Analyze(string repoRoot, DotNetEnvironmentReport? environment = null)
     {
@@ -77,6 +79,7 @@ public static class ProjectAnalyzer
             HasDirectoryBuildProps = File.Exists(Path.Combine(normalizedRoot, "Directory.Build.props")),
             HasEditorConfig = File.Exists(Path.Combine(normalizedRoot, ".editorconfig")),
             HasDotNetToolManifest = File.Exists(Path.Combine(normalizedRoot, ".config", "dotnet-tools.json")),
+            UsesDotNetLocalTools = DetectDotNetLocalToolUsage(normalizedRoot),
             HasRulesync = Directory.Exists(Path.Combine(normalizedRoot, ".rulesync")),
             CiProviders = DetectCiProviders(normalizedRoot),
             TargetFrameworks = targetFrameworks,
@@ -286,6 +289,70 @@ public static class ProjectAnalyzer
         }
 
         return providers;
+    }
+
+    private static bool DetectDotNetLocalToolUsage(string repoRoot)
+    {
+        if (File.Exists(Path.Combine(repoRoot, ".config", "dotnet-tools.json")))
+        {
+            return true;
+        }
+
+        var candidateFiles = new[]
+        {
+            Path.Combine(repoRoot, "justfile"),
+            Path.Combine(repoRoot, "Justfile"),
+            Path.Combine(repoRoot, "Makefile"),
+            Path.Combine(repoRoot, "Dockerfile")
+        }
+        .Where(File.Exists)
+        .Concat(EnumerateFiles(repoRoot, path =>
+            path.StartsWith(Path.Combine(repoRoot, "scripts") + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith(Path.Combine(repoRoot, ".github", "workflows") + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith(Path.Combine(repoRoot, ".github", "actions") + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)))
+        .Where(path => HasAutomationFileExtension(path))
+        .Distinct(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var filePath in candidateFiles)
+        {
+            try
+            {
+                var content = File.ReadAllText(filePath);
+                if (LocalToolUsagePattern.IsMatch(content))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                // Ignore unreadable automation files during signal detection.
+            }
+        }
+
+        return false;
+    }
+
+    private static bool HasAutomationFileExtension(string path)
+    {
+        var fileName = Path.GetFileName(path);
+        if (fileName.Equals("Dockerfile", StringComparison.OrdinalIgnoreCase)
+            || fileName.Equals("justfile", StringComparison.OrdinalIgnoreCase)
+            || fileName.Equals("Justfile", StringComparison.OrdinalIgnoreCase)
+            || fileName.Equals("Makefile", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var extension = Path.GetExtension(path);
+        return extension.Equals(".sh", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".ps1", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".cmd", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".bat", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".yml", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".yaml", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".json", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".jsonc", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".toml", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string ResolveDominantProjectKind(IEnumerable<ProjectSummary> projects)

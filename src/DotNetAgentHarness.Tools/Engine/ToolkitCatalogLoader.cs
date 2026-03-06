@@ -48,13 +48,13 @@ public static class ToolkitCatalogLoader
     {
         var terms = SplitTerms(query.Query);
         var kindFilter = Normalize(query.Kind);
-        var platformFilter = Normalize(query.Platform);
+        var platformProfile = PlatformCapabilityCatalog.Resolve(query.Platform);
         var categoryFilter = Normalize(query.Category);
 
         return catalog.Items
             .Where(item => string.IsNullOrWhiteSpace(kindFilter) || item.Kind.Equals(kindFilter, StringComparison.OrdinalIgnoreCase))
-            .Where(item => string.IsNullOrWhiteSpace(platformFilter) || item.Platforms.Contains("*") || item.Platforms.Any(platform => platform.Equals(platformFilter, StringComparison.OrdinalIgnoreCase)))
-            .Where(item => string.IsNullOrWhiteSpace(categoryFilter) || MatchesCategory(item, categoryFilter))
+            .Where(item => PlatformCapabilityCatalog.SupportsItem(platformProfile.Id, item))
+            .Where(item => string.IsNullOrWhiteSpace(categoryFilter) || MatchesCategoryFilter(item, categoryFilter))
             .Select(item => Score(item, terms))
             .Where(result => result.Score > 0 || terms.Count == 0)
             .OrderByDescending(result => result.Score)
@@ -222,7 +222,7 @@ public static class ToolkitCatalogLoader
         }
     }
 
-    private static bool MatchesCategory(CatalogItem item, string category)
+    public static bool MatchesCategoryFilter(CatalogItem item, string category)
     {
         return item.Tags.Any(tag => tag.Contains(category, StringComparison.OrdinalIgnoreCase))
                || item.Name.Contains(category, StringComparison.OrdinalIgnoreCase)

@@ -39,4 +39,54 @@ public class DoctorEngineTests
         Assert.Contains(report.Findings, finding => finding.Code == "tests-missing");
         Assert.Contains(report.Findings, finding => finding.Code == "rulesync-missing");
     }
+
+    [Fact]
+    public void BuildReport_SkipsToolManifestFindingWhenRepoDoesNotUseLocalTools()
+    {
+        var profile = new RepositoryProfile
+        {
+            RepoRoot = "/tmp/example",
+            Projects = [new ProjectSummary { Name = "App", Kind = "web", TargetFrameworks = ["net10.0"] }],
+            TargetFrameworks = ["net10.0"],
+            HasDotNetToolManifest = false,
+            UsesDotNetLocalTools = false,
+            HasRulesync = true,
+            HasDirectoryBuildProps = true,
+            HasEditorConfig = true,
+            InstalledSdkVersions = ["10.0.103"]
+        };
+
+        var report = DoctorEngine.BuildReport(profile, new DotNetEnvironmentReport
+        {
+            IsAvailable = true,
+            InstalledSdkVersions = ["10.0.103"]
+        });
+
+        Assert.DoesNotContain(report.Findings, finding => finding.Code == "tool-manifest-missing");
+    }
+
+    [Fact]
+    public void BuildReport_FlagsToolManifestWhenRepoUsesLocalTools()
+    {
+        var profile = new RepositoryProfile
+        {
+            RepoRoot = "/tmp/example",
+            Projects = [new ProjectSummary { Name = "App", Kind = "web", TargetFrameworks = ["net10.0"] }],
+            TargetFrameworks = ["net10.0"],
+            HasDotNetToolManifest = false,
+            UsesDotNetLocalTools = true,
+            HasRulesync = true,
+            HasDirectoryBuildProps = true,
+            HasEditorConfig = true,
+            InstalledSdkVersions = ["10.0.103"]
+        };
+
+        var report = DoctorEngine.BuildReport(profile, new DotNetEnvironmentReport
+        {
+            IsAvailable = true,
+            InstalledSdkVersions = ["10.0.103"]
+        });
+
+        Assert.Contains(report.Findings, finding => finding.Code == "tool-manifest-missing");
+    }
 }

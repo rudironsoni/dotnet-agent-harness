@@ -31,6 +31,7 @@ public class Program
             var options = EvalRunOptions.Parse(args);
             Console.WriteLine($"LLM mode: {(options.UseDummyMode ? "dummy" : "real")} ({options.ModeSource})");
             Console.WriteLine($"Provider: {options.Provider} | Trials(default): {options.DefaultTrialCount} | Cases: {options.CaseFilePath}");
+            Console.WriteLine($"Platform filter: {DisplayPlatform(options.Platform)}");
 
             if (options.UseDummyMode && IsRunningInCi())
             {
@@ -40,14 +41,24 @@ public class Program
             }
 
             var evalCases = YamlParser.LoadCases(options.CaseFilePath);
+            var plannedCases = EvalExecutionPlanner.Build(evalCases, options.Platform, options.DefaultTrialCount, options.UnloadedCheckOnly);
             Console.WriteLine($"Loaded {evalCases.Count} evaluation cases.");
+            Console.WriteLine($"Selected {plannedCases.Count} evaluation case(s) after platform filtering.");
+            Console.WriteLine($"Unloaded-only filter: {options.UnloadedCheckOnly}");
+
+            if (plannedCases.Count == 0)
+            {
+                Console.Error.WriteLine("No evaluation cases matched the requested platform filter.");
+                return 2;
+            }
 
             using var chatClient = options.UseDummyMode ? null : ChatClientFactory.Create(options.ToChatClientFactoryOptions());
 
-            var allCaseResults = new List<CaseAggregateResult>(evalCases.Count);
+            var allCaseResults = new List<CaseAggregateResult>(plannedCases.Count);
 
-            foreach (var evalCase in evalCases)
+            foreach (var plannedCase in plannedCases)
             {
+                var evalCase = plannedCase.EvalCase;
                 var trialCount = evalCase.TrialCount ?? options.DefaultTrialCount;
                 if (trialCount <= 0)
                 {
@@ -55,47 +66,52 @@ public class Program
                 }
 
                 Console.WriteLine($"\nRunning Case: {evalCase.Id} ({evalCase.Description})");
-                Console.WriteLine($"Expected trigger: {DisplayTrigger(evalCase.ExpectedTrigger)} | Trials: {trialCount}");
+                Console.WriteLine($"Declared platforms: {DisplayPlatforms(evalCase.Platforms)} | Case type: {DisplayCaseType(evalCase.CaseType)}");
 
-                var trialResults = new List<TrialResult>(trialCount);
+                var trialResults = new List<TrialResult>(plannedCase.Scenarios.Count * trialCount);
 
-                for (var trialIndex = 1; trialIndex <= trialCount; trialIndex++)
+                foreach (var scenario in plannedCase.Scenarios)
                 {
-                    TrialResult trialResult;
-                    if (options.UseDummyMode)
+                    Console.WriteLine($"Scenario: {scenario.Name} | Expected trigger: {DisplayTrigger(scenario.ExpectedTrigger)} | Trials: {trialCount}");
+
+                    for (var trialIndex = 1; trialIndex <= trialCount; trialIndex++)
                     {
-                        trialResult = RunDummyTrial(evalCase, trialIndex);
-                    }
-                    else
-                    {
-                        if (chatClient is null)
+                        TrialResult trialResult;
+                        if (options.UseDummyMode)
                         {
-                            throw new InvalidOperationException("Chat client was not initialized for real-mode evaluation.");
+                            trialResult = RunDummyTrial(evalCase, scenario, trialIndex);
+                        }
+                        else
+                        {
+                            if (chatClient is null)
+                            {
+                                throw new InvalidOperationException("Chat client was not initialized for real-mode evaluation.");
+                            }
+
+                            trialResult = await RunRealTrialAsync(chatClient, scenario, trialIndex, CancellationToken.None);
                         }
 
-                        trialResult = await RunRealTrialAsync(chatClient, evalCase, trialIndex, CancellationToken.None);
+                        var assertionResults = evalCase.Assertions
+                            .Select(assertion => AssertionRunner.Evaluate(trialResult.ResponseContent, assertion))
+                            .ToList();
+
+                        var triggerEvaluation = TriggerEvaluator.Evaluate(scenario.ExpectedTrigger, trialResult.Trigger);
+                        var triggerResult = new TriggerCheckResult(triggerEvaluation.Passed, triggerEvaluation.Message);
+                        var passed = triggerResult.Passed && assertionResults.All(r => r.Passed);
+
+                        trialResult = trialResult with
+                        {
+                            Passed = passed,
+                            AssertionResults = assertionResults,
+                            TriggerResult = triggerResult
+                        };
+
+                        trialResults.Add(trialResult);
+                        WriteTrialResult(trialResult);
                     }
-
-                    var assertionResults = evalCase.Assertions
-                        .Select(assertion => AssertionRunner.Evaluate(trialResult.ResponseContent, assertion))
-                        .ToList();
-
-                    var triggerEvaluation = TriggerEvaluator.Evaluate(evalCase.ExpectedTrigger, trialResult.Trigger);
-                    var triggerResult = new TriggerCheckResult(triggerEvaluation.Passed, triggerEvaluation.Message);
-                    var passed = triggerResult.Passed && assertionResults.All(r => r.Passed);
-
-                    trialResult = trialResult with
-                    {
-                        Passed = passed,
-                        AssertionResults = assertionResults,
-                        TriggerResult = triggerResult
-                    };
-
-                    trialResults.Add(trialResult);
-                    WriteTrialResult(trialResult);
                 }
 
-                var aggregateResult = BuildCaseAggregate(evalCase, trialResults);
+                var aggregateResult = BuildCaseAggregate(plannedCase, trialResults);
                 allCaseResults.Add(aggregateResult);
                 WriteCaseAggregate(aggregateResult);
             }
@@ -104,7 +120,7 @@ public class Program
 
             if (!string.IsNullOrWhiteSpace(options.ArtifactPath))
             {
-                var artifact = BuildArtifact(options, evalCases, allCaseResults);
+                var artifact = BuildArtifact(options, plannedCases, allCaseResults);
                 var artifactPath = EvalArtifactWriter.Write(options.ArtifactPath, artifact);
                 Console.WriteLine($"Artifact written to {artifactPath}");
             }
@@ -128,7 +144,7 @@ public class Program
         }
     }
 
-    private static TrialResult RunDummyTrial(EvalCase evalCase, int trialNumber)
+    private static TrialResult RunDummyTrial(EvalCase evalCase, PlannedEvalScenario scenario, int trialNumber)
     {
         var stopwatch = Stopwatch.StartNew();
 
@@ -136,13 +152,16 @@ public class Program
             ? "Deterministic fixture response not provided for this case."
             : evalCase.FixtureResponse;
 
-        var trigger = string.IsNullOrWhiteSpace(evalCase.FixtureTrigger)
-            ? evalCase.ExpectedTrigger
-            : evalCase.FixtureTrigger;
+        var trigger = scenario.Name.Equals("unloaded", StringComparison.OrdinalIgnoreCase)
+            ? scenario.ExpectedTrigger
+            : string.IsNullOrWhiteSpace(evalCase.FixtureTrigger)
+                ? evalCase.ExpectedTrigger
+                : evalCase.FixtureTrigger;
 
         stopwatch.Stop();
 
         return new TrialResult(
+            Scenario: scenario.Name,
             TrialNumber: trialNumber,
             ResponseContent: response,
             Trigger: trigger,
@@ -155,15 +174,14 @@ public class Program
 
     private static async Task<TrialResult> RunRealTrialAsync(
         IChatClient chatClient,
-        EvalCase evalCase,
+        PlannedEvalScenario scenario,
         int trialNumber,
         CancellationToken cancellationToken)
     {
         var stopwatch = Stopwatch.StartNew();
-        var prompt = BuildEvalPrompt(evalCase.Prompt);
 
         var response = await chatClient.GetResponseAsync(
-            prompt,
+            scenario.Prompt,
             new ChatOptions { ResponseFormat = ChatResponseFormat.Json },
             cancellationToken);
 
@@ -173,6 +191,7 @@ public class Program
         var tokenProxy = ResolveTokenProxy(response);
 
         return new TrialResult(
+            Scenario: scenario.Name,
             TrialNumber: trialNumber,
             ResponseContent: parsedOutput.Response,
             Trigger: parsedOutput.Trigger,
@@ -181,23 +200,6 @@ public class Program
             Passed: false,
             AssertionResults: [],
             TriggerResult: TriggerCheckResult.Placeholder);
-    }
-
-    private static string BuildEvalPrompt(string userPrompt)
-    {
-        return $$"""
-            You are evaluating agent skill routing behavior.
-            For the user prompt below, return ONLY JSON with this schema:
-            { "response": "assistant answer", "trigger": "skill-id-or-none" }
-
-            Rules:
-            - trigger MUST be a single skill id (for example: dotnet-architect) or "none".
-            - response MUST be plain text without markdown fences.
-            - Do not add keys beyond response and trigger.
-
-            User prompt:
-            {{userPrompt}}
-            """;
     }
 
     private static ModelOutput ParseModelOutput(string responseText)
@@ -251,21 +253,21 @@ public class Program
         return "n/a";
     }
 
-    private static CaseAggregateResult BuildCaseAggregate(EvalCase evalCase, IReadOnlyList<TrialResult> trials)
+    private static CaseAggregateResult BuildCaseAggregate(PlannedEvalCase plannedCase, IReadOnlyList<TrialResult> trials)
     {
         var passedCount = trials.Count(trial => trial.Passed);
         var failedCount = trials.Count - passedCount;
         var passRate = trials.Count == 0 ? 0 : (double)passedCount / trials.Count;
         var averageElapsed = trials.Count == 0 ? 0 : trials.Average(trial => trial.ElapsedMilliseconds);
 
-        return new CaseAggregateResult(evalCase.Id, passedCount, failedCount, passRate, averageElapsed, trials);
+        return new CaseAggregateResult(plannedCase.EvalCase.Id, passedCount, failedCount, passRate, averageElapsed, trials);
     }
 
     private static void WriteTrialResult(TrialResult trialResult)
     {
         var status = trialResult.Passed ? "PASS" : "FAIL";
         Console.WriteLine(
-            $"  Trial {trialResult.TrialNumber}: {status} | elapsed_ms={trialResult.ElapsedMilliseconds} | token_proxy={trialResult.TokenProxy}");
+            $"  Trial {trialResult.TrialNumber} [{trialResult.Scenario}]: {status} | elapsed_ms={trialResult.ElapsedMilliseconds} | token_proxy={trialResult.TokenProxy}");
 
         if (!trialResult.TriggerResult.Passed)
         {
@@ -332,7 +334,31 @@ public class Program
         }
 
         var defaultPath = Path.Combine(AppContext.BaseDirectory, "../../../../../tests/eval/cases/routing.yaml");
-        return Path.GetFullPath(defaultPath);
+        if (File.Exists(defaultPath))
+        {
+            return Path.GetFullPath(defaultPath);
+        }
+
+        return DefaultEvalCaseCatalog.EnsureDefaultCasesPath();
+    }
+
+    private static string DisplayPlatform(string? platform)
+    {
+        return string.IsNullOrWhiteSpace(platform)
+            ? "all"
+            : EvalExecutionPlanner.NormalizePlatform(platform);
+    }
+
+    private static string DisplayPlatforms(IReadOnlyList<string> platforms)
+    {
+        return platforms is null || platforms.Count == 0
+            ? "all"
+            : string.Join(", ", platforms);
+    }
+
+    private static string DisplayCaseType(string caseType)
+    {
+        return string.IsNullOrWhiteSpace(caseType) ? "positive" : caseType;
     }
 
     private static string DisplayTrigger(string value)
@@ -342,13 +368,14 @@ public class Program
 
     private static EvalRunArtifact BuildArtifact(
         EvalRunOptions options,
-        IReadOnlyList<EvalCase> evalCases,
+        IReadOnlyList<PlannedEvalCase> plannedCases,
         IReadOnlyList<CaseAggregateResult> allCaseResults)
     {
-        var caseIndex = evalCases.ToDictionary(item => item.Id, StringComparer.OrdinalIgnoreCase);
+        var caseIndex = plannedCases.ToDictionary(item => item.EvalCase.Id, StringComparer.OrdinalIgnoreCase);
         var cases = allCaseResults.Select(result =>
         {
-            var evalCase = caseIndex[result.CaseId];
+            var plannedCase = caseIndex[result.CaseId];
+            var evalCase = plannedCase.EvalCase;
             var failures = result.Trials
                 .Where(trial => !trial.Passed)
                 .Select(trial =>
@@ -363,6 +390,7 @@ public class Program
 
                     return new EvalArtifactFailure
                     {
+                        Scenario = trial.Scenario,
                         TrialNumber = trial.TrialNumber,
                         TriggerMessage = trial.TriggerResult.Message,
                         AssertionMessages = assertionMessages,
@@ -375,8 +403,12 @@ public class Program
             {
                 CaseId = result.CaseId,
                 Description = evalCase.Description,
+                CaseType = evalCase.CaseType,
                 Prompt = evalCase.Prompt,
                 ExpectedTrigger = evalCase.ExpectedTrigger,
+                UnloadedExpectedTrigger = evalCase.UnloadedExpectedTrigger,
+                Platforms = evalCase.Platforms,
+                SelectedPlatform = plannedCase.SelectedPlatform,
                 TrialCount = result.Trials.Count,
                 PassedTrials = result.PassedTrials,
                 FailedTrials = result.FailedTrials,
@@ -398,6 +430,7 @@ public class Program
             ModeSource = options.ModeSource,
             Provider = options.Provider,
             Model = options.Model,
+            PlatformFilter = options.Platform,
             CaseFilePath = options.CaseFilePath,
             DefaultTrialCount = options.DefaultTrialCount,
             Gate = options.Gate,
@@ -425,6 +458,8 @@ public class Program
         string CaseFilePath,
         int DefaultTrialCount,
         string? ArtifactPath,
+        string? Platform,
+        bool UnloadedCheckOnly,
         string Gate,
         string PolicyProfile,
         string? PromptEvidenceId,
@@ -462,6 +497,8 @@ public class Program
 
             var casesPath = ResolveValue(args, "--cases") ?? ResolveDefaultCasesPath();
             var defaultTrialCount = ResolveTrialCount(args);
+            var platform = ResolveValue(args, "--platform");
+            var unloadedCheckOnly = HasFlag(args, "--unloaded-check");
             var gate = ResolveValue(args, "--gate") ?? string.Empty;
             var policyProfile = ResolveValue(args, "--policy-profile") ?? string.Empty;
             var promptEvidenceId = ResolveValue(args, "--prompt-evidence");
@@ -478,6 +515,8 @@ public class Program
                 CaseFilePath: casesPath,
                 DefaultTrialCount: defaultTrialCount,
                 ArtifactPath: artifactPath,
+                Platform: platform,
+                UnloadedCheckOnly: unloadedCheckOnly,
                 Gate: gate,
                 PolicyProfile: policyProfile,
                 PromptEvidenceId: promptEvidenceId,
@@ -520,7 +559,7 @@ public class Program
                 return ParseTrialCount(fromEnvironment, TrialsEnvironmentVariable);
             }
 
-            return 1;
+            return 3;
         }
 
         private static int ParseTrialCount(string rawValue, string sourceName)
@@ -604,6 +643,19 @@ public class Program
             return false;
         }
 
+        private static bool HasFlag(string[] args, string optionName)
+        {
+            foreach (var arg in args)
+            {
+                if (string.Equals(arg, optionName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static string? ResolveValue(string[] args, string optionName)
         {
             for (var i = 0; i < args.Length; i++)
@@ -630,6 +682,7 @@ public class Program
     }
 
     private sealed record TrialResult(
+        string Scenario,
         int TrialNumber,
         string ResponseContent,
         string Trigger,

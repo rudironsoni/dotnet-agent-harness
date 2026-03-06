@@ -10,31 +10,58 @@ namespace DotNetAgentHarness.Tools.Engine;
 
 public static class BootstrapEngine
 {
+    private static readonly string[] CanonicalRuleSyncFeatures =
+    [
+        "rules",
+        "ignore",
+        "mcp",
+        "commands",
+        "subagents",
+        "skills",
+        "hooks"
+    ];
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true
     };
 
-    private static readonly IReadOnlyDictionary<string, string[]> TargetOutputMap = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
-    {
-        [PromptPlatforms.ClaudeCode] = [".claude/"],
-        [PromptPlatforms.OpenCode] = [".opencode/", "AGENTS.md"],
-        [PromptPlatforms.CodexCli] = [".codex/", "AGENTS.md"],
-        [PromptPlatforms.GeminiCli] = [".gemini/", "GEMINI.md"],
-        [PromptPlatforms.Copilot] = [".github/agents/", ".github/instructions/", ".github/prompts/", ".github/skills/", ".github/copilot-instructions.md"],
-        [PromptPlatforms.Antigravity] = [".agent/"]
-    };
-
     public static BootstrapReport Bootstrap(string repoRoot, BootstrapOptions options)
     {
         var normalizedRoot = Path.GetFullPath(repoRoot);
+        var profile = BootstrapProfileCatalog.Resolve(options.Profile);
         var targets = NormalizeTargets(options.Targets);
-        var features = NormalizeFeatures(options.Features);
+        var features = NormalizeFeatures(options.Features, profile);
+        var packs = BootstrapPackCatalog.ResolveMany(options.EnablePacks);
         var toolVersion = ToolkitRuntimeMetadata.ResolveToolVersion(options.ToolVersion);
         var warnings = new List<string>();
 
-        var toolManifest = WriteToolManifest(normalizedRoot, toolVersion);
+        if (packs.Any(pack => pack.Id.Equals(BootstrapPackCatalog.DotNetIntelligence, StringComparison.OrdinalIgnoreCase))
+            && !features.Contains("*", StringComparer.OrdinalIgnoreCase)
+            && !features.Contains("hooks", StringComparer.OrdinalIgnoreCase))
+        {
+            warnings.Add("dotnet-intelligence is most effective when RuleSync generates hooks. Add the 'hooks' feature or use --profile platform-native.");
+        }
+
+        var toolManifest = options.WriteToolManifest
+            ? WriteToolManifest(normalizedRoot, toolVersion, packs.SelectMany(pack => pack.ToolSpecs))
+            : new BootstrapFileResult
+            {
+                Path = Path.Combine(normalizedRoot, ".config", "dotnet-tools.json"),
+                Status = "skipped",
+                Message = "Skipped writing the local tool manifest because persistence was disabled."
+            };
         var rulesyncConfig = WriteRuleSyncConfig(normalizedRoot, options, targets, features);
+        var packResults = packs
+            .Select(pack => new BootstrapPackResult
+            {
+                Id = pack.Id,
+                Description = pack.Description,
+                ToolPackageIds = pack.ToolSpecs.Select(tool => tool.PackageId).ToList(),
+                Files = BootstrapPackCatalog.Apply(normalizedRoot, pack, options.WritePackFiles),
+                Notes = pack.Notes.ToList()
+            })
+            .ToList();
 
         var ruleSyncAvailable = IsCommandAvailable("rulesync", normalizedRoot);
         var commands = new List<BootstrapCommandResult>();
@@ -61,7 +88,7 @@ public static class BootstrapEngine
                 }
                 else
                 {
-                    var generateCommand = $"rulesync generate --targets {string.Join(',', targets)} --features {string.Join(',', features)}";
+                    var generateCommand = "rulesync generate";
                     var generateResult = ProcessRunner.RunShell(generateCommand, normalizedRoot, timeoutMs: 180_000);
                     commands.Add(ToCommandResult(generateResult));
                     if (generateResult.ExitCode != 0 || generateResult.TimedOut)
@@ -78,21 +105,21 @@ public static class BootstrapEngine
         }
 
         var environment = ProjectAnalyzer.ProbeDotNetEnvironment();
-        var profile = ProjectAnalyzer.Analyze(normalizedRoot, environment);
-        var doctor = DoctorEngine.BuildReport(profile, environment);
-        var recommendations = LoadRecommendations(normalizedRoot, profile, options.SkillLimit, warnings);
+        var repositoryProfile = ProjectAnalyzer.Analyze(normalizedRoot, environment);
+        var doctor = DoctorEngine.BuildReport(repositoryProfile, environment);
+        var recommendations = LoadRecommendations(normalizedRoot, repositoryProfile, options.SkillLimit, warnings);
         var init = new InitReport
         {
-            Profile = profile,
+            Profile = repositoryProfile,
             Recommendations = recommendations,
             Doctor = doctor
         };
 
         var stateFiles = options.WriteState
-            ? WriteBootstrapState(normalizedRoot, profile, recommendations, doctor)
+            ? WriteBootstrapState(normalizedRoot, repositoryProfile, recommendations, doctor)
             : [];
 
-        var nextSteps = BuildNextSteps(options, targets, features, ruleSyncAvailable, generationStatus);
+        var nextSteps = BuildNextSteps(options, profile, targets, features, packResults, ruleSyncAvailable, generationStatus);
 
         var report = new BootstrapReport
         {
@@ -100,8 +127,10 @@ public static class BootstrapEngine
             ToolPackageId = ToolkitRuntimeMetadata.PackageId,
             ToolCommandName = ToolkitRuntimeMetadata.ToolCommandName,
             ToolVersion = toolVersion,
+            Profile = profile.Id,
             Targets = targets.Select(BuildTargetProfile).ToList(),
             Features = features,
+            Packs = packResults,
             ToolManifest = toolManifest,
             RuleSyncConfig = rulesyncConfig,
             StateFiles = stateFiles,
@@ -131,7 +160,7 @@ public static class BootstrapEngine
     private static List<string> NormalizeTargets(IReadOnlyList<string> requestedTargets)
     {
         var rawTargets = requestedTargets.Count == 0
-            ? [PromptPlatforms.ClaudeCode, PromptPlatforms.OpenCode, PromptPlatforms.CodexCli, PromptPlatforms.GeminiCli, PromptPlatforms.Copilot, PromptPlatforms.Antigravity]
+            ? KnownPlatforms.All.ToList()
             : requestedTargets;
 
         return rawTargets
@@ -140,9 +169,9 @@ public static class BootstrapEngine
             .ToList();
     }
 
-    private static List<string> NormalizeFeatures(IReadOnlyList<string> requestedFeatures)
+    private static List<string> NormalizeFeatures(IReadOnlyList<string> requestedFeatures, BootstrapProfileDefinition profile)
     {
-        var features = requestedFeatures.Count == 0 ? ["*"] : requestedFeatures;
+        var features = requestedFeatures.Count == 0 ? profile.Features : requestedFeatures;
         return features
             .Select(feature => feature.Trim())
             .Where(feature => !string.IsNullOrWhiteSpace(feature))
@@ -150,7 +179,7 @@ public static class BootstrapEngine
             .ToList();
     }
 
-    private static BootstrapFileResult WriteToolManifest(string repoRoot, string toolVersion)
+    private static BootstrapFileResult WriteToolManifest(string repoRoot, string toolVersion, IEnumerable<BootstrapToolInstallSpec> additionalTools)
     {
         var manifestPath = Path.Combine(repoRoot, ".config", "dotnet-tools.json");
         Directory.CreateDirectory(Path.GetDirectoryName(manifestPath)!);
@@ -176,11 +205,18 @@ public static class BootstrapEngine
         root["version"] = 1;
         root["isRoot"] = true;
         var tools = root["tools"] as JsonObject ?? new JsonObject();
-        tools[ToolkitRuntimeMetadata.PackageId.ToLowerInvariant()] = new JsonObject
+        MergeToolManifestEntry(tools, new BootstrapToolInstallSpec
         {
-            ["version"] = toolVersion,
-            ["commands"] = new JsonArray(ToolkitRuntimeMetadata.ToolCommandName)
-        };
+            PackageId = ToolkitRuntimeMetadata.PackageId,
+            Version = toolVersion,
+            Commands = [ToolkitRuntimeMetadata.ToolCommandName]
+        });
+
+        foreach (var tool in additionalTools)
+        {
+            MergeToolManifestEntry(tools, tool);
+        }
+
         root["tools"] = tools;
 
         File.WriteAllText(manifestPath, root.ToJsonString(JsonOptions));
@@ -190,6 +226,22 @@ public static class BootstrapEngine
             Status = status,
             Message = message
         };
+    }
+
+    private static void MergeToolManifestEntry(JsonObject tools, BootstrapToolInstallSpec tool)
+    {
+        var entry = new JsonObject
+        {
+            ["version"] = tool.Version,
+            ["commands"] = new JsonArray(tool.Commands.Select(command => (JsonNode?)command).ToArray())
+        };
+
+        if (tool.RollForward.HasValue)
+        {
+            entry["rollForward"] = tool.RollForward.Value;
+        }
+
+        tools[tool.PackageId.ToLowerInvariant()] = entry;
     }
 
     private static BootstrapFileResult WriteRuleSyncConfig(string repoRoot, BootstrapOptions options, IReadOnlyList<string> targets, IReadOnlyList<string> features)
@@ -206,7 +258,7 @@ public static class BootstrapEngine
         {
             ["$schema"] = "https://raw.githubusercontent.com/dyoshikawa/rulesync/refs/heads/main/config-schema.json",
             ["targets"] = new JsonArray(targets.Select(target => (JsonNode?)target).ToArray()),
-            ["features"] = new JsonArray(features.Select(feature => (JsonNode?)feature).ToArray()),
+            ["features"] = BuildRuleSyncFeaturesNode(targets, features),
             ["sources"] = new JsonArray(
                 new JsonObject
                 {
@@ -236,6 +288,38 @@ public static class BootstrapEngine
             Status = existed ? "overwritten" : "created",
             Message = "Wrote a RuleSync config for the selected agent targets."
         };
+    }
+
+    private static JsonNode BuildRuleSyncFeaturesNode(IReadOnlyList<string> targets, IReadOnlyList<string> requestedFeatures)
+    {
+        var normalizedRequested = requestedFeatures
+            .Select(feature => feature.Trim())
+            .Where(feature => !string.IsNullOrWhiteSpace(feature))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var requestedAll = normalizedRequested.Contains("*", StringComparer.OrdinalIgnoreCase);
+        var requestedSet = requestedAll
+            ? new HashSet<string>(CanonicalRuleSyncFeatures, StringComparer.OrdinalIgnoreCase)
+            : new HashSet<string>(normalizedRequested, StringComparer.OrdinalIgnoreCase);
+
+        var featureMap = new JsonObject();
+        foreach (var target in targets)
+        {
+            var capability = PlatformCapabilityCatalog.Resolve(target);
+            var allowed = capability.Surfaces
+                .Concat(capability.SupportsIgnore ? ["ignore"] : [])
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var features = CanonicalRuleSyncFeatures
+                .Where(feature => requestedSet.Contains(feature) && allowed.Contains(feature))
+                .Select(feature => (JsonNode?)feature)
+                .ToArray();
+
+            featureMap[target] = new JsonArray(features);
+        }
+
+        return featureMap;
     }
 
     private static RecommendationBundle LoadRecommendations(string repoRoot, RepositoryProfile profile, int skillLimit, ICollection<string> warnings)
@@ -281,15 +365,13 @@ public static class BootstrapEngine
 
     private static BootstrapTargetProfile BuildTargetProfile(string target)
     {
-        if (!TargetOutputMap.TryGetValue(target, out var outputs))
-        {
-            outputs = [];
-        }
+        var capability = PlatformCapabilityCatalog.Resolve(target);
 
         return new BootstrapTargetProfile
         {
-            Id = target,
-            OutputPaths = outputs.ToList()
+            Id = capability.Id,
+            OutputPaths = capability.OutputPaths.ToList(),
+            Surfaces = capability.Surfaces.ToList()
         };
     }
 
@@ -315,7 +397,7 @@ public static class BootstrapEngine
         return checker.ExitCode == 0 && !checker.TimedOut;
     }
 
-    private static List<string> BuildNextSteps(BootstrapOptions options, IReadOnlyList<string> targets, IReadOnlyList<string> features, bool ruleSyncAvailable, string generationStatus)
+    private static List<string> BuildNextSteps(BootstrapOptions options, BootstrapProfileDefinition profile, IReadOnlyList<string> targets, IReadOnlyList<string> features, IReadOnlyList<BootstrapPackResult> packs, bool ruleSyncAvailable, string generationStatus)
     {
         var nextSteps = new List<string>
         {
@@ -324,7 +406,7 @@ public static class BootstrapEngine
 
         if (!options.RunRuleSync)
         {
-            nextSteps.Add($"Run 'rulesync install && rulesync generate --targets {string.Join(',', targets)} --features {string.Join(',', features)}' to materialize platform files.");
+            nextSteps.Add("Run 'rulesync install && rulesync generate' to materialize platform files from the generated RuleSync config.");
         }
         else if (!string.Equals(generationStatus, "generated", StringComparison.OrdinalIgnoreCase))
         {
@@ -336,6 +418,12 @@ public static class BootstrapEngine
             nextSteps.Add("Install RuleSync from https://github.com/dyoshikawa/rulesync before generating agent files.");
         }
 
+        if (packs.Any(pack => pack.Id.Equals(BootstrapPackCatalog.DotNetIntelligence, StringComparison.OrdinalIgnoreCase)))
+        {
+            nextSteps.Add("Initialize a Slopwatch baseline intentionally with 'dotnet tool restore && dotnet tool run slopwatch init' before expecting repo validation to enforce the quality gate.");
+        }
+
+        nextSteps.Add($"Bootstrap profile '{profile.Id}' resolved to features: {string.Join(", ", features)}.");
         nextSteps.Add($"Use '{ToolkitRuntimeMetadata.ToolCommandName} prepare-message \"<request>\" --platform {targets[0]}' before non-trivial .NET work.");
         nextSteps.Add($"Use '{ToolkitRuntimeMetadata.ToolCommandName} validate --mode repo --run' after edits to enforce repo-native verification.");
         return nextSteps;

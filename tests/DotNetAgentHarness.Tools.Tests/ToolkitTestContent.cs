@@ -17,6 +17,147 @@ internal static class ToolkitTestContent
             """);
     }
 
+    public static void WriteGeneratedArtifactMatrix(TestRepositoryBuilder repo)
+    {
+        repo.WriteFile("rulesync.jsonc", """
+            {
+              "$schema": "https://raw.githubusercontent.com/dyoshikawa/rulesync/refs/heads/main/config-schema.json",
+              "targets": ["claudecode", "copilot", "opencode", "geminicli", "codexcli", "antigravity", "factorydroid"],
+              "features": {
+                "claudecode": ["rules", "ignore", "mcp", "commands", "subagents", "skills", "hooks"],
+                "copilot": ["rules", "mcp", "commands", "subagents", "skills", "hooks"],
+                "opencode": ["rules", "mcp", "commands", "subagents", "skills", "hooks"],
+                "geminicli": ["rules", "ignore", "mcp", "commands", "skills", "hooks"],
+                "codexcli": ["rules", "mcp", "subagents", "skills"],
+                "antigravity": ["rules", "commands", "skills"],
+                "factorydroid": ["rules", "mcp", "hooks"]
+              }
+            }
+            """);
+
+        repo.WriteFile(".claude/rules/10-conventions.md", "# Authoring Conventions");
+        repo.WriteFile(".codex/memories/10-conventions.md", "# Authoring Conventions");
+        repo.WriteFile(".opencode/memories/10-conventions.md", "# Authoring Conventions");
+        repo.WriteFile(".gemini/memories/10-conventions.md", "# Authoring Conventions");
+        repo.WriteFile(".agent/rules/10-conventions.md", "# Authoring Conventions");
+        repo.WriteFile(".github/instructions/10-conventions.instructions.md", "# Authoring Conventions");
+        repo.WriteFile(".factory/rules/10-conventions.md", "# Authoring Conventions");
+
+        repo.WriteFile(".claude/skills/dotnet-advisor/SKILL.md", "# dotnet-advisor");
+        repo.WriteFile(".codex/skills/dotnet-advisor/SKILL.md", "name = \"dotnet-advisor\"");
+        repo.WriteFile(".opencode/skill/dotnet-advisor/SKILL.md", "# dotnet-advisor");
+        repo.WriteFile(".gemini/skills/dotnet-advisor/SKILL.md", "# dotnet-advisor");
+        repo.WriteFile(".agent/skills/dotnet-advisor/SKILL.md", "# dotnet-advisor");
+        repo.WriteFile(".github/skills/dotnet-advisor/SKILL.md", "# dotnet-advisor");
+
+        repo.WriteFile(".claude/agents/dotnet-architect.md", "# dotnet-architect");
+        repo.WriteFile(".codex/agents/dotnet-architect.toml", "name = \"dotnet-architect\"");
+        repo.WriteFile(".opencode/agent/dotnet-architect.md", "# dotnet-architect");
+        repo.WriteFile(".github/agents/dotnet-architect.md", "# dotnet-architect");
+
+        repo.WriteFile(".claude/commands/dotnet-agent-harness-export-mcp.md", "dotnet agent-harness export-mcp");
+        repo.WriteFile(".opencode/command/dotnet-agent-harness-export-mcp.md", "dotnet agent-harness export-mcp");
+        repo.WriteFile(".gemini/commands/dotnet-agent-harness-export-mcp.toml", "prompt = \"dotnet agent-harness export-mcp\"");
+        repo.WriteFile(".agent/workflows/dotnet-agent-harness-export-mcp.md", "dotnet agent-harness export-mcp");
+        repo.WriteFile(".github/prompts/dotnet-agent-harness-export-mcp.prompt.md", "dotnet agent-harness export-mcp");
+
+        repo.WriteFile(".mcp.json", """
+            {
+              "mcpServers": {
+                "serena": {}
+              }
+            }
+            """);
+        repo.WriteFile(".codex/config.toml", "[mcp_servers.serena]");
+        repo.WriteFile("opencode.json", """
+            {
+              "mcp": {
+                "serena": {}
+              }
+            }
+            """);
+        repo.WriteFile(".gemini/settings.json", """
+            {
+              "mcpServers": {
+                "serena": {}
+              },
+              "hooks": {
+                "SessionStart": [
+                  {
+                    "hooks": [
+                      {
+                        "command": "session-start-context.sh"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+            """);
+        repo.WriteFile(".vscode/mcp.json", """
+            {
+              "servers": {
+                "serena": {}
+              }
+            }
+            """);
+        repo.WriteFile(".factory/mcp.json", """
+            {
+              "mcpServers": {
+                "serena": {}
+              }
+            }
+            """);
+
+        repo.WriteFile(".claude/settings.json", """
+            {
+              "hooks": {
+                "PostToolUse": [
+                  {
+                    "hooks": [
+                      {
+                        "command": "bash .rulesync/hooks/slopwatch-advisory.sh"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+            """);
+        repo.WriteFile(".opencode/plugins/rulesync-hooks.js", """
+            export const RulesyncHooksPlugin = async ({ $ }) => {
+              await $`echo session.created`;
+              await $`bash .rulesync/hooks/slopwatch-advisory.sh`;
+            };
+            """);
+        repo.WriteFile(".github/hooks/copilot-hooks.json", """
+            {
+              "hooks": {
+                "sessionStart": [
+                  {
+                    "bash": "session-start-context.sh"
+                  }
+                ]
+              }
+            }
+            """);
+        repo.WriteFile(".factory/settings.json", """
+            {
+              "hooks": {
+                "SessionStart": [
+                  {
+                    "hooks": [
+                      {
+                        "command": "$FACTORY_PROJECT_DIR/session-start-context.sh"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+            """);
+    }
+
     private static void WritePersonas(TestRepositoryBuilder repo)
     {
         repo.WriteFile(".rulesync/personas/architect.json", """
@@ -107,11 +248,18 @@ internal static class ToolkitTestContent
 
     private static void WriteCommands(TestRepositoryBuilder repo)
     {
-        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-bootstrap.md", Command("Bootstrap the local runtime and RuleSync targets"));
-        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-prepare-message.md", Command("Prepare a prompt bundle"));
-        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-search.md", Command("Search toolkit content"));
-        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-compare-prompts.md", Command("Compare prompt bundles"));
-        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-incident.md", Command("Record prompt incidents"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-bootstrap.md", Command("bootstrap", "Bootstrap the local runtime and RuleSync targets"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-metadata.md", Command("metadata", "Inspect package and assembly metadata"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-recommend.md", Command("recommend", "Recommend toolkit content"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-prepare-message.md", Command("prepare-message", "Prepare a prompt bundle"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-search.md", Command("search", "Search toolkit content"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-profile.md", Command("profile", "Inspect toolkit catalog items"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-compare.md", Command("compare", "Compare toolkit items"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-graph.md", Command("graph", "Render toolkit dependency graphs"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-export-mcp.md", Command("export-mcp", "Export MCP prompts and resources"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-compare-prompts.md", Command("compare-prompts", "Compare prompt bundles"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-test.md", Command("test", "Run skill tests"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-incident.md", Command("incident", "Record prompt incidents"));
     }
 
     private static string Skill(string name, string description)
@@ -122,6 +270,13 @@ internal static class ToolkitTestContent
             description: {{description}}
             targets: ['*']
             tags: ['dotnet']
+            claudecode: {}
+            opencode: {}
+            codexcli:
+              short-description: '{{description}}'
+            copilot: {}
+            geminicli: {}
+            antigravity: {}
             ---
             # {{name}}
             """;
@@ -135,19 +290,35 @@ internal static class ToolkitTestContent
             description: {{description}}
             targets: ['*']
             tags: ['dotnet', 'subagent']
+            claudecode: {}
+            opencode: {}
+            codexcli:
+              short-description: '{{description}}'
+            copilot: {}
             ---
             # {{name}}
             """;
     }
 
-    private static string Command(string description)
+    private static string Command(string name, string description)
     {
+        var invocation = name switch
+        {
+            "bootstrap" => "dotnet agent-harness bootstrap --profile platform-native --enable-pack dotnet-intelligence --run-rulesync",
+            "metadata" => "dotnet agent-harness metadata type --target src/App/App.csproj --type App.Core.OrderService --build",
+            "export-mcp" => "dotnet agent-harness export-mcp --platform geminicli --output .dotnet-agent-harness/exports/mcp --report-output .dotnet-agent-harness/exports/mcp-report.json --format json\n\nprompts/index.json\nresources/index.json",
+            "test" => "dotnet agent-harness test all --format junit --output results.xml\n\ndotnet agent-harness test eval --platform codexcli --trials 3 --unloaded-check",
+            _ => $"dotnet agent-harness {name} --format json"
+        };
+
         return $$"""
             ---
             description: {{description}}
             targets: ['*']
             ---
             # /command
+
+            {{invocation}}
             """;
     }
 }

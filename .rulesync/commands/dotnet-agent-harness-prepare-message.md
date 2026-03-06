@@ -18,8 +18,8 @@ dotnet agent-harness prepare-message <request> [options]
 
 - `--persona <id>`: Force a specific persona (`architect`, `reviewer`, `implementer`, `tester`)
 - `--target <path>`: Resolve the request against a specific project or solution
-- `--platform <id>`: Render the bundle for `generic`, `codexcli`, `claudecode`, `opencode`, `geminicli`, `copilot`, or
-  `antigravity`
+- `--platform <id>`: Render the bundle for `generic`, `codexcli`, `claudecode`, `opencode`, `geminicli`, `copilot`,
+  `antigravity`, or `factorydroid`
 - `--limit <n>`: Limit the number of recommended skills included in the bundle
 - `--write-evidence`: Persist the full prepared-message report and rendered prompt under
   `.dotnet-agent-harness/evidence/prepared-messages/`
@@ -51,5 +51,7 @@ The prepared bundle includes:
 - Use this before review to force findings-first behavior via the `reviewer` persona.
 - Use this before architecture work to bind the request to repository shape and constraints.
 - Use `--platform geminicli` for Gemini CLI output and `--platform antigravity` for Antigravity workflow output.
+- Use `--platform factorydroid` when you want a Factory Droid specific prompt shell even though that runtime is
+  installed primarily through generated rules, hooks, and MCP config.
 - Persona `requestDirectives` are applied to the request layer so the rendered prompt carries persona-specific task
   framing.

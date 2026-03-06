@@ -25,6 +25,7 @@ public class EvalArtifactWriterTests
                 ModeSource = "default",
                 Provider = "openai",
                 Model = "gpt-4.1-mini",
+                PlatformFilter = "codexcli",
                 CaseFilePath = "/tmp/routing.yaml",
                 DefaultTrialCount = 2,
                 Gate = "nightly",
@@ -44,8 +45,12 @@ public class EvalArtifactWriterTests
                     {
                         CaseId = "case-a",
                         Description = "review routing",
+                        CaseType = "retirement",
                         Prompt = "Review this code",
                         ExpectedTrigger = "reviewer",
+                        UnloadedExpectedTrigger = "none",
+                        SelectedPlatform = "codexcli",
+                        Platforms = ["codexcli", "copilot"],
                         TrialCount = 2,
                         PassedTrials = 1,
                         FailedTrials = 1,
@@ -55,6 +60,7 @@ public class EvalArtifactWriterTests
                         [
                             new EvalArtifactFailure
                             {
+                                Scenario = "unloaded",
                                 TrialNumber = 2,
                                 TriggerMessage = "Expected trigger 'reviewer' but got 'implementer'.",
                                 Summary = "Trigger mismatch",
@@ -72,8 +78,11 @@ public class EvalArtifactWriterTests
             Assert.Contains("\"RunId\": \"run-123\"", content);
             Assert.Contains("\"PromptEvidenceId\": \"prompt-123\"", content);
             Assert.Contains("\"Gate\": \"nightly\"", content);
+            Assert.Contains("\"PlatformFilter\": \"codexcli\"", content);
             Assert.Contains("\"PolicyProfile\": \"strict\"", content);
             Assert.Contains("\"CaseId\": \"case-a\"", content);
+            Assert.Contains("\"CaseType\": \"retirement\"", content);
+            Assert.Contains("\"Scenario\": \"unloaded\"", content);
         }
         finally
         {

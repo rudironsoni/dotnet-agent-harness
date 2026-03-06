@@ -11,6 +11,7 @@ public sealed class EvalRunArtifact
     public string ModeSource { get; init; } = string.Empty;
     public string Provider { get; init; } = string.Empty;
     public string Model { get; init; } = string.Empty;
+    public string? PlatformFilter { get; init; }
     public string CaseFilePath { get; init; } = string.Empty;
     public int DefaultTrialCount { get; init; }
     public string Gate { get; init; } = string.Empty;
@@ -33,8 +34,12 @@ public sealed class EvalArtifactCase
 {
     public string CaseId { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;
+    public string CaseType { get; init; } = string.Empty;
     public string Prompt { get; init; } = string.Empty;
     public string ExpectedTrigger { get; init; } = string.Empty;
+    public string UnloadedExpectedTrigger { get; init; } = string.Empty;
+    public string SelectedPlatform { get; init; } = string.Empty;
+    public List<string> Platforms { get; init; } = new();
     public int TrialCount { get; init; }
     public int PassedTrials { get; init; }
     public int FailedTrials { get; init; }
@@ -45,6 +50,7 @@ public sealed class EvalArtifactCase
 
 public sealed class EvalArtifactFailure
 {
+    public string Scenario { get; init; } = string.Empty;
     public int TrialNumber { get; init; }
     public string TriggerMessage { get; init; } = string.Empty;
     public List<string> AssertionMessages { get; init; } = new();

@@ -27,7 +27,10 @@ public static class PromptBundleRenderer
             "copilotcli" => PromptPlatforms.Copilot,
             "antigravity" => PromptPlatforms.Antigravity,
             "google-antigravity" => PromptPlatforms.Antigravity,
-            _ => throw new ArgumentException($"Unsupported prompt platform '{platform}'. Supported values: generic, codexcli, claudecode, opencode, geminicli, copilot, antigravity.")
+            "factorydroid" => PromptPlatforms.FactoryDroid,
+            "factory" => PromptPlatforms.FactoryDroid,
+            "factory-droid" => PromptPlatforms.FactoryDroid,
+            _ => throw new ArgumentException($"Unsupported prompt platform '{platform}'. Supported values: generic, codexcli, claudecode, opencode, geminicli, copilot, antigravity, factorydroid.")
         };
     }
 
@@ -89,6 +92,13 @@ public static class PromptBundleRenderer
                 bundle.ToolLayer,
                 "HARNESS SKILLS",
                 bundle.SkillLayer),
+            PromptPlatforms.FactoryDroid => CombineSections(
+                "RUNTIME PROFILE",
+                bundle.SystemLayer,
+                "TOOL CONTRACT",
+                bundle.ToolLayer,
+                "ATTACHED CONTEXT",
+                bundle.SkillLayer),
             _ => CombineSections(
                 "SYSTEM",
                 bundle.SystemLayer,
@@ -105,6 +115,7 @@ public static class PromptBundleRenderer
             PromptPlatforms.GeminiCli => CombineSections("USER REQUEST", bundle.RequestLayer),
             PromptPlatforms.Copilot => CombineSections("USER TASK", bundle.RequestLayer),
             PromptPlatforms.Antigravity => CombineSections("WORKFLOW", bundle.RequestLayer),
+            PromptPlatforms.FactoryDroid => CombineSections("TASK REQUEST", bundle.RequestLayer),
             _ => CombineSections("REQUEST", bundle.RequestLayer)
         };
 

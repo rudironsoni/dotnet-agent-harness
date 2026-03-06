@@ -45,14 +45,74 @@ public class RecommendationEngineTests
         Assert.Contains(bundle.Commands, item => item.Id == "dotnet-agent-harness-bootstrap");
     }
 
-    private static string Skill(string name, string description)
+    [Fact]
+    public void Recommend_FiltersByPlatformCapabilitiesAndCategory()
+    {
+        using var repo = new TestRepositoryBuilder();
+        repo.WriteFile(".rulesync/skills/dotnet-advisor/SKILL.md", Skill("dotnet-advisor", "Routes .NET work", "foundation"));
+        repo.WriteFile(".rulesync/skills/dotnet-version-detection/SKILL.md", Skill("dotnet-version-detection", "Detects SDK and TFM", "foundation"));
+        repo.WriteFile(".rulesync/skills/dotnet-project-analysis/SKILL.md", Skill("dotnet-project-analysis", "Analyzes project structure", "foundation"));
+        repo.WriteFile(".rulesync/skills/dotnet-testing-strategy/SKILL.md", Skill("dotnet-testing-strategy", "Testing strategy", "testing"));
+        repo.WriteFile(".rulesync/skills/dotnet-xunit/SKILL.md", Skill("dotnet-xunit", "xUnit guidance", "testing"));
+        repo.WriteFile(".rulesync/subagents/dotnet-architect.md", Agent("dotnet-architect", "Architecture agent"));
+        repo.WriteFile(".rulesync/subagents/dotnet-testing-specialist.md", Agent("dotnet-testing-specialist", "Testing specialist"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-bootstrap.md", Command("Bootstrap repository"));
+        repo.WriteFile(".rulesync/commands/dotnet-agent-harness-test.md", Command("Testing skills"));
+
+        var catalog = ToolkitCatalogLoader.Load(repo.Root);
+        var profile = new RepositoryProfile
+        {
+            RepoRoot = repo.Root,
+            DominantProjectKind = "web",
+            TestProjectCount = 1,
+            DominantTestFramework = "xunit",
+            Technologies = ["testing"]
+        };
+
+        var gemini = RecommendationEngine.Recommend(profile, catalog, new RecommendationQuery
+        {
+            LimitPerKind = 5,
+            Platform = PromptPlatforms.GeminiCli,
+            Category = "testing"
+        });
+
+        Assert.Equal(PromptPlatforms.GeminiCli, gemini.RequestedPlatform);
+        Assert.Contains("commands", gemini.PlatformSurfaces);
+        Assert.DoesNotContain("subagents", gemini.PlatformSurfaces);
+        Assert.Empty(gemini.Subagents);
+        Assert.All(gemini.Skills, item => Assert.Contains(item.Id, new[] { "dotnet-testing-strategy", "dotnet-xunit" }));
+        Assert.Contains(gemini.Commands, item => item.Id == "dotnet-agent-harness-test");
+
+        var claude = RecommendationEngine.Recommend(profile, catalog, new RecommendationQuery
+        {
+            LimitPerKind = 5,
+            Platform = PromptPlatforms.ClaudeCode
+        });
+
+        Assert.Contains(claude.Skills, item => item.Id == "dotnet-testing-strategy");
+        Assert.Contains(claude.Subagents, item => item.Id == "dotnet-testing-specialist");
+
+        var factory = RecommendationEngine.Recommend(profile, catalog, new RecommendationQuery
+        {
+            LimitPerKind = 5,
+            Platform = PromptPlatforms.FactoryDroid
+        });
+
+        Assert.Equal(PromptPlatforms.FactoryDroid, factory.RequestedPlatform);
+        Assert.Equal(["rules", "hooks", "mcp"], factory.PlatformSurfaces);
+        Assert.Empty(factory.Skills);
+        Assert.Empty(factory.Subagents);
+        Assert.Empty(factory.Commands);
+    }
+
+    private static string Skill(string name, string description, string tag = "dotnet")
     {
         return $$"""
             ---
             name: {{name}}
             description: {{description}}
             targets: ['*']
-            tags: ['dotnet']
+            tags: ['dotnet', '{{tag}}']
             ---
             # {{name}}
             """;

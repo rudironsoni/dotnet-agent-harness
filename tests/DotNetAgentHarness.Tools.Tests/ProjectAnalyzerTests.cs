@@ -64,7 +64,101 @@ public class ProjectAnalyzerTests
         Assert.Contains("openapi", profile.Technologies);
         Assert.Contains("github-actions", profile.CiProviders);
         Assert.True(profile.HasDotNetToolManifest);
+        Assert.True(profile.UsesDotNetLocalTools);
         Assert.True(profile.HasDirectoryBuildProps);
         Assert.True(profile.HasEditorConfig);
+    }
+
+    [Fact]
+    public void Analyze_DetectsDotNetLocalToolUsageFromAutomationScripts()
+    {
+        using var repo = new TestRepositoryBuilder();
+        repo.WriteFile("src/App/App.csproj", """
+            <Project Sdk="Microsoft.NET.Sdk">
+              <PropertyGroup>
+                <TargetFramework>net10.0</TargetFramework>
+              </PropertyGroup>
+            </Project>
+            """);
+        repo.WriteFile("scripts/dev/restore-tools.sh", """
+            #!/usr/bin/env bash
+            dotnet tool restore
+            dotnet tool run slopwatch analyze -d .
+            """);
+
+        var profile = ProjectAnalyzer.Analyze(repo.Root, new DotNetEnvironmentReport
+        {
+            IsAvailable = true,
+            InstalledSdkVersions = ["10.0.103"]
+        });
+
+        Assert.False(profile.HasDotNetToolManifest);
+        Assert.True(profile.UsesDotNetLocalTools);
+    }
+
+    [Fact]
+    public void Analyze_IgnoresToolManifestPathChecksWithoutLocalToolCommands()
+    {
+        using var repo = new TestRepositoryBuilder();
+        repo.WriteFile("src/App/App.csproj", """
+            <Project Sdk="Microsoft.NET.Sdk">
+              <PropertyGroup>
+                <TargetFramework>net10.0</TargetFramework>
+              </PropertyGroup>
+            </Project>
+            """);
+        repo.WriteFile(".github/workflows/smoke.yml", """
+            jobs:
+              smoke:
+                runs-on: ubuntu-latest
+                steps:
+                  - run: test -f .config/dotnet-tools.json
+            """);
+
+        var profile = ProjectAnalyzer.Analyze(repo.Root, new DotNetEnvironmentReport
+        {
+            IsAvailable = true,
+            InstalledSdkVersions = ["10.0.103"]
+        });
+
+        Assert.False(profile.HasDotNetToolManifest);
+        Assert.False(profile.UsesDotNetLocalTools);
+    }
+
+    [Fact]
+    public void Analyze_IgnoresGeneratedAgentDirectories()
+    {
+        using var repo = new TestRepositoryBuilder();
+        repo.WriteFile("src/App/App.csproj", """
+            <Project Sdk="Microsoft.NET.Sdk">
+              <PropertyGroup>
+                <TargetFramework>net10.0</TargetFramework>
+              </PropertyGroup>
+            </Project>
+            """);
+        repo.WriteFile(".factory/generated/FactoryShadow.csproj", """
+            <Project Sdk="Microsoft.NET.Sdk">
+              <PropertyGroup>
+                <TargetFramework>net10.0</TargetFramework>
+              </PropertyGroup>
+            </Project>
+            """);
+        repo.WriteFile(".gemini/generated/GeminiShadow.csproj", """
+            <Project Sdk="Microsoft.NET.Sdk">
+              <PropertyGroup>
+                <TargetFramework>net10.0</TargetFramework>
+              </PropertyGroup>
+            </Project>
+            """);
+        repo.WriteFile(".agent/generated/Shadow.slnx", "<Solution />");
+
+        var profile = ProjectAnalyzer.Analyze(repo.Root, new DotNetEnvironmentReport
+        {
+            IsAvailable = true,
+            InstalledSdkVersions = ["10.0.103"]
+        });
+
+        Assert.Single(profile.Projects);
+        Assert.Empty(profile.Solutions);
     }
 }

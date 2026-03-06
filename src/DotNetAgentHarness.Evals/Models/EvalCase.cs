@@ -9,6 +9,9 @@ public class EvalCase
     public string Prompt { get; set; } = string.Empty;
     public string ExpectedTrigger { get; set; } = string.Empty;
     public int? TrialCount { get; set; }
+    public string CaseType { get; set; } = string.Empty;
+    public List<string> Platforms { get; set; } = new();
+    public string UnloadedExpectedTrigger { get; set; } = string.Empty;
     public string FixtureResponse { get; set; } = string.Empty;
     public string FixtureTrigger { get; set; } = string.Empty;
     public List<Assertion> Assertions { get; set; } = new();

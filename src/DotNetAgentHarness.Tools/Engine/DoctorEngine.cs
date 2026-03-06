@@ -84,7 +84,7 @@ public static class DoctorEngine
             });
         }
 
-        if (!profile.HasDotNetToolManifest)
+        if (profile.UsesDotNetLocalTools && !profile.HasDotNetToolManifest)
         {
             findings.Add(new DoctorFinding
             {

@@ -18,6 +18,11 @@ public static class ValidationEngine
         var checks = new List<ValidationCheck>();
         var target = string.Empty;
 
+        if (normalizedMode is "all" or "contracts")
+        {
+            checks.AddRange(RuntimeContractEngine.Validate(repoRoot));
+        }
+
         if (normalizedMode is "all" or "skill" or "skills" or "catalog")
         {
             var lintResult = FrontmatterLinter.Lint(repoRoot);
@@ -58,18 +63,6 @@ public static class ValidationEngine
                     Passed = personas.Personas.Count > 0,
                     Message = $"Loaded {personas.Personas.Count} persona descriptor(s)."
                 });
-
-                checks.AddRange(PromptBundleEvalSuite.Run(repoRoot));
-
-                var skillTests = SkillTestEngine.Run(repoRoot, "all", failFast: false);
-                checks.Add(new ValidationCheck
-                {
-                    Name = "skill-tests",
-                    Passed = skillTests.Passed,
-                    Message = skillTests.Passed
-                        ? $"Executed {skillTests.TotalChecks} skill check(s) across {skillTests.TotalCases} case(s); {skillTests.SkillsWithoutCases} skill(s) still have no authored cases."
-                        : $"{skillTests.FailedChecks} of {skillTests.TotalChecks} skill check(s) failed."
-                });
             }
             catch (Exception ex)
             {
@@ -80,6 +73,25 @@ public static class ValidationEngine
                     Message = ex.Message
                 });
             }
+        }
+
+        if (normalizedMode is "all" or "platforms" or "skill" or "skills")
+        {
+            checks.AddRange(PlatformCoverageEngine.Validate(repoRoot));
+            checks.AddRange(PromptBundleEvalSuite.Run(repoRoot));
+        }
+
+        if (normalizedMode is "all" or "skill" or "skills")
+        {
+            var skillTests = SkillTestEngine.Run(repoRoot, "all", failFast: false);
+            checks.Add(new ValidationCheck
+            {
+                Name = "skill-tests",
+                Passed = skillTests.Passed,
+                Message = skillTests.Passed
+                    ? $"Executed {skillTests.TotalChecks} skill check(s) across {skillTests.TotalCases} case(s); {skillTests.SkillsWithoutCases} skill(s) still have no authored cases."
+                    : $"{skillTests.FailedChecks} of {skillTests.TotalChecks} skill check(s) failed."
+            });
         }
 
         if (normalizedMode is "all" or "repo")
@@ -139,6 +151,8 @@ public static class ValidationEngine
                     ? "Eval project is present."
                     : "Eval project file is missing."
             });
+
+            checks.AddRange(EvalCaseContractEngine.Validate(repoRoot));
         }
 
         return new ValidationReport

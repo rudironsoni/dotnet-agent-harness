@@ -2,7 +2,7 @@
 
 > **The definitive .NET development companion for AI coding tools.**
 >
-> 189 specialized skills · 15 expert subagents · 20 powerful commands · Multi-platform distribution
+> 189 specialized skills · 15 expert subagents · 22 powerful commands · Multi-platform distribution
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Workflows](https://github.com/rudironsoni/dotnet-agent-harness/workflows/CI/badge.svg)](https://github.com/rudironsoni/dotnet-agent-harness/actions)
@@ -148,7 +148,7 @@ dotnet-agent-harness/
 │   │   ├── dotnet-architect.md   # Primary agent (OpenCode)
 │   │   ├── dotnet-*-specialist/  # Domain experts
 │   │   └── wiki-*/               # Documentation agents
-│   ├── commands/                 # 20 slash commands
+│   ├── commands/                 # 21 slash commands
 │   │   └── dotnet-agent-harness-*/     # Toolkit commands
 │   ├── rules/                    # RuleSync configuration
 │   │   ├── overview.md           # Entry point
@@ -245,6 +245,7 @@ tags: ['dotnet', 'skill', 'data/ef-core']
 
 - **Context Injection**: Automatically detect .NET projects and inject relevant skills
 - **Quality Gates**: Run `dotnet format` on file saves
+- **Advisory Slopwatch**: Surface anti-slop findings after edits when the `dotnet-intelligence` pack is enabled
 - **Zero Configuration**: Works out of the box
 
 **Hook Types**:
@@ -303,14 +304,21 @@ Bootstrap the repository for the supported agent targets:
 
 ```bash
 dotnet agent-harness bootstrap \
-  --targets claudecode,opencode,codexcli,geminicli,copilot,antigravity \
+  --profile platform-native \
+  --targets claudecode,opencode,codexcli,geminicli,copilot,antigravity,factorydroid \
+  --enable-pack dotnet-intelligence \
   --run-rulesync
+
+# Inspect package references or compiled type metadata
+dotnet agent-harness metadata packages --target src/MyApp/MyApp.csproj --format json
+dotnet agent-harness metadata type --target src/MyLib/MyLib.csproj --type MyLib.Core.OrderService --build
 ```
 
 This writes:
 
 - `.config/dotnet-tools.json` for repo-local tool pinning
 - `rulesync.jsonc` for RuleSync source and target generation
+- optional pack files such as `.slopwatch/config.json` when `--enable-pack dotnet-intelligence` is selected
 - `.dotnet-agent-harness/` state for repo profile, recommendations, diagnostics, and bootstrap evidence
 
 ### Project Mode (RuleSync Only)
@@ -324,8 +332,8 @@ curl -fsSL https://github.com/dyoshikawa/rulesync/releases/latest/download/insta
 # 2. Fetch the harness
 rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
 
-# 3. Generate for all platforms
-rulesync generate --targets "*" --features "*"
+# 3. Generate for the supported target matrix
+rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*"
 ```
 
 **What This Creates**:
@@ -336,6 +344,7 @@ rulesync generate --targets "*" --features "*"
 - `.codex/` - Codex CLI configuration
 - `.gemini/` - Gemini CLI configuration
 - `.agent/` - Antigravity configuration
+- `.factory/` - Factory Droid configuration
 - `AGENTS.md` / `GEMINI.md` - generated entry points for platform runtimes
 
 ### Declarative Sources (Advanced)
@@ -388,10 +397,11 @@ docker run --rm -v $(pwd):/workspace \
 - Configuration in `.github/`
 - Subagents available via `@mention`
 
-**Gemini CLI and Antigravity**:
+**Gemini CLI, Antigravity, and Factory Droid**:
 
 - Gemini output is generated under `.gemini/` with `GEMINI.md`
 - Antigravity output is generated under `.agent/`
+- Factory Droid output is generated under `.factory/`
 
 ---
 
@@ -492,24 +502,30 @@ dotnet agent-harness \
 ### Running Tests
 
 ```bash
+# Get platform-aware recommendations before loading a large skill set
+dotnet agent-harness recommend --platform codexcli --category data --format json
+
 # Test a specific skill
-/dotnet-agent-harness:test dotnet-efcore-patterns
+dotnet agent-harness test dotnet-efcore-patterns
 
 # Test all skills
-/dotnet-agent-harness:test --all
+dotnet agent-harness test all
 
-# Generate coverage report
-/dotnet-agent-harness:test --coverage --output report.html
+# Emit JUnit output for CI
+dotnet agent-harness test all --format junit --output results.xml
+
+# Run the Codex retirement/unloaded eval slice
+dotnet agent-harness test eval --platform codexcli --trials 3 --unloaded-check --artifact-id codex-retirement
 ```
 
 ### Profiling Performance
 
 ```bash
 # Analyze current session
-/dotnet-agent-harness:profile
+dotnet agent-harness profile
 
-# Compare with baseline
-/dotnet-agent-harness:profile --compare-with baseline.json
+# Inspect a specific catalog item
+dotnet agent-harness profile reviewer --format json
 ```
 
 ### Running Evals v2
@@ -582,7 +598,7 @@ Primary maintainer workflows:
 # Bootstrap a consumer repo
 dotnet run --project src/DotNetAgentHarness.Tools/DotNetAgentHarness.Tools.csproj -- \
   bootstrap \
-  --targets claudecode,opencode,codexcli,geminicli,copilot,antigravity
+  --targets claudecode,opencode,codexcli,geminicli,copilot,antigravity,factorydroid
 
 # Analyze the current repo
 dotnet run --project src/DotNetAgentHarness.Tools/DotNetAgentHarness.Tools.csproj -- analyze --format json
@@ -590,10 +606,27 @@ dotnet run --project src/DotNetAgentHarness.Tools/DotNetAgentHarness.Tools.cspro
 # Validate authored content and runtime checks
 dotnet run --project src/DotNetAgentHarness.Tools/DotNetAgentHarness.Tools.csproj -- validate --mode all --format json
 
-# Emit an eval artifact
-dotnet run --project src/DotNetAgentHarness.Evals/DotNetAgentHarness.Evals.csproj -- \
+# Emit an eval artifact through the maintainer runtime
+dotnet run --project src/DotNetAgentHarness.Tools/DotNetAgentHarness.Tools.csproj -- \
+  test eval \
   --cases tests/eval/cases/routing.yaml \
+  --platform codexcli \
+  --trials 3 \
   --artifact-id local-routing-smoke
+
+# Export MCP-friendly prompts/resources from RuleSync source
+dotnet run --project src/DotNetAgentHarness.Tools/DotNetAgentHarness.Tools.csproj -- \
+  export-mcp \
+  --platform geminicli \
+  --output .dotnet-agent-harness/exports/mcp
+
+# Optionally persist the export report separately
+dotnet run --project src/DotNetAgentHarness.Tools/DotNetAgentHarness.Tools.csproj -- \
+  export-mcp \
+  --platform geminicli \
+  --output .dotnet-agent-harness/exports/mcp \
+  --report-output .dotnet-agent-harness/exports/mcp-report.json \
+  --format json
 ```
 
 Direct prompt rendering is available for `claudecode`, `opencode`, `codexcli`, `geminicli`, `copilot`, and

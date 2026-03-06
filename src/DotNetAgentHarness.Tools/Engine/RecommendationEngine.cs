@@ -35,6 +35,7 @@ public static class RecommendationEngine
         new("testing", CatalogKinds.Skill, "dotnet-testing-strategy", 86, "Test projects detected"),
         new("testing", CatalogKinds.Skill, "dotnet-xunit", 84, "xUnit detected"),
         new("testing", CatalogKinds.Skill, "dotnet-integration-testing", 72, "Integration testing guidance commonly applies"),
+        new("testing", CatalogKinds.Skill, "dotnet-slopwatch", 64, "Agent-driven .NET changes benefit from an anti-slop quality gate"),
         new("containers", CatalogKinds.Skill, "dotnet-containers", 76, "Container files detected"),
         new("containers", CatalogKinds.Skill, "dotnet-container-deployment", 66, "Deployment guidance likely applies"),
         new("github-actions", CatalogKinds.Skill, "dotnet-gha-patterns", 74, "GitHub Actions workflow detected"),
@@ -54,31 +55,59 @@ public static class RecommendationEngine
         new("foundation", CatalogKinds.Command, "dotnet-agent-harness-search", 72, "Skill discovery is useful in unfamiliar repos"),
         new("foundation", CatalogKinds.Command, "dotnet-agent-harness-prepare-message", 68, "Prompt assembly is useful before implementation, review, or planning"),
         new("foundation", CatalogKinds.Command, "dotnet-agent-harness-profile", 60, "Local profiling helps identify expensive content"),
+        new("foundation", CatalogKinds.Command, "dotnet-agent-harness-metadata", 62, "Package and compiled-type metadata inspection helps answer .NET symbol and NuGet questions"),
+        new("foundation", CatalogKinds.Command, "dotnet-agent-harness-export-mcp", 58, "MCP export packages prompts and resources for external agent runtimes without duplicating source content"),
         new("foundation", CatalogKinds.Command, "dotnet-agent-harness-compare", 56, "Comparing candidate skills helps choose the right guidance"),
         new("foundation", CatalogKinds.Command, "dotnet-agent-harness-compare-prompts", 58, "Prompt diffs help review persona and tool-policy changes"),
         new("foundation", CatalogKinds.Command, "dotnet-agent-harness-test", 56, "Validation command helps maintain skill quality"),
-        new("foundation", CatalogKinds.Command, "dotnet-agent-harness-incident", 52, "Incident capture preserves prompt evidence for regression tracking")
+        new("foundation", CatalogKinds.Command, "dotnet-agent-harness-incident", 52, "Incident capture preserves prompt evidence for regression tracking"),
+        new("testing", CatalogKinds.Command, "dotnet-slopwatch", 48, "Run an explicit Slopwatch quality gate when verifying agent-written changes")
     };
 
     public static RecommendationBundle Recommend(RepositoryProfile profile, ToolkitCatalog catalog, int limitPerKind = 5)
     {
-        var signals = BuildSignals(profile);
+        return Recommend(profile, catalog, new RecommendationQuery
+        {
+            LimitPerKind = limitPerKind
+        });
+    }
 
-        var skills = RecommendByKind(catalog, CatalogKinds.Skill, signals, limitPerKind);
-        var subagents = RecommendByKind(catalog, CatalogKinds.Subagent, signals, limitPerKind);
-        var commands = RecommendByKind(catalog, CatalogKinds.Command, signals, limitPerKind);
+    public static RecommendationBundle Recommend(RepositoryProfile profile, ToolkitCatalog catalog, RecommendationQuery query)
+    {
+        var signals = BuildSignals(profile);
+        var limitPerKind = Math.Max(1, query.LimitPerKind);
+        var platform = PlatformCapabilityCatalog.Resolve(query.Platform);
+        var category = (query.Category ?? string.Empty).Trim();
+
+        var skills = RecommendByKind(catalog, CatalogKinds.Skill, signals, limitPerKind, platform.Id, category);
+        var subagents = RecommendByKind(catalog, CatalogKinds.Subagent, signals, limitPerKind, platform.Id, category);
+        var commands = RecommendByKind(catalog, CatalogKinds.Command, signals, limitPerKind, platform.Id, category);
 
         return new RecommendationBundle
         {
             Profile = profile,
+            RequestedPlatform = platform.Id,
+            RequestedCategory = category,
+            PlatformSurfaces = platform.Surfaces.ToList(),
             Skills = skills,
             Subagents = subagents,
             Commands = commands
         };
     }
 
-    private static List<RecommendationItem> RecommendByKind(ToolkitCatalog catalog, string kind, HashSet<string> signals, int limit)
+    private static List<RecommendationItem> RecommendByKind(
+        ToolkitCatalog catalog,
+        string kind,
+        HashSet<string> signals,
+        int limit,
+        string platform,
+        string category)
     {
+        if (!PlatformCapabilityCatalog.SupportsCatalogKind(platform, kind))
+        {
+            return [];
+        }
+
         var candidates = new Dictionary<string, MutableRecommendation>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var rule in Rules.Where(rule => rule.Kind == kind))
@@ -89,7 +118,10 @@ public static class RecommendationEngine
             }
 
             var item = catalog.Find(rule.Id);
-            if (item is null || item.Kind != kind)
+            if (item is null
+                || item.Kind != kind
+                || !PlatformCapabilityCatalog.SupportsItem(platform, item)
+                || !MatchesCategory(rule, item, category))
             {
                 continue;
             }
@@ -170,6 +202,15 @@ public static class RecommendationEngine
         public CatalogItem Item { get; }
         public int Score { get; set; }
         public List<string> Reasons { get; } = new();
+    }
+
+    private static bool MatchesCategory(RecommendationRule rule, CatalogItem item, string category)
+    {
+        return string.IsNullOrWhiteSpace(category)
+               || ToolkitCatalogLoader.MatchesCategoryFilter(item, category)
+               || rule.Signal.Contains(category, StringComparison.OrdinalIgnoreCase)
+               || rule.Id.Contains(category, StringComparison.OrdinalIgnoreCase)
+               || rule.Reason.Contains(category, StringComparison.OrdinalIgnoreCase);
     }
 
     private sealed record RecommendationRule(string Signal, string Kind, string Id, int Score, string Reason);

@@ -40,10 +40,12 @@ public static class Program
                 "init" => RunInit(repoRoot, cliArgs),
                 "doctor" => RunDoctor(repoRoot, cliArgs),
                 "validate" => RunValidate(repoRoot, cliArgs),
+                "metadata" => RunMetadata(repoRoot, cliArgs),
                 "search" => RunSearch(repoRoot, cliArgs),
                 "profile" => RunProfile(repoRoot, cliArgs),
                 "compare" => RunCompare(repoRoot, cliArgs),
                 "graph" => RunGraph(repoRoot, cliArgs),
+                "export-mcp" => RunExportMcp(repoRoot, cliArgs),
                 "compare-prompts" => RunComparePrompts(repoRoot, cliArgs),
                 "prepare-message" => RunPrepareMessage(repoRoot, cliArgs),
                 "incident" => RunIncident(repoRoot, cliArgs),
@@ -94,16 +96,21 @@ public static class Program
 
     private static int RunBootstrap(string repoRoot, CliArguments cliArgs)
     {
+        var skipPersistence = cliArgs.HasFlag("--no-save");
         var report = BootstrapEngine.Bootstrap(repoRoot, new BootstrapOptions
         {
+            Profile = cliArgs.GetOption("--profile") ?? BootstrapProfileCatalog.PlatformNative,
             Targets = SplitCsv(cliArgs.GetOption("--targets")),
             Features = SplitCsv(cliArgs.GetOption("--features")),
+            EnablePacks = SplitCsv(cliArgs.GetOption("--enable-pack")),
             SourceRepository = cliArgs.GetOption("--source") ?? ToolkitRuntimeMetadata.RuleSyncSourceRepository,
             SourcePath = cliArgs.GetOption("--source-path") ?? ToolkitRuntimeMetadata.RuleSyncSourcePath,
             ConfigPath = cliArgs.GetOption("--config") ?? "rulesync.jsonc",
             Force = cliArgs.HasFlag("--force"),
             RunRuleSync = cliArgs.HasFlag("--run-rulesync"),
-            WriteState = !cliArgs.HasFlag("--no-save"),
+            WriteToolManifest = !skipPersistence,
+            WritePackFiles = !skipPersistence,
+            WriteState = !skipPersistence,
             SkillLimit = cliArgs.GetIntOption("--limit", 6),
             ToolVersion = cliArgs.GetOption("--tool-version")
         });
@@ -145,7 +152,12 @@ public static class Program
     {
         var profile = LoadOrAnalyzeProfile(repoRoot, cliArgs);
         var catalog = ToolkitCatalogLoader.Load(repoRoot);
-        var bundle = RecommendationEngine.Recommend(profile, catalog, cliArgs.GetIntOption("--limit", 5));
+        var bundle = RecommendationEngine.Recommend(profile, catalog, new RecommendationQuery
+        {
+            LimitPerKind = cliArgs.GetIntOption("--limit", 5),
+            Platform = cliArgs.GetOption("--platform"),
+            Category = cliArgs.GetOption("--category")
+        });
 
         if (cliArgs.HasFlag("--write-state"))
         {
@@ -210,6 +222,26 @@ public static class Program
             TimeoutMs = cliArgs.GetIntOption("--timeout-ms", 120_000)
         });
         return WriteOutput(report, cliArgs, textWriter: WriteValidationSummary, failureExitCode: report.Passed ? 0 : 1);
+    }
+
+    private static int RunMetadata(string repoRoot, CliArguments cliArgs)
+    {
+        var mode = cliArgs.Positionals.Count > 0 ? cliArgs.Positionals[0] : "packages";
+        var report = MetadataIntelligenceEngine.Inspect(repoRoot, new MetadataQuery
+        {
+            Mode = mode,
+            TargetPath = cliArgs.GetOption("--target"),
+            AssemblyPath = cliArgs.GetOption("--assembly"),
+            NamespaceFilter = cliArgs.GetOption("--namespace"),
+            TypeName = cliArgs.GetOption("--type"),
+            Query = cliArgs.GetOption("--query"),
+            Configuration = cliArgs.GetOption("--configuration") ?? "Debug",
+            Framework = cliArgs.GetOption("--framework"),
+            BuildIfNeeded = cliArgs.HasFlag("--build"),
+            Limit = cliArgs.GetIntOption("--limit", 25)
+        });
+
+        return WriteOutput(report, cliArgs, textWriter: WriteMetadataSummary);
     }
 
     private static int RunSearch(string repoRoot, CliArguments cliArgs)
@@ -319,6 +351,18 @@ public static class Program
         }
 
         return 0;
+    }
+
+    private static int RunExportMcp(string repoRoot, CliArguments cliArgs)
+    {
+        var report = McpExportEngine.Export(repoRoot, new McpExportOptions
+        {
+            OutputDirectory = cliArgs.GetOption("--output") ?? cliArgs.GetOption("--directory") ?? string.Empty,
+            Platform = cliArgs.GetOption("--platform"),
+            Kind = cliArgs.GetOption("--kind") ?? "all"
+        });
+
+        return WriteOutput(report, cliArgs, textWriter: WriteMcpExportSummary, outputPathOverride: cliArgs.GetOption("--report-output"), useCliOutputOption: false);
     }
 
     private static int RunPrepareMessage(string repoRoot, CliArguments cliArgs)
@@ -492,7 +536,18 @@ public static class Program
 
     private static int RunTest(string repoRoot, CliArguments cliArgs)
     {
-        var skillName = cliArgs.Positionals.Count > 0 ? cliArgs.Positionals[0] : "all";
+        if (ShouldRunEvalTests(cliArgs))
+        {
+            return RunEvalTests(repoRoot, cliArgs);
+        }
+
+        var skillName = cliArgs.HasFlag("--all")
+            ? "all"
+            : cliArgs.Positionals.Count > 1 && cliArgs.Positionals[0].Equals("skill", StringComparison.OrdinalIgnoreCase)
+                ? cliArgs.Positionals[1]
+                : cliArgs.Positionals.Count > 0 && cliArgs.Positionals[0].Equals("skill", StringComparison.OrdinalIgnoreCase)
+                    ? "all"
+                : cliArgs.Positionals.Count > 0 ? cliArgs.Positionals[0] : "all";
         var suite = SkillTestEngine.Run(repoRoot, skillName, cliArgs.HasFlag("--fail-fast"), cliArgs.GetOption("--filter"));
         var format = (cliArgs.GetOption("--format") ?? "text").ToLowerInvariant();
         var outputPath = cliArgs.GetOption("--output");
@@ -514,6 +569,32 @@ public static class Program
         }
 
         return WriteOutput(suite, cliArgs, textWriter: WriteSkillTestSummary, failureExitCode: suite.Passed ? 0 : 1);
+    }
+
+    private static int RunEvalTests(string repoRoot, CliArguments cliArgs)
+    {
+        var format = (cliArgs.GetOption("--format") ?? "text").ToLowerInvariant();
+        if (format == "junit")
+        {
+            throw new ArgumentException("Eval test mode does not support --format junit. Use text or json.");
+        }
+
+        var result = EvalHarnessEngine.Run(repoRoot, new EvalHarnessOptions
+        {
+            Platform = cliArgs.GetOption("--platform"),
+            TrialCount = cliArgs.GetIntOption("--trials", 3),
+            UseDummyMode = ResolveEvalDummyMode(cliArgs),
+            UnloadedCheckOnly = cliArgs.HasFlag("--unloaded-check"),
+            CaseFilePath = cliArgs.GetOption("--cases") ?? cliArgs.GetOption("--case-file"),
+            ArtifactId = cliArgs.GetOption("--artifact-id"),
+            ArtifactPath = cliArgs.GetOption("--artifact") ?? cliArgs.GetOption("--artifact-path"),
+            Provider = cliArgs.GetOption("--provider"),
+            Model = cliArgs.GetOption("--model"),
+            TimeoutMs = cliArgs.GetIntOption("--timeout-ms", 300_000)
+        });
+
+        var failureExitCode = result.ExitCode == 0 ? 1 : result.ExitCode;
+        return WriteOutput(result, cliArgs, textWriter: WriteEvalHarnessSummary, failureExitCode: result.Passed ? 0 : failureExitCode);
     }
 
     private static int RunScaffold(string repoRoot, CliArguments cliArgs)
@@ -554,10 +635,10 @@ public static class Program
         return ProjectAnalyzer.Analyze(repoRoot, environment);
     }
 
-    private static int WriteOutput<T>(T payload, CliArguments cliArgs, Action<T> textWriter, int? failureExitCode = null)
+    private static int WriteOutput<T>(T payload, CliArguments cliArgs, Action<T> textWriter, int? failureExitCode = null, string? outputPathOverride = null, bool useCliOutputOption = true)
     {
         var format = (cliArgs.GetOption("--format") ?? "text").ToLowerInvariant();
-        var outputPath = cliArgs.GetOption("--output");
+        var outputPath = outputPathOverride ?? (useCliOutputOption ? cliArgs.GetOption("--output") : null);
 
         if (format == "json")
         {
@@ -602,8 +683,13 @@ public static class Program
     {
         Console.WriteLine($"Repo: {report.RepoRoot}");
         Console.WriteLine($"Tool: {report.ToolPackageId} ({report.ToolCommandName} {report.ToolVersion})");
+        Console.WriteLine($"Profile: {report.Profile}");
         Console.WriteLine($"Targets: {string.Join(", ", report.Targets.Select(target => target.Id))}");
         Console.WriteLine($"Features: {string.Join(", ", report.Features)}");
+        if (report.Packs.Count > 0)
+        {
+            Console.WriteLine($"Packs: {string.Join(", ", report.Packs.Select(pack => pack.Id))}");
+        }
         Console.WriteLine($"Tool manifest: [{report.ToolManifest.Status}] {report.ToolManifest.Path}");
         Console.WriteLine($"RuleSync config: [{report.RuleSyncConfig.Status}] {report.RuleSyncConfig.Path}");
         Console.WriteLine($"RuleSync available: {(report.RuleSyncAvailable ? "yes" : "no")}");
@@ -612,7 +698,21 @@ public static class Program
 
         foreach (var target in report.Targets)
         {
-            Console.WriteLine($"{target.Id}: {string.Join(", ", target.OutputPaths)}");
+            Console.WriteLine($"{target.Id}: outputs={string.Join(", ", target.OutputPaths)} surfaces={string.Join(", ", target.Surfaces)}");
+        }
+
+        if (report.Packs.Count > 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Pack files:");
+            foreach (var pack in report.Packs)
+            {
+                Console.WriteLine($"  {pack.Id}: tools={string.Join(", ", pack.ToolPackageIds)}");
+                foreach (var file in pack.Files)
+                {
+                    Console.WriteLine($"    [{file.Status}] {file.Path}");
+                }
+            }
         }
 
         if (report.Commands.Count > 0)
@@ -665,6 +765,15 @@ public static class Program
     {
         Console.WriteLine($"Repo kind: {bundle.Profile.DominantProjectKind}");
         Console.WriteLine($"Technologies: {string.Join(", ", bundle.Profile.Technologies)}");
+        Console.WriteLine($"Platform: {bundle.RequestedPlatform}");
+        if (!string.IsNullOrWhiteSpace(bundle.RequestedCategory))
+        {
+            Console.WriteLine($"Category: {bundle.RequestedCategory}");
+        }
+        if (bundle.PlatformSurfaces.Count > 0)
+        {
+            Console.WriteLine($"Surfaces: {string.Join(", ", bundle.PlatformSurfaces)}");
+        }
         Console.WriteLine("Skills:");
         foreach (var item in bundle.Skills)
         {
@@ -742,6 +851,71 @@ public static class Program
         }
     }
 
+    private static void WriteMetadataSummary(MetadataReport report)
+    {
+        Console.WriteLine($"Mode: {report.Mode}");
+        Console.WriteLine($"Target: {report.ResolvedTarget}");
+        if (!string.IsNullOrWhiteSpace(report.AssemblyPath))
+        {
+            Console.WriteLine($"Assembly: {report.AssemblyPath}");
+        }
+
+        if (report.PackageUsages.Count > 0)
+        {
+            Console.WriteLine("Packages:");
+            foreach (var package in report.PackageUsages)
+            {
+                Console.WriteLine($"  {package.Id} - projects={package.ProjectCount} versions={string.Join(", ", package.Versions)}");
+            }
+        }
+
+        if (report.Namespaces.Count > 0)
+        {
+            Console.WriteLine("Namespaces:");
+            foreach (var @namespace in report.Namespaces)
+            {
+                Console.WriteLine($"  {@namespace}");
+            }
+        }
+
+        if (report.Types.Count > 0)
+        {
+            Console.WriteLine("Types:");
+            foreach (var type in report.Types)
+            {
+                Console.WriteLine($"  {type.FullName} - methods={type.MethodCount} properties={type.PropertyCount}");
+            }
+        }
+
+        if (report.Type is not null)
+        {
+            Console.WriteLine($"Type: {report.Type.FullName}");
+            if (report.Type.Interfaces.Count > 0)
+            {
+                Console.WriteLine($"  interfaces: {string.Join(", ", report.Type.Interfaces)}");
+            }
+
+            foreach (var constructor in report.Type.Constructors.Take(10))
+            {
+                Console.WriteLine($"  ctor {constructor}");
+            }
+
+            foreach (var method in report.Type.Methods.Take(20))
+            {
+                Console.WriteLine($"  method {method}");
+            }
+        }
+
+        if (report.Warnings.Count > 0)
+        {
+            Console.WriteLine("Warnings:");
+            foreach (var warning in report.Warnings)
+            {
+                Console.WriteLine($"  {warning}");
+            }
+        }
+    }
+
     private static void WriteSearchSummary(IReadOnlyList<CatalogSearchResult> results)
     {
         foreach (var result in results)
@@ -765,6 +939,18 @@ public static class Program
             Console.WriteLine($"    {finding.Message}");
             Console.WriteLine($"    {finding.Evidence}");
         }
+    }
+
+    private static void WriteMcpExportSummary(McpExportReport report)
+    {
+        Console.WriteLine($"Output: {report.OutputDirectory}");
+        Console.WriteLine($"Platform: {report.Platform}");
+        Console.WriteLine($"Kind: {report.Kind}");
+        Console.WriteLine($"Manifest: {report.ManifestPath}");
+        Console.WriteLine($"Prompts: {report.PromptCount}");
+        Console.WriteLine($"Resources: {report.ResourceCount}");
+        Console.WriteLine($"Prompt index: {report.PromptIndexPath}");
+        Console.WriteLine($"Resource index: {report.ResourceIndexPath}");
     }
 
     private static void WritePreparedMessageSummary(PreparedMessageReport report)
@@ -956,6 +1142,39 @@ public static class Program
         }
     }
 
+    private static void WriteEvalHarnessSummary(EvalHarnessRunResult result)
+    {
+        Console.WriteLine($"Mode: eval");
+        Console.WriteLine($"Passed: {result.Passed}");
+        Console.WriteLine($"Platform: {result.Platform}");
+        Console.WriteLine($"Trials(default): {result.TrialCount}");
+        Console.WriteLine($"Dummy mode: {result.UseDummyMode}");
+        Console.WriteLine($"Unloaded-only: {result.UnloadedCheckOnly}");
+        Console.WriteLine($"Exit code: {result.ExitCode}");
+        Console.WriteLine($"Timed out: {result.TimedOut}");
+        Console.WriteLine($"Artifact: {result.ArtifactPath}");
+        if (result.Artifact is not null)
+        {
+            Console.WriteLine($"Cases: {result.Artifact.Overall.CaseCount}");
+            Console.WriteLine($"Trials: {result.Artifact.Overall.TrialCount}");
+            Console.WriteLine($"Passed trials: {result.Artifact.Overall.PassedTrials}");
+            Console.WriteLine($"Failed trials: {result.Artifact.Overall.FailedTrials}");
+            Console.WriteLine($"Pass rate: {result.Artifact.Overall.PassRate:P1}");
+            foreach (var @case in result.Artifact.Cases)
+            {
+                Console.WriteLine($"{@case.CaseId}: {(@case.FailedTrials == 0 ? "PASS" : "FAIL")} ({@case.CaseType}, platform={@case.SelectedPlatform}, trials={@case.TrialCount})");
+                foreach (var failure in @case.Failures)
+                {
+                    Console.WriteLine($"  [{failure.Scenario}] trial {failure.TrialNumber}: {failure.Summary}");
+                }
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(result.StandardError))
+        {
+            Console.WriteLine(result.StandardError.Trim());
+        }
+    }
+
     private static void WriteTemplateSummary(IReadOnlyList<ScaffoldTemplate> templates)
     {
         foreach (var template in templates)
@@ -1021,6 +1240,48 @@ public static class Program
         return chars.Length == 0 ? "Sample" : new string(chars);
     }
 
+    private static bool ShouldRunEvalTests(CliArguments cliArgs)
+    {
+        if (cliArgs.Positionals.Count > 0 && cliArgs.Positionals[0].Equals("eval", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return cliArgs.GetOption("--platform") is not null
+               || cliArgs.GetOption("--trials") is not null
+               || cliArgs.HasFlag("--unloaded-check")
+               || cliArgs.GetOption("--artifact-id") is not null
+               || cliArgs.GetOption("--artifact") is not null
+               || cliArgs.GetOption("--artifact-path") is not null
+               || cliArgs.GetOption("--cases") is not null
+               || cliArgs.GetOption("--case-file") is not null
+               || cliArgs.GetOption("--provider") is not null
+               || cliArgs.GetOption("--model") is not null
+               || cliArgs.HasFlag("--real-mode")
+               || cliArgs.GetOption("--dummy-mode") is not null;
+    }
+
+    private static bool ResolveEvalDummyMode(CliArguments cliArgs)
+    {
+        if (cliArgs.HasFlag("--real-mode"))
+        {
+            return false;
+        }
+
+        var raw = cliArgs.GetOption("--dummy-mode");
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return true;
+        }
+
+        if (bool.TryParse(raw, out var parsed))
+        {
+            return parsed;
+        }
+
+        throw new ArgumentException($"Invalid value '{raw}' for --dummy-mode. Use true or false.");
+    }
+
     private static List<string> SplitCsv(string? raw)
     {
         if (string.IsNullOrWhiteSpace(raw))
@@ -1037,30 +1298,14 @@ public static class Program
     {
         Console.WriteLine("dotnet-agent-harness tools");
         Console.WriteLine("Commands:");
-        Console.WriteLine("  lint-frontmatter");
-        Console.WriteLine("  build-manifest [--output path]");
-        Console.WriteLine("  build-catalog [--output path]");
-        Console.WriteLine("  bootstrap [--targets claudecode,opencode,codexcli,geminicli,copilot,antigravity] [--features *] [--source owner/repo] [--source-path .rulesync] [--config path] [--tool-version x.y.z] [--run-rulesync] [--force] [--no-save] [--format text|json]");
-        Console.WriteLine("  install-agent [same options as bootstrap]");
-        Console.WriteLine("  analyze [--format text|json] [--write-state]");
-        Console.WriteLine("  recommend [--format text|json] [--limit N] [--profile path] [--write-state]");
-        Console.WriteLine("  init [--format text|json] [--limit N] [--no-save]");
-        Console.WriteLine("  doctor [--format text|json] [--profile path] [--write-state]");
-        Console.WriteLine("  validate [--mode repo|skill|eval|all] [--run] [--target path] [--configuration Debug|Release] [--framework tfm] [--timeout-ms N] [--skip-restore] [--skip-build] [--skip-test] [--format text|json]");
-        Console.WriteLine("  search <query> [--kind skill|subagent|command|persona] [--category value] [--platform value] [--limit N]");
-        Console.WriteLine("  profile [catalog-item-id] [--format text|json]");
-        Console.WriteLine("  compare <left-id> <right-id> [--format text|json]");
-        Console.WriteLine("  graph [--item id|--skill id] [--kind skill|subagent|command|persona] [--category value] [--depth N] [--format mermaid|dot|json] [--output path]");
-        Console.WriteLine("  compare-prompts <left-evidence-id> <right-evidence-id> [--format text|json]");
-        Console.WriteLine("  prepare-message <request> [--persona id] [--target path] [--platform generic|codexcli|claudecode|opencode|geminicli|copilot|antigravity] [--limit N] [--write-evidence] [--evidence-id id] [--format text|json|prompt]");
-        Console.WriteLine("  incident add <title> --prompt-evidence id [--incident-id id] [--severity low|medium|high|critical] [--owner name] [--notes text] [--format text|json]");
+        foreach (var command in RuntimeCommandCatalog.All)
+        {
+            Console.WriteLine($"  {command.Usage}");
+        }
         Console.WriteLine("  incident list [--format text|json]");
         Console.WriteLine("  incident show <incident-id> [--format text|json]");
         Console.WriteLine("  incident from-eval <artifact-path-or-id> [--prompt-evidence id] [--incident-id id] [--severity low|medium|high|critical] [--owner name] [--notes text] [--format text|json]");
         Console.WriteLine("  incident resolve <incident-id> --owner name --rationale text --regression-case id [--regression-path path] [--notes text] [--format text|json]");
         Console.WriteLine("  incident close <incident-id> --owner name --rationale text --regression-case id [--regression-path path] [--notes text] [--format text|json]");
-        Console.WriteLine("  review [path] [--format text|json] [--limit N]");
-        Console.WriteLine("  test [skill-name|all] [--format text|json|junit] [--filter value] [--fail-fast]");
-        Console.WriteLine("  scaffold [list|template] [destination] [--name SolutionName] [--dry-run] [--force]");
     }
 }

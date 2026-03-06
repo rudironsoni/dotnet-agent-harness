@@ -81,4 +81,70 @@ public class SkillTestEngineTests
         Assert.Contains(suite.Skills[0].Checks, check => check.Name.Contains("frontmatter.name", System.StringComparison.OrdinalIgnoreCase));
         Assert.Contains(suite.Skills[0].Checks, check => check.Name.Contains("file_exists 'output.txt'", System.StringComparison.OrdinalIgnoreCase));
     }
+
+    [Fact]
+    public void Run_AppliesSharedSkillCasesWithTokensAndScope()
+    {
+        using var repo = new TestRepositoryBuilder();
+        repo.WriteFile(".rulesync/skills/shared-skill/SKILL.md", """
+            ---
+            name: shared-skill
+            description: Shared contract target
+            targets: ['*']
+            tags: ['dotnet', 'foundation', 'skill']
+            claudecode: {}
+            opencode: {}
+            codexcli:
+              short-description: 'Shared contract target'
+            copilot: {}
+            geminicli: {}
+            antigravity: {}
+            ---
+            # Shared skill
+            """);
+        repo.WriteFile(".rulesync/skills/other-skill/SKILL.md", """
+            ---
+            name: other-skill
+            description: Other contract target
+            targets: ['*']
+            tags: ['documentation', 'skill']
+            claudecode: {}
+            opencode: {}
+            codexcli:
+              short-description: 'Other contract target'
+            copilot: {}
+            geminicli: {}
+            antigravity: {}
+            ---
+            # Other skill
+            """);
+        repo.WriteFile(".rulesync/skill-tests/shared/001-foundation-contract.yml", """
+            name: Shared contract
+            scope:
+              include_tags:
+                - foundation
+            tests:
+              - name: Tokenized frontmatter
+                expected:
+                  frontmatter:
+                    name: "{skill_id}"
+                  skill_contains:
+                    - "claudecode:"
+                    - "geminicli:"
+            """);
+
+        var suite = SkillTestEngine.Run(repo.Root, "all", failFast: false);
+
+        Assert.True(suite.Passed);
+        Assert.Equal(1, suite.TotalCases);
+        Assert.Equal(1, suite.SkillsWithCases);
+        Assert.Equal(1, suite.SkillsWithoutCases);
+
+        var sharedSkill = Assert.Single(suite.Skills, skill => skill.SkillId == "shared-skill");
+        Assert.Equal(1, sharedSkill.CaseCount);
+        Assert.Contains(sharedSkill.Checks, check => check.Name.Contains("frontmatter.name", System.StringComparison.OrdinalIgnoreCase));
+
+        var otherSkill = Assert.Single(suite.Skills, skill => skill.SkillId == "other-skill");
+        Assert.Equal(0, otherSkill.CaseCount);
+    }
 }

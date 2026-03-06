@@ -84,4 +84,27 @@ public class ReviewEngineTests
         Assert.Contains(report.Findings, finding => finding.RuleId == "throw-ex");
         Assert.Contains(report.Findings, finding => finding.RuleId == "count-greater-than-zero");
     }
+
+    [Fact]
+    public void Review_IgnoresGeneratedAgentDirectories()
+    {
+        using var repo = new TestRepositoryBuilder();
+        repo.WriteFile(".factory/generated/Service.cs", """
+            using System.Net.Http;
+            using System.Threading.Tasks;
+
+            public class Service
+            {
+                public void Run()
+                {
+                    var client = new HttpClient();
+                    Task.Run(() => { }).Wait();
+                }
+            }
+            """);
+
+        var report = ReviewEngine.Review(repo.Root);
+
+        Assert.Empty(report.Findings);
+    }
 }

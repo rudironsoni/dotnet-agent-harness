@@ -10,7 +10,7 @@ This toolkit provides:
 - 15 specialist agents/subagents
 - shared RuleSync rules, commands, hooks, and MCP config
 
-Compatible targets include Claude Code, GitHub Copilot CLI, OpenCode, Codex CLI, Gemini CLI, and Antigravity.
+Compatible targets include Claude Code, GitHub Copilot CLI, OpenCode, Codex CLI, Gemini CLI, Antigravity, and Factory Droid.
 
 ## Recommended install
 
@@ -19,33 +19,28 @@ Prefer the local runtime tool when this repository is installed into another .NE
 ```bash
 dotnet new tool-manifest
 dotnet tool install Rudironsoni.DotNetAgentHarness
-dotnet agent-harness bootstrap --targets claudecode,opencode,codexcli,geminicli,copilot,antigravity --run-rulesync
+dotnet agent-harness bootstrap --targets claudecode,opencode,codexcli,geminicli,copilot,antigravity,factorydroid --run-rulesync
 ```
 
 RuleSync-only installation still works:
 
-````bash
-
-rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
-rulesync generate --targets "*" --features "*"
-
 ```bash
+rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
+rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*"
+```
 
 If you use declarative sources:
 
 ```jsonc
-
 {
   "sources": [{ "source": "rudironsoni/dotnet-agent-harness", "path": ".rulesync" }],
 }
-
-```json
-
-```bash
-
-rulesync install && rulesync generate --targets "*" --features "*"
+```
 
 ```bash
+rulesync install
+rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*"
+```
 
 ## OpenCode behavior
 
@@ -68,4 +63,3 @@ Edit source files in `.rulesync/` and validate with `npm run ci:rulesync`.
 ## License
 
 MIT License. See `LICENSE`.
-````

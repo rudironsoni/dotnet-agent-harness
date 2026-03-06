@@ -107,6 +107,7 @@ public static class PromptPlatforms
     public const string GeminiCli = "geminicli";
     public const string Copilot = "copilot";
     public const string Antigravity = "antigravity";
+    public const string FactoryDroid = "factorydroid";
 }
 
 public sealed class PreparedMessageEvidence

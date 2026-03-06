@@ -18,6 +18,9 @@ public class PromptBundleEvalSuiteTests
         Assert.Contains(checks, check => check.Name == "prompt-persona-precedence" && check.Passed);
         Assert.Contains(checks, check => check.Name == "prompt-tool-policy" && check.Passed);
         Assert.Contains(checks, check => check.Name == "prompt-platform-rendering" && check.Passed);
+        var rendering = Assert.Single(checks, check => check.Name == "prompt-platform-rendering");
+        Assert.Contains("opencode-platform=opencode", rendering.Evidence);
+        Assert.Contains("factory-platform=factorydroid", rendering.Evidence);
     }
 
     [Fact]
@@ -32,6 +35,21 @@ public class PromptBundleEvalSuiteTests
         Assert.Contains(report.Checks, check => check.Name == "prompt-tool-policy");
         Assert.Contains(report.Checks, check => check.Name == "prompt-platform-rendering");
         Assert.True(report.Checks.Where(check => check.Name.StartsWith("prompt-", System.StringComparison.Ordinal)).All(check => check.Passed));
+    }
+
+    [Fact]
+    public void Validate_PlatformsMode_RunsPromptBundleChecks()
+    {
+        using var repo = new TestRepositoryBuilder();
+        ToolkitTestContent.WritePromptToolkit(repo);
+
+        var report = ValidationEngine.Validate(repo.Root, "platforms");
+
+        Assert.Contains(report.Checks, check => check.Name == "platform-coverage-skills" && check.Passed);
+        Assert.Contains(report.Checks, check => check.Name == "platform-coverage-subagents" && check.Passed);
+        Assert.Contains(report.Checks, check => check.Name == "prompt-persona-precedence" && check.Passed);
+        Assert.Contains(report.Checks, check => check.Name == "prompt-tool-policy" && check.Passed);
+        Assert.Contains(report.Checks, check => check.Name == "prompt-platform-rendering" && check.Passed);
     }
 
     [Fact]
