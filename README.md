@@ -73,7 +73,7 @@ After installation, use these commands:
 ## MCP Inventory
 
 MCP inventory (source: .rulesync/mcp.json): `context7`, `deepwiki`, `github`, `mcp-windbg`, `microsoftdocs-mcp`,
-`serena` `serena`
+`serena`
 
 | MCP Server          | Description                                  |
 | ------------------- | -------------------------------------------- |
