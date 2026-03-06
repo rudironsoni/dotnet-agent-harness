@@ -93,7 +93,7 @@ jobs:
             --version "${{ steps.meta.outputs.version }}" \
             --ignore-failed-sources >/dev/null
           dotnet agent-harness bootstrap \
-            --targets claudecode,opencode,codexcli,geminicli,copilot,antigravity \
+            --targets claudecode,opencode,codexcli,geminicli,copilot,antigravity,factorydroid \
             --format json > bootstrap.json
           python3 - <<'PY'
           import json
@@ -101,6 +101,7 @@ jobs:
               data = json.load(fh)
           assert data["ToolCommandName"] == "dotnet-agent-harness"
           assert any(target["Id"] == "antigravity" for target in data["Targets"])
+          assert any(target["Id"] == "factorydroid" for target in data["Targets"])
           PY
           test -f .config/dotnet-tools.json
           test -f rulesync.jsonc
@@ -206,6 +207,7 @@ jobs:
           dotnet agent-harness help > help.txt
           grep -q "bootstrap" help.txt
           grep -q "antigravity" help.txt
+          grep -q "factorydroid" help.txt
           popd >/dev/null
 
   publish-nuget:

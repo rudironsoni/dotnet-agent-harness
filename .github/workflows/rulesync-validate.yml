@@ -23,9 +23,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install just
-        uses: extractions/setup-just@v2
-
       - name: Install dependencies
         run: |
           sudo apt-get update

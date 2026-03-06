@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2154,SC2250
 
 set -euo pipefail
 
@@ -193,7 +194,7 @@ reject_in_frontmatter "$WORK_DIR/.github/agents/dotnet-security-reviewer.md" \
 require_content "$WORK_DIR/.codex/agents/dotnet-security-reviewer.toml" \
   'sandbox_mode = "read-only"' "Codex CLI sandbox_mode read-only"
 
-# --- Standard agent: architect ---
+# --- Standard agent across Claude/OpenCode/Copilot; read-only Codex profile: architect ---
 require_in_frontmatter "$WORK_DIR/.claude/agents/dotnet-architect.md" \
   "Bash" "Claude Code Bash tool for standard agent"
 reject_in_frontmatter "$WORK_DIR/.claude/agents/dotnet-architect.md" \
@@ -209,9 +210,8 @@ require_content "$WORK_DIR/.opencode/agent/dotnet-architect.md" \
 require_in_frontmatter "$WORK_DIR/.github/agents/dotnet-architect.md" \
   "execute" "Copilot execute tool for standard agent"
 
-if grep -q "sandbox_mode" "$WORK_DIR/.codex/agents/dotnet-architect.toml" 2>/dev/null; then
-  fail "Generated Codex CLI architect should not have sandbox_mode (standard profile)"
-fi
+require_content "$WORK_DIR/.codex/agents/dotnet-architect.toml" \
+  'sandbox_mode = "read-only"' "Codex CLI sandbox_mode read-only for architect"
 
 # --- Full agent: docs-generator ---
 require_in_frontmatter "$WORK_DIR/.claude/agents/dotnet-docs-generator.md" \
