@@ -35,6 +35,22 @@ internal static class ToolkitTestContent
             }
             """);
 
+        repo.WriteFile("CLAUDE.md", """
+            # dotnet-agent-harness
+
+            Compatible targets include:
+
+            - Claude Code
+            - GitHub Copilot CLI
+            - OpenCode
+            - Codex CLI
+            - Gemini CLI
+            - Antigravity
+            - Factory Droid
+
+            rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*"
+            """);
+
         repo.WriteFile(".claude/rules/10-conventions.md", "# Authoring Conventions");
         repo.WriteFile(".codex/memories/10-conventions.md", "# Authoring Conventions");
         repo.WriteFile(".opencode/memories/10-conventions.md", "# Authoring Conventions");

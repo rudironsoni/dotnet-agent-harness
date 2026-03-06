@@ -61,4 +61,23 @@ public class GeneratedArtifactContractEngineTests
         Assert.False(configCheck.Passed);
         Assert.Contains("codexcli runtime surfaces mismatch", configCheck.Evidence);
     }
+
+    [Fact]
+    public void Validate_FailsWhenTrackedClaudeRuleIsStale()
+    {
+        using var repo = new TestRepositoryBuilder();
+        ToolkitTestContent.WriteGeneratedArtifactMatrix(repo);
+        repo.WriteFile("CLAUDE.md", """
+            # dotnet-agent-harness
+
+            Compatible targets include Claude Code and Antigravity.
+            """);
+
+        var checks = GeneratedArtifactContractEngine.Validate(repo.Root);
+
+        var ruleCheck = Assert.Single(checks, check => check.Name == "rulesync-generated-rules");
+        Assert.False(ruleCheck.Passed);
+        Assert.Contains("CLAUDE.md", ruleCheck.Evidence);
+        Assert.Contains("Factory Droid", ruleCheck.Evidence);
+    }
 }

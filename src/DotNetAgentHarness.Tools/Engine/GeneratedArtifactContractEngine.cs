@@ -15,6 +15,7 @@ public static class GeneratedArtifactContractEngine
             "Shared rules are generated for the focused target matrix.",
             "Run `rulesync generate --targets \"claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid\" --features \"*\"` before validating generated rules.",
             [
+                new("claudecode", "CLAUDE.md", ["Factory Droid", "rulesync generate --targets \"claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid\" --features \"*\""]),
                 new("claudecode", ".claude/rules/10-conventions.md", ["# Authoring Conventions"]),
                 new("codexcli", ".codex/memories/10-conventions.md", ["# Authoring Conventions"]),
                 new("opencode", ".opencode/memories/10-conventions.md", ["# Authoring Conventions"]),
