@@ -10,8 +10,8 @@ set -euo pipefail
 #   copilot     -> .github/          (agents, instructions, prompts, skills, copilot-instructions.md)
 #   codexcli    -> .codex/           (agents, memories, skills, config.toml) + AGENTS.md
 #   geminicli   -> .gemini/          (commands, memories, skills, settings.json) + GEMINI.md
-#   agentsmd    -> .agents/          (memories, skills)
 #   antigravity -> .agent/           (rules, skills, workflows)
+#   factorydroid -> .factory/        (rules, hooks, mcp)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -36,12 +36,12 @@ echo ""
 echo "=== Generating RuleSync outputs ==="
 cd "${PROJECT_ROOT}"
 
-# Generate for all targets
+# Generate for the maintained RuleSync target matrix
 if ! command -v rulesync >/dev/null 2>&1; then
   echo "ERROR: rulesync is not installed. Run scripts/ci/install_rulesync.sh" >&2
   exit 1
 fi
-rulesync generate --targets "*" --features "*"
+rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*"
 
 # Define platforms, their output directories, and any root-level files to include
 # Format: platform|directory|root_files (comma-separated, empty if none)
@@ -51,8 +51,8 @@ PLATFORM_CONFIGS=(
     "copilot|.github|"
     "codexcli|.codex|AGENTS.md"
     "geminicli|.gemini|GEMINI.md"
-    "agentsmd|.agents|AGENTS.md"
     "antigravity|.agent|"
+    "factorydroid|.factory|"
 )
 
 # Copilot content lives in .github/ alongside CI infrastructure (actions/, workflows/).
