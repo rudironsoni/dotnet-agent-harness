@@ -4,6 +4,10 @@ description: '$1'
 targets: ['*']
 version: '0.0.1'
 author: 'dotnet-agent-harness'
+claudecode:
+  allowed-tools: ['Read', 'Bash']
+copilot:
+  description: 'Show installation metadata'
 ---
 
 # /dotnet-agent-harness:metadata

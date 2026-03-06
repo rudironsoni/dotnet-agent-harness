@@ -4,6 +4,10 @@ description: '$1'
 targets: ['*']
 version: '0.0.1'
 author: 'dotnet-agent-harness'
+claudecode:
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash']
+copilot:
+  description: 'Recommend skills for project'
 ---
 
 # /dotnet-agent-harness:recommend

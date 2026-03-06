@@ -4,6 +4,10 @@ description: '$1'
 targets: ['*']
 version: '0.0.1'
 author: 'dotnet-agent-harness'
+claudecode:
+  allowed-tools: ['Read', 'Grep', 'Bash']
+copilot:
+  description: 'Run skill tests with coverage'
 ---
 
 # /dotnet-agent-harness:test

@@ -381,11 +381,13 @@ public static class SkillTestEngine
                     Directory.Delete(workspace, recursive: true);
                 }
             }
-            catch (IOException)
+            catch (IOException ex)
             {
+                Console.WriteLine($"Warning: Failed to delete workspace '{workspace}' due to I/O error: {ex.Message}");
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
+                Console.WriteLine($"Warning: Failed to delete workspace '{workspace}' due to permission error: {ex.Message}");
             }
         }
     }

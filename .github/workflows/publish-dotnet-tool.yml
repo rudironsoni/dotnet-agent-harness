@@ -29,8 +29,41 @@ env:
   TOOL_COMMAND: dotnet-agent-harness
 
 jobs:
+  generate-bundles:
+    name: Generate bundles
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install RuleSync
+        run: |
+          curl -L https://github.com/rudironsoni/rulesync/releases/latest/download/rulesync-linux-x64 -o /usr/local/bin/rulesync
+          chmod +x /usr/local/bin/rulesync
+      
+      - name: Generate bundles
+        run: |
+          mkdir -p bundles
+          rulesync generate --source . --output bundles/ --targets "*" --features "*"
+      
+      - name: Create bundle archives
+        run: |
+          cd bundles
+          for dir in */; do
+            target=${dir%/}
+            tar -czf "${target}.tar.gz" "$target"
+            rm -rf "$target"
+          done
+      
+      - name: Upload bundle artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundles
+          path: bundles/*.tar.gz
+          retention-days: 30
+
   pack-and-smoke:
     name: Pack and smoke install
+    needs: generate-bundles
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.meta.outputs.version }}
@@ -61,6 +94,21 @@ jobs:
 
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
           echo "Resolved package version: ${version}"
+
+      - name: Download bundle artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: bundles
+          path: bundles/
+
+      - name: Verify bundles exist
+        run: |
+          if [ ! -d "bundles" ] || [ -z "$(ls -A bundles/*.tar.gz 2>/dev/null)" ]; then
+            echo "Error: No bundles found"
+            exit 1
+          fi
+          echo "Bundles found:"
+          ls -la bundles/
 
       - name: Build runtime
         run: dotnet build src/DotNetAgentHarness.Tools/DotNetAgentHarness.Tools.csproj -c Release

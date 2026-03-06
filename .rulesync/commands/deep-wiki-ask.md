@@ -4,6 +4,10 @@ description: '$1'
 targets: ['*']
 version: '0.0.1'
 author: 'dotnet-agent-harness'
+claudecode:
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash']
+copilot:
+  description: 'Answer questions about repository'
 ---
 
 # /deep-wiki:ask

@@ -12,7 +12,7 @@ public static class PromptBundleBuilder
     {
         if (string.IsNullOrWhiteSpace(rawRequest))
         {
-            throw new ArgumentException("prepare-message requires a non-empty request.");
+            throw new ArgumentException("prepare requires a non-empty request.");
         }
 
         var platform = PromptBundleRenderer.NormalizePlatform(options.Platform);

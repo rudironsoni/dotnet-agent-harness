@@ -323,9 +323,9 @@ public static class ProjectAnalyzer
                     return true;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore unreadable automation files during signal detection.
+                Console.WriteLine($"Warning: Could not read automation file '{filePath}': {ex.Message}");
             }
         }
 

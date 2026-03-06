@@ -30,11 +30,13 @@ internal sealed class TestRepositoryBuilder : IDisposable
                 Directory.Delete(Root, recursive: true);
             }
         }
-        catch (IOException)
+        catch (IOException ex)
         {
+            Console.WriteLine($"Warning: Failed to delete test directory '{Root}' due to I/O error: {ex.Message}");
         }
-        catch (UnauthorizedAccessException)
+        catch (UnauthorizedAccessException ex)
         {
+            Console.WriteLine($"Warning: Failed to delete test directory '{Root}' due to permission error: {ex.Message}");
         }
     }
 }

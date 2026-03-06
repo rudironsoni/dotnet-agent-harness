@@ -198,9 +198,10 @@ public class ValidationEngineTests
     {
         using var repo = new TestRepositoryBuilder();
         CreateConsoleRepository(repo, "QualityGateApp");
-        BootstrapEngine.Bootstrap(repo.Root, new BootstrapOptions
+        var engine = new BootstrapEngine();
+        engine.Bootstrap(repo.Root, new BootstrapOptions
         {
-            EnablePacks = [BootstrapPackCatalog.DotNetIntelligence]
+            EnablePacks = true
         });
 
         var report = ValidationEngine.Validate(repo.Root, "repo", new ValidationOptions

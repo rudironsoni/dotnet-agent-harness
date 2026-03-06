@@ -1,0 +1,39 @@
+name: Bundle Packaging
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  generate-bundles:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install RuleSync
+        run: |
+          curl -L https://github.com/rudironsoni/rulesync/releases/latest/download/rulesync-linux-x64 -o /usr/local/bin/rulesync
+          chmod +x /usr/local/bin/rulesync
+      
+      - name: Generate bundles
+        run: |
+          mkdir -p bundles
+          rulesync generate --source . --output bundles/ --targets "*" --features "*"
+      
+      - name: Create bundle archives
+        run: |
+          cd bundles
+          for dir in */; do
+            target=${dir%/}
+            tar -czf "${target}.tar.gz" "$target"
+            rm -rf "$target"
+          done
+      
+      - name: Upload bundle artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundles
+          path: bundles/*.tar.gz
+          retention-days: 30

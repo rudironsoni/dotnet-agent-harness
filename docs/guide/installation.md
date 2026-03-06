@@ -1,26 +1,62 @@
 # Installation
 
+Install dotnet-agent-harness as a local .NET tool in your repository.
+
 ## Requirements
 
-- Node.js 18+
-- Git
+- .NET 8.0 SDK or later
+- Git repository (for bootstrap)
 
-## Methods
+## Install
 
-### NPM
+### 1. Create Tool Manifest
+
+If you don't have one already:
 
 ```bash
-npm install -g rulesync
+dotnet new tool-manifest
 ```
 
-### Homebrew
+### 2. Install the Tool
 
 ```bash
-brew install rulesync
+dotnet tool install Rudironsoni.DotNetAgentHarness
 ```
 
-### Docker
+### 3. Restore Tools
 
 ```bash
-docker pull ghcr.io/rudironsoni/dotnet-agent-harness:latest
+dotnet tool restore
+```
+
+## Bootstrap
+
+Install AI agent configurations in your repository:
+
+```bash
+dotnet agent-harness bootstrap
+```
+
+This extracts pre-built agent configurations tailored for your project.
+
+## Verify Installation
+
+Check everything is working:
+
+```bash
+dotnet agent-harness doctor
+```
+
+## Upgrade
+
+Update to the latest version:
+
+```bash
+dotnet tool update Rudironsoni.DotNetAgentHarness
+```
+
+Then re-run bootstrap to update configurations:
+
+```bash
+dotnet agent-harness bootstrap
 ```

@@ -26,7 +26,7 @@ copilot:
   tools: ['read', 'search', 'execute']
 codexcli:
   short-description: '.NET specialist subagent for dotnet-architect'
-  sandbox_mode: 'read-only'
+  sandbox_mode: inherit
 ---
 
 # dotnet-architect

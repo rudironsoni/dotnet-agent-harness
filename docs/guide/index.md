@@ -1,22 +1,124 @@
-# Getting Started with dotnet-agent-harness
+# Consumer Guide
 
-Welcome to dotnet-agent-harness - a comprehensive toolkit for .NET development.
-
-## What is dotnet-agent-harness?
-
-A collection of **189 specialized skills**, **15 AI subagents**, and **20 runtime-backed commands** for building modern
-.NET applications.
+Welcome to dotnet-agent-harness! This guide covers everything you need to use the toolkit in your .NET projects.
 
 ## Quick Start
 
+Install and bootstrap in 3 commands:
+
 ```bash
-npm install -g rulesync
-rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
-rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*"
+# 1. Install the tool
+dotnet new tool-manifest
+dotnet tool install Rudironsoni.DotNetAgentHarness
+
+# 2. Bootstrap your repo
+dotnet agent-harness bootstrap
+
+# 3. Start coding!
 ```
 
-## Key Concepts
+The bootstrap command installs AI agent configurations tailored to your project.
 
-- **Skills**: Self-contained guidance documents (e.g., `dotnet-efcore-patterns`)
-- **Subagents**: Specialized AI agents (e.g., `dotnet-blazor-specialist`)
-- **Commands**: Slash commands for workflows (e.g., `/dotnet-agent-harness:search`)
+## Available Commands
+
+### bootstrap
+Install or update agent configurations.
+
+```bash
+dotnet agent-harness bootstrap [options]
+```
+
+**Options:**
+- `--targets <list>` - Specific targets (default: all available)
+- `--force` - Overwrite existing files
+- `--list-targets` - Show available targets without installing
+
+**Examples:**
+```bash
+# Install all targets
+dotnet agent-harness bootstrap
+
+# Install specific targets
+dotnet agent-harness bootstrap --targets claudecode,opencode
+
+# Show what's available
+dotnet agent-harness bootstrap --list-targets
+
+# Force overwrite existing files
+dotnet agent-harness bootstrap --force
+```
+
+### doctor
+Check installation health and diagnose issues.
+
+```bash
+dotnet agent-harness doctor
+```
+
+Checks:
+- Tool installation status
+- Bootstrap completion
+- Configuration validity
+- Available updates
+
+### recommend
+Get skill recommendations for your project.
+
+```bash
+dotnet agent-harness recommend
+```
+
+Analyzes your project and suggests relevant skills based on:
+- Frameworks detected
+- Project type
+- Dependencies
+- Common patterns
+
+### search
+Search the skill catalog.
+
+```bash
+dotnet agent-harness search <query>
+
+# Examples
+dotnet agent-harness search "ef core"
+dotnet agent-harness search "testing"
+dotnet agent-harness search "async"
+```
+
+### prepare
+Assemble prompt bundles for specific tasks.
+
+```bash
+dotnet agent-harness prepare "implement JWT authentication"
+dotnet agent-harness prepare "create integration tests"
+```
+
+### validate
+Run validation checks on your project.
+
+```bash
+dotnet agent-harness validate
+```
+
+## What You Get
+
+After bootstrap, your repo contains:
+
+```
+.dotnet-agent-harness/
+└── install-manifest.json    # Tracks installed version/targets
+
+# AI tool configurations (varies by target):
+.claude/                     # Claude Code settings
+.opencode/                   # OpenCode configuration
+.codex/                      # Codex CLI configuration
+# etc.
+```
+
+## Next Steps
+
+- [Installation Details](installation.md)
+- [Commands Reference](commands.md)
+- [Troubleshooting](troubleshooting.md)
+- [Available Skills](../skills/)

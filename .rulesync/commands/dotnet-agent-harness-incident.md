@@ -4,6 +4,10 @@ description: '$1'
 targets: ['*']
 version: '0.0.1'
 author: 'dotnet-agent-harness'
+claudecode:
+  allowed-tools: ['Read', 'Write', 'Bash']
+copilot:
+  description: 'Create incident report'
 ---
 
 # /dotnet-agent-harness:incident

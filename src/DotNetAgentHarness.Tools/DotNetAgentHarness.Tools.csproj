@@ -28,4 +28,11 @@
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="" />
   </ItemGroup>
+
+  <!-- Bundle embedding - only include if bundles exist -->
+  <ItemGroup Condition="Exists('../../bundles')">
+    <EmbeddedResource Include="../../bundles/*.tar.gz">
+      <LogicalName>DotNetAgentHarness.Tools.Bundles.%(Filename)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

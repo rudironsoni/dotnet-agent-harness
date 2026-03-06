@@ -34,10 +34,8 @@ public static class Program
                 "build-manifest" => RunBuildManifest(repoRoot, cliArgs),
                 "build-catalog" => RunBuildCatalog(repoRoot, cliArgs),
                 "bootstrap" => RunBootstrap(repoRoot, cliArgs),
-                "install-agent" => RunBootstrap(repoRoot, cliArgs),
                 "analyze" => RunAnalyze(repoRoot, cliArgs),
                 "recommend" => RunRecommend(repoRoot, cliArgs),
-                "init" => RunInit(repoRoot, cliArgs),
                 "doctor" => RunDoctor(repoRoot, cliArgs),
                 "validate" => RunValidate(repoRoot, cliArgs),
                 "metadata" => RunMetadata(repoRoot, cliArgs),
@@ -47,7 +45,8 @@ public static class Program
                 "graph" => RunGraph(repoRoot, cliArgs),
                 "export-mcp" => RunExportMcp(repoRoot, cliArgs),
                 "compare-prompts" => RunComparePrompts(repoRoot, cliArgs),
-                "prepare-message" => RunPrepareMessage(repoRoot, cliArgs),
+                "prepare" => RunPrepareMessage(repoRoot, cliArgs),
+                "prepare-message" => RunPrepareMessageDeprecated(repoRoot, cliArgs),
                 "incident" => RunIncident(repoRoot, cliArgs),
                 "review" => RunReview(repoRoot, cliArgs),
                 "test" => RunTest(repoRoot, cliArgs),
@@ -96,23 +95,13 @@ public static class Program
 
     private static int RunBootstrap(string repoRoot, CliArguments cliArgs)
     {
-        var skipPersistence = cliArgs.HasFlag("--no-save");
-        var report = BootstrapEngine.Bootstrap(repoRoot, new BootstrapOptions
+        var listTargets = cliArgs.HasFlag("--list-targets");
+        var engine = new BootstrapEngine();
+        var report = engine.Bootstrap(repoRoot, new BootstrapOptions
         {
-            Profile = cliArgs.GetOption("--profile") ?? BootstrapProfileCatalog.PlatformNative,
             Targets = SplitCsv(cliArgs.GetOption("--targets")),
-            Features = SplitCsv(cliArgs.GetOption("--features")),
-            EnablePacks = SplitCsv(cliArgs.GetOption("--enable-pack")),
-            SourceRepository = cliArgs.GetOption("--source") ?? ToolkitRuntimeMetadata.RuleSyncSourceRepository,
-            SourcePath = cliArgs.GetOption("--source-path") ?? ToolkitRuntimeMetadata.RuleSyncSourcePath,
-            ConfigPath = cliArgs.GetOption("--config") ?? "rulesync.jsonc",
             Force = cliArgs.HasFlag("--force"),
-            RunRuleSync = cliArgs.HasFlag("--run-rulesync"),
-            WriteToolManifest = !skipPersistence,
-            WritePackFiles = !skipPersistence,
-            WriteState = !skipPersistence,
-            SkillLimit = cliArgs.GetIntOption("--limit", 6),
-            ToolVersion = cliArgs.GetOption("--tool-version")
+            ListTargets = listTargets
         });
 
         return WriteOutput(report, cliArgs, textWriter: WriteBootstrapSummary, failureExitCode: report.Passed ? 0 : 1);
@@ -166,30 +155,6 @@ public static class Program
         }
 
         return WriteOutput(bundle, cliArgs, textWriter: WriteRecommendationSummary);
-    }
-
-    private static int RunInit(string repoRoot, CliArguments cliArgs)
-    {
-        var environment = ProjectAnalyzer.ProbeDotNetEnvironment();
-        var profile = ProjectAnalyzer.Analyze(repoRoot, environment);
-        var catalog = ToolkitCatalogLoader.Load(repoRoot);
-        var recommendations = RecommendationEngine.Recommend(profile, catalog, cliArgs.GetIntOption("--limit", 5));
-        var doctor = DoctorEngine.BuildReport(profile, environment);
-        var report = new InitReport
-        {
-            Profile = profile,
-            Recommendations = recommendations,
-            Doctor = doctor
-        };
-
-        if (!cliArgs.HasFlag("--no-save"))
-        {
-            RepoStateStore.WriteJson(repoRoot, Path.Combine(".dotnet-agent-harness", "project-profile.json"), profile);
-            RepoStateStore.WriteJson(repoRoot, Path.Combine(".dotnet-agent-harness", "recommendations.json"), recommendations);
-            RepoStateStore.WriteJson(repoRoot, Path.Combine(".dotnet-agent-harness", "doctor-report.json"), doctor);
-        }
-
-        return WriteOutput(report, cliArgs, textWriter: WriteInitSummary);
     }
 
     private static int RunDoctor(string repoRoot, CliArguments cliArgs)
@@ -370,7 +335,7 @@ public static class Program
         var rawRequest = string.Join(' ', cliArgs.Positionals).Trim();
         if (string.IsNullOrWhiteSpace(rawRequest))
         {
-            throw new ArgumentException("prepare-message requires a user request.");
+            throw new ArgumentException("prepare requires a user request.");
         }
 
         var report = PromptBundleBuilder.Prepare(repoRoot, rawRequest, new PromptAssemblyOptions
@@ -411,6 +376,12 @@ public static class Program
         }
 
         return WriteOutput(report, cliArgs, textWriter: WritePreparedMessageSummary);
+    }
+
+    private static int RunPrepareMessageDeprecated(string repoRoot, CliArguments cliArgs)
+    {
+        Console.WriteLine("Warning: 'prepare-message' is deprecated. Use 'prepare' instead.");
+        return RunPrepareMessage(repoRoot, cliArgs);
     }
 
     private static int RunComparePrompts(string repoRoot, CliArguments cliArgs)
@@ -682,83 +653,64 @@ public static class Program
     private static void WriteBootstrapSummary(BootstrapReport report)
     {
         Console.WriteLine($"Repo: {report.RepoRoot}");
-        Console.WriteLine($"Tool: {report.ToolPackageId} ({report.ToolCommandName} {report.ToolVersion})");
-        Console.WriteLine($"Profile: {report.Profile}");
-        Console.WriteLine($"Targets: {string.Join(", ", report.Targets.Select(target => target.Id))}");
-        Console.WriteLine($"Features: {string.Join(", ", report.Features)}");
-        if (report.Packs.Count > 0)
-        {
-            Console.WriteLine($"Packs: {string.Join(", ", report.Packs.Select(pack => pack.Id))}");
-        }
-        Console.WriteLine($"Tool manifest: [{report.ToolManifest.Status}] {report.ToolManifest.Path}");
-        Console.WriteLine($"RuleSync config: [{report.RuleSyncConfig.Status}] {report.RuleSyncConfig.Path}");
-        Console.WriteLine($"RuleSync available: {(report.RuleSyncAvailable ? "yes" : "no")}");
-        Console.WriteLine($"RuleSync generation: {report.RuleSyncGenerationStatus}");
+        Console.WriteLine($"Harness version: {report.InstalledVersion}");
         Console.WriteLine();
 
-        foreach (var target in report.Targets)
+        // Show migration status if v1.x detected
+        if (report.HasV1Installation)
         {
-            Console.WriteLine($"{target.Id}: outputs={string.Join(", ", target.OutputPaths)} surfaces={string.Join(", ", target.Surfaces)}");
+            Console.WriteLine("═══════════════════════════════════════════════════════════════════════════");
+            Console.WriteLine("⚠️  V1.X RULESYNC INSTALLATION DETECTED");
+            Console.WriteLine("═══════════════════════════════════════════════════════════════════════════");
+            Console.WriteLine();
+            Console.WriteLine("A previous v1.x installation using RuleSync was detected.");
+            Console.WriteLine();
+            Console.WriteLine("Migration steps:");
+            Console.WriteLine("  1. Verify the new installation works correctly");
+            Console.WriteLine("  2. Remove v1.x artifacts: rm -rf .rulesync/ && rm rulesync.jsonc");
+            Console.WriteLine("═══════════════════════════════════════════════════════════════════════════");
+            Console.WriteLine();
         }
 
-        if (report.Packs.Count > 0)
+        // Show target results
+        if (report.TargetResults.Count > 0)
         {
-            Console.WriteLine();
-            Console.WriteLine("Pack files:");
-            foreach (var pack in report.Packs)
+            Console.WriteLine("Installation targets:");
+            foreach (var result in report.TargetResults)
             {
-                Console.WriteLine($"  {pack.Id}: tools={string.Join(", ", pack.ToolPackageIds)}");
-                foreach (var file in pack.Files)
+                var status = result.Success ? "✓" : "✗";
+                Console.WriteLine($"  {status} {result.Target} ({result.ExtractedFiles.Count} files, {result.Duration.TotalMilliseconds:F0}ms)");
+                if (!result.Success && !string.IsNullOrEmpty(result.ErrorMessage))
                 {
-                    Console.WriteLine($"    [{file.Status}] {file.Path}");
+                    Console.WriteLine($"    Error: {result.ErrorMessage}");
                 }
             }
-        }
-
-        if (report.Commands.Count > 0)
-        {
             Console.WriteLine();
-            Console.WriteLine("Commands:");
-            foreach (var command in report.Commands)
-            {
-                Console.WriteLine($"  {(command.Passed ? "PASS" : "FAIL")} {command.Command} (exit {command.ExitCode})");
-            }
         }
 
-        if (report.StateFiles.Count > 0)
-        {
-            Console.WriteLine();
-            Console.WriteLine("State files:");
-            foreach (var file in report.StateFiles)
-            {
-                Console.WriteLine($"  [{file.Status}] {file.Path}");
-            }
-        }
-
-        Console.WriteLine();
-        WriteProfileSummary(report.Init.Profile);
-        Console.WriteLine();
-        WriteDoctorSummary(report.Init.Doctor);
-
+        // Show warnings
         if (report.Warnings.Count > 0)
         {
-            Console.WriteLine();
             Console.WriteLine("Warnings:");
             foreach (var warning in report.Warnings)
             {
                 Console.WriteLine($"  {warning}");
             }
+            Console.WriteLine();
         }
 
+        // Show next steps
         if (report.NextSteps.Count > 0)
         {
-            Console.WriteLine();
             Console.WriteLine("Next steps:");
             foreach (var step in report.NextSteps)
             {
                 Console.WriteLine($"  {step}");
             }
         }
+
+        Console.WriteLine();
+        Console.WriteLine($"Bootstrap {(report.Passed ? "complete" : "failed")}.");
     }
 
     private static void WriteRecommendationSummary(RecommendationBundle bundle)
@@ -791,15 +743,6 @@ public static class Program
         {
             Console.WriteLine($"  {item.Id} ({item.Score}) - {string.Join("; ", item.Reasons)}");
         }
-    }
-
-    private static void WriteInitSummary(InitReport report)
-    {
-        WriteProfileSummary(report.Profile);
-        Console.WriteLine();
-        WriteRecommendationSummary(report.Recommendations);
-        Console.WriteLine();
-        WriteDoctorSummary(report.Doctor);
     }
 
     private static void WriteDoctorSummary(DoctorReport report)

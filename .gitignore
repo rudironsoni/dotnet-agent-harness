@@ -59,6 +59,9 @@ replit.md
 .tmp/
 .dotnet-agent-harness/
 
+# CI-generated bundles (not source)
+bundles/
+
 # Build output
 dist/
 packages/dotnet-agent-harness-*/bundled/

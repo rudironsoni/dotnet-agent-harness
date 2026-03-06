@@ -127,8 +127,9 @@ public static class ProcessRunner
         {
             process.Kill(entireProcessTree: true);
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException ex)
         {
+            Console.WriteLine($"Warning: Failed to kill process (process may have already exited): {ex.Message}");
         }
     }
 

@@ -9,36 +9,32 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Guide', link: '/guide/' },
+      { text: 'Consumer Guide', link: '/guide/' },
+      { text: 'Maintainer Guide', link: '/maintainer/' },
       { text: 'Skills', link: '/skills/' },
-      { text: 'API', link: '/api/' },
     ],
 
     sidebar: {
       '/guide/': [
         {
-          text: 'Getting Started',
+          text: 'Consumer Guide',
           items: [
+            { text: 'Getting Started', link: '/guide/' },
             { text: 'Installation', link: '/guide/installation' },
-            { text: 'Quick Start', link: '/guide/quickstart' },
-            { text: 'Configuration', link: '/guide/configuration' },
-          ],
-        },
-        {
-          text: 'Architecture',
-          items: [
-            { text: 'Overview', link: '/guide/architecture' },
-            { text: 'Skills', link: '/guide/skills' },
-            { text: 'Subagents', link: '/guide/subagents' },
             { text: 'Commands', link: '/guide/commands' },
+            { text: 'Troubleshooting', link: '/guide/troubleshooting' },
           ],
         },
+      ],
+
+      '/maintainer/': [
         {
-          text: 'Advanced',
+          text: 'Maintainer Guide',
           items: [
-            { text: 'MCP Integration', link: '/guide/mcp' },
-            { text: 'Hooks', link: '/guide/hooks' },
-            { text: 'Templates', link: '/guide/templates' },
+            { text: 'Overview', link: '/maintainer/' },
+            { text: 'RuleSync Authoring', link: '/maintainer/rulesync-authoring' },
+            { text: 'Bundle Generation', link: '/maintainer/bundle-generation' },
+            { text: 'Release Workflow', link: '/maintainer/release-workflow' },
           ],
         },
       ],
