@@ -56,7 +56,7 @@ dotnet tool install Rudironsoni.DotNetAgentHarness
 
 # Bootstrap agent targets in the repo
 dotnet agent-harness bootstrap \
-  --targets claudecode,opencode,codexcli,geminicli,copilot,antigravity \
+  --targets claudecode,opencode,codexcli,geminicli,copilot,antigravity,factorydroid \
   --run-rulesync
 ```
 
@@ -87,14 +87,15 @@ dotnet agent-harness \
 
 <div class="platforms">
 
-| Platform       | Status             | Primary Agent      |
-| -------------- | ------------------ | ------------------ |
-| Claude Code    | ✅ Fully Supported | `dotnet-architect` |
-| OpenCode       | ✅ Fully Supported | `dotnet-architect` |
-| GitHub Copilot | ✅ Fully Supported | All agents         |
-| Codex CLI      | ✅ Fully Supported | All agents         |
-| Gemini CLI     | ✅ Fully Supported | All agents         |
-| Antigravity    | ✅ Fully Supported | All agents         |
+| Platform       | Status              | Primary Agent      |
+| -------------- | ------------------- | ------------------ |
+| Claude Code    | ✅ Fully Supported  | `dotnet-architect` |
+| OpenCode       | ✅ Fully Supported  | `dotnet-architect` |
+| GitHub Copilot | ✅ Fully Supported  | All agents         |
+| Codex CLI      | ✅ Fully Supported  | All agents         |
+| Gemini CLI     | ✅ Fully Supported  | All agents         |
+| Antigravity    | ✅ Fully Supported  | All agents         |
+| Factory Droid  | ⚠️ Targeted Support | Rules, hooks, MCP  |
 
 </div>
 
@@ -117,6 +118,7 @@ graph TB
         CODEX[.codex/]
         GEMINI[.gemini/]
         ANTIGRAVITY[.agent/]
+        FACTORY[.factory/]
     end
 
     SKILLS --> CLAUDE

@@ -133,7 +133,7 @@ To take advantage of new features:
 ```bash
 # Update to latest
 rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
-rulesync generate --targets "*" --features "*"
+rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*"
 
 # Try new commands
 /dotnet-agent-harness:search testing

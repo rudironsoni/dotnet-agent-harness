@@ -23,7 +23,7 @@ The installed command is available as `dotnet agent-harness`.
 
 ```bash
 dotnet agent-harness bootstrap \
-  --targets claudecode,opencode,codexcli,geminicli,copilot,antigravity \
+  --targets claudecode,opencode,codexcli,geminicli,copilot,antigravity,factorydroid \
   --run-rulesync
 ```
 
@@ -44,6 +44,7 @@ Expected generated target roots:
 - `geminicli` -> `.gemini/` and `GEMINI.md`
 - `copilot` -> `.github/agents/`, `.github/instructions/`, `.github/prompts/`, `.github/skills/`
 - `antigravity` -> `.agent/`
+- `factorydroid` -> `.factory/`
 
 Generated `dotnet-agent-harness:*` command files are intended to call the local runtime directly:
 

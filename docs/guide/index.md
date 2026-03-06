@@ -4,15 +4,15 @@ Welcome to dotnet-agent-harness - a comprehensive toolkit for .NET development.
 
 ## What is dotnet-agent-harness?
 
-A collection of **131 specialized skills**, **15 AI subagents**, and **15 slash commands** for building modern .NET
-applications.
+A collection of **189 specialized skills**, **15 AI subagents**, and **20 runtime-backed commands** for building modern
+.NET applications.
 
 ## Quick Start
 
 ```bash
 npm install -g rulesync
 rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
-rulesync generate --targets "*" --features "*"
+rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*"
 ```
 
 ## Key Concepts
