@@ -126,7 +126,7 @@ leak investigation", "flame graph analysis", "allocation hot path", "benchmark c
 
 ## Explicit Boundaries
 
-- **Does NOT design benchmarks** -- delegates to [skill:dotnet-benchmark-designer] for creating new benchmarks, choosing
+- **Does NOT design benchmarks** -- delegates to [subagent:dotnet-benchmark-designer] for creating new benchmarks, choosing
   diagnosers, and validating methodology
 - **Does NOT set up profiling tools** -- defers tool installation and invocation to the developer; focuses on
   interpreting profiling output data using [skill:dotnet-profiling] as reference

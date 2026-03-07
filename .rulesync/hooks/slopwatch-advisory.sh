@@ -8,7 +8,7 @@ fi
 
 FILE_PATH=""
 if [[ -n "${INPUT}" ]] && command -v jq >/dev/null 2>&1; then
-  FILE_PATH="$(printf '%s' "${INPUT}" | jq -r '.tool_input.file_path // empty' 2>/dev/null || true)"
+  FILE_PATH="$(printf '%s' "${INPUT}" | jq -r '.tool_input.file_path // .file_path // .filePath // empty' 2>/dev/null || true)"
 fi
 
 if [[ -n "${FILE_PATH}" ]]; then

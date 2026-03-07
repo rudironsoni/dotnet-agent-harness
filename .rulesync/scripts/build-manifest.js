@@ -3,7 +3,7 @@
 /**
  * Build Skill Manifest
  *
- * Generates .rulesync/manifest/skill-manifest.json from all skill frontmatter.
+ * Generates .dotnet-agent-harness/exports/manifest/skill-manifest.json from all skill frontmatter.
  * Run: node scripts/build-manifest.js [--watch] [--validate]
  */
 
@@ -12,7 +12,7 @@ const path = require('path');
 const yaml = require('js-yaml');
 
 const SKILLS_DIR = path.join(__dirname, '..', 'skills');
-const MANIFEST_DIR = path.join(__dirname, '..', 'manifest');
+const MANIFEST_DIR = path.join(__dirname, '..', '..', '.dotnet-agent-harness', 'exports', 'manifest');
 const MANIFEST_FILE = path.join(MANIFEST_DIR, 'skill-manifest.json');
 
 /**

@@ -3,8 +3,13 @@ name: dotnet-agent-harness-prepare-message
 description:
   'Assemble an enriched agent request from repository context, persona rules, recommended skills, and target resolution'
 targets: ['*']
+portability: claude-opencode
+flattening-risk: medium
+simulated: true
 version: '0.0.1'
 author: 'dotnet-agent-harness'
+codexcli:
+  sandbox_mode: 'read-only'
 ---
 
 # /dotnet-agent-harness:prepare-message

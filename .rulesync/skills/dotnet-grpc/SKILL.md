@@ -3,14 +3,27 @@ name: dotnet-grpc
 description: Builds gRPC services. Proto definition, code-gen, ASP.NET Core host, streaming, auth.
 license: MIT
 targets: ['*']
-tags: ['api', 'dotnet', 'skill']
-version: '0.0.1'
+category: web
+subcategory: api-design
+complexity: intermediate
+tags:
+  - web
+  - dotnet
+  - skill
+  - intermediate
+  - grpc
+  - api
+version: '1.0.0'
 author: 'dotnet-agent-harness'
 invocable: true
+related_skills:
+  - dotnet-realtime-communication
+  - dotnet-service-communication
+  - dotnet-api-security
 claudecode:
   allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:
-  short-description: '.NET skill guidance for api tasks'
+  short-description: '.NET skill guidance for grpc tasks'
 opencode:
   allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 copilot: {}

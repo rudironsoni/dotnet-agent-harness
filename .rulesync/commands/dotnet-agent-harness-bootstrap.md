@@ -4,8 +4,13 @@ description:
   'Bootstrap dotnet-agent-harness as a local .NET tool, write RuleSync config, and initialize target-specific agent
   outputs'
 targets: ['*']
+portability: universal
+flattening-risk: low
+simulated: true
 version: '0.0.1'
 author: 'dotnet-agent-harness'
+codexcli:
+  sandbox_mode: 'read-only'
 ---
 
 # /dotnet-agent-harness:bootstrap

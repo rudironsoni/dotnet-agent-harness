@@ -2,12 +2,17 @@
 name: deep-wiki-build
 description: '$1'
 targets: ['*']
+portability: copilot-gemini
+flattening-risk: low
+simulated: true
 version: '0.0.1'
 author: 'dotnet-agent-harness'
 claudecode:
   allowed-tools: ['Read', 'Glob', 'Bash']
 copilot:
   description: 'Build VitePress wiki site'
+codexcli:
+  sandbox_mode: 'read-only'
 ---
 
 # /deep-wiki:build

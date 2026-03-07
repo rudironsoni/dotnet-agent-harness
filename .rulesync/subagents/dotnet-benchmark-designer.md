@@ -128,7 +128,7 @@ baseline".
 
 ## Explicit Boundaries
 
-- **Does NOT interpret profiling data** -- delegates to [skill:dotnet-performance-analyst] for analyzing flame graphs,
+- **Does NOT interpret profiling data** -- delegates to [subagent:dotnet-performance-analyst] for analyzing flame graphs,
   heap dumps, and runtime diagnostics
 - **Does NOT own CI pipeline setup** -- references [skill:dotnet-ci-benchmarking] for GitHub Actions workflow
   integration; focuses on benchmark class design

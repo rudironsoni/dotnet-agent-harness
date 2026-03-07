@@ -3,10 +3,24 @@ name: dotnet-architecture-patterns
 description: Designs ASP.NET Core architecture -- vertical slices, pipelines, caching, errors.
 license: MIT
 targets: ['*']
-tags: ['architecture', 'dotnet', 'skill']
-version: '0.0.1'
+category: architecture
+subcategory: patterns
+complexity: intermediate
+tags:
+  - architecture
+  - dotnet
+  - skill
+  - intermediate
+  - patterns
+  - vertical-slices
+version: '1.0.0'
 author: 'dotnet-agent-harness'
 invocable: true
+related_skills:
+  - dotnet-domain-modeling
+  - dotnet-middleware-patterns
+  - dotnet-minimal-apis
+  - dotnet-resilience
 claudecode:
   allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:

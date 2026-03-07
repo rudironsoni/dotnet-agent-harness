@@ -3,10 +3,23 @@ name: dotnet-csharp-async-patterns
 description: Writing async/await code. Task patterns, ConfigureAwait, cancellation, and common agent pitfalls.
 license: MIT
 targets: ['*']
-tags: ['csharp', 'dotnet', 'skill']
-version: '0.0.1'
+category: fundamentals
+subcategory: language-patterns
+complexity: intermediate
+tags:
+  - csharp
+  - dotnet
+  - skill
+  - intermediate
+  - language-patterns
+  - async
+version: '1.0.0'
 author: 'dotnet-agent-harness'
 invocable: true
+related_skills:
+  - dotnet-csharp-coding-standards
+  - dotnet-csharp-concurrency-patterns
+  - dotnet-csharp-dependency-injection
 claudecode:
   allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:

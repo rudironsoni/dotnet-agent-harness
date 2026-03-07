@@ -1,3 +1,36 @@
+---
+name: dotnet-roslyn-analyzers
+description: 'Authors Roslyn analyzers. DiagnosticAnalyzer, CodeFixProvider, CodeRefactoring, multi-version.'
+license: MIT
+targets: ['*']
+category: tooling
+subcategory: analyzers
+complexity: advanced
+tags:
+  - dotnet
+  - roslyn
+  - analyzers
+  - codefix
+  - refactoring
+  - advanced
+version: '1.0.0'
+author: 'dotnet-agent-harness'
+related_skills:
+  - dotnet-add-analyzers
+  - dotnet-csharp-source-generators
+claudecode:
+  model: inherit
+  allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Edit', 'Write']
+opencode:
+  allowed-tools: ['Read', 'Grep', 'Bash']
+copilot:
+  tools: ['read', 'search', 'execute', 'edit']
+codexcli:
+  short-description: '.NET skill guidance for dotnet-roslyn-analyzers'
+geminicli: {}
+antigravity: {}
+---
+
 # Roslyn Analyzer Hooks
 
 ## Overview

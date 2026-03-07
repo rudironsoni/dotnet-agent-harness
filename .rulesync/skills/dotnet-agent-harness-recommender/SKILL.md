@@ -12,11 +12,7 @@ claudecode:
   model: inherit
   allowed-tools: ['Read', 'Grep', 'Glob', 'Bash']
 opencode:
-  mode: subagent
-  tools:
-    bash: true
-    edit: false
-    write: false
+  allowed-tools: ['bash', 'Read', 'Grep', 'Glob']
 copilot:
   tools: ['read', 'search', 'execute']
 codexcli:

@@ -17,6 +17,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
+WORKING_DIRECTORY="$(pwd)"
 
 # Configuration with defaults
 SKIP_ANALYZERS="${DOTNET_AGENT_HARNESS_SKIP_ANALYZERS:-false}"
@@ -37,15 +38,32 @@ if [[ "${SKIP_ANALYZERS}" == "true" ]]; then
 fi
 
 # Read input JSON from stdin
-read -r INPUT_JSON
+INPUT_JSON=""
+if [[ ! -t 0 ]]; then
+    INPUT_JSON="$(cat)"
+fi
+
+if [[ -z "${INPUT_JSON}" ]]; then
+    echo '{"status": "skipped", "reason": "No hook payload provided"}'
+    exit 0
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo '{"status": "skipped", "reason": "jq not available"}'
+    exit 0
+fi
 
 # Parse input
-FILE_PATH=$(echo "${INPUT_JSON}" | jq -r '.file_path // empty')
-FILE_ROOT=$(echo "${INPUT_JSON}" | jq -r '.project_root // empty')
+FILE_PATH=$(printf '%s' "${INPUT_JSON}" | jq -r '.file_path // .tool_input.file_path // .filePath // empty')
+FILE_ROOT=$(printf '%s' "${INPUT_JSON}" | jq -r '.project_root // .cwd // .working_directory // empty')
 
 if [[ -z "${FILE_PATH}" ]]; then
-    echo '{"status": "error", "message": "No file_path provided"}' >&2
-    exit 1
+    echo '{"status": "skipped", "reason": "No file_path provided"}'
+    exit 0
+fi
+
+if [[ "${FILE_PATH}" != /* ]]; then
+    FILE_PATH="${WORKING_DIRECTORY}/${FILE_PATH#./}"
 fi
 
 # Use provided root or detect

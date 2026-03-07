@@ -2,12 +2,17 @@
 name: deep-wiki-deploy
 description: '$1'
 targets: ['*']
+portability: copilot-gemini
+flattening-risk: low
+simulated: true
 version: '0.0.1'
 author: 'dotnet-agent-harness'
 claudecode:
   allowed-tools: ['Read', 'Glob', 'Bash']
 copilot:
   description: 'Deploy wiki to GitHub Pages'
+codexcli:
+  sandbox_mode: 'read-only'
 ---
 
 # /deep-wiki:deploy

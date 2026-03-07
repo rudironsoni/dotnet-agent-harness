@@ -3,11 +3,11 @@
   "targets": [
     "claudecode",
     "copilot",
+    "factorydroid",
     "opencode",
     "geminicli",
     "codexcli",
     "antigravity",
-    "factorydroid",
   ],
   "features": {
     "claudecode": ["rules", "ignore", "mcp", "commands", "subagents", "skills", "hooks"],

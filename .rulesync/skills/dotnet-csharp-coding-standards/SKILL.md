@@ -3,10 +3,23 @@ name: dotnet-csharp-coding-standards
 description: Defines baseline C# conventions loaded first -- naming, file layout, style rules.
 license: MIT
 targets: ['*']
-tags: ['csharp', 'dotnet', 'skill']
-version: '0.0.1'
+category: fundamentals
+subcategory: coding-standards
+complexity: beginner
+tags:
+  - csharp
+  - dotnet
+  - skill
+  - beginner
+  - coding-standards
+  - naming
+version: '1.0.0'
 author: 'dotnet-agent-harness'
 invocable: true
+related_skills:
+  - dotnet-csharp-modern-patterns
+  - dotnet-csharp-nullable-reference-types
+  - dotnet-editorconfig
 claudecode:
   allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:

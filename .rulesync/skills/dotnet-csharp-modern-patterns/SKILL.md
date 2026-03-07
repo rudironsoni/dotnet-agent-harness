@@ -3,10 +3,23 @@ name: dotnet-csharp-modern-patterns
 description: Using records, pattern matching, primary constructors, collection expressions. C# 12-15 by TFM.
 license: MIT
 targets: ['*']
-tags: ['csharp', 'dotnet', 'skill']
-version: '0.0.1'
+category: fundamentals
+subcategory: language-patterns
+complexity: intermediate
+tags:
+  - csharp
+  - dotnet
+  - skill
+  - intermediate
+  - language-patterns
+  - records
+version: '1.0.0'
 author: 'dotnet-agent-harness'
 invocable: true
+related_skills:
+  - dotnet-csharp-coding-standards
+  - dotnet-csharp-async-patterns
+  - dotnet-10-csharp-14
 claudecode:
   allowed-tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit']
 codexcli:

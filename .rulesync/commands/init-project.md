@@ -2,12 +2,17 @@
 name: init-project
 description: 'Initialize a new project with dotnet-agent-harness guidance'
 targets: ['*']
+portability: claude-opencode
+flattening-risk: medium
+simulated: true
 version: '0.0.1'
 author: 'dotnet-agent-harness'
 claudecode:
   allowed-tools: ['Read', 'Glob', 'Grep', 'EditFile', 'Bash']
 copilot:
   description: 'Initialize a new project with dotnet-agent-harness guidance'
+codexcli:
+  sandbox_mode: 'read-only'
 antigravity:
   trigger: '/init-project'
 ---

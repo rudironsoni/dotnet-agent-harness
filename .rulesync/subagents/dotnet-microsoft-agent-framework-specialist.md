@@ -100,7 +100,7 @@ This agent activates on Microsoft Agent Framework queries including: "agent fram
 
 - **Does NOT own Semantic Kernel** -- Agent Framework has replaced Semantic Kernel in this toolkit
 - **Does NOT own general AI/LLM provider selection** -- focuses on Agent Framework abstractions
-- **Does NOT own infrastructure deployment** -- delegates to [skill:dotnet-cloud-specialist] for AKS, container
+- **Does NOT own infrastructure deployment** -- delegates to [subagent:dotnet-cloud-specialist] for AKS, container
   orchestration
 - **Does NOT own general observability setup** -- delegates to [skill:dotnet-observability] for advanced tracing/metrics
 - **Does NOT own secrets management implementation** -- delegates to [skill:dotnet-secrets-management] for key vaults,
