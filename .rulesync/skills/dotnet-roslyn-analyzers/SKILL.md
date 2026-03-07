@@ -22,7 +22,7 @@ Comprehensive Roslyn analyzer integration for dotnet-agent-harness providing rea
 ### Environment Variables
 
 ```bash
-# Skip all analyzer checks
+# Skip all analyzer checks (default: false, analyzers run by default)
 export DOTNET_AGENT_HARNESS_SKIP_ANALYZERS=true
 
 # Configure timeout (default: 60 seconds)

@@ -6,7 +6,7 @@
 # Usage: echo '{"file_path":"/path/to/file.cs","project_root":"/path/to/project"}' | ./post-edit-roslyn.sh
 #
 # Configuration:
-#   DOTNET_AGENT_HARNESS_SKIP_ANALYZERS=true - Skip analysis
+#   DOTNET_AGENT_HARNESS_SKIP_ANALYZERS=false - Skip analysis (default: false, set to true to disable)
 #   DOTNET_AGENT_HARNESS_ANALYZER_TIMEOUT=60 - Timeout in seconds (default: 60)
 #   DOTNET_AGENT_HARNESS_ANALYZER_SEVERITY=Warning - Minimum severity (Error/Warning/Info)
 #   DOTNET_AGENT_HARNESS_ANALYZER_MODE=async - Execution mode (sync/async)
