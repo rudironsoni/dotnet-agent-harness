@@ -1,0 +1,255 @@
+# Docker Compose configuration for RuleSync-first .NET agent harness testing
+# Provides isolated testing environments for each of the 7 targets
+
+version: "3.8"
+
+# Base service configuration (extended by target services)
+x-base-service: &base-service
+  build:
+    context: .
+    dockerfile: Dockerfile.test
+    args:
+      - RULESYNC_VERSION=${RULESYNC_VERSION:-7.10.0}
+  volumes:
+    # Mount source code for live editing
+    - .:/workspace:cached
+    # Cache volume for npm packages
+    - rulesync-npm-cache:/root/.npm
+    # Cache volume for RuleSync installation
+    - rulesync-install-cache:/root/.cache/rulesync
+  environment:
+    # Set CI mode for consistent behavior
+    - CI=true
+    # Non-interactive mode
+    - TERM=dumb
+    # Git configuration for testing
+    - GIT_AUTHOR_NAME=Docker Test
+    - GIT_AUTHOR_EMAIL=test@docker.local
+    - GIT_COMMITTER_NAME=Docker Test
+    - GIT_COMMITTER_EMAIL=test@docker.local
+  working_dir: /workspace
+  # Default entrypoint for testing
+  entrypoint: ["/usr/local/bin/docker-entrypoint.sh"]
+
+services:
+  # ============================================================================
+  # Individual Target Testing Services
+  # Each target runs in its own isolated container
+  # ============================================================================
+
+  # Claude Code target
+  claudecode:
+    <<: *base-service
+    environment:
+      - TARGET=claudecode
+      - RULESYNC_TARGETS=claudecode
+      - CI=true
+    networks:
+      - rulesync-test
+
+  # OpenCode target
+  opencode:
+    <<: *base-service
+    environment:
+      - TARGET=opencode
+      - RULESYNC_TARGETS=opencode
+      - CI=true
+    networks:
+      - rulesync-test
+
+  # GitHub Copilot target
+  copilot:
+    <<: *base-service
+    environment:
+      - TARGET=copilot
+      - RULESYNC_TARGETS=copilot
+      - CI=true
+    networks:
+      - rulesync-test
+
+  # Gemini CLI target
+  geminicli:
+    <<: *base-service
+    environment:
+      - TARGET=geminicli
+      - RULESYNC_TARGETS=geminicli
+      - CI=true
+    networks:
+      - rulesync-test
+
+  # Codex CLI target
+  codexcli:
+    <<: *base-service
+    environment:
+      - TARGET=codexcli
+      - RULESYNC_TARGETS=codexcli
+      - CI=true
+    networks:
+      - rulesync-test
+
+  # Factory Droid target
+  factorydroid:
+    <<: *base-service
+    environment:
+      - TARGET=factorydroid
+      - RULESYNC_TARGETS=factorydroid
+      - CI=true
+    networks:
+      - rulesync-test
+
+  # Antigravity target
+  antigravity:
+    <<: *base-service
+    environment:
+      - TARGET=antigravity
+      - RULESYNC_TARGETS=antigravity
+      - CI=true
+    networks:
+      - rulesync-test
+
+  # ============================================================================
+  # Multi-Target Testing Services
+  # For testing multiple targets simultaneously
+  # ============================================================================
+
+  # Test all targets in one container
+  all-targets:
+    <<: *base-service
+    environment:
+      - TARGET=all
+      - RULESYNC_TARGETS=claudecode,opencode,copilot,geminicli,codexcli,factorydroid,antigravity
+      - CI=true
+    networks:
+      - rulesync-test
+
+  # Test skills generation across all targets
+  skills-test:
+    <<: *base-service
+    environment:
+      - TARGET=all
+      - RULESYNC_TARGETS=claudecode,opencode,copilot,geminicli,codexcli,factorydroid,antigravity
+      - RULESYNC_FEATURES=skills
+      - CI=true
+    networks:
+      - rulesync-test
+    command: ["test-skills"]
+
+  # Test commands generation across all targets
+  commands-test:
+    <<: *base-service
+    environment:
+      - TARGET=all
+      - RULESYNC_TARGETS=claudecode,opencode,copilot,geminicli,codexcli,factorydroid,antigravity
+      - RULESYNC_FEATURES=commands
+      - CI=true
+    networks:
+      - rulesync-test
+    command: ["test-commands"]
+
+  # Test subagents generation across all targets
+  subagents-test:
+    <<: *base-service
+    environment:
+      - TARGET=all
+      - RULESYNC_TARGETS=claudecode,opencode,copilot,geminicli,codexcli,factorydroid,antigravity
+      - RULESYNC_FEATURES=subagents
+      - CI=true
+    networks:
+      - rulesync-test
+    command: ["test-subagents"]
+
+  # ============================================================================
+  # Validation Services
+  # ============================================================================
+
+  # Full validation suite (same as CI)
+  validate:
+    <<: *base-service
+    environment:
+      - CI=true
+      - RUN_VALIDATION=true
+    networks:
+      - rulesync-test
+    command: ["validate-all"]
+
+  # Determinism check (runs generation twice and compares)
+  determinism-check:
+    <<: *base-service
+    environment:
+      - CI=true
+      - RUN_DETERMINISM_CHECK=true
+    networks:
+      - rulesync-test
+    command: ["check-determinism"]
+
+  # Documentation contract validation
+  doc-contract:
+    <<: *base-service
+    environment:
+      - CI=true
+      - VALIDATE_DOC_CONTRACT=true
+    networks:
+      - rulesync-test
+    command: ["validate-doc-contract"]
+
+  # ============================================================================
+  # Utility Services
+  # ============================================================================
+
+  # Service for running interactive shell
+  shell:
+    <<: *base-service
+    stdin_open: true
+    tty: true
+    environment:
+      - CI=false
+      - PS1="\[\033[1;36m\]rulesync\[\033[0m\]:\[\033[1;33m\]\w\[\033[0m\]$ "
+    command: ["/bin/bash"]
+
+  # Service for running RuleSync CLI interactively
+  rulesync-cli:
+    <<: *base-service
+    stdin_open: true
+    tty: true
+    environment:
+      - CI=false
+    command: ["rulesync", "--version"]
+
+  # ============================================================================
+  # Build Services (for .NET tooling)
+  # ============================================================================
+
+  # .NET SDK service for building the project
+  dotnet-build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    volumes:
+      - .:/workspace:cached
+      - nuget-cache:/root/.nuget/packages
+    working_dir: /workspace
+    command: >
+      sh -c "
+        dotnet restore &&
+        dotnet build -c Release
+      "
+    networks:
+      - rulesync-test
+
+# Named volumes for caching
+volumes:
+  # NPM cache for RuleSync dependencies
+  rulesync-npm-cache:
+  # RuleSync installation cache
+  rulesync-install-cache:
+  # NuGet package cache
+  nuget-cache:
+
+# Network for service communication
+networks:
+  rulesync-test:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
