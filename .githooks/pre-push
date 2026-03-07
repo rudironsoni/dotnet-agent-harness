@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# Pre-push hook for dotnet-agent-harness
+# Runs full validation before pushing
+
+set -e
+
+echo "Running pre-push validation..."
+
+# Run full solution build with all analyzers (including SonarAnalyzer in CI)
+if [[ "${CI:-}" == "true" ]]; then
+    echo "Running full analysis (CI mode)..."
+    export RunSonarAnalyzer=true
+fi
+
+echo "Building solution with analyzers..."
+if ! dotnet build --no-incremental \
+    -p:RunAnalyzersDuringBuild=true \
+    -p:TreatWarningsAsErrors=true; then
+    echo "ERROR: Build or analyzer check failed."
+    exit 1
+fi
+
+# Run tests
+echo "Running tests..."
+if ! dotnet test --no-build --verbosity minimal; then
+    echo "ERROR: Tests failed."
+    exit 1
+fi
+
+# Run doc contract validation
+echo "Running doc contract validation..."
+if [[ -f "scripts/ci/validate_doc_contract.sh" ]]; then
+    if ! bash scripts/ci/validate_doc_contract.sh; then
+        echo "ERROR: Documentation contract validation failed."
+        exit 1
+    fi
+fi
+
+echo "All validations passed!"
+exit 0

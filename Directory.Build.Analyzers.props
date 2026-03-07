@@ -1,0 +1,79 @@
+<!--
+  Roslyn Analyzer Configuration for dotnet-agent-harness
+  Full suite: NetAnalyzers + Roslynator + StyleCop + SonarAnalyzer
+-->
+<Project>
+  <PropertyGroup>
+    <!-- Enable analyzers during build -->
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+    <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
+    
+    <!-- Heavy analyzers only in CI -->
+    <RunSonarAnalyzer Condition="'$(CI)' == 'true' or '$(RunSonarAnalyzer)' == 'true'">true</RunSonarAnalyzer>
+    
+    <!-- Parallel analysis for performance -->
+    <MaxCpuCount>0</MaxCpuCount>
+    
+    <!-- Report analyzer performance (optional, for debugging) -->
+    <ReportAnalyzer Condition="'$(ReportAnalyzer)' == 'true'">true</ReportAnalyzer>
+  </PropertyGroup>
+
+  <!-- 
+    Essential Analyzers - Always enabled
+    These are fast and provide immediate value
+  -->
+  <ItemGroup>
+    <!-- Built-in .NET analyzers (included with .NET 5+ SDK) -->
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    
+    <!-- Roslynator analyzers - refactoring and code improvements -->
+    <PackageReference Include="Roslynator.Analyzers" Version="4.12.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    
+    <PackageReference Include="Roslynator.CodeAnalysis.Analyzers" Version="4.12.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.12.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- 
+    Style Analyzers - Optional, can be disabled per project
+  -->
+  <ItemGroup Condition="'$(EnableStyleCop)' != 'false'">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- 
+    Security and Quality Analyzers - CI only (high performance impact)
+    SonarAnalyzer adds ~4+ minutes to large solutions
+  -->
+  <ItemGroup Condition="'$(RunSonarAnalyzer)' == 'true'">
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="9.32.0.97167">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- 
+    Additional Performance Analyzers - Optional
+  -->
+  <ItemGroup Condition="'$(EnableMeziantouAnalyzer)' == 'true'">
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.175">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

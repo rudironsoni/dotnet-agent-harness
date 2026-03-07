@@ -1,0 +1,53 @@
+#!/bin/bash
+#
+# Pre-commit hook for dotnet-agent-harness
+# Runs Roslyn analyzers on staged .cs files
+# Blocks commit on errors and warnings
+
+set -e
+
+echo "Running pre-commit hooks..."
+
+# Check if analyzers should be skipped
+if [[ "${DOTNET_AGENT_HARNESS_SKIP_ANALYZERS:-}" == "true" ]]; then
+    echo "Skipping analyzers (DOTNET_AGENT_HARNESS_SKIP_ANALYZERS=true)"
+    exit 0
+fi
+
+# Get list of staged .cs files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.cs$' || true)
+
+if [[ -z "$STAGED_FILES" ]]; then
+    echo "No .cs files staged for commit."
+    exit 0
+fi
+
+echo "Running Roslyn analyzers on staged files..."
+
+# Run dotnet format check
+echo "Checking code formatting..."
+if ! dotnet format --verify-no-changes --verbosity quiet 2>/dev/null; then
+    echo ""
+    echo "ERROR: Code formatting issues detected."
+    echo "Run 'dotnet format' to fix formatting."
+    echo "Or use 'git commit --no-verify' to bypass (not recommended)."
+    exit 1
+fi
+
+# Build with analyzers - treat warnings as errors
+echo "Running static analysis..."
+if ! dotnet build --no-incremental \
+    -p:RunAnalyzersDuringBuild=true \
+    -p:TreatWarningsAsErrors=true \
+    -p:WarningLevel=4 \
+    -v:q \
+    -nologo 2>&1; then
+    echo ""
+    echo "ERROR: Roslyn analyzer violations detected."
+    echo "Fix the errors above before committing."
+    echo "Or use 'git commit --no-verify' to bypass (not recommended)."
+    exit 1
+fi
+
+echo "All checks passed!"
+exit 0

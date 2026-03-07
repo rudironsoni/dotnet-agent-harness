@@ -2,5 +2,10 @@
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
+
+  <!-- Import Roslyn Analyzer Configuration -->
+  <Import Project="$(MSBuildThisFileDirectory)Directory.Build.Analyzers.props" Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.Analyzers.props')" />
 </Project>
