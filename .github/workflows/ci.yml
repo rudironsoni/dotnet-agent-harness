@@ -108,26 +108,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-${{ env.NODE_VERSION }}-
 
-      - name: Setup npm global path
+      - name: Check rulesync via npx
         run: |
-          mkdir -p ~/.npm-global
-          npm config set prefix '~/.npm-global'
-          echo "export PATH=~/.npm-global/bin:\$PATH" >> $GITHUB_ENV
-          echo "$HOME/.npm-global/bin" >> $GITHUB_PATH
-
-      - name: Install rulesync
-        run: npm install -g @codewyre/rulesync
-
-      - name: Check rulesync version
-        run: |
-          echo "Checking rulesync version..."
-          rulesync --version
+          echo "Checking rulesync version via npx..."
+          npx @codewyre/rulesync --version
 
       - name: Validate rulesync configuration
         run: |
           if [ -f rulesync.jsonc ]; then
             echo "✓ Rulesync configuration found"
-            rulesync --check
+            npx @codewyre/rulesync --check
           else
             echo "⚠ No rulesync.jsonc found, skipping validation"
           fi
@@ -136,7 +126,7 @@ jobs:
         run: |
           if [ -f rulesync.jsonc ]; then
             echo "Testing rulesync generate --dry-run..."
-            rulesync generate --dry-run --targets "claudecode,copilot,opencode,geminicli,factorydroid,codexcli,antigravity" --features "*"
+            npx @codewyre/rulesync generate --dry-run --targets "claudecode,copilot,opencode,geminicli,factorydroid,codexcli,antigravity" --features "*"
           else
             echo "⚠ No rulesync.jsonc, skipping generate test"
           fi
