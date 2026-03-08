@@ -18,13 +18,11 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
-  # Job 1: Wait for CI
+  # Job 1: Wait for CI (skip for tag pushes, assume CI passed on main)
   wait-for-ci:
     name: Wait for CI
-    # Run on push to main OR on PR merge
-    if: |
-      github.event_name == 'push' || 
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    # Skip for tag pushes - CI already ran on main
+    if: github.ref_type != 'tag'
     runs-on: ubuntu-latest
     steps:
       - name: Wait for CI workflow
