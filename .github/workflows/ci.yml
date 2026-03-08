@@ -120,7 +120,7 @@ jobs:
         run: |
           if [ -f rulesync.jsonc ]; then
             echo "✓ Rulesync configuration found"
-            rulesync --check
+            rulesync generate --check
           else
             echo "⚠ No rulesync.jsonc found, skipping validation"
           fi
