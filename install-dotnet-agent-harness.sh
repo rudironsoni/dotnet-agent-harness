@@ -12,7 +12,7 @@
 # Options:
 #   --source <repo>     Source GitHub repo (default: rudironsoni/dotnet-agent-harness)
 #   --targets <list>    Comma-separated target platforms
-#                       (default: claudecode,copilot,opencode,geminicli,factorydroid)
+#                       (default: claudecode,copilot,opencode,geminicli,factorydroid,codexcli,antigravity)
 #   --path <dir>        Installation directory (default: current directory)
 #   --help, -h          Show this help message
 #
@@ -30,7 +30,7 @@ set -euo pipefail
 
 # Default values
 DEFAULT_SOURCE="rudironsoni/dotnet-agent-harness"
-DEFAULT_TARGETS="claudecode,copilot,opencode,geminicli,factorydroid"
+DEFAULT_TARGETS="claudecode,copilot,opencode,geminicli,factorydroid,codexcli,antigravity"
 DEFAULT_PATH="."
 
 # Script metadata
