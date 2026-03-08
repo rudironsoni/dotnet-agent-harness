@@ -322,15 +322,8 @@ run_rulesync_fetch() {
     # Change to target directory for fetch
     cd "$INSTALL_PATH"
 
-    # Check if .rulesync already exists
+    # Clear existing .rulesync directory before fetch
     if [[ -d ".rulesync" ]]; then
-        log_warning ".rulesync directory already exists"
-        read -r -p "Overwrite existing .rulesync? [y/N] " response || true
-        if [[ ! "$response" =~ ^[Yy]$ ]]; then
-            log_info "Skipping fetch (using existing .rulesync)"
-            cd "$original_dir"
-            return 0
-        fi
         log_info "Removing existing .rulesync directory..."
         rm -rf ".rulesync"
     fi

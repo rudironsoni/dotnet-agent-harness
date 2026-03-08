@@ -10,7 +10,16 @@
     "antigravity",
     "agentsmd"
   ],
-  "features": ["*"],
+  "features": {
+    "claudecode": ["rules", "ignore", "mcp", "commands", "subagents", "skills", "hooks"],
+    "copilot": ["rules", "mcp", "commands", "subagents", "skills", "hooks"],
+    "factorydroid": ["rules", "mcp", "hooks"],
+    "opencode": ["rules", "mcp", "commands", "subagents", "skills", "hooks"],
+    "geminicli": ["rules", "ignore", "mcp", "commands", "skills", "hooks"],
+    "codexcli": ["rules", "mcp", "subagents", "skills"],
+    "antigravity": ["rules", "commands", "skills"],
+    "agentsmd": ["rules"]
+  },
   "baseDirs": ["."],
   "delete": true,
   "verbose": false,

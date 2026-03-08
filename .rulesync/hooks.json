@@ -30,7 +30,10 @@
           "command": "bash .rulesync/hooks/dotnet-agent-harness-slopwatch.sh",
           "async": true,
           "timeout": 60
-        },
+        }
+      ]
+    }
+  },
   "claudecode": {
     "hooks": {
       "postToolUse": [
