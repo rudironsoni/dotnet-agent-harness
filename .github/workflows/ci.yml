@@ -2,21 +2,22 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
-    tags:
-      - 'v*'
+    branches: [main]
   pull_request:
     branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
-  NODE_VERSION: '22'
 
 jobs:
-  # Job 1: Safety Checks (from repo-safety.yml + dependency-review.yml)
-  safety:
-    name: Safety Checks
+  # Job 1: Validation (Safety, Shell, Dependencies)
+  validate:
+    name: Validate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -36,111 +37,43 @@ jobs:
         with:
           fail-on-severity: moderate
 
-  # Job 2: Lint & Format (from lint.yml)
-  lint:
-    name: Lint & Format
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ env.NODE_VERSION }}-
-
-      - name: Install dependencies
+      - name: Validate shell scripts exist
         run: |
-          if [ -f package.json ]; then
-            npm ci
-          fi
+          echo "Checking required shell scripts..."
+          [ -f install-dotnet-agent-harness.sh ] || (echo "❌ install-dotnet-agent-harness.sh not found" && exit 1)
+          [ -f .rulesync/hooks/dotnet-agent-harness-session-start.sh ] || (echo "❌ session-start hook not found" && exit 1)
+          [ -f .rulesync/hooks/dotnet-agent-harness-post-edit-roslyn.sh ] || (echo "❌ post-edit-roslyn hook not found" && exit 1)
+          [ -f .rulesync/hooks/dotnet-agent-harness-slopwatch.sh ] || (echo "❌ slopwatch hook not found" && exit 1)
+          [ -f .rulesync/hooks/dotnet-agent-harness-error-recovery.sh ] || (echo "❌ error-recovery hook not found" && exit 1)
+          [ -f .rulesync/hooks/dotnet-agent-harness-inline-error-recovery.sh ] || (echo "❌ inline-error-recovery hook not found" && exit 1)
+          echo "✓ All required shell scripts present"
 
-      - name: Run lint-staged (on changed files)
+      - name: Check shell script syntax
         run: |
-          if [ -f package.json ]; then
-            if npm run | grep -q "lint"; then
-              npm run lint
-            else
-              echo "No lint script found, skipping"
-            fi
-          fi
+          echo "Validating shell script syntax..."
+          bash -n install-dotnet-agent-harness.sh
+          for hook in .rulesync/hooks/*.sh; do
+            bash -n "$hook"
+          done
+          echo "✓ All shell scripts have valid syntax"
 
-      - name: Check shell scripts
+      - name: Run shellcheck
         run: |
           if command -v shellcheck &> /dev/null; then
-            shellcheck install-dotnet-agent-harness.sh || true
+            echo "Running shellcheck..."
+            shellcheck install-dotnet-agent-harness.sh
+            for hook in .rulesync/hooks/*.sh; do
+              shellcheck "$hook"
+            done
+            echo "✓ Shellcheck passed"
           else
-            echo "shellcheck not installed, skipping"
+            echo "⚠ shellcheck not installed, skipping"
           fi
 
-      - name: Check code formatting
-        run: |
-          if command -v dotnet &> /dev/null && [ -f "dotnet-agent-harness.slnx" ]; then
-            dotnet format --verify-no-changes --severity warn || true
-          fi
-
-  # Job 3: RuleSync Validation (from rulesync-validate.yml)
-  rulesync:
-    name: Validate RuleSync
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ env.NODE_VERSION }}-
-
-      - name: Install rulesync
-        run: npm install -g rulesync
-
-      - name: Check rulesync version
-        run: |
-          echo "Checking rulesync version..."
-          rulesync --version
-
-      - name: Validate rulesync configuration
-        run: |
-          if [ -f rulesync.jsonc ]; then
-            echo "✓ Rulesync configuration found"
-            echo "Running rulesync generate --check..."
-            rulesync generate --check || (echo "Validation failed - showing debug info:" && ls -la && cat rulesync.jsonc | head -20)
-          else
-            echo "⚠ No rulesync.jsonc found, skipping validation"
-          fi
-
-      - name: Test rulesync generate (dry-run)
-        run: |
-          if [ -f rulesync.jsonc ]; then
-            echo "Testing rulesync generate --dry-run..."
-            rulesync generate --dry-run
-          else
-            echo "⚠ No rulesync.jsonc, skipping generate test"
-          fi
-
-  # Job 4: Build & Test CLI
+  # Job 2: Build, Test, and Smoke Test CLI
   build:
     name: Build & Test
-    needs: [safety, lint, rulesync]
+    needs: [validate]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -173,7 +106,16 @@ jobs:
       - name: Test
         run: dotnet test dotnet-agent-harness.slnx --no-build -c Release --logger trx --results-directory TestResults
 
-      - name: Pack
+      - name: Smoke Test - CLI Version
+        run: dotnet run --project src/DotnetAgentHarness.Cli -- version
+
+      - name: Smoke Test - CLI Install (dry-run)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p /tmp/test-install
+          dotnet run --project src/DotnetAgentHarness.Cli -- install --dry-run --force --path /tmp/test-install --targets claudecode
+
+      - name: Pack CLI Tool
         if: matrix.os == 'ubuntu-latest'
         run: |
           dotnet pack src/DotnetAgentHarness.Cli/ \
@@ -194,5 +136,3 @@ jobs:
           name: nuget-packages
           path: artifacts/*.nupkg
           retention-days: 30
-# CI Test
-# CI Test Trigger
