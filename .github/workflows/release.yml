@@ -1,12 +1,10 @@
 name: Release
 
+# Only run after CI workflow completes successfully on main branch
 on:
-  push:
-    branches: [main]
-    tags:
-      - 'v*'
-  pull_request:
-    types: [closed]
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches: [main]
 
 concurrency:
@@ -18,23 +16,19 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
-  # Job 1: Wait for CI
-  wait-for-ci:
-    name: Wait for CI
+  # Job 1: Verify CI succeeded
+  verify-ci:
+    name: Verify CI Success
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
     steps:
-      - name: Wait for CI workflow
-        uses: lewagon/wait-on-check-action@v1.3.4
-        with:
-          ref: ${{ github.sha }}
-          check-name: 'Build & Test'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
+      - name: CI succeeded
+        run: echo "✓ CI workflow completed successfully, proceeding with release"
 
   # Job 2: Auto-tag
   auto-tag:
     name: Auto Tag
-    needs: [wait-for-ci]
+    needs: [verify-ci]
     runs-on: ubuntu-latest
     permissions:
       contents: write
