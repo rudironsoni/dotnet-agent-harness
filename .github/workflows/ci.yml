@@ -108,6 +108,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-${{ env.NODE_VERSION }}-
 
+      - name: Setup npm global path
+        run: |
+          mkdir -p ~/.npm-global
+          npm config set prefix '~/.npm-global'
+          echo "export PATH=~/.npm-global/bin:\$PATH" >> $GITHUB_ENV
+          echo "$HOME/.npm-global/bin" >> $GITHUB_PATH
+
       - name: Install rulesync
         run: npm install -g @codewyre/rulesync
 
