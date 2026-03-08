@@ -33,10 +33,11 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
 
-  # Job 2: Auto-tag
+  # Job 2: Auto-tag (skip for tag pushes - tag already exists)
   auto-tag:
     name: Auto Tag
     needs: [wait-for-ci]
+    if: github.ref_type != 'tag'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -85,7 +86,10 @@ jobs:
   build:
     name: Build & Pack
     needs: [wait-for-ci, auto-tag]
-    if: needs.auto-tag.outputs.tag != ''
+    # Run if auto-tag created a tag, OR if triggered by a tag push
+    if: |
+      always() && 
+      (needs.auto-tag.outputs.tag != '' || github.ref_type == 'tag')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
