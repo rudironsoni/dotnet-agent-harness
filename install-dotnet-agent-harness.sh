@@ -191,7 +191,7 @@ download_hook_script() {
     # Download with curl, capture HTTP status code
     http_code=$(curl -sL -w "%{http_code}" -o "${temp_file}" "${url}" 2>/dev/null)
 
-    if [[ "$http_code" -ne 200 ]]; then
+    if [[ "${http_code}" -ne 200 ]]; then
         log_error "Failed to download ${script_name} (HTTP ${http_code})"
         log_error "URL: ${url}"
         return 1
@@ -208,7 +208,7 @@ download_hook_script() {
     fi
 
     # Move to final location
-    if ! mv "${temp_file}" "$output_path"; then
+    if ! mv "${temp_file}" "${output_path}"; then
         log_error "Failed to write: ${output_path}"
         return 1
     fi
@@ -219,9 +219,9 @@ download_hook_script() {
 
 make_executable() {
     local file="$1"
-    if [[ -f "$file" ]]; then
-        chmod +x "$file"
-        log_success "Made executable: $(basename "$file")"
+    if [[ -f "${file}" ]]; then
+        chmod +x "${file}"
+        log_success "Made executable: $(basename "${file}")"
     fi
 }
 
@@ -303,7 +303,7 @@ check_prerequisites() {
     validate_source "$SOURCE"
 
     # Validate installation path
-    validate_path "$INSTALL_PATH"
+    validate_path "${INSTALL_PATH}"
 
     log_success "All prerequisites met"
 }
@@ -320,7 +320,7 @@ run_rulesync_fetch() {
     original_dir=$(pwd)
 
     # Change to target directory for fetch
-    cd "$INSTALL_PATH"
+    cd "${INSTALL_PATH}"
 
     # Clear existing .rulesync directory before fetch
     if [[ -d ".rulesync" ]]; then
@@ -356,7 +356,7 @@ run_rulesync_generate() {
     original_dir=$(pwd)
 
     # Change to target directory
-    cd "$INSTALL_PATH"
+    cd "${INSTALL_PATH}"
 
     # Verify .rulesync exists
     if [[ ! -d ".rulesync" ]]; then
@@ -393,8 +393,8 @@ run_rulesync_generate() {
         target=$(echo "$target" | xargs)
         if [[ -n "${target_files[$target]:-}" ]]; then
             local file="${target_files[$target]}"
-            if [[ -e "$file" ]]; then
-                existing_files+=("$file")
+            if [[ -e "${file}" ]]; then
+                existing_files+=("${file}")
             fi
         fi
     done
@@ -403,14 +403,14 @@ run_rulesync_generate() {
     if [[ ${#existing_files[@]} -gt 0 ]]; then
         log_warning "The following generated files/directories already exist:"
         for file in "${existing_files[@]}"; do
-            log_warning "  - $file"
+            log_warning "  - ${file}"
         done
         read -r -p "Remove existing generated files before regenerating? [y/N] " response || true
         if [[ "$response" =~ ^[Yy]$ ]]; then
             log_info "Removing existing generated files..."
             for file in "${existing_files[@]}"; do
-                rm -rf "$file"
-                log_info "Removed: $file"
+                rm -rf "${file}"
+                log_info "Removed: ${file}"
             done
         else
             log_info "Proceeding without cleanup (old configurations may persist)"
@@ -452,13 +452,13 @@ download_hooks() {
     hooks_dir="${INSTALL_PATH}/.rulesync/hooks"
 
     # Create hooks directory if it doesn't exist
-    if [[ ! -d "$hooks_dir" ]]; then
+    if [[ ! -d "${hook}s_dir" ]]; then
         log_info "Creating hooks directory: ${hooks_dir}"
-        mkdir -p "$hooks_dir"
+        mkdir -p "${hook}s_dir"
     fi
 
     # Change to target directory for relative paths
-    cd "$INSTALL_PATH"
+    cd "${INSTALL_PATH}"
 
     # Download each hook script
     for script in "${HOOK_SCRIPTS[@]}"; do
@@ -486,7 +486,7 @@ make_hooks_executable() {
     original_dir=$(pwd)
 
     # Change to target directory
-    cd "$INSTALL_PATH"
+    cd "${INSTALL_PATH}"
 
     # Make downloaded scripts executable
     for script in "${HOOK_SCRIPTS[@]}"; do
@@ -507,7 +507,7 @@ print_summary() {
     log_step "Installation Summary"
 
     local install_abs_path
-    install_abs_path=$(cd "$INSTALL_PATH" && pwd)
+    install_abs_path=$(cd "${INSTALL_PATH}" && pwd)
 
     cat << EOF
 
