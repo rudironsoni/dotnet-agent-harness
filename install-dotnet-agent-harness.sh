@@ -300,7 +300,7 @@ check_prerequisites() {
     log_success "Found curl: $(command -v curl)"
 
     # Validate source format
-    validate_source "$SOURCE"
+    validate_source "${SOURCE}"
 
     # Validate installation path
     validate_path "${INSTALL_PATH}"
@@ -387,7 +387,7 @@ run_rulesync_generate() {
 
     # Check for existing generated files for selected targets
     local existing_files=()
-    IFS=',' read -ra target_array <<< "$TARGETS"
+    IFS=',' read -ra target_array <<< "${TARGETS}"
     for target in "${target_array[@]}"; do
         # Trim whitespace
         target=$(echo "$target" | xargs)
@@ -426,7 +426,7 @@ run_rulesync_generate() {
         fi
     else
         log_info "Generating files for targets: ${TARGETS}..."
-        if ! rulesync generate --targets "$TARGETS" --features "*"; then
+        if ! rulesync generate --targets "${TARGETS}" --features "*"; then
             log_error "rulesync generate failed"
             generate_exit_code=1
         fi
@@ -462,7 +462,7 @@ download_hooks() {
 
     # Download each hook script
     for script in "${HOOK_SCRIPTS[@]}"; do
-        if ! download_hook_script "$script" "$SOURCE" ".rulesync/hooks"; then
+        if ! download_hook_script "$script" "${SOURCE}" ".rulesync/hooks"; then
             download_failed=1
         fi
     done
