@@ -9,7 +9,7 @@ class Program
 {
     static async Task<int> Main(string[] args)
     {
-        // Setup dependency injection
+        // Setup dependency injection (manual for simplicity)
         var httpClient = new HttpClient();
         var processRunner = new ProcessRunner();
         
@@ -19,30 +19,26 @@ class Program
         var transactionManager = new TransactionManager();
         var hookDownloader = new HookDownloader(httpClient);
 
-        var rootCommand = new RootCommand("Cross-platform installer for dotnet-agent-harness toolkit")
+        var rootCommand = new RootCommand("Cross-platform installer for dotnet-agent-harness toolkit");
+        
+        rootCommand.AddCommand(new InstallCommand(
+            prerequisiteChecker,
+            rulesyncRunner,
+            configDetector,
+            transactionManager,
+            hookDownloader));
+        
+        rootCommand.AddCommand(new UninstallCommand());
+        rootCommand.AddCommand(new UpdateCommand(rulesyncRunner, hookDownloader));
+        rootCommand.AddCommand(new SelfUpdateCommand());
+        
+        var versionCommand = new Command("version", "Show version information");
+        versionCommand.SetHandler(() =>
         {
-            new InstallCommand(
-                prerequisiteChecker,
-                rulesyncRunner,
-                configDetector,
-                transactionManager,
-                hookDownloader),
-            
-            new UninstallCommand(),
-            
-            new UpdateCommand(rulesyncRunner, hookDownloader),
-            
-            new SelfUpdateCommand(),
-            
-            new Command("version", "Show version information")
-            {
-                Handler = CommandHandler.Create(() =>
-                {
-                    Console.WriteLine("dotnet-agent-harness version 1.0.0");
-                    return Task.FromResult(0);
-                })
-            }
-        };
+            Console.WriteLine("dotnet-agent-harness version 1.0.0");
+            return Task.FromResult(0);
+        });
+        rootCommand.AddCommand(versionCommand);
 
         return await rootCommand.InvokeAsync(args);
     }
