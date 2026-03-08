@@ -1,0 +1,18 @@
+mode: ContinuousDeployment
+branches:
+  main:
+    regex: ^main$
+    tag: ''
+    increment: Patch
+  release:
+    regex: ^releases?[/-]
+    tag: beta
+    increment: Patch
+    is-release-branch: true
+  feature:
+    regex: ^feature(s)?[/-]
+    tag: alpha
+    increment: Inherit
+ignore:
+  sha: []
+merge-message-formats: {}
