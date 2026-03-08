@@ -370,6 +370,50 @@ run_rulesync_generate() {
         exit 1
     fi
 
+    # Define files/directories created by each target
+    declare -A target_files
+    target_files=(
+        ["claudecode"]="AGENTS.md"
+        ["copilot"]=".github/prompts"
+        ["opencode"]="opencode.jsonc"
+        ["geminicli"]="geminicli.jsonc"
+        ["factorydroid"]="factory-rules"
+        ["codexcli"]="codex.json"
+        ["antigravity"]=".antigravity"
+    )
+
+    # Check for existing generated files for selected targets
+    local existing_files=()
+    IFS=',' read -ra target_array <<< "$TARGETS"
+    for target in "${target_array[@]}"; do
+        # Trim whitespace
+        target=$(echo "$target" | xargs)
+        if [[ -n "${target_files[$target]:-}" ]]; then
+            local file="${target_files[$target]}"
+            if [[ -e "$file" ]]; then
+                existing_files+=("$file")
+            fi
+        fi
+    done
+
+    # If any generated files exist, ask for confirmation before cleaning
+    if [[ ${#existing_files[@]} -gt 0 ]]; then
+        log_warning "The following generated files/directories already exist:"
+        for file in "${existing_files[@]}"; do
+            log_warning "  - $file"
+        done
+        read -r -p "Remove existing generated files before regenerating? [y/N] " response || true
+        if [[ "$response" =~ ^[Yy]$ ]]; then
+            log_info "Removing existing generated files..."
+            for file in "${existing_files[@]}"; do
+                rm -rf "$file"
+                log_info "Removed: $file"
+            done
+        else
+            log_info "Proceeding without cleanup (old configurations may persist)"
+        fi
+    fi
+
     # Run rulesync generate
     log_info "Generating files for targets: ${TARGETS}..."
     if ! rulesync generate --targets "$TARGETS" --features "*"; then
