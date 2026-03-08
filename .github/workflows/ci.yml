@@ -108,16 +108,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-${{ env.NODE_VERSION }}-
 
-      - name: Check rulesync via npx
+      - name: Install rulesync
+        run: npm install -g rulesync
+
+      - name: Check rulesync version
         run: |
-          echo "Checking rulesync version via npx..."
-          npx @codewyre/rulesync --version
+          echo "Checking rulesync version..."
+          rulesync --version
 
       - name: Validate rulesync configuration
         run: |
           if [ -f rulesync.jsonc ]; then
             echo "✓ Rulesync configuration found"
-            npx @codewyre/rulesync --check
+            rulesync --check
           else
             echo "⚠ No rulesync.jsonc found, skipping validation"
           fi
@@ -126,7 +129,7 @@ jobs:
         run: |
           if [ -f rulesync.jsonc ]; then
             echo "Testing rulesync generate --dry-run..."
-            npx @codewyre/rulesync generate --dry-run --targets "claudecode,copilot,opencode,geminicli,factorydroid,codexcli,antigravity" --features "*"
+            rulesync generate --dry-run --targets "claudecode,copilot,opencode,geminicli,factorydroid,codexcli,antigravity" --features "*"
           else
             echo "⚠ No rulesync.jsonc, skipping generate test"
           fi
