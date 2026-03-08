@@ -112,6 +112,14 @@ jobs:
           cd src/DotnetAgentHarness.Cli
           dotnet run -- version
 
+      - name: Setup Node.js for rulesync
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install rulesync
+        run: npm install -g rulesync
+
       - name: Smoke Test - CLI Install (dry-run)
         if: runner.os == 'Linux'
         run: |
