@@ -10,15 +10,26 @@
 
 ## Use in a Repo
 
-Install the toolkit in your .NET repository:
+Install the toolkit in your .NET repository using curl:
 
 ```bash
-# Bootstrap your repo with agents
-rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
-rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*"
+# One-line installer
+curl -fsSL https://raw.githubusercontent.com/rudironsoni/dotnet-agent-harness/main/install-dotnet-agent-harness.sh | bash
 ```
 
-That's it! The bootstrap command will install the appropriate agent configurations for your project.
+Or with options:
+
+```bash
+# Download and run with specific targets
+curl -fsSL https://raw.githubusercontent.com/rudironsoni/dotnet-agent-harness/main/install-dotnet-agent-harness.sh | bash -s -- --targets claudecode,copilot,opencode
+```
+
+The installer will:
+1. Fetch the `.rulesync/` configuration from this repository
+2. Download required hook scripts
+3. Generate agent configurations for your specified targets
+
+That's it! The toolkit is now installed and ready to use.
 
 ## Available Commands
 
