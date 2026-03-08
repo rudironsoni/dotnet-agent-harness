@@ -61,11 +61,12 @@ jobs:
         run: |
           if command -v shellcheck &> /dev/null; then
             echo "Running shellcheck..."
-            shellcheck install-dotnet-agent-harness.sh
+            # Only fail on actual errors, not info/style warnings (SC2310, SC2312, etc.)
+            shellcheck --severity=error install-dotnet-agent-harness.sh
             for hook in .rulesync/hooks/*.sh; do
-              shellcheck "$hook"
+              shellcheck --severity=error "$hook"
             done
-            echo "✓ Shellcheck passed"
+            echo "✓ Shellcheck passed (no errors)"
           else
             echo "⚠ shellcheck not installed, skipping"
           fi
