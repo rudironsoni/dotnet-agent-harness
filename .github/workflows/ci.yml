@@ -107,13 +107,16 @@ jobs:
         run: dotnet test dotnet-agent-harness.slnx --no-build -c Release --logger trx --results-directory TestResults
 
       - name: Smoke Test - CLI Version
-        run: dotnet run --project src/DotnetAgentHarness.Cli -- version
+        run: |
+          cd src/DotnetAgentHarness.Cli
+          dotnet run -- version
 
       - name: Smoke Test - CLI Install (dry-run)
         if: runner.os == 'Linux'
         run: |
           mkdir -p /tmp/test-install
-          dotnet run --project src/DotnetAgentHarness.Cli -- install --dry-run --force --path /tmp/test-install --targets claudecode
+          cd src/DotnetAgentHarness.Cli
+          dotnet run -- install --dry-run --force --path /tmp/test-install --targets claudecode
 
       - name: Pack CLI Tool
         if: matrix.os == 'ubuntu-latest'
