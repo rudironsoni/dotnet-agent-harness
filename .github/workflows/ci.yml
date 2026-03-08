@@ -9,7 +9,7 @@ on:
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
 
 jobs:
   # Job 1: Safety Checks (from repo-safety.yml + dependency-review.yml)
