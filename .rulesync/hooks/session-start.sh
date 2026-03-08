@@ -22,10 +22,14 @@ else
 fi
 
 # Emit JSON message for integration with agent systems
+# Pure bash implementation - no jq required
 emit_json() {
     local type="$1"
     local message="$2"
-    jq -n --arg type "$type" --arg msg "$message" '{type: $type, message: $msg}'
+    # Escape special characters for JSON
+    local escaped_msg
+    escaped_msg="$(printf '%s' "$message" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g; s/\n/\\n/g')"
+    printf '{"type":"%s","message":"%s"}\n' "$type" "$escaped_msg"
 }
 
 # Detect .NET project context
@@ -107,22 +111,40 @@ test_stdio_mcp() {
     return 0
 }
 
+# Parse a simple JSON value from mcp.json using grep/sed
+# Fallback to jq if available for complex parsing
+parse_mcp_json() {
+    local key="$1"
+    local field="$2"
+    
+    if [ -f "$MCP_CONFIG" ]; then
+        if command -v jq >/dev/null 2>&1; then
+            jq -r ".mcpServers.\"$key\".$field // empty" "$MCP_CONFIG" 2>/dev/null
+        else
+            # Pure bash fallback - simple pattern matching
+            # Handles: "key": { "field": "value" }
+            local pattern="\"$key\"[[:space:]]*:[[:space:]]*{[^{}]*\"$field\"[[:space:]]*:[[:space:]]*\"\([^\"]*\)"
+            sed -n "s/.*$pattern.*/\1/p" "$MCP_CONFIG" 2>/dev/null | head -1
+        fi
+    fi
+}
+
 # Get MCP server type from config
 get_mcp_type() {
     local name="$1"
-    jq -r ".mcpServers.\"$name\".type" "$MCP_CONFIG" 2>/dev/null || echo ""
+    parse_mcp_json "$name" "type"
 }
 
 # Get MCP server URL (for HTTP type)
 get_mcp_url() {
     local name="$1"
-    jq -r ".mcpServers.\"$name\".url" "$MCP_CONFIG" 2>/dev/null || echo ""
+    parse_mcp_json "$name" "url"
 }
 
 # Get MCP server command (for STDIO type)
 get_mcp_command() {
     local name="$1"
-    jq -r ".mcpServers.\"$name\".command" "$MCP_CONFIG" 2>/dev/null || echo ""
+    parse_mcp_json "$name" "command"
 }
 
 # Check MCP server health
@@ -187,7 +209,13 @@ get_fallback_recommendation() {
 # Get MCP description
 get_mcp_description() {
     local name="$1"
-    jq -r ".mcpServers.\"$name\".description // \"No description\"" "$MCP_CONFIG" 2>/dev/null
+    local desc
+    desc="$(parse_mcp_json "$name" "description")"
+    if [ -z "$desc" ]; then
+        echo "No description"
+    else
+        echo "$desc"
+    fi
 }
 
 # Perform full MCP health check
@@ -203,14 +231,18 @@ perform_mcp_health_check() {
         return 0
     fi
     
-    # Check if jq is available
-    if ! check_command jq; then
-        emit_json "warning" "jq not found - skipping MCP health check"
-        return 0
+    # Get list of MCP servers from JSON
+    # Try jq first, fall back to grep/sed
+    if command -v jq >/dev/null 2>&1; then
+        mapfile -t mcp_servers < <(jq -r '.mcpServers | keys[]' "$MCP_CONFIG" 2>/dev/null || true)
+    else
+        # Pure bash: extract keys from "key": { pattern
+        local mcp_keys
+        mcp_keys="$(grep -oP '"[^"]+"[[:space:]]*:[[:space:]]*{' "$MCP_CONFIG" 2>/dev/null | grep -oP '"\K[^"]+' || true)"
+        if [ -n "$mcp_keys" ]; then
+            mapfile -t mcp_servers <<< "$mcp_keys"
+        fi
     fi
-    
-    # Get list of MCP servers
-    mapfile -t mcp_servers < <(jq -r '.mcpServers | keys[]' "$MCP_CONFIG" 2>/dev/null || true)
     
     if [ ${#mcp_servers[@]} -eq 0 ]; then
         emit_json "info" "No MCP servers configured"
@@ -279,11 +311,8 @@ main() {
             local context
             context="$(detect_dotnet_context)"
             if [ -n "$context" ]; then
-                if check_command jq; then
-                    jq -Rn --arg ctx "$context" '{additionalContext: $ctx}'
-                else
-                    printf '{"additionalContext":"%s"}\n' "$context"
-                fi
+                # Pure bash JSON - no jq required
+                printf '{"additionalContext":"%s"}\n' "$context"
             fi
             ;;
         mcp-health)
