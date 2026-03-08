@@ -3,6 +3,9 @@ name: Release
 on:
   push:
     branches: [main]
+  pull_request:
+    types: [closed]
+    branches: [main]
 
 concurrency:
   group: release-${{ github.ref }}
@@ -16,6 +19,10 @@ jobs:
   # Job 1: Wait for CI
   wait-for-ci:
     name: Wait for CI
+    # Run on push to main OR on PR merge
+    if: |
+      github.event_name == 'push' || 
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     steps:
       - name: Wait for CI workflow
