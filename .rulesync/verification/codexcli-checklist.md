@@ -172,7 +172,6 @@ codex "Use skill dotnet-testing to analyze test strategy"
 | serena | stdio | [ ] |
 | context7 | http | [ ] |
 | microsoftdocs-mcp | http | [ ] |
-| mcp-windbg | stdio | [ ] |
 | deepwiki | http | [ ] |
 | github | http | [ ] |
 

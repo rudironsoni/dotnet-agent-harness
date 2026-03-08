@@ -153,7 +153,6 @@ Copilot may not have explicit skill loading. Instead:
 | serena | stdio | [ ] |
 | context7 | http | [ ] |
 | microsoftdocs-mcp | http | [ ] |
-| mcp-windbg | stdio | [ ] |
 | deepwiki | http | [ ] |
 | github | http | [ ] |
 

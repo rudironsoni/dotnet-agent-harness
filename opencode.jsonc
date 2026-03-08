@@ -1,4 +1,5 @@
 {
+  "$schema": "https://opencode.ai/config.json",
   "mcp": {
     "serena": {
       "type": "local",
@@ -28,17 +29,6 @@
       "type": "remote",
       "url": "https://learn.microsoft.com/api/mcp",
       "enabled": true
-    },
-    "mcp-windbg": {
-      "type": "local",
-      "command": [
-        "uvx",
-        "--from",
-        "git+https://github.com/svnscha/mcp-windbg@v0.12.2",
-        "mcp-windbg"
-      ],
-      "enabled": true,
-      "environment": {}
     },
     "deepwiki": {
       "type": "remote",

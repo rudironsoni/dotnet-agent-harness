@@ -77,14 +77,13 @@ After installation, use these RuleSync commands:
 
 ## MCP Inventory
 
-MCP inventory (source: .rulesync/mcp.json): `context7`, `deepwiki`, `github`, `mcp-windbg`, `microsoftdocs-mcp`, `serena`
+MCP inventory (source: .rulesync/mcp.json): `context7`, `deepwiki`, `github`, `microsoftdocs-mcp`, `serena`
 
 | MCP Server          | Description                                  |
 | ------------------- | -------------------------------------------- |
 | `context7`          | Context7 MCP server for documentation        |
 | `deepwiki`          | DeepWiki MCP for repository documentation    |
 | `github`            | GitHub MCP for repository operations         |
-| `mcp-windbg`        | WinDbg MCP for debugging                     |
 | `microsoftdocs-mcp` | Microsoft Learn documentation access         |
 | `serena`            | Symbol-level code navigation and refactoring |
 

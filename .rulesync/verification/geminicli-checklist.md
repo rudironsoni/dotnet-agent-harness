@@ -204,7 +204,6 @@ grep -E '(python|node|npm|pip)' .rulesync/hooks.json && echo "NON-PORTABLE" || e
 | serena | stdio | [ ] |
 | context7 | http | [ ] |
 | microsoftdocs-mcp | http | [ ] |
-| mcp-windbg | stdio | [ ] |
 | deepwiki | http | [ ] |
 | github | http | [ ] |
 

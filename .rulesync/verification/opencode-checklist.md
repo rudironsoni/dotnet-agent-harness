@@ -198,7 +198,6 @@ Load skill dotnet-testing
 | serena | stdio | [ ] |
 | context7 | http | [ ] |
 | microsoftdocs-mcp | http | [ ] |
-| mcp-windbg | stdio | [ ] |
 | deepwiki | http | [ ] |
 | github | http | [ ] |
 

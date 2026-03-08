@@ -234,12 +234,11 @@ That workflow:
 
 The toolkit ships MCP definitions in `.rulesync/mcp.json`. Current inventory:
 
-- `context7`
-- `deepwiki`
-- `github`
-- `mcp-windbg`
-- `microsoftdocs-mcp`
-- `serena`
+   - `context7`
+   - `deepwiki`
+   - `github`
+   - `microsoftdocs-mcp`
+   - `serena`
 
 Typical prerequisites:
 
