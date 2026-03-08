@@ -150,15 +150,13 @@ jobs:
             
             #### Via GitHub Packages (Recommended)
             ```bash
-dotnet tool install -g dotnet-agent-harness \
-  --add-source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+            dotnet tool install -g dotnet-agent-harness --add-source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
             ```
             
             #### Via GitHub Releases
             Download the `.nupkg` from this release and install locally:
             ```bash
-dotnet tool install -g dotnet-agent-harness \
-  --add-source ./path/to/download
+            dotnet tool install -g dotnet-agent-harness --add-source ./path/to/download
             ```
             
             ### Prerequisites
