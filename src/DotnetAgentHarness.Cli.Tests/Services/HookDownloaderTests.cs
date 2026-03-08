@@ -1,7 +1,7 @@
 using System.Net;
 using Xunit;
 using DotnetAgentHarness.Cli.Services;
-using AwesomeAssertions;
+using FluentAssertions;
 
 namespace DotnetAgentHarness.Cli.Tests.Services;
 
@@ -26,6 +26,8 @@ public class HookDownloaderTests : IDisposable
             Directory.Delete(_tempDir, true);
         }
         _httpClient.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
     [Fact]

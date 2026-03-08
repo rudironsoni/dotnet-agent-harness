@@ -2,7 +2,7 @@ using Xunit;
 using NSubstitute;
 using DotnetAgentHarness.Cli.Services;
 using DotnetAgentHarness.Cli.Utils;
-using AwesomeAssertions;
+using FluentAssertions;
 
 namespace DotnetAgentHarness.Cli.Tests.Services;
 

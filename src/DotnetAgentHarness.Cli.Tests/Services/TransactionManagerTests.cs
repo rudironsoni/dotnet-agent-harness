@@ -1,6 +1,6 @@
 using Xunit;
 using DotnetAgentHarness.Cli.Services;
-using AwesomeAssertions;
+using FluentAssertions;
 
 namespace DotnetAgentHarness.Cli.Tests.Services;
 
@@ -22,6 +22,8 @@ public class TransactionManagerTests : IDisposable
         {
             Directory.Delete(_tempDir, true);
         }
+        
+        GC.SuppressFinalize(this);
     }
 
     [Fact]

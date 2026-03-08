@@ -1,2 +1,4 @@
 <Solution>
+  <Project Path="src/DotnetAgentHarness.Cli/DotnetAgentHarness.Cli.csproj" />
+  <Project Path="src/DotnetAgentHarness.Cli.Tests/DotnetAgentHarness.Cli.Tests.csproj" />
 </Solution>

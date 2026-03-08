@@ -34,7 +34,18 @@ public class TransactionManager : ITransactionManager
             return;
         }
 
-        var rulesyncPath = backupPath.Replace($".backup.{Path.GetFileName(backupPath).Split('.').Reverse().Skip(1).First()}", "");
+        // Backup path format: {originalPath}.backup.{timestamp}
+        // e.g., /tmp/xyz/.rulesync.backup.20250308_123456
+        var backupFileName = Path.GetFileName(backupPath);
+        var parentDir = Path.GetDirectoryName(backupPath)!;
+        
+        // Extract original directory name by removing .backup.{timestamp}
+        var originalDirName = System.Text.RegularExpressions.Regex.Replace(
+            backupFileName, 
+            @"\.backup\.\d{8}_\d{6}$", 
+            "");
+        
+        var rulesyncPath = Path.Combine(parentDir, originalDirName);
         
         // Remove current .rulesync if exists
         if (Directory.Exists(rulesyncPath))
