@@ -1,0 +1,187 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # Job 1: Wait for CI
+  wait-for-ci:
+    name: Wait for CI
+    # Run on push to main OR on PR merge
+    if: |
+      github.event_name == 'push' || 
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for CI workflow
+        uses: lewagon/wait-on-check-action@v1.3.4
+        with:
+          ref: ${{ github.sha }}
+          check-name: 'Build & Test'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
+  # Job 2: Auto-tag
+  auto-tag:
+    name: Auto Tag
+    needs: [wait-for-ci]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get version from CLI project
+        id: version
+        run: |
+          VERSION=$(grep -oP '(?<=<Version>)[^<]+' src/DotnetAgentHarness.Cli/DotnetAgentHarness.Cli.csproj)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
+
+      - name: Check if tag exists
+        id: check-tag
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION already exists"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag v$VERSION does not exist"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create tag
+        id: tag
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin "v$VERSION"
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          echo "Created tag: v$VERSION"
+
+  # Job 3: Build and pack
+  build:
+    name: Build & Pack
+    needs: [wait-for-ci, auto-tag]
+    if: needs.auto-tag.outputs.tag != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore dotnet-agent-harness.slnx
+
+      - name: Build
+        run: dotnet build dotnet-agent-harness.slnx --no-restore -c Release
+
+      - name: Test
+        run: dotnet test dotnet-agent-harness.slnx --no-build -c Release
+
+      - name: Pack
+        run: |
+          dotnet pack src/DotnetAgentHarness.Cli/ \
+            --no-build -c Release \
+            -o artifacts \
+            -p:Version=${{ needs.auto-tag.outputs.version }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: artifacts/*.nupkg
+
+  # Job 4: Create GitHub Release
+  release:
+    name: Create Release
+    needs: [build, auto-tag]
+    if: needs.auto-tag.outputs.tag != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: artifacts
+
+      - name: Package rules bundle
+        run: |
+          cd .rulesync && zip -r ../rules-bundle.zip . && cd ..
+          echo "Created rules-bundle.zip"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.auto-tag.outputs.tag }}
+          name: Release ${{ needs.auto-tag.outputs.tag }}
+          body: |
+            ## Release ${{ needs.auto-tag.outputs.tag }}
+            
+            ### Installation
+            ```bash
+            dotnet tool install -g dotnet-agent-harness
+            ```
+            
+            ### NuGet Package
+            - DotnetAgentHarness.Cli.${{ needs.auto-tag.outputs.version }}.nupkg
+            - rules-bundle.zip
+          files: |
+            artifacts/*.nupkg
+            rules-bundle.zip
+
+  # Job 5: Publish to NuGet
+  publish:
+    name: Publish to NuGet
+    needs: [release]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.NUGET_API_KEY != ''
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: artifacts
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Publish to NuGet
+        run: |
+          dotnet nuget push artifacts/*.nupkg \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
