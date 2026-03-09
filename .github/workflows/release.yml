@@ -116,7 +116,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: release-artifacts
+          name: nuget-packages
           path: artifacts/*.nupkg
 
   # Job 4: Create GitHub Release with GitReleaseManager
@@ -146,7 +146,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: release-artifacts
+          name: nuget-packages
           path: artifacts
 
       - name: Package rules bundle
@@ -200,7 +200,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: release-artifacts
+          name: nuget-packages
           path: artifacts
 
       - name: Setup .NET
