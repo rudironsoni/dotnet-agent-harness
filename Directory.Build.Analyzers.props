@@ -44,6 +44,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    
+    <!-- SonarAnalyzer.CSharp - security and quality analyzers -->
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.7.0.110445">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <!-- 
@@ -57,15 +63,9 @@
   </ItemGroup>
 
   <!-- 
-    Security and Quality Analyzers - CI only (high performance impact)
-    SonarAnalyzer adds ~4+ minutes to large solutions
+    Security and Quality Analyzers - Optional high-performance analyzers
+    Meziantou adds additional quality checks (enable with EnableMeziantouAnalyzer=true)
   -->
-  <ItemGroup Condition="'$(RunSonarAnalyzer)' == 'true'">
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="9.32.0.97167">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
 
   <!-- 
     Additional Performance Analyzers - Optional
