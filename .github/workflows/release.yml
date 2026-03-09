@@ -138,7 +138,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: release-artifacts
+          name: nuget-packages
           path: artifacts
 
       - name: Package rules bundle
@@ -186,14 +186,13 @@ jobs:
     name: Publish to GitHub Packages
     needs: [release]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       packages: write
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: release-artifacts
+          name: nuget-packages
           path: artifacts
 
       - name: Setup .NET
