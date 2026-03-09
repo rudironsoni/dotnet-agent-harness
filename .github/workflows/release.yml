@@ -146,7 +146,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: nuget-packages
+          name: release-artifacts
           path: artifacts
 
       - name: Package rules bundle
@@ -200,7 +200,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: nuget-packages
+          name: release-artifacts
           path: artifacts
 
       - name: Setup .NET
