@@ -43,7 +43,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: nuget-packages
+          name: release-artifacts
           path: artifacts
           run-id: ${{ github.event.workflow_run.id }}
 
