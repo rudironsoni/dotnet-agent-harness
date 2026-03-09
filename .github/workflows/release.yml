@@ -111,7 +111,7 @@ jobs:
           name: release-artifacts
           path: artifacts/*.nupkg
 
-  # Job 4: Create GitHub Release
+  # Job 4: Create GitHub Release with GitReleaseManager
   release:
     name: Create Release
     needs: [build, auto-tag]
@@ -119,9 +119,21 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
+      pull-requests: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore tools
+        run: dotnet tool restore
 
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -134,37 +146,40 @@ jobs:
           cd .rulesync && zip -r ../rules-bundle.zip . && cd ..
           echo "Created rules-bundle.zip"
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ needs.auto-tag.outputs.tag }}
-          name: Release ${{ needs.auto-tag.outputs.tag }}
-          body: |
-            ## Release ${{ needs.auto-tag.outputs.tag }}
-            
-            ### Installation
-            
-            #### Via GitHub Packages (Recommended)
-            ```bash
-            dotnet tool install -g dotnet-agent-harness --add-source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
-            ```
-            
-            #### Via GitHub Releases
-            Download the `.nupkg` from this release and install locally:
-            ```bash
-            dotnet tool install -g dotnet-agent-harness --add-source ./path/to/download
-            ```
-            
-            ### Prerequisites
-            - .NET 9.0 SDK or later
-            - Node.js 22 or later (for rulesync)
-            
-            ### Package Contents
-            - DotnetAgentHarness.Cli.${{ needs.auto-tag.outputs.version }}.nupkg
-            - rules-bundle.zip
-          files: |
-            artifacts/*.nupkg
-            rules-bundle.zip
+      - name: Create Release with GitReleaseManager
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ needs.auto-tag.outputs.version }}"
+          
+          # Create release using GRM - automatically generates categorized release notes
+          dotnet dotnet-gitreleasemanager create \
+            --owner ${{ github.repository_owner }} \
+            --repository ${{ github.event.repository.name }} \
+            --token $GITHUB_TOKEN \
+            --milestone "$VERSION" \
+            --name "Release v$VERSION" \
+            --targetDirectory .
+          
+          # Upload assets
+          dotnet dotnet-gitreleasemanager addasset \
+            --owner ${{ github.repository_owner }} \
+            --repository ${{ github.event.repository.name }} \
+            --token $GITHUB_TOKEN \
+            --milestone "$VERSION" \
+            --assets "artifacts/*.nupkg,rules-bundle.zip"
+
+      - name: Close Milestone
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ needs.auto-tag.outputs.version }}"
+          dotnet dotnet-gitreleasemanager close \
+            --owner ${{ github.repository_owner }} \
+            --repository ${{ github.event.repository.name }} \
+            --token $GITHUB_TOKEN \
+            --milestone "$VERSION"
 
   # Job 5: Publish to GitHub Packages
   publish:
