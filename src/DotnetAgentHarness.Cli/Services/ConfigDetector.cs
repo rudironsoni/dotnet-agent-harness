@@ -35,9 +35,9 @@ public partial class ConfigDetector : IConfigDetector
                 return Task.FromResult(deleteElement.GetBoolean());
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Ignore parsing errors
+            Console.Error.WriteLine($"Warning: Failed to detect delete flag: {ex.Message}");
         }
 
         return Task.FromResult(false);
@@ -63,9 +63,9 @@ public partial class ConfigDetector : IConfigDetector
                 return Task.FromResult(sourcesElement.GetArrayLength() > 0);
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Ignore parsing errors
+            Console.Error.WriteLine($"Warning: Failed to detect delete flag: {ex.Message}");
         }
 
         return Task.FromResult(false);
@@ -96,9 +96,9 @@ public partial class ConfigDetector : IConfigDetector
                 return Task.FromResult(targets);
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Ignore parsing errors
+            Console.Error.WriteLine($"Warning: Failed to detect delete flag: {ex.Message}");
         }
 
         return Task.FromResult(Array.Empty<string>());

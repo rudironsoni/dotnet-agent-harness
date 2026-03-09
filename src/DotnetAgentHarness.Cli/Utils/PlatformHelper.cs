@@ -28,9 +28,9 @@ public static class PlatformHelper
                 runner.RunAsync("bash", $"-c 'chmod +x \"{path}\"'").GetAwaiter().GetResult();
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Best effort - user may need to manually chmod
+            Console.Error.WriteLine($"Warning: Failed to make executable: {ex.Message}");
         }
     }
 
