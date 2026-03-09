@@ -1,9 +1,10 @@
-mode: ContinuousDeployment
+mode: Mainline
 branches:
   main:
     regex: ^main$
     tag: ''
     increment: Patch
+    is-mainline: true
   release:
     regex: ^releases?[/-]
     tag: beta
@@ -13,6 +14,7 @@ branches:
     regex: ^feature(s)?[/-]
     tag: alpha
     increment: Inherit
+    source-branches: ['main']
 ignore:
   sha: []
 merge-message-formats: {}
