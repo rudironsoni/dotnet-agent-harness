@@ -142,7 +142,7 @@ public class InstallCommand : Command
                 if (!fetchResult.Success)
                 {
                     await Console.Error.WriteLineAsync($"  ✗ Fetch failed: {fetchResult.Error}");
-                    await this.RollbackAsync(backupPath);
+                    await this.RollbackAsync(backupPath, fullPath);
                     Environment.Exit(1);
                 }
             }
@@ -178,7 +178,7 @@ public class InstallCommand : Command
                 if (!generateResult.Success)
                 {
                     await Console.Error.WriteLineAsync($"  ✗ Generate failed: {generateResult.Error}");
-                    await this.RollbackAsync(backupPath);
+                    await this.RollbackAsync(backupPath, fullPath);
                     Environment.Exit(1);
                 }
             }
@@ -193,7 +193,7 @@ public class InstallCommand : Command
                 if (!hooksResult.Success)
                 {
                     await Console.Error.WriteLineAsync($"  ✗ Hook download failed: {hooksResult.ErrorMessage}");
-                    await this.RollbackAsync(backupPath);
+                    await this.RollbackAsync(backupPath, fullPath);
                     Environment.Exit(1);
                 }
 
@@ -239,7 +239,7 @@ public class InstallCommand : Command
         }
     }
 
-    private async Task RollbackAsync(string backupPath)
+    private async Task RollbackAsync(string backupPath, string targetPath)
     {
         if (string.IsNullOrEmpty(backupPath))
         {
@@ -249,7 +249,7 @@ public class InstallCommand : Command
         await Console.Out.WriteLineAsync("==> Rolling back changes...");
         try
         {
-            await this.transactionManager.RestoreAsync(backupPath);
+            await this.transactionManager.RestoreAsync(backupPath, targetPath);
             await Console.Out.WriteLineAsync("  ✓ Rollback complete");
         }
         catch (Exception ex)

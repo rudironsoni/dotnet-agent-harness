@@ -24,15 +24,12 @@ public class TransactionManager : ITransactionManager
         return backupPath;
     }
 
-    public async Task RestoreAsync(string backupPath)
+    public async Task RestoreAsync(string backupPath, string targetPath)
     {
         if (!Directory.Exists(backupPath))
         {
             throw new DirectoryNotFoundException($"Backup not found: {backupPath}");
         }
-
-        string targetPath = Path.GetDirectoryName(backupPath)
-            ?? throw new InvalidOperationException("Invalid backup path");
 
         string rulesyncPath = Path.Combine(targetPath, ".rulesync");
         string backupRulesync = Path.Combine(backupPath, ".rulesync");
@@ -104,7 +101,7 @@ public interface ITransactionManager
 {
     Task<string> BackupAsync(string path);
 
-    Task RestoreAsync(string backupPath);
+    Task RestoreAsync(string backupPath, string targetPath);
 
     Task CleanupAsync(string backupPath);
 }

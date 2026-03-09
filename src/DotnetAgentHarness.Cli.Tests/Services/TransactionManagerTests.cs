@@ -69,7 +69,7 @@ public class TransactionManagerTests : IDisposable
         Directory.Delete(rulesyncDir, true);
 
         // Act
-        await this.manager.RestoreAsync(backupPath);
+        await this.manager.RestoreAsync(backupPath, this.testDir);
 
         // Assert
         Assert.True(Directory.Exists(rulesyncDir));
