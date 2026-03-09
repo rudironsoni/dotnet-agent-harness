@@ -1,71 +1,89 @@
 namespace DotnetAgentHarness.Cli.Services;
 
-public interface IHookDownloader
+using System.Text.Json;
+
+public class HookDownloader(HttpClient httpClient) : IHookDownloader
 {
-    Task<HookDownloadResult> DownloadHooksAsync(string[] hookNames, string sourceRepo, string targetPath);
-}
+    private readonly HttpClient httpClient = httpClient;
 
-public record HookDownloadResult(bool Success, string[] DownloadedHooks, string? ErrorMessage);
-
-public class HookDownloader : IHookDownloader
-{
-    private readonly HttpClient _httpClient;
-
-    public HookDownloader(HttpClient httpClient)
+    public async Task<HookDownloadResult> DownloadHooksAsync(
+        string[] hookScripts,
+        string source,
+        string installPath)
     {
-        _httpClient = httpClient;
-    }
-
-    public async Task<HookDownloadResult> DownloadHooksAsync(string[] hookNames, string sourceRepo, string targetPath)
-    {
-        var hooksDir = Path.Combine(targetPath, ".rulesync", "hooks");
+        string hooksDir = Path.Combine(installPath, ".rulesync", "hooks");
         Directory.CreateDirectory(hooksDir);
 
-        var downloaded = new List<string>();
-        
-        foreach (var hookName in hookNames)
-        {
-            var url = $"https://raw.githubusercontent.com/{sourceRepo}/main/.rulesync/hooks/{hookName}";
-            var outputPath = Path.Combine(hooksDir, hookName);
+        List<string> downloadedHooks = new();
 
+        foreach (string hook in hookScripts)
+        {
             try
             {
-                var response = await _httpClient.GetAsync(url);
-                
+                string url = $"https://raw.githubusercontent.com/{source}/main/hooks/{hook}";
+                HttpResponseMessage response = await this.httpClient.GetAsync(url);
+
                 if (!response.IsSuccessStatusCode)
                 {
                     return new HookDownloadResult(
                         false,
-                        downloaded.ToArray(),
-                        $"Failed to download {hookName}: HTTP {(int)response.StatusCode}"
-                    );
+                        Array.Empty<string>(),
+                        $"Failed to download {hook}: {response.StatusCode}");
                 }
 
-                var content = await response.Content.ReadAsStringAsync();
-                
-                // Validate it's a shell script
-                if (!content.TrimStart().StartsWith("#!/"))
-                {
-                    return new HookDownloadResult(
-                        false,
-                        downloaded.ToArray(),
-                        $"Downloaded file doesn't look like a shell script: {hookName}"
-                    );
-                }
-
-                await File.WriteAllTextAsync(outputPath, content);
-                downloaded.Add(hookName);
+                string content = await response.Content.ReadAsStringAsync();
+                string hookPath = Path.Combine(hooksDir, hook);
+                await File.WriteAllTextAsync(hookPath, content);
+                downloadedHooks.Add(hook);
             }
             catch (Exception ex)
             {
                 return new HookDownloadResult(
                     false,
-                    downloaded.ToArray(),
-                    $"Error downloading {hookName}: {ex.Message}"
-                );
+                    Array.Empty<string>(),
+                    $"Failed to download {hook}: {ex.Message}");
             }
         }
 
-        return new HookDownloadResult(true, downloaded.ToArray(), null);
+        return new HookDownloadResult(true, downloadedHooks.ToArray(), string.Empty);
     }
+
+    public async Task<GitHubRelease?> GetLatestReleaseAsync(string repo)
+    {
+        try
+        {
+            this.httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+            this.httpClient.DefaultRequestHeaders.Add("User-Agent", "dotnet-agent-harness");
+
+            HttpResponseMessage response = await this.httpClient.GetAsync(
+                $"https://api.github.com/repos/{repo}/releases/latest");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            string content = await response.Content.ReadAsStringAsync();
+            using JsonDocument doc = JsonDocument.Parse(content);
+            JsonElement root = doc.RootElement;
+
+            return new GitHubRelease(
+                root.GetProperty("tag_name").GetString() ?? string.Empty,
+                root.GetProperty("html_url").GetString() ?? string.Empty,
+                root.GetProperty("published_at").GetString() ?? string.Empty);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+}
+
+public sealed record GitHubRelease(string TagName, string HtmlUrl, string PublishedAt);
+
+public interface IHookDownloader
+{
+    Task<HookDownloadResult> DownloadHooksAsync(string[] hookScripts, string source, string installPath);
+
+    Task<GitHubRelease?> GetLatestReleaseAsync(string repo);
 }

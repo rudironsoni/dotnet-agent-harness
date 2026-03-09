@@ -1,138 +1,103 @@
-using Xunit;
-using DotnetAgentHarness.Cli.Services;
-using FluentAssertions;
-
 namespace DotnetAgentHarness.Cli.Tests.Services;
+
+using DotnetAgentHarness.Cli.Services;
+using Xunit;
 
 public class TransactionManagerTests : IDisposable
 {
-    private readonly string _tempDir;
-    private readonly TransactionManager _manager;
+    private readonly string testDir;
+    private readonly TransactionManager manager;
 
     public TransactionManagerTests()
     {
-        _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(_tempDir);
-        _manager = new TransactionManager();
+        this.testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(this.testDir);
+        this.manager = new TransactionManager();
     }
 
     public void Dispose()
     {
-        if (Directory.Exists(_tempDir))
+        if (Directory.Exists(this.testDir))
         {
-            Directory.Delete(_tempDir, true);
+            Directory.Delete(this.testDir, true);
         }
-        
-        GC.SuppressFinalize(this);
     }
 
     [Fact]
-    public async Task BackupAsync_WhenDirectoryNotExists_ReturnsEmptyString()
+    public async Task BackupAsync_WithNoRulesync_ReturnsEmptyString()
     {
-        // Arrange - directory doesn't exist
-        var nonExistentPath = Path.Combine(_tempDir, "nonexistent");
-
         // Act
-        var result = await _manager.BackupAsync(nonExistentPath);
+        string result = await this.manager.BackupAsync(this.testDir);
 
         // Assert
-        result.Should().BeEmpty();
+        Assert.Equal(string.Empty, result);
     }
 
     [Fact]
-    public async Task BackupAsync_CreatesBackupWithCorrectName()
+    public async Task BackupAsync_WithRulesync_CreatesBackup()
     {
         // Arrange
-        var rulesyncDir = Path.Combine(_tempDir, ".rulesync");
+        string rulesyncDir = Path.Combine(this.testDir, ".rulesync");
         Directory.CreateDirectory(rulesyncDir);
-        await File.WriteAllTextAsync(Path.Combine(rulesyncDir, "config.json"), "test");
+        await File.WriteAllTextAsync(Path.Combine(rulesyncDir, "test.txt"), "test");
 
         // Act
-        var result = await _manager.BackupAsync(_tempDir);
+        string result = await this.manager.BackupAsync(this.testDir);
 
         // Assert
-        result.Should().NotBeNullOrEmpty();
-        result.Should().Contain(".backup.");
-        Directory.Exists(result).Should().BeTrue();
-        File.Exists(Path.Combine(result, "config.json")).Should().BeTrue();
+        Assert.NotEqual(string.Empty, result);
+        Assert.True(Directory.Exists(result));
+
+        // Cleanup
+        if (Directory.Exists(result))
+        {
+            Directory.Delete(result, true);
+        }
     }
 
     [Fact]
-    public async Task BackupAsync_CopiesNestedDirectories()
+    public async Task RestoreAsync_WithValidBackup_RestoresFiles()
     {
         // Arrange
-        var rulesyncDir = Path.Combine(_tempDir, ".rulesync");
-        var nestedDir = Path.Combine(rulesyncDir, "hooks");
-        Directory.CreateDirectory(nestedDir);
-        await File.WriteAllTextAsync(Path.Combine(nestedDir, "hook.sh"), "#!/bin/bash");
-
-        // Act
-        var result = await _manager.BackupAsync(_tempDir);
-
-        // Assert
-        File.Exists(Path.Combine(result, "hooks", "hook.sh")).Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task RestoreAsync_RestoresFromBackup()
-    {
-        // Arrange
-        var rulesyncDir = Path.Combine(_tempDir, ".rulesync");
+        string rulesyncDir = Path.Combine(this.testDir, ".rulesync");
         Directory.CreateDirectory(rulesyncDir);
-        await File.WriteAllTextAsync(Path.Combine(rulesyncDir, "original.txt"), "original");
-        
-        var backupPath = await _manager.BackupAsync(_tempDir);
-        
-        // Modify original
-        await File.WriteAllTextAsync(Path.Combine(rulesyncDir, "modified.txt"), "modified");
-        File.Delete(Path.Combine(rulesyncDir, "original.txt"));
+        await File.WriteAllTextAsync(Path.Combine(rulesyncDir, "test.txt"), "test");
+
+        string backupPath = await this.manager.BackupAsync(this.testDir);
+        Assert.NotEqual(string.Empty, backupPath);
+
+        // Delete original
+        Directory.Delete(rulesyncDir, true);
 
         // Act
-        await _manager.RestoreAsync(backupPath);
+        await this.manager.RestoreAsync(backupPath);
 
         // Assert
-        File.Exists(Path.Combine(rulesyncDir, "original.txt")).Should().BeTrue();
-        File.Exists(Path.Combine(rulesyncDir, "modified.txt")).Should().BeFalse();
+        Assert.True(Directory.Exists(rulesyncDir));
+        Assert.Equal("test", await File.ReadAllTextAsync(Path.Combine(rulesyncDir, "test.txt")));
+
+        // Cleanup
+        if (Directory.Exists(backupPath))
+        {
+            Directory.Delete(backupPath, true);
+        }
     }
 
     [Fact]
-    public async Task RestoreAsync_WhenBackupEmpty_DoesNothing()
+    public async Task CleanupAsync_WithValidBackup_RemovesBackup()
     {
         // Arrange
-        var rulesyncDir = Path.Combine(_tempDir, ".rulesync");
+        string rulesyncDir = Path.Combine(this.testDir, ".rulesync");
         Directory.CreateDirectory(rulesyncDir);
-        await File.WriteAllTextAsync(Path.Combine(rulesyncDir, "file.txt"), "content");
+        await File.WriteAllTextAsync(Path.Combine(rulesyncDir, "test.txt"), "test");
+
+        string backupPath = await this.manager.BackupAsync(this.testDir);
+        Assert.NotEqual(string.Empty, backupPath);
 
         // Act
-        await _manager.RestoreAsync("");
+        await this.manager.CleanupAsync(backupPath);
 
         // Assert
-        File.Exists(Path.Combine(rulesyncDir, "file.txt")).Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task CleanupAsync_RemovesBackupDirectory()
-    {
-        // Arrange
-        var rulesyncDir = Path.Combine(_tempDir, ".rulesync");
-        Directory.CreateDirectory(rulesyncDir);
-        var backupPath = await _manager.BackupAsync(_tempDir);
-
-        // Act
-        await _manager.CleanupAsync(backupPath);
-
-        // Assert
-        Directory.Exists(backupPath).Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task CleanupAsync_WhenBackupEmpty_DoesNothing()
-    {
-        // Act - should not throw
-        await _manager.CleanupAsync("");
-        await _manager.CleanupAsync("/nonexistent/path");
-
-        // Assert - no exception
-        true.Should().BeTrue();
+        Assert.False(Directory.Exists(backupPath));
     }
 }

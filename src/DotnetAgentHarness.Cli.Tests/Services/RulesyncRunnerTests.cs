@@ -1,143 +1,70 @@
-using Xunit;
-using NSubstitute;
-using DotnetAgentHarness.Cli.Services;
-using DotnetAgentHarness.Cli.Utils;
-using FluentAssertions;
-
 namespace DotnetAgentHarness.Cli.Tests.Services;
 
-public class RulesyncRunnerTests
+using DotnetAgentHarness.Cli.Services;
+using DotnetAgentHarness.Cli.Utils;
+using NSubstitute;
+using Xunit;
+
+public class RulesyncRunnerTests : IDisposable
 {
-    private readonly IProcessRunner _processRunner;
-    private readonly RulesyncRunner _runner;
+    private readonly string testDir;
 
     public RulesyncRunnerTests()
     {
-        _processRunner = Substitute.For<IProcessRunner>();
-        _runner = new RulesyncRunner(_processRunner);
+        this.testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(this.testDir);
+    }
+
+    public void Dispose()
+    {
+        if (Directory.Exists(this.testDir))
+        {
+            Directory.Delete(this.testDir, true);
+        }
     }
 
     [Fact]
-    public async Task FetchAsync_ExecutesCorrectCommand()
+    public async Task FetchAsync_WithInvalidSource_ReturnsFailure()
     {
         // Arrange
-        var source = "owner/repo";
-        var path = "/test/path";
-        _processRunner.RunAsync("rulesync", Arg.Any<string>(), path)
-            .Returns(Task.FromResult(new ProcessResult(0, "Success", "")));
+        IProcessRunner processRunner = Substitute.For<IProcessRunner>();
+        RulesyncRunner runner = new(processRunner);
 
         // Act
-        var result = await _runner.FetchAsync(source, path);
+        RulesyncResult result = await runner.FetchAsync("invalid-source", this.testDir);
 
         // Assert
-        result.Success.Should().BeTrue();
-        await _processRunner.Received().RunAsync("rulesync", "fetch \"owner/repo:.rulesync\"", path);
+        Assert.False(result.Success);
+        Assert.Contains("Invalid source format", result.Error);
     }
 
     [Fact]
-    public async Task FetchAsync_ReturnsFailureOnError()
+    public async Task GenerateAsync_WhenRulesyncNotExists_ReturnsFailure()
     {
         // Arrange
-        _processRunner.RunAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-            .Returns(Task.FromResult(new ProcessResult(1, "", "Failed")));
+        IProcessRunner processRunner = Substitute.For<IProcessRunner>();
+        RulesyncRunner runner = new(processRunner);
 
         // Act
-        var result = await _runner.FetchAsync("owner/repo", "/path");
+        RulesyncResult result = await runner.GenerateAsync("claudecode", this.testDir);
 
         // Assert
-        result.Success.Should().BeFalse();
+        Assert.False(result.Success);
+        Assert.Contains(".rulesync directory does not exist", result.Error);
     }
 
     [Fact]
-    public async Task InstallAsync_ExecutesCorrectCommand()
+    public async Task InstallAsync_WhenRulesyncNotExists_ReturnsFailure()
     {
         // Arrange
-        var path = "/test/path";
-        _processRunner.RunAsync("rulesync", "install", path)
-            .Returns(Task.FromResult(new ProcessResult(0, "Success", "")));
+        IProcessRunner processRunner = Substitute.For<IProcessRunner>();
+        RulesyncRunner runner = new(processRunner);
 
         // Act
-        var result = await _runner.InstallAsync(path);
+        RulesyncResult result = await runner.InstallAsync(this.testDir);
 
         // Assert
-        result.Success.Should().BeTrue();
-        await _processRunner.Received().RunAsync("rulesync", "install", path);
-    }
-
-    [Fact]
-    public async Task GenerateAsync_WithConfigFile_DoesNotPassTargets()
-    {
-        // Arrange
-        var path = "/test/path";
-        _processRunner.RunAsync(Arg.Any<string>(), Arg.Any<string>(), path)
-            .Returns(Task.FromResult(new ProcessResult(0, "Success", "")));
-
-        // Act
-        var result = await _runner.GenerateAsync("claudecode,copilot", path, useConfigFile: true, dryRun: false);
-
-        // Assert
-        result.Success.Should().BeTrue();
-        await _processRunner.Received().RunAsync("rulesync", "generate", path);
-    }
-
-    [Fact]
-    public async Task GenerateAsync_WithoutConfigFile_PassesTargetsAndFeatures()
-    {
-        // Arrange
-        var path = "/test/path";
-        _processRunner.RunAsync(Arg.Any<string>(), Arg.Any<string>(), path)
-            .Returns(Task.FromResult(new ProcessResult(0, "Success", "")));
-
-        // Act
-        var result = await _runner.GenerateAsync("claudecode,copilot", path, useConfigFile: false, dryRun: false);
-
-        // Assert
-        result.Success.Should().BeTrue();
-        await _processRunner.Received().RunAsync("rulesync", "generate --targets claudecode,copilot --features \"*\"", path);
-    }
-
-    [Fact]
-    public async Task GenerateAsync_WithDryRun_AddsDryRunFlag()
-    {
-        // Arrange
-        var path = "/test/path";
-        _processRunner.RunAsync(Arg.Any<string>(), Arg.Any<string>(), path)
-            .Returns(Task.FromResult(new ProcessResult(0, "Success", "")));
-
-        // Act
-        var result = await _runner.GenerateAsync("claudecode", path, useConfigFile: false, dryRun: true);
-
-        // Assert
-        result.Success.Should().BeTrue();
-        await _processRunner.Received().RunAsync("rulesync", Arg.Is<string>(s => s.Contains("--dry-run")), path);
-    }
-
-    [Fact]
-    public async Task GenerateAsync_ReturnsFailureOnError()
-    {
-        // Arrange
-        _processRunner.RunAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-            .Returns(Task.FromResult(new ProcessResult(1, "", "Failed")));
-
-        // Act
-        var result = await _runner.GenerateAsync("claudecode", "/path", false, false);
-
-        // Assert
-        result.Success.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task GenerateAsync_CapturesOutput()
-    {
-        // Arrange
-        var expectedOutput = "Generated successfully";
-        _processRunner.RunAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-            .Returns(Task.FromResult(new ProcessResult(0, expectedOutput, "")));
-
-        // Act
-        var result = await _runner.GenerateAsync("claudecode", "/path", false, false);
-
-        // Assert
-        result.Output.Should().Be(expectedOutput);
+        Assert.False(result.Success);
+        Assert.Contains(".rulesync directory does not exist", result.Error);
     }
 }

@@ -1,41 +1,42 @@
+namespace DotnetAgentHarness.Cli.Commands;
+
 using System.CommandLine;
 using DotnetAgentHarness.Cli.Models;
 
-namespace DotnetAgentHarness.Cli.Commands;
-
 public class UninstallCommand : Command
 {
-    public UninstallCommand() : base("uninstall", "Remove the dotnet-agent-harness toolkit")
+    public UninstallCommand()
+        : base("uninstall", "Remove the dotnet-agent-harness toolkit")
     {
-        var pathOption = new Option<string>(
+        Option<string> pathOption = new(
             new[] { "--path", "-p" },
             () => ".",
             "Directory containing the installation");
 
-        var forceOption = new Option<bool>(
+        Option<bool> forceOption = new(
             new[] { "--force", "-f" },
             () => false,
             "Skip confirmation prompts");
 
-        var cleanOption = new Option<bool>(
+        Option<bool> cleanOption = new(
             new[] { "--clean", "-c" },
             () => false,
             "Also remove generated files (AGENTS.md, opencode.jsonc, etc.)");
 
-        AddOption(pathOption);
-        AddOption(forceOption);
-        AddOption(cleanOption);
+        this.AddOption(pathOption);
+        this.AddOption(forceOption);
+        this.AddOption(cleanOption);
 
         this.SetHandler(async (string path, bool force, bool clean) =>
         {
-            await ExecuteAsync(path, force, clean);
+            await this.ExecuteAsync(path, force, clean);
         }, pathOption, forceOption, cleanOption);
     }
 
     private async Task ExecuteAsync(string path, bool force, bool clean)
     {
-        var fullPath = Path.GetFullPath(path);
-        var rulesyncPath = Path.Combine(fullPath, ".rulesync");
+        string fullPath = Path.GetFullPath(path);
+        string rulesyncPath = Path.Combine(fullPath, ".rulesync");
 
         if (!Directory.Exists(rulesyncPath))
         {
@@ -48,7 +49,7 @@ public class UninstallCommand : Command
         if (!force)
         {
             Console.Write("  Are you sure? [y/N] ");
-            var response = Console.ReadLine();
+            string? response = Console.ReadLine();
             if (!response?.Equals("y", StringComparison.OrdinalIgnoreCase) == true)
             {
                 Console.WriteLine("Uninstall cancelled.");
@@ -67,7 +68,7 @@ public class UninstallCommand : Command
             if (clean)
             {
                 Console.WriteLine("  Removing generated files...");
-                var filesToClean = new[]
+                string[] filesToClean = new[]
                 {
                     "AGENTS.md",
                     "opencode.jsonc",
@@ -75,12 +76,12 @@ public class UninstallCommand : Command
                     "codex.json",
                     Path.Combine(".github", "prompts"),
                     "factory-rules",
-                    ".antigravity"
+                    ".antigravity",
                 };
 
-                foreach (var file in filesToClean)
+                foreach (string file in filesToClean)
                 {
-                    var filePath = Path.Combine(fullPath, file);
+                    string filePath = Path.Combine(fullPath, file);
                     if (File.Exists(filePath))
                     {
                         File.Delete(filePath);

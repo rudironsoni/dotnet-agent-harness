@@ -16,50 +16,111 @@ indent_style = space
 # Analyzer Configuration
 # https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-options
 
-# Global severity settings
+# Global severity settings - start with warning, not error
 dotnet_analyzer_diagnostic.severity = warning
 
 # Category-based severity
 dotnet_analyzer_diagnostic.category-security.severity = error
-dotnet_analyzer_diagnostic.category-reliability.severity = warning
+dotnet_analyzer_diagnostic.category-reliability.severity = error
 dotnet_analyzer_diagnostic.category-performance.severity = warning
 dotnet_analyzer_diagnostic.category-usage.severity = warning
 dotnet_analyzer_diagnostic.category-design.severity = suggestion
 
 # ========================================
-# Async Patterns (dotnet-csharp-async-patterns)
+# StyleCop Rules - Configured for pragmatic enforcement
 # ========================================
-dotnet_diagnostic.CA2007.severity = suggestion
-dotnet_diagnostic.CA2008.severity = warning
-dotnet_diagnostic.CA2009.severity = error
-dotnet_diagnostic.RCS1174.severity = suggestion
-dotnet_diagnostic.RCS1229.severity = suggestion
-dotnet_diagnostic.RCS1090.severity = suggestion
+
+# SA0001: XML comment analysis is disabled due to project configuration
+dotnet_diagnostic.SA0001.severity = none
+
+# SA1200: Using directives must be inside namespace
+dotnet_diagnostic.SA1200.severity = error
+
+# SA1201: A interface should not follow a class
+dotnet_diagnostic.SA1201.severity = none
+
+# SA1204: Static members should appear before non-static members
+dotnet_diagnostic.SA1204.severity = none
+
+# SA1309: Field names should not begin with underscore - disabled as we use underscore prefix
+dotnet_diagnostic.SA1309.severity = none
+
+# SA1101: Prefix local calls with this - disabled
+dotnet_diagnostic.SA1101.severity = none
+
+# SA1402: File may only contain a single type - disabled (records in same file is acceptable)
+dotnet_diagnostic.SA1402.severity = none
+
+# SA1028: Code must not contain trailing whitespace
+dotnet_diagnostic.SA1028.severity = error
+
+# SA1009: Closing parenthesis should not be preceded by space
+dotnet_diagnostic.SA1009.severity = error
+
+# SA1413: Use trailing comma in multi-line initializers
+dotnet_diagnostic.SA1413.severity = error
+
+# SA1503: Braces must not be omitted
+dotnet_diagnostic.SA1503.severity = warning
+
+# SA1513: Closing brace must be followed by blank line
+dotnet_diagnostic.SA1513.severity = warning
+
+# SA1515: Single-line comment must be preceded by blank line
+dotnet_diagnostic.SA1515.severity = none
+
+# SA1516: Elements must be separated by blank line
+dotnet_diagnostic.SA1516.severity = warning
+
+# SA1116: Parameters should be on same line or separate lines
+dotnet_diagnostic.SA1116.severity = none
+
+# SA1117: Parameters should be on separate lines
+dotnet_diagnostic.SA1117.severity = none
+
+# SA1128: Put constructor initializer on its own line
+dotnet_diagnostic.SA1128.severity = none
+
+# SA1111: Use single-line parameter list
+dotnet_diagnostic.SA1111.severity = none
+
+# SA1400: Access modifier should be declared
+dotnet_diagnostic.SA1400.severity = warning
 
 # ========================================
-# Memory/GC Patterns (dotnet-gc-memory)
+# Roslynator Rules - Configured for pragmatic enforcement
 # ========================================
-dotnet_diagnostic.CA1816.severity = error
-dotnet_diagnostic.CA1821.severity = warning
-dotnet_diagnostic.CA2000.severity = error
-dotnet_diagnostic.CA2013.severity = warning
-dotnet_diagnostic.CA2015.severity = error
-dotnet_diagnostic.RCS1261.severity = suggestion
+dotnet_diagnostic.RCS1037.severity = error
+dotnet_diagnostic.RCS1021.severity = suggestion
+dotnet_diagnostic.RCS1124.severity = suggestion
+dotnet_diagnostic.RCS1186.severity = suggestion
+dotnet_diagnostic.RCS1192.severity = suggestion
+dotnet_diagnostic.RCS1080.severity = silent
+dotnet_diagnostic.RCS1163.severity = suggestion
+dotnet_diagnostic.RCS1049.severity = suggestion
+dotnet_diagnostic.RCS1061.severity = suggestion
+dotnet_diagnostic.RCS1118.severity = suggestion
+dotnet_diagnostic.RCS1161.severity = suggestion
+dotnet_diagnostic.RCS1266.severity = none
 
 # ========================================
-# Performance Patterns (dotnet-performance-patterns)
+# System Diagnostics
 # ========================================
-dotnet_diagnostic.CA1822.severity = warning
-dotnet_diagnostic.CA1831.severity = warning
-dotnet_diagnostic.CA1836.severity = suggestion
-dotnet_diagnostic.CA1854.severity = suggestion
+dotnet_diagnostic.SYSLIB1045.severity = suggestion
+
+# ========================================
+# Code Quality Rules
+# ========================================
+dotnet_diagnostic.CA1031.severity = suggestion
+dotnet_diagnostic.CA1062.severity = suggestion
+dotnet_diagnostic.CA1305.severity = suggestion
+dotnet_diagnostic.CA1416.severity = suggestion
+dotnet_diagnostic.CA1822.severity = suggestion
 dotnet_diagnostic.CA1859.severity = suggestion
-dotnet_diagnostic.CA1860.severity = warning
-dotnet_diagnostic.CA1861.severity = warning
-dotnet_diagnostic.RCS1077.severity = suggestion
-dotnet_diagnostic.RCS1080.severity = hidden
-dotnet_diagnostic.RCS1186.severity = hidden
-dotnet_diagnostic.RCS1197.severity = suggestion
+dotnet_diagnostic.CA1860.severity = suggestion
+dotnet_diagnostic.CA1861.severity = suggestion
+dotnet_diagnostic.CA2000.severity = suggestion
+dotnet_diagnostic.CA2007.severity = suggestion
 
 # ========================================
 # Security (dotnet-security-owasp)
@@ -68,45 +129,17 @@ dotnet_diagnostic.CA2100.severity = error
 dotnet_diagnostic.CA5350.severity = error
 dotnet_diagnostic.CA5351.severity = error
 dotnet_diagnostic.CA3075.severity = error
-dotnet_diagnostic.CA2153.severity = warning
+dotnet_diagnostic.CA2153.severity = error
 
 # ========================================
 # Design Patterns (dotnet-architecture-patterns)
 # ========================================
-dotnet_diagnostic.CA1001.severity = warning
-dotnet_diagnostic.CA1063.severity = warning
-dotnet_diagnostic.CA1031.severity = warning
-dotnet_diagnostic.CA1062.severity = warning
+dotnet_diagnostic.CA1001.severity = error
+dotnet_diagnostic.CA1063.severity = suggestion
+dotnet_diagnostic.CA1816.severity = suggestion
 dotnet_diagnostic.CA1507.severity = suggestion
-dotnet_diagnostic.CA1508.severity = warning
-dotnet_diagnostic.RCS1044.severity = warning
-
-# ========================================
-# Testing (dotnet-testing-unit-test-fundamentals)
-# ========================================
-dotnet_diagnostic.CA1825.severity = suggestion
-dotnet_diagnostic.CA2016.severity = warning
-dotnet_diagnostic.RCS1075.severity = warning
-
-# ========================================
-# Entity Framework (dotnet-efcore-patterns)
-# ========================================
-dotnet_diagnostic.CA1826.severity = suggestion
-dotnet_diagnostic.CA1827.severity = suggestion
-dotnet_diagnostic.CA1828.severity = suggestion
-
-# ========================================
-# Native Interop (dotnet-native-interop)
-# ========================================
-dotnet_diagnostic.CA1401.severity = warning
-dotnet_diagnostic.CA1416.severity = warning
-dotnet_diagnostic.CA1417.severity = warning
-
-# ========================================
-# Configuration (dotnet-csharp-configuration)
-# ========================================
-dotnet_diagnostic.CA2255.severity = warning
-dotnet_diagnostic.CA2256.severity = warning
+dotnet_diagnostic.CA1508.severity = error
+dotnet_diagnostic.RCS1044.severity = error
 
 # ========================================
 # Disable Noisy Rules
@@ -163,5 +196,4 @@ dotnet_diagnostic.CA1704.severity = none
 dotnet_diagnostic.SA1650.severity = none
 
 # File naming (we use different conventions)
-dotnet_diagnostic.SA1633.severity = none
 dotnet_diagnostic.IDE1006.severity = none

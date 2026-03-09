@@ -1,26 +1,21 @@
-using System.Diagnostics;
-
 namespace DotnetAgentHarness.Cli.Utils;
 
-public interface IProcessRunner
-{
-    Task<ProcessResult> RunAsync(string fileName, string arguments, string? workingDirectory = null);
-}
-
-public record ProcessResult(int ExitCode, string Output, string Error);
+using System.Diagnostics;
+using System.Text;
 
 public class ProcessRunner : IProcessRunner
 {
-    public async Task<ProcessResult> RunAsync(string fileName, string arguments, string? workingDirectory = null)
+    public async Task<ProcessResult> RunAsync(
+        string command,
+        string arguments,
+        string? workingDirectory = null)
     {
-        var startInfo = new ProcessStartInfo
+        ProcessStartInfo startInfo = new(command, arguments)
         {
-            FileName = fileName,
-            Arguments = arguments,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
-            CreateNoWindow = true
+            CreateNoWindow = true,
         };
 
         if (!string.IsNullOrEmpty(workingDirectory))
@@ -28,18 +23,25 @@ public class ProcessRunner : IProcessRunner
             startInfo.WorkingDirectory = workingDirectory;
         }
 
-        using var process = new Process { StartInfo = startInfo };
-        var outputBuilder = new System.Text.StringBuilder();
-        var errorBuilder = new System.Text.StringBuilder();
+        using Process process = new() { StartInfo = startInfo };
+
+        StringBuilder output = new();
+        StringBuilder error = new();
 
         process.OutputDataReceived += (sender, e) =>
         {
-            if (e.Data != null) outputBuilder.AppendLine(e.Data);
+            if (e.Data != null)
+            {
+                output.AppendLine(e.Data);
+            }
         };
 
         process.ErrorDataReceived += (sender, e) =>
         {
-            if (e.Data != null) errorBuilder.AppendLine(e.Data);
+            if (e.Data != null)
+            {
+                error.AppendLine(e.Data);
+            }
         };
 
         process.Start();
@@ -50,8 +52,12 @@ public class ProcessRunner : IProcessRunner
 
         return new ProcessResult(
             process.ExitCode,
-            outputBuilder.ToString(),
-            errorBuilder.ToString()
-        );
+            output.ToString().TrimEnd(),
+            error.ToString().TrimEnd());
     }
+}
+
+public interface IProcessRunner
+{
+    Task<ProcessResult> RunAsync(string command, string arguments, string? workingDirectory = null);
 }

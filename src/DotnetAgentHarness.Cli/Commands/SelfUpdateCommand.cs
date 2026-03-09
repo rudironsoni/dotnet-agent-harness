@@ -1,22 +1,23 @@
+namespace DotnetAgentHarness.Cli.Commands;
+
 using System.CommandLine;
 using DotnetAgentHarness.Cli.Utils;
 
-namespace DotnetAgentHarness.Cli.Commands;
-
 public class SelfUpdateCommand : Command
 {
-    public SelfUpdateCommand() : base("self-update", "Update this tool to the latest version")
+    public SelfUpdateCommand()
+        : base("self-update", "Update this tool to the latest version")
     {
-        var forceOption = new Option<bool>(
+        Option<bool> forceOption = new(
             new[] { "--force", "-f" },
             () => false,
             "Skip confirmation prompt");
 
-        AddOption(forceOption);
+        this.AddOption(forceOption);
 
         this.SetHandler(async (bool force) =>
         {
-            await ExecuteAsync(force);
+            await this.ExecuteAsync(force);
         }, forceOption);
     }
 
@@ -28,7 +29,7 @@ public class SelfUpdateCommand : Command
         if (!force)
         {
             Console.Write("  This will update the global tool. Continue? [y/N] ");
-            var response = Console.ReadLine();
+            string? response = Console.ReadLine();
             if (!response?.Equals("y", StringComparison.OrdinalIgnoreCase) == true)
             {
                 Console.WriteLine("Update cancelled.");
@@ -38,11 +39,11 @@ public class SelfUpdateCommand : Command
 
         try
         {
-            var runner = new ProcessRunner();
-            
+            ProcessRunner runner = new();
+
             Console.WriteLine("  Running: dotnet tool update -g dotnet-agent-harness");
-            var result = await runner.RunAsync(
-                "dotnet", 
+            ProcessResult result = await runner.RunAsync(
+                "dotnet",
                 "tool update -g dotnet-agent-harness");
 
             if (result.ExitCode != 0)

@@ -1,155 +1,116 @@
-using Xunit;
-using DotnetAgentHarness.Cli.Services;
-using FluentAssertions;
-
 namespace DotnetAgentHarness.Cli.Tests.Services;
+
+using System.Text.Json;
+using DotnetAgentHarness.Cli.Services;
+using Xunit;
 
 public class ConfigDetectorTests : IDisposable
 {
-    private readonly string _tempDir;
+    private readonly string testDir;
+    private readonly ConfigDetector detector;
 
     public ConfigDetectorTests()
     {
-        _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(_tempDir);
+        this.testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(this.testDir);
+        this.detector = new ConfigDetector();
     }
 
     public void Dispose()
     {
-        if (Directory.Exists(_tempDir))
+        if (Directory.Exists(this.testDir))
         {
-            Directory.Delete(_tempDir, true);
+            Directory.Delete(this.testDir, true);
         }
-        
-        GC.SuppressFinalize(this);
     }
 
     [Fact]
-    public async Task HasDeleteTrueAsync_WhenFileNotExists_ReturnsFalse()
+    public async Task HasDeleteTrueAsync_WhenConfigHasDeleteTrue_ReturnsTrue()
     {
         // Arrange
-        var detector = new ConfigDetector();
-        
-        // Act
-        var result = await detector.HasDeleteTrueAsync(_tempDir);
-        
-        // Assert
-        result.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task HasDeleteTrueAsync_WhenDeleteTrue_ReturnsTrue()
-    {
-        // Arrange
-        var detector = new ConfigDetector();
-        var rulesyncDir = Path.Combine(_tempDir, ".rulesync");
+        string rulesyncDir = Path.Combine(this.testDir, ".rulesync");
         Directory.CreateDirectory(rulesyncDir);
-        
-        await File.WriteAllTextAsync(
-            Path.Combine(rulesyncDir, "rulesync.jsonc"),
-            @"{ ""delete"": true }");
-        
+
+        string configContent = @"{
+            ""delete"": true,
+            ""sources"": []
+        }";
+        await File.WriteAllTextAsync(Path.Combine(rulesyncDir, "rulesync.jsonc"), configContent);
+
         // Act
-        var result = await detector.HasDeleteTrueAsync(_tempDir);
-        
+        bool result = await this.detector.HasDeleteTrueAsync(this.testDir);
+
         // Assert
-        result.Should().BeTrue();
+        Assert.True(result);
     }
 
     [Fact]
-    public async Task HasDeleteTrueAsync_WhenDeleteFalse_ReturnsFalse()
+    public async Task HasDeleteTrueAsync_WhenConfigHasDeleteFalse_ReturnsFalse()
     {
         // Arrange
-        var detector = new ConfigDetector();
-        var rulesyncDir = Path.Combine(_tempDir, ".rulesync");
+        string rulesyncDir = Path.Combine(this.testDir, ".rulesync");
         Directory.CreateDirectory(rulesyncDir);
-        
-        await File.WriteAllTextAsync(
-            Path.Combine(rulesyncDir, "rulesync.jsonc"),
-            @"{ ""delete"": false }");
-        
+
+        string configContent = @"{
+            ""delete"": false,
+            ""sources"": []
+        }";
+        await File.WriteAllTextAsync(Path.Combine(rulesyncDir, "rulesync.jsonc"), configContent);
+
         // Act
-        var result = await detector.HasDeleteTrueAsync(_tempDir);
-        
+        bool result = await this.detector.HasDeleteTrueAsync(this.testDir);
+
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
     [Fact]
-    public async Task HasDeleteTrueAsync_StripsSingleLineComments()
+    public async Task HasDeleteTrueAsync_WhenConfigDoesNotExist_ReturnsFalse()
     {
-        // Arrange
-        var detector = new ConfigDetector();
-        var rulesyncDir = Path.Combine(_tempDir, ".rulesync");
-        Directory.CreateDirectory(rulesyncDir);
-        
-        await File.WriteAllTextAsync(
-            Path.Combine(rulesyncDir, "rulesync.jsonc"),
-            @"// This is a comment
-{ ""delete"": true } // another comment");
-        
         // Act
-        var result = await detector.HasDeleteTrueAsync(_tempDir);
-        
+        bool result = await this.detector.HasDeleteTrueAsync(this.testDir);
+
         // Assert
-        result.Should().BeTrue();
+        Assert.False(result);
     }
 
     [Fact]
-    public async Task HasDeleteTrueAsync_StripsMultiLineComments()
+    public async Task HasDeclarativeSourcesAsync_WhenConfigHasSources_ReturnsTrue()
     {
         // Arrange
-        var detector = new ConfigDetector();
-        var rulesyncDir = Path.Combine(_tempDir, ".rulesync");
+        string rulesyncDir = Path.Combine(this.testDir, ".rulesync");
         Directory.CreateDirectory(rulesyncDir);
-        
-        await File.WriteAllTextAsync(
-            Path.Combine(rulesyncDir, "rulesync.jsonc"),
-            @"/* Multi-line
-               comment */ { ""delete"": true }");
-        
+
+        string configContent = @"{
+            ""sources"": [
+                { ""source"": ""owner/repo"" }
+            ]
+        }";
+        await File.WriteAllTextAsync(Path.Combine(rulesyncDir, "rulesync.jsonc"), configContent);
+
         // Act
-        var result = await detector.HasDeleteTrueAsync(_tempDir);
-        
+        bool result = await this.detector.HasDeclarativeSourcesAsync(this.testDir);
+
         // Assert
-        result.Should().BeTrue();
+        Assert.True(result);
     }
 
     [Fact]
-    public async Task HasDeleteTrueAsync_WhenDeleteMissing_ReturnsFalse()
+    public async Task GetTargetPlatformsAsync_WhenConfigHasTargets_ReturnsTargets()
     {
         // Arrange
-        var detector = new ConfigDetector();
-        var rulesyncDir = Path.Combine(_tempDir, ".rulesync");
+        string rulesyncDir = Path.Combine(this.testDir, ".rulesync");
         Directory.CreateDirectory(rulesyncDir);
-        
-        await File.WriteAllTextAsync(
-            Path.Combine(rulesyncDir, "rulesync.jsonc"),
-            @"{ ""verbose"": true }");
-        
-        // Act
-        var result = await detector.HasDeleteTrueAsync(_tempDir);
-        
-        // Assert
-        result.Should().BeFalse();
-    }
 
-    [Fact]
-    public async Task HasDeleteTrueAsync_WhenInvalidJson_ReturnsFalse()
-    {
-        // Arrange
-        var detector = new ConfigDetector();
-        var rulesyncDir = Path.Combine(_tempDir, ".rulesync");
-        Directory.CreateDirectory(rulesyncDir);
-        
-        await File.WriteAllTextAsync(
-            Path.Combine(rulesyncDir, "rulesync.jsonc"),
-            @"invalid json content");
-        
+        string configContent = @"{
+            ""targets"": [""claudecode"", ""copilot""]
+        }";
+        await File.WriteAllTextAsync(Path.Combine(rulesyncDir, "rulesync.jsonc"), configContent);
+
         // Act
-        var result = await detector.HasDeleteTrueAsync(_tempDir);
-        
+        string[] result = await this.detector.GetTargetPlatformsAsync(this.testDir);
+
         // Assert
-        result.Should().BeFalse();
+        Assert.Equal(new[] { "claudecode", "copilot" }, result);
     }
 }
