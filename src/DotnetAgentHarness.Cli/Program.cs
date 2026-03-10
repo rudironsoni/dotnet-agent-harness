@@ -19,8 +19,13 @@ internal static class Program
         TransactionManager transactionManager = new();
         HookDownloader hookDownloader = new(httpClient);
 
+        // Catalog and analysis services
+        SkillCatalog skillCatalog = new();
+        ProjectAnalyzer projectAnalyzer = new();
+
         RootCommand rootCommand = new("Cross-platform installer for dotnet-agent-harness toolkit");
 
+        // Lifecycle commands
         rootCommand.AddCommand(new InstallCommand(
             prerequisiteChecker,
             rulesyncRunner,
@@ -31,6 +36,14 @@ internal static class Program
         rootCommand.AddCommand(new UninstallCommand());
         rootCommand.AddCommand(new UpdateCommand(rulesyncRunner, hookDownloader));
         rootCommand.AddCommand(new SelfUpdateCommand());
+
+        // Discovery commands
+        rootCommand.AddCommand(new SearchCommand(skillCatalog));
+        rootCommand.AddCommand(new ProfileCommand(skillCatalog));
+        rootCommand.AddCommand(new RecommendCommand(skillCatalog, projectAnalyzer));
+
+        // Project commands
+        rootCommand.AddCommand(new BootstrapCommand(rulesyncRunner, hookDownloader));
 
         Command versionCommand = new("version", "Show version information");
         versionCommand.SetHandler(() =>
