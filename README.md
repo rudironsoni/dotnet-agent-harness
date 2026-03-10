@@ -8,9 +8,23 @@
 
 ---
 
-## Use in a Repo
+## Installation
 
-Install the toolkit in your .NET repository using curl:
+### Option 1: CLI Tool (Recommended)
+
+Install the `dotnet-agent-harness` CLI tool globally:
+
+```bash
+# Install as global .NET tool
+dotnet tool install --global dotnet-agent-harness
+
+# Or install from NuGet
+dotnet tool install --global dotnet-agent-harness --source https://api.nuget.org/v3/index.json
+```
+
+### Option 2: Curl Installer
+
+Install directly in your .NET repository using curl:
 
 ```bash
 # One-line installer
@@ -29,9 +43,44 @@ The installer will:
 2. Download required hook scripts
 3. Generate agent configurations for your specified targets
 
-That's it! The toolkit is now installed and ready to use.
-
 ## Available Commands
+
+### CLI Commands (`dotnet agent-harness`)
+
+After installing the CLI tool, use these commands:
+
+**Lifecycle Commands:**
+- `dotnet agent-harness install` - Install the toolkit in current directory
+- `dotnet agent-harness uninstall` - Remove the toolkit installation
+- `dotnet agent-harness update` - Update to latest toolkit version
+- `dotnet agent-harness self-update` - Update the CLI tool itself
+
+**Discovery Commands:**
+- `dotnet agent-harness search <query>` - Search skills, subagents, and commands
+  - `--kind skill|subagent|command` - Filter by type
+  - `--category <name>` - Filter skills by category
+  - `--platform <name>` - Filter by platform compatibility
+  - `--limit N` - Limit results (default: 10)
+  - `--format json` - Output as JSON
+
+- `dotnet agent-harness profile` - Show catalog statistics
+  - `profile <item>` - Show details for specific item
+  - `--kind <type>` - Specify item type
+  - `--format json` - Output as JSON
+
+- `dotnet agent-harness recommend` - Recommend skills for your .NET project
+  - `--path <path>` - Path to project (default: current directory)
+  - `--platform <name>` - Target platform for recommendations
+  - `--category <name>` - Filter by category
+  - `--limit N` - Maximum recommendations per kind
+  - `--format json` - Output as JSON
+  - `--write-state` - Save recommendations to `.dotnet-agent-harness/recommendations.json`
+
+**Project Commands:**
+- `dotnet agent-harness bootstrap <name>` - Bootstrap a new .NET project
+  - Creates project with agent-harness pre-configured
+
+### RuleSync Commands
 
 After installation, use these RuleSync commands:
 
@@ -52,6 +101,18 @@ After installation, use these RuleSync commands:
 | **Subagents**   | 18    | Specialized AI agents for specific domains             |
 | **Commands**    | 28    | CLI commands for common workflows                      |
 | **MCP Servers** | 6     | Model Context Protocol servers for AI tool integration |
+| **CLI Tool**    | 1     | Cross-platform installer and discovery tool            |
+
+### CLI Features
+
+The `dotnet-agent-harness` CLI provides:
+
+- **Rich console output** with Spectre.Console tables and colored panels
+- **Automatic retry logic** with Polly for network resilience
+- **Project analysis** detecting frameworks, test projects, CI/CD configs
+- **Smart recommendations** based on project characteristics
+- **Search capabilities** across all skills, subagents, and commands
+- **Statistics and profiling** of the installed catalog
 
 **Coverage Areas:**
 
