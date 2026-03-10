@@ -47,3 +47,43 @@ When adding or modifying hooks:
 - Prefer canonical RuleSync event names in `.rulesync/hooks.json` (camelCase).
 - Put shared hooks under `hooks` and tool-specific hooks under override blocks (`claudecode.hooks`, etc.).
 - Keep shell hooks portable (`bash`, `jq`, standard POSIX utilities).
+
+## Development Commands
+
+### Build and Test
+
+```bash
+dotnet restore dotnet-agent-harness.slnx
+dotnet build dotnet-agent-harness.slnx -c Release
+dotnet test dotnet-agent-harness.slnx -c Release --logger trx
+```
+
+### RuleSync Generation
+
+```bash
+rulesync generate --check    # Validate determinism
+rulesync generate            # Generate all targets
+```
+
+### Validation Scripts
+
+```bash
+bash scripts/ci/validate_rulesync.sh      # Test determinism and content
+bash scripts/ci/validate_subagents.sh     # Validate subagent definitions
+bash scripts/ci/validate_doc_contract.sh  # Validate documentation
+```
+
+### Linting
+
+```bash
+mdl -i node_modules -i src -i packages .                    # Markdown
+shellcheck --severity=error scripts/**/*.sh                 # Shell
+codespell -q 3 --skip="./.git,./node_modules"              # Spelling
+```
+
+### Running CLI Locally
+
+```bash
+dotnet run --project src/DotnetAgentHarness.Cli -- version
+dotnet run --project src/DotnetAgentHarness.Cli -- install --dry-run --targets claudecode
+```

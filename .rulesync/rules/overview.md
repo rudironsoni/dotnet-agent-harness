@@ -92,6 +92,33 @@ rulesync install
 rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*"
 ```
 
+## CLI Tool
+
+This repository includes a .NET CLI tool `dotnet-agent-harness` that provides:
+
+### Commands
+
+- `install` - Install the toolkit into a repository
+- `update` - Update an existing installation
+- `uninstall` - Remove the toolkit
+- `self-update` - Update the CLI tool itself
+- `version` - Show version information
+
+### Installation
+
+```bash
+dotnet tool install -g dotnet-agent-harness \
+  --add-source https://nuget.pkg.github.com/rudironsoni/index.json
+```
+
+### Bundle Architecture
+
+The CLI tool embeds pre-generated RuleSync bundles as resources:
+- Bundles are created during CI for each target
+- Embedded in the NuGet package as `.tar.gz` files
+- Extracted at runtime during `install` command
+- Enables offline/air-gapped installation
+
 ## OpenCode behavior
 
 - Tab cycles **primary** agents only.
@@ -143,7 +170,7 @@ files.
 
 ## Contributing
 
-Edit source files in `.rulesync/` and validate with `npm run ci:rulesync`.
+Edit source files in `.rulesync/` and validate with `rulesync generate --check`.
 
 ## License
 
