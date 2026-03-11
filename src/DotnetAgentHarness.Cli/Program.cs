@@ -1,9 +1,9 @@
 namespace DotnetAgentHarness.Cli;
 
 using System.CommandLine;
+using System.IO.Abstractions;
 using DotnetAgentHarness.Cli.Commands;
 using DotnetAgentHarness.Cli.Services;
-using System.IO.Abstractions;
 using DotnetAgentHarness.Cli.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -65,7 +65,8 @@ internal static class Program
         var versionCommand = new Command("version", "Show version information");
         versionCommand.SetHandler(() =>
         {
-            Console.WriteLine("dotnet-agent-harness version 1.0.0");
+            var version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown";
+            Console.WriteLine($"dotnet-agent-harness version {version}");
             return Task.FromResult(0);
         });
         rootCommand.AddCommand(versionCommand);

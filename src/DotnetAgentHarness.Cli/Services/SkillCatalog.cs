@@ -11,19 +11,23 @@ using YamlDotNet.RepresentationModel;
 /// </summary>
 public sealed class SkillCatalog : ISkillCatalog
 {
-    private readonly string basePath;
-    private readonly string rulesyncPath;
+    /// <summary>
+    /// Cached line delimiter array to avoid allocations.
+    /// </summary>
+    private static readonly string[] LineDelimiters = new[] { "\r\n", "\n", "\r" };
 
     /// <inheritdoc />
-    public string BasePath => this.basePath;
+    public string BasePath { get; }
+
+    private readonly string rulesyncPath;
 
     /// <summary>
     /// Creates a new SkillCatalog instance.
     /// </summary>
     public SkillCatalog(string? basePath = null)
     {
-        this.basePath = basePath ?? Directory.GetCurrentDirectory();
-        this.rulesyncPath = Path.Combine(this.basePath, ".rulesync");
+        this.BasePath = basePath ?? Directory.GetCurrentDirectory();
+        this.rulesyncPath = Path.Combine(this.BasePath, ".rulesync");
     }
 
     /// <inheritdoc />
@@ -302,12 +306,13 @@ public sealed class SkillCatalog : ISkillCatalog
                 RelatedSkills = GetStringList(frontmatter, "related_skills"),
                 FilePath = filePath,
                 DirectoryPath = Path.GetDirectoryName(filePath),
-                LineCount = content.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None).Length,
+                LineCount = content.Split(LineDelimiters, StringSplitOptions.None).Length,
                 PlatformConfig = GetPlatformBlocks(frontmatter),
             };
         }
-        catch
+        catch (Exception ex)
         {
+            await Console.Error.WriteLineAsync($"Error parsing skill file '{filePath}': {ex.Message}");
             return null;
         }
     }
@@ -336,12 +341,13 @@ public sealed class SkillCatalog : ISkillCatalog
                 Role = GetString(frontmatter, "role"),
                 Tags = GetStringList(frontmatter, "tags"),
                 FilePath = filePath,
-                LineCount = content.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None).Length,
+                LineCount = content.Split(LineDelimiters, StringSplitOptions.None).Length,
                 PlatformConfig = GetPlatformBlocks(frontmatter),
             };
         }
-        catch
+        catch (Exception ex)
         {
+            await Console.Error.WriteLineAsync($"Error parsing subagent file '{filePath}': {ex.Message}");
             return null;
         }
     }
@@ -372,12 +378,13 @@ public sealed class SkillCatalog : ISkillCatalog
                 Author = GetString(frontmatter, "author"),
                 Tags = GetStringList(frontmatter, "tags"),
                 FilePath = filePath,
-                LineCount = content.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None).Length,
+                LineCount = content.Split(LineDelimiters, StringSplitOptions.None).Length,
                 PlatformConfig = GetPlatformBlocks(frontmatter),
             };
         }
-        catch
+        catch (Exception ex)
         {
+            await Console.Error.WriteLineAsync($"Error parsing command file '{filePath}': {ex.Message}");
             return null;
         }
     }
@@ -464,7 +471,7 @@ public sealed class SkillCatalog : ISkillCatalog
     private static Dictionary<string, Dictionary<string, object>> GetPlatformBlocks(Dictionary<string, object> frontmatter)
     {
         string[] platforms = ["claudecode", "opencode", "copilot", "codexcli", "geminicli", "antigravity", "factorydroid"];
-        var result = new Dictionary<string, Dictionary<string, object>>();
+        var result = new Dictionary<string, Dictionary<string, object>>(StringComparer.OrdinalIgnoreCase);
 
         foreach (string platform in platforms)
         {

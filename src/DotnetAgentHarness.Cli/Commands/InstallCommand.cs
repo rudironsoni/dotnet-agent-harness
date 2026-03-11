@@ -102,7 +102,7 @@ public class InstallCommand : Command
             if (!prereqResult.Success)
             {
                 await Console.Error.WriteLineAsync($"Error: {prereqResult.ErrorMessage}");
-                Environment.Exit(1);
+                throw new InvalidOperationException($"Prerequisite check failed: {prereqResult.ErrorMessage}");
             }
 
             await Console.Out.WriteLineAsync($"  ✓ rulesync {prereqResult.RulesyncVersion} installed");
@@ -143,7 +143,7 @@ public class InstallCommand : Command
                 {
                     await Console.Error.WriteLineAsync($"  ✗ Fetch failed: {fetchResult.Error}");
                     await this.RollbackAsync(backupPath, fullPath);
-                    Environment.Exit(1);
+                    throw new InvalidOperationException($"Failed to fetch from {source}: {fetchResult.Error}");
                 }
             }
 
@@ -179,7 +179,7 @@ public class InstallCommand : Command
                 {
                     await Console.Error.WriteLineAsync($"  ✗ Generate failed: {generateResult.Error}");
                     await this.RollbackAsync(backupPath, fullPath);
-                    Environment.Exit(1);
+                    throw new InvalidOperationException($"Failed to generate configuration: {generateResult.Error}");
                 }
             }
 
@@ -194,7 +194,7 @@ public class InstallCommand : Command
                 {
                     await Console.Error.WriteLineAsync($"  ✗ Hook download failed: {hooksResult.ErrorMessage}");
                     await this.RollbackAsync(backupPath, fullPath);
-                    Environment.Exit(1);
+                    throw new InvalidOperationException($"Failed to download hooks: {hooksResult.ErrorMessage}");
                 }
 
                 // Make hooks executable
@@ -235,7 +235,7 @@ public class InstallCommand : Command
                 await Console.Error.WriteLineAsync(ex.StackTrace);
             }
 
-            Environment.Exit(1);
+            throw;
         }
     }
 

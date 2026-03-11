@@ -13,6 +13,17 @@ public class AnalyzeCommand : Command
 {
     private readonly ICodeAnalyzer codeAnalyzer;
 
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
+    private static readonly JsonSerializerOptions SarifJsonOptions = new()
+    {
+        WriteIndented = true,
+    };
+
     /// <summary>
     /// Initializes a new instance of the <see cref="AnalyzeCommand"/> class.
     /// </summary>
@@ -129,7 +140,7 @@ public class AnalyzeCommand : Command
             AnalysisResult result = await this.codeAnalyzer.AnalyzeAsync(options);
 
             // Output results
-            await this.OutputResultsAsync(result, options);
+            await OutputResultsAsync(result, options);
 
             // Determine exit code
             if (!result.Success)
@@ -161,7 +172,7 @@ public class AnalyzeCommand : Command
         }
     }
 
-    private async Task OutputResultsAsync(AnalysisResult result, AnalysisOptions options)
+    private static async Task OutputResultsAsync(AnalysisResult result, AnalysisOptions options)
     {
         string output = options.OutputFormat switch
         {
@@ -195,7 +206,7 @@ public class AnalyzeCommand : Command
         lines.Add(new string('=', 50));
         lines.Add($"Duration: {result.Duration.TotalSeconds:F2}s");
         lines.Add($"Total Issues: {result.TotalIssues}");
-        lines.Add("");
+        lines.Add(string.Empty);
 
         // Summary by analyzer
         lines.Add("Summary by Analyzer:");
@@ -208,14 +219,25 @@ public class AnalyzeCommand : Command
             int infos = kvp.Value.Count(i => i.Severity == AnalysisSeverity.Info);
 
             var parts = new List<string>();
-            if (errors > 0) parts.Add($"{errors} error(s)");
-            if (warnings > 0) parts.Add($"{warnings} warning(s)");
-            if (infos > 0) parts.Add($"{infos} info");
+            if (errors > 0)
+            {
+                parts.Add($"{errors} error(s)");
+            }
+
+            if (warnings > 0)
+            {
+                parts.Add($"{warnings} warning(s)");
+            }
+
+            if (infos > 0)
+            {
+                parts.Add($"{infos} info");
+            }
 
             lines.Add($"  {kvp.Key}: {string.Join(", ", parts)}");
         }
 
-        lines.Add("");
+        lines.Add(string.Empty);
 
         // Issues detail
         if (result.Issues.Count > 0)
@@ -245,7 +267,7 @@ public class AnalyzeCommand : Command
                     lines.Add($"   Learn more: {issue.HelpUrl}");
                 }
 
-                lines.Add("");
+                lines.Add(string.Empty);
             }
         }
         else
@@ -292,11 +314,7 @@ public class AnalyzeCommand : Command
             errorMessage = result.ErrorMessage,
         };
 
-        return JsonSerializer.Serialize(json, new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        });
+        return JsonSerializer.Serialize(json, JsonOptions);
     }
 
     private static string FormatAsSarif(AnalysisResult result)
@@ -319,46 +337,54 @@ public class AnalyzeCommand : Command
                             ["informationUri"] = "https://github.com/rudironsoni/dotnet-agent-harness",
                         },
                     },
-                    ["results"] = result.Issues.Select(i => new Dictionary<string, object>
-                    {
-                        ["ruleId"] = i.RuleId,
-                        ["level"] = i.Severity switch
-                        {
-                            AnalysisSeverity.Error => "error",
-                            AnalysisSeverity.Warning => "warning",
-                            _ => "note",
-                        },
-                        ["message"] = new Dictionary<string, object>
-                        {
-                            ["text"] = i.Message,
-                        },
-                        ["locations"] = new[]
-                        {
-                            new Dictionary<string, object>
-                            {
-                                ["physicalLocation"] = new Dictionary<string, object>
-                                {
-                                    ["artifactLocation"] = new Dictionary<string, object>
-                                    {
-                                        ["uri"] = i.FilePath,
-                                    },
-                                    ["region"] = new Dictionary<string, object>
-                                    {
-                                        ["startLine"] = i.LineNumber,
-                                        ["startColumn"] = i.ColumnNumber,
-                                    },
-                                },
-                            },
-                        },
-                    }).ToList(),
+                    ["results"] = CreateResultsList(result.Issues),
                 },
             },
         };
 
-        return JsonSerializer.Serialize(sarif, new JsonSerializerOptions
+        return JsonSerializer.Serialize(sarif, SarifJsonOptions);
+    }
+
+    private static List<Dictionary<string, object>> CreateResultsList(IReadOnlyList<AnalysisIssue> issues)
+    {
+        var results = new List<Dictionary<string, object>>(issues.Count);
+        foreach (var i in issues)
         {
-            WriteIndented = true,
-        });
+            results.Add(new Dictionary<string, object>
+            {
+                ["ruleId"] = i.RuleId,
+                ["level"] = i.Severity switch
+                {
+                    AnalysisSeverity.Error => "error",
+                    AnalysisSeverity.Warning => "warning",
+                    _ => "note",
+                },
+                ["message"] = new Dictionary<string, object>
+                {
+                    ["text"] = i.Message,
+                },
+                ["locations"] = new[]
+                {
+                    new Dictionary<string, object>
+                    {
+                        ["physicalLocation"] = new Dictionary<string, object>
+                        {
+                            ["artifactLocation"] = new Dictionary<string, object>
+                            {
+                                ["uri"] = i.FilePath,
+                            },
+                            ["region"] = new Dictionary<string, object>
+                            {
+                                ["startLine"] = i.LineNumber,
+                                ["startColumn"] = i.ColumnNumber,
+                            },
+                        },
+                    },
+                },
+            });
+        }
+
+        return results;
     }
 
     private static AnalysisSeverity ParseSeverity(string severity)

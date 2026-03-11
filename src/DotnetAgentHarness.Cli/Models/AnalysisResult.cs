@@ -149,9 +149,20 @@ public sealed class AnalysisResult
         }
 
         var parts = new List<string>();
-        if (this.ErrorCount > 0) parts.Add($"{this.ErrorCount} error(s)");
-        if (this.WarningCount > 0) parts.Add($"{this.WarningCount} warning(s)");
-        if (this.InfoCount > 0) parts.Add($"{this.InfoCount} info");
+        if (this.ErrorCount > 0)
+        {
+            parts.Add($"{this.ErrorCount} error(s)");
+        }
+
+        if (this.WarningCount > 0)
+        {
+            parts.Add($"{this.WarningCount} warning(s)");
+        }
+
+        if (this.InfoCount > 0)
+        {
+            parts.Add($"{this.InfoCount} info");
+        }
 
         return parts.Count == 0
             ? "All checks passed"
@@ -187,7 +198,7 @@ public sealed class AnalysisOptions
     /// <summary>
     /// Whether to treat warnings as errors (affects exit code).
     /// </summary>
-    public bool TreatWarningsAsErrors { get; set; } = false;
+    public bool TreatWarningsAsErrors { get; set; }
 
     /// <summary>
     /// Whether to run StyleCop analysis.
@@ -197,10 +208,10 @@ public sealed class AnalysisOptions
     /// <summary>
     /// Whether to run Sonar analysis.
     /// </summary>
-    public bool RunSonar { get; set; } = false;
+    public bool RunSonar { get; set; }
 
     /// <summary>
     /// Whether to show verbose output.
     /// </summary>
-    public bool Verbose { get; set; } = false;
+    public bool Verbose { get; set; }
 }

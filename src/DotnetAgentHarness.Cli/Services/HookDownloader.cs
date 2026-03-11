@@ -21,7 +21,7 @@ public class HookDownloader : IHookDownloader
     {
         this.httpClient = httpClient;
 
-        // Configure retry policy with exponential backoff
+        // Configure retry policy with exponential backoff (3 retries = ~14s total wait)
         this.retryPolicy = Policy
             .Handle<HttpRequestException>()
             .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode && (int)r.StatusCode >= 500)
@@ -29,9 +29,9 @@ public class HookDownloader : IHookDownloader
                 retryCount: 3,
                 sleepDurationProvider: retryAttempt =>
                     TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                onRetry: (outcome, timespan, retryCount, context) =>
+                onRetryAsync: async (outcome, timespan, retryCount, context) =>
                 {
-                    Console.Error.WriteLine($"Retry {retryCount} after {timespan.TotalSeconds}s due to {outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString()}");
+                    await Console.Error.WriteLineAsync($"Retry {retryCount} after {timespan.TotalSeconds}s due to {outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString()}");
                 });
     }
 
@@ -87,13 +87,16 @@ public class HookDownloader : IHookDownloader
     {
         try
         {
-            this.httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
-            this.httpClient.DefaultRequestHeaders.Add("User-Agent", "dotnet-agent-harness");
+            // Use HttpRequestMessage for per-request headers to avoid mutating shared HttpClient state
+            var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                $"https://api.github.com/repos/{repo}/releases/latest");
+            request.Headers.Add("Accept", "application/vnd.github.v3+json");
+            request.Headers.Add("User-Agent", "dotnet-agent-harness");
 
             // Execute with retry policy
             HttpResponseMessage response = await this.retryPolicy.ExecuteAsync(
-                async ct => await this.httpClient.GetAsync(
-                    $"https://api.github.com/repos/{repo}/releases/latest", ct),
+                async ct => await this.httpClient.SendAsync(request, ct),
                 CancellationToken.None);
 
             if (!response.IsSuccessStatusCode)
@@ -104,8 +107,9 @@ public class HookDownloader : IHookDownloader
             string content = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize(content, GitHubJsonContext.Default.GitHubRelease);
         }
-        catch
+        catch (Exception ex)
         {
+            await Console.Error.WriteLineAsync($"Error getting latest release for {repo}: {ex.Message}");
             return null;
         }
     }
@@ -124,9 +128,7 @@ public sealed record GitHubRelease(string TagName, string HtmlUrl, string Publis
 /// </summary>
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 [JsonSerializable(typeof(GitHubRelease))]
-internal sealed partial class GitHubJsonContext : JsonSerializerContext
-{
-}
+internal sealed partial class GitHubJsonContext : JsonSerializerContext;
 
 /// <summary>
 /// Interface for downloading hooks from remote sources.

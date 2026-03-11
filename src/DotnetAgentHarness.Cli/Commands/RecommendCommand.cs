@@ -420,9 +420,9 @@ public class RecommendCommand : Command
             var state = new
             {
                 GeneratedAt = DateTime.UtcNow,
-                Skills = recommendations.Skills.Select(static s => s.Name).ToList(),
-                Subagents = recommendations.Subagents.Select(static s => s.Name).ToList(),
-                Commands = recommendations.Commands.Select(static c => c.Name).ToList(),
+                Skills = recommendations.Skills.ConvertAll(s => s.Name),
+                Subagents = recommendations.Subagents.ConvertAll(s => s.Name),
+                Commands = recommendations.Commands.ConvertAll(c => c.Name),
             };
 
             await File.WriteAllTextAsync(statePath, JsonSerializer.Serialize(state, JsonOptions));

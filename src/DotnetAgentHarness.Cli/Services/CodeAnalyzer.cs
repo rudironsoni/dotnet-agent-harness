@@ -17,18 +17,24 @@ public sealed class CodeAnalyzer : ICodeAnalyzer
     private readonly IProjectAnalyzer projectAnalyzer;
     private readonly IFileSystem fileSystem;
 
-    // Regex patterns for parsing MSBuild output
-    // Matches: FilePath(Line,Column): error|warning|info CODE: Message
+    /// <summary>
+    /// Regex pattern for parsing MSBuild output.
+    /// Matches: FilePath(Line,Column): error|warning|info CODE: Message
+    /// </summary>
     private static readonly Regex MsBuildPattern = new(
         @"^(.*?)(?:\((\d+),\s*(\d+)\))?\s*:\s*(error|warning|info)\s+([A-Z]{2,}\d{3,})\s*:\s*(.+)$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-    // StyleCop specific pattern (often includes rule name)
+    /// <summary>
+    /// StyleCop specific pattern (often includes rule name).
+    /// </summary>
     private static readonly Regex StyleCopPattern = new(
         @"\[SA(\d{4})\]",
         RegexOptions.Compiled);
 
-    // Sonar specific pattern
+    /// <summary>
+    /// Sonar specific pattern.
+    /// </summary>
     private static readonly Regex SonarPattern = new(
         @"\[S(\d{4,6})\]",
         RegexOptions.Compiled);
@@ -158,23 +164,18 @@ public sealed class CodeAnalyzer : ICodeAnalyzer
         {
             string[] lines = await this.fileSystem.File.ReadAllLinesAsync(solutionPath, ct);
 
-            foreach (string line in lines)
+            foreach (string line in lines.Where(l => l.TrimStart().StartsWith("Project(", StringComparison.Ordinal)))
             {
-                // Match project lines in .sln file
-                // Format: Project("{GUID}") = "Name", "Relative\Path.csproj", "{GUID}"
-                if (line.TrimStart().StartsWith("Project(", StringComparison.Ordinal))
+                var match = Regex.Match(line, "\"([^\"]+\\.csproj)\"");
+                if (match.Success)
                 {
-                    var match = Regex.Match(line, "\"([^\"]+\\.csproj)\"");
-                    if (match.Success)
-                    {
-                        string relativePath = match.Groups[1].Value;
-                        string fullPath = this.fileSystem.Path.Combine(solutionDir, relativePath);
-                        fullPath = this.fileSystem.Path.GetFullPath(fullPath);
+                    string relativePath = match.Groups[1].Value;
+                    string fullPath = this.fileSystem.Path.Combine(solutionDir, relativePath);
+                    fullPath = this.fileSystem.Path.GetFullPath(fullPath);
 
-                        if (this.fileSystem.File.Exists(fullPath))
-                        {
-                            projects.Add(fullPath);
-                        }
+                    if (this.fileSystem.File.Exists(fullPath))
+                    {
+                        projects.Add(fullPath);
                     }
                 }
             }
@@ -251,7 +252,7 @@ public sealed class CodeAnalyzer : ICodeAnalyzer
         }
 
         // Parse output for issues
-        string output = stdOutBuilder.ToString() + stdErrBuilder.ToString();
+        string output = string.Concat(stdOutBuilder.ToString(), stdErrBuilder.ToString());
         await this.ParseBuildOutputAsync(output, projectPath, options, result, ct);
     }
 
@@ -278,12 +279,13 @@ public sealed class CodeAnalyzer : ICodeAnalyzer
             {
                 result.Issues.Add(issue);
 
-                if (!result.IssuesByAnalyzer.ContainsKey(issue.Analyzer))
+                if (!result.IssuesByAnalyzer.TryGetValue(issue.Analyzer, out var analyzerIssues))
                 {
-                    result.IssuesByAnalyzer[issue.Analyzer] = new List<AnalysisIssue>();
+                    analyzerIssues = new List<AnalysisIssue>();
+                    result.IssuesByAnalyzer[issue.Analyzer] = analyzerIssues;
                 }
 
-                result.IssuesByAnalyzer[issue.Analyzer].Add(issue);
+                analyzerIssues.Add(issue);
             }
         }
 

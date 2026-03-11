@@ -12,6 +12,18 @@ using DotnetAgentHarness.Cli.Services;
 /// </summary>
 public class ExportCommand : Command
 {
+    private static readonly JsonSerializerOptions JsonOptionsPretty = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
+    private static readonly JsonSerializerOptions JsonOptionsCompact = new()
+    {
+        WriteIndented = false,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
     private readonly ISkillCatalog skillCatalog;
     private readonly IFileSystem fileSystem;
 
@@ -161,12 +173,7 @@ public class ExportCommand : Command
             }
             else
             {
-                content = JsonSerializer.Serialize(export, new JsonSerializerOptions
-                {
-                    WriteIndented = pretty,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                });
+                content = JsonSerializer.Serialize(export, pretty ? JsonOptionsPretty : JsonOptionsCompact);
             }
 
             // Write output
@@ -176,9 +183,20 @@ public class ExportCommand : Command
             await Console.Out.WriteLineAsync($"Exported to: {fullOutputPath}");
             await Console.Out.WriteLineAsync();
             await Console.Out.WriteLineAsync("Bundle contents:");
-            if (includeSkills) await Console.Out.WriteLineAsync($"  Skills: {skills.Count}");
-            if (includeSubagents) await Console.Out.WriteLineAsync($"  Subagents: {subagents.Count}");
-            if (includeCommands) await Console.Out.WriteLineAsync($"  Commands: {commands.Count}");
+            if (includeSkills)
+            {
+                await Console.Out.WriteLineAsync($"  Skills: {skills.Count}");
+            }
+
+            if (includeSubagents)
+            {
+                await Console.Out.WriteLineAsync($"  Subagents: {subagents.Count}");
+            }
+
+            if (includeCommands)
+            {
+                await Console.Out.WriteLineAsync($"  Commands: {commands.Count}");
+            }
 
             return 0;
         }
@@ -200,7 +218,7 @@ public class ExportCommand : Command
         lines.Add($"version: \"{data["version"]}\"");
         lines.Add($"generatedAt: {data["generatedAt"]}");
         lines.Add($"source: {data["source"]}");
-        lines.Add("");
+        lines.Add(string.Empty);
 
         foreach (var kvp in data.Where(kvp => kvp.Value is System.Collections.IEnumerable && kvp.Key != "version" && kvp.Key != "generatedAt" && kvp.Key != "source"))
         {
@@ -233,7 +251,7 @@ public class ExportCommand : Command
                 }
             }
 
-            lines.Add("");
+            lines.Add(string.Empty);
         }
 
         return string.Join("\n", lines);
