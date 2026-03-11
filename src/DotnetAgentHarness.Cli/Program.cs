@@ -24,6 +24,7 @@ internal static class Program
         services.AddSingleton<IHookDownloader, HookDownloader>();
         services.AddSingleton<ISkillCatalog, SkillCatalog>();
         services.AddSingleton<IProjectAnalyzer, ProjectAnalyzer>();
+        services.AddSingleton<ICodeAnalyzer, CodeAnalyzer>();
 
         // Register commands
         services.AddTransient<InstallCommand>();
@@ -34,6 +35,8 @@ internal static class Program
         services.AddTransient<ProfileCommand>();
         services.AddTransient<RecommendCommand>();
         services.AddTransient<BootstrapCommand>();
+        services.AddTransient<AnalyzeCommand>();
+        services.AddTransient<ExportCommand>();
 
         var provider = services.BuildServiceProvider();
 
@@ -52,6 +55,12 @@ internal static class Program
 
         // Project commands
         rootCommand.AddCommand(provider.GetRequiredService<BootstrapCommand>());
+
+        // Analysis commands
+        rootCommand.AddCommand(provider.GetRequiredService<AnalyzeCommand>());
+
+        // Export commands
+        rootCommand.AddCommand(provider.GetRequiredService<ExportCommand>());
 
         var versionCommand = new Command("version", "Show version information");
         versionCommand.SetHandler(() =>
