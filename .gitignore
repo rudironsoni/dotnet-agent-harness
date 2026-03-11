@@ -59,7 +59,8 @@ replit.md
 # Temporary directories
 .tmp/
 .dotnet-agent-harness/
-.slopwatch/
+.slopwatch/*
+!.slopwatch/baseline.json
 
 # CI-generated bundles (not source)
 bundles/
