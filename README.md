@@ -80,6 +80,26 @@ After installing the CLI tool, use these commands:
 - `dotnet agent-harness bootstrap <name>` - Bootstrap a new .NET project
   - Creates project with agent-harness pre-configured
 
+**Analysis Commands:**
+- `dotnet agent-harness analyze [path]` - Run comprehensive code analysis
+  - Supports Roslyn analyzers, StyleCop, and Sonar rules
+  - `--severity error|warning|info` - Minimum severity to report
+  - `--format text|json|sarif` - Output format (SARIF for CI integration)
+  - `--output <file>` - Write output to file
+  - `--warnings-as-errors` - Treat warnings as errors (non-zero exit code)
+  - `--stylecop` - Enable StyleCop analysis (default: true)
+  - `--sonar` - Enable Sonar analysis (default: false)
+  - Exit codes: 0=success, 1=violations found, 2=analysis failure
+
+**Export Commands:**
+- `dotnet agent-harness export [output]` - Export configuration as portable bundle
+  - `--format json|yaml` - Output format (default: json)
+  - `--include-skills` - Include skills in export (default: true)
+  - `--include-subagents` - Include subagents in export (default: true)
+  - `--include-commands` - Include commands in export (default: true)
+  - `--include-rules` - Include rules in export (default: false)
+  - Creates portable `agent-harness-bundle.json` for sharing
+
 ### RuleSync Commands
 
 After installation, use these RuleSync commands:

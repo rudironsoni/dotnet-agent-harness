@@ -101,6 +101,34 @@ Run validation checks on your project.
 dotnet agent-harness validate
 ```
 
+### analyze
+Run comprehensive code analysis using Roslyn analyzers, StyleCop, and Sonar rules.
+
+```bash
+# Analyze current project
+dotnet agent-harness analyze
+
+# CI/CD integration with SARIF output
+dotnet agent-harness analyze --format sarif --output results.sarif
+
+# Fail on warnings
+dotnet agent-harness analyze --warnings-as-errors
+```
+
+### export
+Export agent-harness configuration as a portable bundle.
+
+```bash
+# Export default bundle
+dotnet agent-harness export
+
+# Export as YAML
+dotnet agent-harness export --format yaml
+
+# Export complete configuration
+dotnet agent-harness export --include-rules
+```
+
 ## What You Get
 
 After bootstrap, your repo contains:

@@ -31,8 +31,8 @@ features:
     details: Specialized agents for MAUI, Blazor, Security, Performance, and more - each with focused tool profiles.
 
   - icon: 🛠️
-    title: 20 Commands and Runtime Workflows
-    details: Slash commands plus runtime CLI workflows for prompt assembly, incidents, validation, and eval automation.
+    title: 22 Commands and Runtime Workflows
+    details: Slash commands plus runtime CLI workflows for code analysis, export, prompt assembly, incidents, validation, and eval automation.
 
   - icon: 🔌
     title: MCP Integration
@@ -138,6 +138,13 @@ graph TB
 ```
 
 ## Latest Enhancements
+
+### New CLI Commands
+
+- **analyze**: Run comprehensive code analysis with Roslyn analyzers, StyleCop, and Sonar rules. Supports text, JSON,
+  and SARIF output formats for CI/CD integration. Exit codes enable build gate integration.
+- **export**: Export agent-harness configuration as portable JSON or YAML bundles. Share complete skill catalogs
+  across teams or archive specific configurations.
 
 ### Runtime and Governance
 
