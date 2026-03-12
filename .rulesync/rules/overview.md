@@ -60,64 +60,11 @@ Compatible targets include:
 - Factory Droid
 
 Target support is intentionally asymmetric. Author the shared behavior once, then add target-specific blocks only where
-the runtime surface actually differs. See `.rulesync/rules/15-target-surfaces.md` for the target matrix and authoring
-rules.
+the runtime surface actually differs.
 
-## Recommended install
+## Quick Start
 
-Use RuleSync to install this toolkit in your repository:
-
-```bash
-rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
-rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*"
-```
-
-Declarative installation:
-
-```bash
-rulesync fetch rudironsoni/dotnet-agent-harness:.rulesync
-rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*"
-```
-
-If you use declarative sources:
-
-```jsonc
-{
-  "sources": [{ "source": "rudironsoni/dotnet-agent-harness", "path": ".rulesync" }],
-}
-```
-
-```bash
-rulesync install
-rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*"
-```
-
-## CLI Tool
-
-This repository includes a .NET CLI tool `dotnet-agent-harness` that provides:
-
-### Commands
-
-- `install` - Install the toolkit into a repository
-- `update` - Update an existing installation
-- `uninstall` - Remove the toolkit
-- `self-update` - Update the CLI tool itself
-- `version` - Show version information
-
-### Installation
-
-```bash
-dotnet tool install -g dotnet-agent-harness \
-  --add-source https://nuget.pkg.github.com/rudironsoni/index.json
-```
-
-### Bundle Architecture
-
-The CLI tool embeds pre-generated RuleSync bundles as resources:
-- Bundles are created during CI for each target
-- Embedded in the NuGet package as `.tar.gz` files
-- Extracted at runtime during `install` command
-- Enables offline/air-gapped installation
+This toolkit is distributed via RuleSync. See project documentation for installation instructions.
 
 ## OpenCode behavior
 
@@ -125,13 +72,7 @@ The CLI tool embeds pre-generated RuleSync bundles as resources:
 - `@mention` invokes subagents.
 - `dotnet-architect` is configured as a primary OpenCode agent in this toolkit so it can appear in Tab rotation.
 
-## Operating modes
 
-- Architect: lead with the recommended repository-specific structure, trade-offs, and next implementation steps.
-- Implementer: make the smallest safe change, verify it with narrow repo-native commands, and report target plus
-  verification.
-- Reviewer: produce findings-first output with severity, evidence, and risk.
-- Tester: define the narrowest effective verification path, including exact commands and residual risk.
 
 ## Hook coverage
 
@@ -139,26 +80,6 @@ The CLI tool embeds pre-generated RuleSync bundles as resources:
   Slopwatch advisories generated from `.rulesync/hooks.json`.
 - Factory Droid consumes the same .NET session and MCP routing through generated rules and hooks, but its hook reminders
   stay compatible with that runtime's rules-plus-hooks surface instead of requiring imported skills or commands.
-
-## Verification
-
-Before committing changes or releasing updates, verify target configurations using the per-target checklists:
-
-### Quick Verification
-```bash
-rulesync generate --targets "claudecode,codexcli,opencode,geminicli,antigravity,copilot,factorydroid" --features "*" --check
-```
-
-### Per-Target Checklists
-- [Claude Code](verification/claudecode-checklist.md) - Full feature verification
-- [OpenCode](verification/opencode-checklist.md) - Tab and @mention verification
-- [GitHub Copilot CLI](verification/copilot-checklist.md) - Tool name mapping verification
-- [Gemini CLI](verification/geminicli-checklist.md) - Portable hooks verification
-- [Codex CLI](verification/codexcli-checklist.md) - Read-only sandbox verification
-- [Factory Droid](verification/factorydroid-checklist.md) - Rules-only delivery verification
-- [Antigravity](verification/antigravity-checklist.md) - Concise, portable verification
-
-See [Verification README](verification/README.md) for detailed verification strategy.
 
 ## Troubleshooting
 
@@ -168,10 +89,4 @@ If RuleSync reports `Multiple root rulesync rules found`, ensure only one root o
 Use RuleSync commands directly instead of manually reproducing catalog, prompt, incident, or graph logic from source
 files.
 
-## Contributing
 
-Edit source files in `.rulesync/` and validate with `rulesync generate --check`.
-
-## License
-
-MIT License. See `LICENSE`.

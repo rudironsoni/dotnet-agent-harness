@@ -1,5 +1,6 @@
 ---
-root: false
+title: Operating Modes
+nav_order: 10
 targets: ['claudecode', 'copilot', 'geminicli', 'antigravity']
 description: 'Operating mode rule for architect, implementer, reviewer, and tester task shaping'
 globs: ['**/*']
