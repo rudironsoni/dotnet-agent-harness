@@ -1,6 +1,0 @@
-{
-  "*.{js,ts}": ["eslint --fix", "prettier --write"],
-  "*.{json,jsonc,yml,yaml}": ["prettier --write"],
-  "*.md": ["markdownlint-cli2 --fix", "prettier --write"],
-  "*.sh": ["shellcheck"]
-}
