@@ -13,15 +13,6 @@
         "command": "bash .rulesync/hooks/dotnet-agent-harness-session-start.sh mcp-health",
         "timeout": 30
       }
-    ],
-    "postToolUse": [
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "type": "command",
-        "command": "slopwatch analyze -d . --hook",
-        "async": true,
-        "timeout": 60000
-      }
     ]
   },
   "copilot": {
@@ -39,15 +30,6 @@
           "command": "bash .rulesync/hooks/dotnet-agent-harness-slopwatch.sh",
           "async": true,
           "timeout": 60
-        }
-      ],
-      "postToolUse": [
-        {
-          "matcher": "Write|Edit|MultiEdit",
-          "type": "command",
-          "command": "slopwatch analyze -d . --hook",
-          "async": true,
-          "timeout": 60000
         }
       ]
     }
